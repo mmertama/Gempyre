@@ -44,3 +44,18 @@ build-*
 
 affiliates/telexclient/telexclient_autogen
 mpfr*
+apps/calc/calc
+apps/mandelbrot/mandelbrot
+apps/treeview/treeviewblog/hello/hello
+test/unittest/unittest
+test/imageblit/imageblittest
+blog/minihello/minihello
+test/eval/evaltest
+blog/hexview/hexview
+test/unittests/unittests
+test/helloworld/helloworld
+test/helloworld/helloworld.html
+blog/minihello/minihello.html
+apps/treeview/treeview
+blog/hello/hello
+
