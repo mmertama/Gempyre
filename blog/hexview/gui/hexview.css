@@ -1,0 +1,63 @@
+body {
+    background-color: #F0FCFA;
+}
+
+.content {
+    margin-top: 10px;
+    font-family: monospace;
+    font-size: 10px;
+}
+
+h5 {
+    font-family: monospace;
+    font-size: 10px;
+    margin-left: 10px;
+    font-color: darkgrey;
+}
+
+#filename {
+    font-size: 10px;
+    margin-left: 10px;
+    font-color: darkgrey;
+}
+
+.offset {
+    position: absolute;
+    left: 0px;
+    width: 60px;
+    background-color: #F0FCFA;
+}
+
+#offset-field {
+    margin-left: 10px;
+}
+
+.bytes {
+    position: absolute;
+    left: 60px;
+    width: 300px;
+    background-color: #C8CAF8;
+}
+
+#bytes-field {
+    margin-left: 10px;
+}
+
+.ascii {
+    position: absolute;
+    left: 360px;
+    width: 120px;
+    background-color: #B0FCBA;
+}
+
+#ascii-field {
+ margin-left: 10px;
+}
+
+#file-cut {
+    color: red;
+    margin-left: 10px;
+    font-size: 10px;
+}
+
+

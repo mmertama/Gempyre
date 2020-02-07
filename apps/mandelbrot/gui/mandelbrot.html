@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Mandelbrot</title>
+    <link rel="shortcut icon" type="image/png" href="mandelbrot.png"/>
+    <link rel="stylesheet" href="mandelbrot.css">
+</head>
+<body>
+<script src="/telex.js"></script>
+<h1>Mandelbrot</h1>
+<canvas id="canvas" width="640" height="640"> </canvas>
+<div id= "controls">
+    <div id="busy" class="note">Calculating...</div>
+    <div>Radius:<span id="radius"></span></div>
+    <div>Zooms:<span id="zooms"></span></div>
+    <div class="slider">
+        Iterations: <div id="iterations"></div>
+        <input id="iterations_slider" type="range" class="slider" min="20" max="10000" value="64"/>
+    </div>
+    <div class="slider">
+        Color: <div id="colors"></div>
+        <input id="color_slider" type="range" class="slider" min="1" max="256" value="1"/>
+    </div>
+</div>
+<script>
+function setSlider(sliderId, textId) {
+    const slider = document.getElementById(sliderId);
+    const output = document.getElementById(textId);
+    output.innerHTML = slider.value; // Display the default slider value
+    slider.oninput = function() {
+        output.innerHTML = this.value;
+    }
+}
+setSlider("iterations_slider", "iterations");
+setSlider("color_slider", "colors");
+
+</script>
+</body>
+</html>
+  

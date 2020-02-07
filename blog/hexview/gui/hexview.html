@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hexview</title>
+    <link rel="stylesheet" href="hexview.css">
+</head>
+<body>
+    <script src="/telex.js"></script>
+    <button id="openfile">Open file</button> <span id="filename"></span>
+    <div class="content">
+        <div class="offset">
+            <h5 id="offset-header">Offset</h5>
+            <div id="offset-field"></div>
+        </div>
+        <div class="bytes">
+            <h5 id="bytes-header">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</h5>
+            <div id="bytes-field"></div>
+            <div id="file-cut">File output axed from here</div>
+        </div>
+        <div class="ascii">
+            <h5 id="ascii-header">Data</h5>
+            <div id="ascii-field"></div>
+        </div>
+    </div>
+</body>
+</html>

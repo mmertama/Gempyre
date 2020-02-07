@@ -1,0 +1,8 @@
+cmake_minimum_required (VERSION 3.8)
+set(NAME tests)
+project (${NAME})
+add_subdirectory(eval)
+add_subdirectory(helloworld)
+add_subdirectory(tick)
+add_subdirectory(unittests)
+add_subdirectory(imageblit)

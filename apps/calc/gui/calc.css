@@ -1,0 +1,102 @@
+@import url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css');
+.calculator{
+	height:auto;
+	padding:15px;
+	font-size:1.3em;
+	max-width:281px;
+	background:#222;
+	box-shadow:0 10px 15px rgba(0,0,0,.2);
+}
+.calculator .screen{
+	height:50px;
+	font-weight:bold;
+	text-align:right;
+	border-radius:3px;
+	margin-bottom:7px;
+	position:relative;
+	background:rgba(0,0,0,.2);
+}
+.calculator .screen .last,
+.calculator .screen .total{
+	color:#eee;
+	display:block;
+	position:absolute;
+}
+.calculator .screen .last{
+	top:3px;
+	right:5px;
+	font-size:12px;
+	font-style:italic;
+	font-weight:normal;
+}
+.calculator .screen .total{
+	bottom:0;
+	right:5px;
+	font-size:1.4em;
+	width:100%;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+.calculator .keys-btn button{
+	top:0;
+	float:left;
+	color:#111;
+	height:40px;
+	border:none;
+	width:24.5%;
+	cursor:pointer;
+	line-height:36px;
+	user-select:none;
+	position:relative;
+	text-align:center;
+	background:#d8d9db;
+	margin:0 .4% .4% 0;
+	background:linear-gradient(#d8d9db,#cecfd2);
+}
+.calculator .keys-btn .calc_bac{
+	font-size:22px;
+	font-family:Consolas,"courier new";
+}
+.calculator .keys-btn .clearfix button:last-child{
+	margin-right:0;
+}
+.calculator .keys-btn .exponent{
+	top:-15%;
+	font-size:.6em;
+	text-indent:2px;
+	position:absolute;
+	font-weight:normal;
+}
+.calculator .keys-btn .denominator{
+	position:relative;
+}
+.calculator button .denominator .denom-top,
+.calculator .total .denominator .denom-top{
+	left:-8px;
+	top:-12px;
+	font-size:.9em;
+	position:absolute;
+}
+.calculator button .denominator .denom-slash,
+.calculator .total .denominator .denom-slash{
+	padding:0 1px;
+	font-weight:normal;
+}
+.calculator button .denominator .denom-btm,
+.calculator .total .denominator .denom-btm{
+	top:-5px;
+	font-size:.9em;
+	position:absolute;
+}
+
+.calculator .keys-btn .imp{
+	color:#eee;
+	background:#f89112;
+	background:linear-gradient(#f89112,#f78b11);
+}
+
+.calculator .keys-btn button:hover,
+.calculator .keys-btn button.active{
+	color:#222;
+	background:white;
+}

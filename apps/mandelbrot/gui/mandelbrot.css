@@ -1,0 +1,17 @@
+.slider {
+    width: 600;
+}
+
+.note {
+    background-color: yellow;
+    position: absolute;
+    left: 10%;
+    top: 10%;
+    padding: 20px;
+    transform: translate(-50%, -50%);
+}
+
+#controls {
+    float: right;
+    padding: 50px;
+}

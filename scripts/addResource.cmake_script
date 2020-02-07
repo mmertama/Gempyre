@@ -1,0 +1,31 @@
+function (addResource)
+    cmake_parse_arguments(
+        ADD_RESOURCE
+        "MINIFY" "TARGET;PROJECT" "SOURCES"
+        ${ARGN}
+        )
+    
+    if(NOT EXISTS ${TELEX_DIR})
+        if(EXISTS $ENV{TELEX_DIR})
+            set(TELEX_DIR $ENV{TELEX_DIR})
+        else()
+            message(FATAL_ERROR "TELEX_DIR is not set neither TELEX_DIR Environment variable is not pointing to Telex dir")
+        endif()
+    endif()
+    
+    if({ADD_RESOUCE_MINIFY})
+        set(MINIFY "--minify")
+    else()
+        set(MINIFY "")
+    endif()
+      
+    add_custom_command(
+        OUTPUT ${ADD_RESOURCE_TARGET}
+        COMMAND python ${TELEX_DIR}/scripts/genStringResource.py ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+    
+    add_custom_target(${ADD_RESOURCE_PROJECT}_resource DEPENDS ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES})
+    add_dependencies(${ADD_RESOURCE_PROJECT} ${ADD_RESOURCE_PROJECT}_resource)
+    
+endfunction()
