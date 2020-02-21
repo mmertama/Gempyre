@@ -41,7 +41,7 @@ if(USE_MPFR)
      add_compile_options("-DUSE_MPFR")
      set(BM_PATH src/mpfr)
      set(BM_INCLUDE_PATH ${BM_PATH}/src)
-     find_library(BM_LIB mpfr PATHS  ${BM_PATH} ${BM_PATH}/src PATH_SUFFIXES .libs)
+   #  find_library(BM_LIB mpfr PATHS  ${BM_PATH} ${BM_PATH}/src PATH_SUFFIXES .libs)
 endif()
 
 find_package (telex REQUIRED PATHS ../..)
@@ -56,7 +56,7 @@ include_directories(
 add_executable(${PROJECT_NAME}
     src/mandelbrot.h
     src/mandelbrotdraw.h
-    src/main.cpp
+    src/main.cpp    
     gui/${NAME}.html
     gui/${NAME}.css
     gui/${NAME}.png
@@ -73,9 +73,11 @@ if(USE_MPFR)
         INSTALL_COMMAND ""
         )
     add_dependencies(${PROJECT_NAME} mpfr)
+    set(BM_LIB "${BM_PATH}/src/.libs/${CMAKE_STATIC_MODULE_PREFIX}mpfr${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 
 addResource(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html gui/${NAME}.css gui/${NAME}.png)
 
 target_link_libraries (${PROJECT_NAME} telex ${BM_LIB})
+ 
 
