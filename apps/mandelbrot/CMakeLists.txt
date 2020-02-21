@@ -39,7 +39,7 @@ endif()
 
 if(USE_MPFR)
      add_compile_options("-DUSE_MPFR")
-     set(BM_PATH src/mpfr)
+     set(BM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/mpfr")
      set(BM_INCLUDE_PATH ${BM_PATH}/src)
    #  find_library(BM_LIB mpfr PATHS  ${BM_PATH} ${BM_PATH}/src PATH_SUFFIXES .libs)
 endif()
@@ -67,13 +67,13 @@ add_executable(${PROJECT_NAME}
 if(USE_MPFR)
     externalproject_add(mpfr
         BUILD_IN_SOURCE 1
-        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/${mpfr}
+        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}
         URL https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.gz
         CONFIGURE_COMMAND "./configure"
         INSTALL_COMMAND ""
         )
     add_dependencies(${PROJECT_NAME} mpfr)
-    set(BM_LIB "${BM_PATH}/src/.libs/${CMAKE_STATIC_MODULE_PREFIX}mpfr${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    set(BM_LIB "${BM_PATH}/src/.libs/${CMAKE_STATIC_LIBRARY_PREFIX}mpfr${CMAKE_STATIC_LIBRARY_SUFFIX}" gmp)
 endif()
 
 addResource(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html gui/${NAME}.css gui/${NAME}.png)
