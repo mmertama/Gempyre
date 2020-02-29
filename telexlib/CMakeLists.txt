@@ -26,15 +26,18 @@ if (WIN32)
             GIT_REPOSITORY https://github.com/libuv/libuv.git
             GIT_TAG v1.34.0
             GIT_PROGRESS true
+            CMAKE_ARGS -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_BENCH=OFF -DCMAKE_BUILD_TYPE=Release
             UPDATE_DISCONNECTED false
             INSTALL_COMMAND ""
             UPDATE_COMMAND ""
             PATCH_COMMAND ""
             TEST_COMMAND ""
             )
-        set(UV_LIB
-            debug "${UV_DIR}/src/LIBUV-build/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}"
-            optimized "${UV_DIR}/src/LIBUV-build/Release/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
+            set(UV_LIB "${UV_DIR}/src/LIBUV-build/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+        else()
+            set(UV_LIB "${UV_DIR}/src/LIBUV-build/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+        endif()
         set(UV_SOURCES "${UV_DIR}/src/libuv")
         add_custom_target(luv_lib DEPENDS ${UV_LIB})
 endif()
