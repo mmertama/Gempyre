@@ -27,6 +27,8 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS "-DMAC_OS ${CMAKE_CXX_FLAGS}")
 elseif(UNIX)
    set(CMAKE_CXX_FLAGS "-DUNIX_OS ${CMAKE_CXX_FLAGS}")
+   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+   add_compile_options(-fPIC)
 endif()
 
 
