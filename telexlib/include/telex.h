@@ -233,12 +233,50 @@ namespace Telex {
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr char UseDefaultRoot[] = "";   //zero means default root
+        /**
+         * @brief Ui
+         * @param indexHtml
+         * @param browser
+         * @param extraParams, has default
+         * @param port, has default
+         * @param root, has default
+         */
         explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /**
+         * @brief Ui
+         * @param indexHtml
+         * @param port, has default
+         * @param root, has default
+         */
         explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /**
+         * @brief Ui
+         * @param filemap
+         * @param indexHtml
+         * @param browser
+         * @param extraParams, has defaul
+         * @param port, has default
+         * @param root, has default
+         */
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /**
+         * @brief Ui
+         * @param filemap
+         * @param indexHtml
+         * @param port, has default
+         * @param root, has default
+         */
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         ~Ui();
+        /**
+         * @brief Ui
+         * @param other
+         */
         Ui(const Ui& other) = delete;
+        /**
+         * @brief Ui
+         * @param other
+         */
         Ui(Ui&& other) = delete;
         /**
          * @function exit
