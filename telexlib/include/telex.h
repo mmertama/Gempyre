@@ -1,4 +1,4 @@
-#ifndef TELEX_H
+﻿#ifndef TELEX_H
 #define TELEX_H
 
 #include <string>
@@ -22,17 +22,21 @@
   * GUI Framework
   * -------------
   *
+  * telex.h contains core functionality, everything that is needed for basic application using Telex framework.
+  *
+  *
   * @toc
   *
   */
 
-/** @scope
+/**
+ * @scope
   * Telex contains three header files
   * * `telex.h`
   * * `telex_utils.h`
   * * `telex_graphics.h`
   * @scopeend
- */
+  */
 
 using namespace std::chrono_literals;
 
@@ -44,6 +48,7 @@ using namespace std::chrono_literals;
 
 /**
  * @namespace Telex
+ *
  * Common namespace for Telex implementation.
  */
 namespace Telex {
@@ -64,10 +69,6 @@ namespace Telex {
 
     class Data;
     using DataPtr = std::shared_ptr<Data>;
-    /**
-     * @class Data
-     * Generic container for data
-     */
     class TELEX_EX Data {
     public:
         using dataT = uint32_t;
@@ -98,7 +99,8 @@ namespace Telex {
 
     /**
      * @class Element
-     * Element is any UI element
+     *
+     * Element represents any UI element
      */
     class TELEX_EX Element {
     public:
@@ -120,7 +122,8 @@ namespace Telex {
          * @function Element
          * @param ui
          * @param id
-         * Creates instance that refers to existing element
+         *
+         * Creates instance that refers to existing element.
          */
         Element(Ui& ui, const std::string& id);
         /**
@@ -129,27 +132,34 @@ namespace Telex {
          * @param id
          * @param htmlElement
          * @param parent
-         * Creates a new elements as given HTML type and parent
+         *
+         * Creates a new elements as given HTML type and parent.
          */
         Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent);
         virtual ~Element() = default;
         /**
          * @function ui
-         * @return current Ui
+         * @return Ui
+         *
+         * Return current Ui.
          */
         const Ui& ui() const {
             return *m_ui;
         }
         /**
          * @function ui
-         * @return
+         * @return Ui
+         *
+         * Return current Ui.
          */
         Ui& ui() {
             return *m_ui;
         }
         /**
          * @function id
-         * @return HTML identifer of this element
+         * @return string
+         *
+         * HTML identifer of this element
          */
         std::string id() const {return m_id;}
         /**
@@ -157,62 +167,75 @@ namespace Telex {
          * @param name
          * @param handler
          * @param throttle
-         * set function to listen ui element
-         * @return
+         * @return Element
+         *
+         * Set a function to listen ui event.
          */
         Element& subscribe(const std::string& name, std::function<void(const Event& ev)> handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& = 0ms);
         /**
          * @function setHTML
          * @param name
          * @param handler
-         * @return
+         * @return Element
+         *
+         * Set HTML content for element.
          */
         Element& setHTML(const std::string& htmlText);
         /**
          * @function setAttribute
          * @param attr
          * @param values
-         * @return
+         * @return Element
+         *
          * Set a given attribute a given name
          */
         Element& setAttribute(const std::string& attr, const std::string& values);
         /**
          * @function attributes
-         * @return
+         * @return optional Attributes
+         *
+         * Return Attributes.
          */
         std::optional<Attributes> attributes() const;
         /**
          * @function children
-         * @return
-         * All attributes this element has
+         * @return optional Elements
+         *
+         * Return child elements (only direct children).
          */
         std::optional<Elements> children() const;
         /**
          * @function values
-         * @return
-         * Children ot this element (non-recursive)
+         * @return optional Values
+         *
+         * Return values. (e.g. input values).
          */
         std::optional<Values> values() const;
         /**
          * @function html
-         * @return
-         * For input types returns all the values this element has
+         * @return optional string
+         *
+         * Return html content of this element.
          */
         std::optional<std::string> html() const;
         /**
          * @function remove
-         * Remove this element from page
+         *
+         * Remove this element from Ui.
          */
         void remove();
         /**
          * @function type
-         * @return a HTML tag in lower case, empty is not found, nullopt if page is not ready.
+         * @return optiona string.
          *
+         * Return type as HTML tag in lower case, empty is not found.
          */
         std::optional<std::string> type() const;
         /**
          * @function rect
-         * @return bounding rect of element
+         * @return optional Rect
+         *
+         * Return bounding rect of element
          */
         std::optional<Rect> rect() const;
     protected:
@@ -223,9 +246,12 @@ namespace Telex {
         std::string m_id;
         friend class Ui;
     };
-
     /**
-     * @class Ui
+     * @scopeend
+     */
+
+     /**
+      * @class Ui
      */
     class TELEX_EX Ui {
     public:
@@ -234,114 +260,125 @@ namespace Telex {
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr char UseDefaultRoot[] = "";   //zero means default root
         /**
-         * @brief Ui
+         * @function Ui
          * @param indexHtml
          * @param browser
-         * @param extraParams, has default
+         * @param extraParams
          * @param port, has default
          * @param root, has default
+         *
+         * Constructor
          */
         explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /**
-         * @brief Ui
+         * @function Ui
          * @param indexHtml
          * @param port, has default
          * @param root, has default
+         *
+         * Constructor
          */
         explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /**
-         * @brief Ui
+         * @function Ui
          * @param filemap
          * @param indexHtml
          * @param browser
          * @param extraParams, has defaul
          * @param port, has default
          * @param root, has default
+         *
+         * Constructor
          */
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /**
-         * @brief Ui
+         * @function Ui
          * @param filemap
          * @param indexHtml
          * @param port, has default
          * @param root, has default
+         *
+         * Constructor
          */
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         ~Ui();
-        /**
-         * @brief Ui
-         * @param other
-         */
         Ui(const Ui& other) = delete;
-        /**
-         * @brief Ui
-         * @param other
-         */
         Ui(Ui&& other) = delete;
         /**
          * @function exit
-         * Exits the eventloop and make application to close
+         *
+         * Exits the eventloop and make application to close.
          */
         void exit();
         /**
          * @function close
+         *
          * Asks Client window to close (which then signals application to close)
          */
         void close();
         /**
          * @function onUiExit
          * @param onExitFunction
-         * @return
-         * Callback just before exit
+         * @return Ui
+         *
+         * Callback just before exit.
          */
         Ui& onUiExit(std::function<void ()> onExitFunction = nullptr);
         /**
          * @function onReload
          * @param onReleadFunction
-         * @return
+         * @return Ui
+         *
          * Callback when browser window reload occurs.
          */
         Ui& onReload(std::function<void ()> onReleadFunction = nullptr);
         /**
          * @function onOpen
          * @param onOpenFunction
-         * @return
+         * @return Ui
+         *
          * Callback when browser UI is running.
          */
         Ui& onOpen(std::function<void ()> onOpenFunction = nullptr);
         /**
          * @function onError
          * @param onErrorFunction
-         * @return
+         * @return Ui
+         *
          * Browser reports an issue
          */
         Ui& onError(std::function<void (const std::string& element, const std::string& info)> onErrorFunction = nullptr);
         /**
          * @function run
+         *
          * Starts eventloop
          */
         void run();
         /**
          * @function setLogging
          * @param logging
-         * Enforces Browser being verbose when serving Telex
+         *
+         * Enforces Browser being verbose when serving Telex.
          */
         void setLogging(bool logging);
         /**
          * @function eval
          * @param eval
+         *
          * Execute code on browser (calls JS eval)
          */
         void eval(const std::string& eval);
         /**
          * @function debug
          * @param msg
+         *
          * Echoes a message
          */
         void debug(const std::string& msg);
         /**
          * @function alert
          * @param msg
+         *
          * Shown a browser's alert dialogue
          */
         void alert(const std::string& msg);
@@ -349,6 +386,7 @@ namespace Telex {
          * @function open
          * @param url
          * @param name
+         *
          * Opens an extrenal URL on browser tab
          */
         void open(const std::string& url, const std::string& name = "");
@@ -357,7 +395,9 @@ namespace Telex {
          * @param ms
          * @param singleShot
          * @param timerFunc
-         * @return
+         * @return TimerId
+         *
+         * Starts a timer that is called after given amount of milliseconds.
          */
         TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (TimerId id)>& timerFunc);
         /**
@@ -365,53 +405,62 @@ namespace Telex {
          * @param ms
          * @param singleShot
          * @param timerFunc
-         * @return
-         * Starts a timer that is called after given amount of milliseconds
+         * @return TimerId
+         *
+         * Starts a timer that is called after given amount of milliseconds.
          */
         TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void ()>& timerFunc);
         /**
          * @function stopTimer
-         * @return
+         * @return Boolean
+         *
+         * Stop the timer.
          */
         bool stopTimer(TimerId);
         /**
          * @function root
-         * @return
+         * @return Element
+         *
          * Pseudo element that represents root of the element structure
          */
         Element root() const;
         /**
          * @function addressOf
          * @param filepath
-         * @return
+         * @return string
+         *
          * Translates given path to address that Telex can read when provided as a link.
          */
         std::string addressOf(const std::string& filepath) const;
         /**
          * @function byClass
          * @param className
-         * @return
+         * @return optional list of Elements
+         *
          * Returns all elements match to given class
          */
         std::optional<Element::Elements> byClass(const std::string& className) const;
         /**
          * @function byName
          * @param className
-         * @return
+         * @return optional list of Elements.
+         *
          * Returns all elements match to given name
          */
         std::optional<Element::Elements> byName(const std::string& className) const;
         /**
          * @function ping
-         * @return
-         * Just a ping
+         * @return optional pair of times.
+         *
+         * Just a ping.
          */
         std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> ping() const;
         /**
          * @function extension
          * @param callId
          * @param parameters
-         * @return
+         * @return optional any
+         *
          * Low level access to extension services that browser may implement. The return parameter and return value are JSON kind
          * of structures or types and depends on given callId.
          * Note if return value contain a string it is very straighforward
@@ -432,31 +481,31 @@ namespace Telex {
         std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
 
         /**
-         * @brief resource
+         * @function resource
          * @param url
-         * @return
+         * @return optional byte vector
+         *
          * Get data stored as a resource
          */
         std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
         /**
-         * @brief addFile
+         * @function addFile
          * @param url
          * @param file
-         * @return
-         * Adds a gile as a resources
+         * @return boolean
+         *
+         * Adds a file as a resources
          */
         bool addFile(const std::string& url, const std::string& file);
         /**
-         * @brief beginBatch
-         * Starts
-         */
-        /**
-         * @brief beginBatch
+         * @function beginBatch
+         *
          * Starts buffering non-DataPtr message locally
          */
         void beginBatch();
         /**
-         * @brief endBatch
+         * @function endBatch
+         *
          * Sends locally buffered message to UI
          */
         void endBatch();
@@ -490,6 +539,12 @@ namespace Telex {
         friend class Element;
         friend class Server;
     };
+    /**
+     * @scopeend
+     */
 }
+/**
+ * @scopeend
+ */
 
 #endif // TELEX_H
