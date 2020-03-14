@@ -45,6 +45,21 @@ void Telex::setDebug() {
     TelexUtils::setLogLevel(TelexUtils::LogLevel::Debug, false);
 }
 
+/**
+ * The server assumes that file are found at root, therefore we add a '/' if missing
+ */
+static Ui::Filemap normalizeNames(const Ui::Filemap& files) {
+    Ui::Filemap normalized;
+    for(const auto& [k, v] : files) {
+        if(k.length() > 0 && k[0] != '/') {
+            normalized.emplace('/' + k, v);
+        } else {
+            normalized.emplace(k, v);
+        }
+    }
+    return normalized;
+}
+
  std::string Ui::toStr(const std::atomic<Telex::Ui::State>& s) {
      const std::unordered_map<Telex::Ui::State, std::string> m{
          {Ui::State::NOTSTARTED, "NOTSTARTED"},
@@ -82,7 +97,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
     m_sema(std::make_unique<Semaphore>()),
     m_timers(std::make_unique<TimerMgr>()),
     m_onUiExit([this](){exit();}),
-    m_filemap(std::move(filemap)) {
+    m_filemap(normalizeNames(filemap)) {
     TelexUtils::init();
 
     m_startup = [this, port, indexHtml, browser, extraParams, root](){

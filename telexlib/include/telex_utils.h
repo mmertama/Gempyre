@@ -14,6 +14,20 @@
 #include <future>
 #include <limits>
 
+/**
+  * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
+  *
+  * telex_utils.h
+  * =====
+  * Telex GUI Framework
+  * -------------
+  *
+  * telex_utils.h contains a collection utility functions used internally within Telex
+  * implementation and test applications.
+  *
+  * @toc
+  */
+
 #define TELEXUTILSDEBUG(x) TelexUtils::log(Utils::LogLevel::Debug, x, __FILE__, __LINE__)
 //also release build assert
 #define telex_utils_assert_x(b, x) (b || TelexUtils::doFatal(x, nullptr, __FILE__, __LINE__))
@@ -41,7 +55,9 @@ using SSIZE_T = ssize_t;
 #endif
 
 
-
+/**
+ * @namespace TelexUtils
+ */
 namespace TelexUtils {
 
 //Helper for C memory management
@@ -62,6 +78,9 @@ using Params = std::tuple<Options, ParamList>;
 using ParsedParameters = std::variant<Params, int>;
 UTILS_EX ParsedParameters parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
 
+/**
+ * @brief The LogLevel enum
+ */
 enum class LogLevel{None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
 
 
@@ -101,6 +120,13 @@ inline std::string chop(const std::string& s, const std::string& chopped) {
     return str;
 }
 
+/**
+ * @function substitute
+ * @param str
+ * @param substring
+ * @param substitution
+ * @return
+ */
 UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
 
 template <typename T>
@@ -117,6 +143,11 @@ T to(const std::string& source) {
 }
 
 template <typename T>
+/**
+ * @function toOr
+ * @param source
+ * @return
+ */
 std::optional<T> toOr(const std::string& source) {
     std::istringstream ss(source);
     T v;
@@ -124,14 +155,23 @@ std::optional<T> toOr(const std::string& source) {
     return !ss.fail() ? std::make_optional(v) : std::nullopt;
 }
 
+template <class T>
+/**
+ * @function toLow
+ * @param str
+ * @return
+ */
+ T toLow(const T& str) {
+    T n;
+    std::transform(str.begin(), str.end(), std::back_inserter(n),
+                                    [](auto c){return std::tolower(c);});
+    return n;
+}
+
+
 /**
  * @scopeend
- */
-
-
-
-/**
-  * @scope Container Utils
+ * @scope Container Utils
  */
 
 template<typename T>
@@ -193,6 +233,16 @@ Container split(const std::string& str, const char splitChar = ' ') {
 
 
 template <class IT>
+/**
+ * @function joinPairs
+ * @param begin
+ * @param end
+ * @param startChar
+ * @param endChar
+ * @param divChar
+ * @param joinChar
+ * @return
+ */
 std::string joinPairs(const IT& begin, const IT& end, const std::string& startChar = "{", const std::string& endChar = "}", const std::string& divChar = ":" , const std::string& joinChar = "" ) {
     std::string s;
     std::ostringstream iss(s);
@@ -208,6 +258,15 @@ std::string joinPairs(const IT& begin, const IT& end, const std::string& startCh
 }
 
 template <class T>
+/**
+ * @function joinPairs
+ * @param obj
+ * @param startChar
+ * @param endChar
+ * @param divChar
+ * @param joinChar
+ * @return
+ */
 std::string joinPairs(const T& obj, const std::string& startChar = "{", const std::string endChar = "}", const std::string& divChar = ":" , const std::string& joinChar = "" ) {
     return joinPairs(obj.begin(), obj.end(), startChar, endChar, divChar, joinChar);
 }
@@ -219,22 +278,6 @@ std::vector<K> keys(const T& map) {
     std::transform(map.begin(), map.end(), ks.begin(), [](const auto& p) {return p.first;});
     return ks;
 }
-
-/*
-template <class IT, typename = std::enable_if_t<std::is_same<typename IT::value_type, std::pair<typename IT::key_type, typename IT::mapped_type>>::value>>
-std::string join(const IT& begin, const IT& end, const char startChar = '{', const char endChar = '}', const char divChar = ':' , const char joinChar = ' ' ) {
-    std::string s;
-    std::ostringstream iss(s);
-    if(begin != end) {
-        for(auto it = begin;;) {
-            iss << startChar << it->first << divChar << it->second << endChar;
-            if(++it == end) break;
-            iss << joinChar;
-        }
-    }
-    return iss.str();
-}
-*/
 
 template <class IT>
 /**
@@ -286,27 +329,21 @@ T merge(const T& b1, const T& b2) {
    }
 
 
-  template <class T, typename ...Arg>
-    T merge(const T& b1, const T& b2, Arg ...args) {
-        T bytes(b1.size() + b2.size());
-        auto begin = bytes.begin();
-        std::copy(b1.begin(), b1.end(), begin);
-        std::advance(begin, std::distance(b1.begin(), b1.end()));
-        std::copy(b2.begin(), b2.end(), begin);
-        return merge(bytes, args...);
-    }
-
-template <class T>
-    /**
-     * @function toLow
-     * @param str
-     * @return
-     */
- T toLow(const T& str) {
-    T n;
-    std::transform(str.begin(), str.end(), std::back_inserter(n),
-                                    [](auto c){return std::tolower(c);});
-    return n;
+template <class T, typename ...Arg>
+/**
+ * @function merge
+ * @param b1
+ * @param b2
+ * @param args
+ * @return
+ */
+T merge(const T& b1, const T& b2, Arg ...args) {
+    T bytes(b1.size() + b2.size());
+    auto begin = bytes.begin();
+    std::copy(b1.begin(), b1.end(), begin);
+    std::advance(begin, std::distance(b1.begin(), b1.end()));
+    std::copy(b2.begin(), b2.end(), begin);
+    return merge(bytes, args...);
 }
 
  /**
@@ -327,10 +364,28 @@ private:
     friend std::shared_ptr<TelexUtils::expiror> TelexUtils::waitExpire(std::chrono::seconds s, const std::function<void ()>& onExpire);
 };
 
+/**
+ * @function hexify
+ * @param src
+ * @param pat
+ * @return
+ */
 UTILS_EX  std::string hexify(const std::string& src, const std::string pat);
+/**
+ * @function unhexify
+ * @param src
+ * @return
+ */
 UTILS_EX  std::string unhexify(const std::string& src);
 
+/**
+ * @brief The OS enum
+ */
 enum class OS {OTHER, MAC, WIN, LINUX};
+/**
+ * @function currentOS
+ * @return
+ */
 UTILS_EX OS currentOS();
 
 #ifdef UNIX_OS //fix if needed
@@ -403,6 +458,14 @@ inline void log_t(LogLevel level, const std::nullptr_t&, Args... args) {
     log_t(level, args...);
 }
 
+/**
+ * @function doFatal
+ * @param txt
+ * @param f
+ * @param file
+ * @param line
+ * @return
+ */
 inline bool doFatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
     if(f) f();
     log(LogLevel::Fatal, txt, "at", file, "line:", line);
@@ -470,7 +533,17 @@ UTILS_EX std::string hostName();
  * @return
  */
 UTILS_EX std::string systemEnv(const std::string& env);
+/**
+ * @function isHiddenEntry
+ * @param filename
+ * @return
+ */
 UTILS_EX bool isHiddenEntry(const std::string& filename);
+/**
+ * @function isExecutable
+ * @param filename
+ * @return
+ */
 UTILS_EX bool isExecutable(const std::string& filename);
 /**
  * @function fileSize
@@ -547,11 +620,14 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
 /**
-  * @scopeend
-  */
+ * @scopeend
+ */
 
 
 }
+/**
+ * @scopeend
+ */
 
 
 #endif // UTILS_H

@@ -23,4 +23,5 @@ int main(int /*argc*/, char** /*argv*/) {
             ui.stopTimer(id);
     });
     ui.run();
+    return 0;
 }
