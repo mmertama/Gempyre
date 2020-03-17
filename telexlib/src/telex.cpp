@@ -213,10 +213,11 @@ Ui::~Ui() {
 void Ui::pendingClose() {
     TelexUtils::log(TelexUtils::LogLevel::Debug, "Pending close, Status change --> Pending");
     m_status = State::PENDING;
-    m_timers->flush();
+    m_timers->flush(false); //all timers are run here
+    TelexUtils::log(TelexUtils::LogLevel::Debug, "Start 1s wait for pending");
     startTimer(1000ms, true, [this]() { //delay as a get may come due page chage
     if(m_status == State::PENDING) {
-        TelexUtils::log(TelexUtils::LogLevel::Debug, "Pending close, Status change --> Close");
+        TelexUtils::log(TelexUtils::LogLevel::Debug, "Pending close, Status change --> Exit");
         m_status = State::CLOSE;
         m_sema->signal();
     } else {
@@ -238,7 +239,7 @@ void Ui::exit() {
         });
         //Utils::log(Utils::LogLevel::Debug, "Status change -> CLOSE");
         //m_status = State::CLOSE;
-        m_timers->flush();
+        m_timers->flush(true);
         TelexUtils::log(TelexUtils::LogLevel::Debug, "exit - wait in eventloop", toStr(m_status));
         eventLoop();
         TelexUtils::log(TelexUtils::LogLevel::Debug, "exit - wait in eventloop done, back in mainloop", toStr(m_status));
@@ -350,6 +351,9 @@ Ui::TimerId Ui::startTimer(const std::chrono::milliseconds &ms, bool singleShot,
     const int id = m_timers->append(ms, [this, timerFunc, singleShot](int id) {
         TelexUtils::log(TelexUtils::LogLevel::Debug, "Timer added to run", id, toStr(m_status));
         m_timerqueue.emplace_back([timerFunc, id, singleShot, this]() {
+            if(!m_timers->blessed(id))
+                return;
+            m_timers->takeBless(id);
             TelexUtils::log(TelexUtils::LogLevel::Debug, "Timer running", id);
             timerFunc(id);
             if(singleShot)   {
@@ -357,7 +361,7 @@ Ui::TimerId Ui::startTimer(const std::chrono::milliseconds &ms, bool singleShot,
                 stopTimer(id);
             } else {
                 TelexUtils::log(TelexUtils::LogLevel::Debug, "Timer bless", id);
-            //    m_timers->bless(id);
+                m_timers->bless(id);
             }
         });
         m_sema->signal();
@@ -373,7 +377,7 @@ bool Ui::stopTimer(TimerId id) {
 }
 
 
-Ui& Ui::onUiExit(std::function<void ()> onUiExitFunction) {
+Ui& Ui::onExit(std::function<void ()> onUiExitFunction) {
     m_onUiExit = std::move(onUiExitFunction);
     return *this;
 }
@@ -422,9 +426,12 @@ void Ui::eventLoop() {
         }
 
         if(m_status == State::CLOSE) {
-            TelexUtils::log(TelexUtils::LogLevel::Debug, "Eventloop is Close");
+            TelexUtils::log(TelexUtils::LogLevel::Debug, "Eventloop is Close", m_server && m_server->isRunning());
             if(m_onUiExit) {
                 m_onUiExit();
+            }
+            if(!m_server->isConnected()) {
+                m_server->close(true);
             }
             continue;
         }

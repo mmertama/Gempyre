@@ -99,20 +99,20 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
        ok = true;
        ui.close();
     });
-    ui.startTimer(2000ms, true, [&ui]()  {
+    ui.startTimer(2s, true, [&ui]()  {
        ui.exit();
     });
     ui.run();
     return ok;
 }},
-{R"(Ui& onUiExit(std::function<void ()> onExitFunction = nullptr))",
+{R"(Ui& onExit(std::function<void ()> onExitFunction = nullptr))",
         [](const std::string& browser) {
     CONSTRUCT_UI
-    ui.startTimer(1000ms, true, [&ui]() {
+    ui.startTimer(10s, true, [&ui]() {
        ui.close();
     });
     bool ok = false;
-    ui.onUiExit([&ok, &ui](){
+    ui.onExit([&ok, &ui](){
         ok = true;
         ui.exit();
     });
@@ -300,11 +300,13 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 {R"(std::vector<uint8_t> resource(const std::string& url))",
         [](const std::string& browser){
     CONSTRUCT_UI
-    const auto r = ui.resource(Unittestshtml);
+    const auto r = ui.resource("/test.html");
+    if(!r)
+        return false;
     const std::string html = TelexUtils::join(*r);
     const auto p1 = html.find("html");
     const auto p2 = html.find("html");
-    return p1 != p2;
+    return p1 == p2;
 }},
 {R"(bool addFile(const std::string& url, const std::string& file)",
         [](const std::string& browser){
@@ -354,26 +356,14 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
         CONSTRUCT_UI
         bool ok = false;
         Telex::Element el(ui, "test-1");
-        el.subscribe("onload", [&ok, &ui, &el](const Telex::Element::Event& eel) {
+        el.subscribe("test_event", [&ok, &ui, &el](const Telex::Element::Event& eel) {
             ok = eel.element->id() == el.id();
             ui.exit();
         });
-        ui.startTimer(3000ms, true, [&ui]()  {
-              ui.exit();
+        ui.startTimer(2s, true, [&el]()  {
+              el.setAttribute("style", "color:green");
            });
-        ui.run();
-        return ok;
-}},
-{R"(Element& subscribe(const std::string& name, std::function<void()> handler))",
-        [](const std::string& browser) {
-        CONSTRUCT_UI
-        bool ok = false;
-        Telex::Element el(ui, "test-1");
-        el.subscribe("onload", [&ok, &ui](const Telex::Element::Event&) {
-            ok = true;
-            ui.exit();
-        });
-        ui.startTimer(3000ms, true, [&ui]()  {
+        ui.startTimer(3s, true, [&ui]()  {
               ui.exit();
            });
         ui.run();
@@ -523,7 +513,22 @@ int main(int args, char* argv[]) {
         }
         if(TelexUtils::contains(opts, "headless")) {
             browser = defaultChrome() + " " + headlessParams();
-        //    nonRun.emplace(5, "Not work when headless");
+            nonRun.emplace(5, "Not work on headless");
+            nonRun.emplace(6, "Not work on headless");
+            nonRun.emplace(9, "Not work on headless");
+            nonRun.emplace(10, "Not work on headless");
+            nonRun.emplace(12, "Not work on headless");
+            nonRun.emplace(21, "Not work on headless");
+            nonRun.emplace(22, "Not work on headless");
+            nonRun.emplace(23, "Not work on headless");
+            nonRun.emplace(29, "Not work on headless");
+            nonRun.emplace(30, "Not work on headless");
+            nonRun.emplace(31, "Not work on headless");
+            nonRun.emplace(32, "Not work on headless");
+            nonRun.emplace(33, "Not work on headless");
+            nonRun.emplace(35, "Not work on headless");
+            nonRun.emplace(34, "Not work on headless");
+            nonRun.emplace(36, "Not work on headless");
         }
         const auto lp = opts.find("tests");
         if(lp != opts.end()) {

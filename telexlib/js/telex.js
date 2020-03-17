@@ -17,7 +17,6 @@ function errlog(source, text) {
     socket.send(JSON.stringify({'type': 'error', 'element': String(source), 'error': text}));
 }
 
-
 function createElement(parent, tag, id) {
     if(document.getElementById(id) == null) {
         const el = document.createElement(tag);
@@ -109,6 +108,22 @@ function addEvent(el, source, eventname, properties, throttle) {
     el.addEventListener(eventname, throttle && throttle > 0 ? throttled(throttle, handler) : handler);
 }
 
+function sendTelexEvent(source, eventname, values) {
+    if(typeof source !== "string" || typeof eventname !== "string" || typeof values !== "object") {
+        console.assert(typeof source === "string", "source should be string");
+        console.assert(typeof eventname === "string", "eventname should be string");
+        console.assert(typeof values === "object", "values should be object");
+        return false;
+    }
+    if(!socket) {
+         console.error("No socket");
+        return false;
+    }
+    log("do Telex event", source, eventname, values);
+    socket.send(JSON.stringify({'type': 'event',  'element': source, 'event': eventname, 'properties':values}));
+    return true;
+}
+
 function id(el) {
     console.assert(el.nodeType == 1, "Shall not get id of non element");
     if(!el.id)
@@ -117,9 +132,9 @@ function id(el) {
 }
 
 function serveQuery(element, query_id, query) {
-    const el = document.getElementById(element);
+    const el = element.length > 0 ? document.getElementById(element) : document.body;
     if(!el) {
-        errlog(element, "not found");
+        errlog(element, 'not found:', element, '" for query"');
         socket.send(JSON.stringify({'type': 'query', 'query_id': query_id, 'query_value':'query_error', 'query_error':'query_error'}));
         return;
     }
@@ -312,9 +327,9 @@ function handleJson(msg) {
             return;
         }
     
-        const el = document.getElementById(msg.element);
+        const el = msg.element.length > 0 ?  document.getElementById(msg.element) : document.body;
         if(!el) {
-            errlog(msg.element, "not found");
+            errlog(msg.element, 'not found:"', msg.element, '"');
             return;
         }
         switch(msg.type) {

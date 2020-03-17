@@ -31,7 +31,8 @@ void writeText(int x, int y, const std::string& text, Telex::CanvasElement& el) 
 
 int main(int argc, char** argv) {
    // Telex::setDebug();
-    const auto args = TelexUtils::parseArgs(argc, argv, {{"resources", 'r', TelexUtils::ArgType::REQ_ARG}}); const auto options = std::get<TelexUtils::Options>(std::get<TelexUtils::Params>(args));
+    const auto args = TelexUtils::parseArgs(argc, argv, {{"resources", 'r', TelexUtils::ArgType::REQ_ARG}});
+    const auto options = std::get<TelexUtils::Options>(std::get<TelexUtils::Params>(args));
     const auto it = options.find("resources");
     const auto root = (it != options.end()) ? (it->second + "/") : std::string("");
 
@@ -62,17 +63,22 @@ int main(int argc, char** argv) {
     });
     */
     const auto simage1 = root + "free-scenery-7.jpg";
-    if(!ui.addFile("/scene.jpg", simage1)) {
-        std::cerr << "Cannot load " << simage1 << std::endl;
-        return -1;
-    }
+    if(TelexUtils::fileExists(simage1)) {
+        if(!ui.addFile("/scene.jpg", simage1)) {
+            std::cerr << "Cannot load " << simage1 << " (try: -r <PATH TO>/Telex-framework/test/imageblit/stuff)" << std::endl;
+            return -1;
+        }
+    } else ui.alert(simage1 + " not found!");
 
     //4) add as resource and image
     const auto simage2 = root + "tom-hanssens-shot-01.jpg";
-    if(!ui.addFile("/scene2.jpg", simage2)) {
-        std::cerr << "Cannot load " << simage2 << std::endl;
-        return -1;
-    }
+    if(TelexUtils::fileExists(simage2)) {
+        if(!ui.addFile("/scene2.jpg", simage2)) {
+            std::cerr << "Cannot load " << simage2 << " (try: -r <PATH TO>/Telex-framework/test/imageblit/stuff)" << std::endl;
+            return -1;
+        }
+    } else ui.alert(simage2 + " not found!");
+
     canvas.addImage("/scene2.jpg", [&canvas](const auto& scene){
          canvas.paintImage(scene, {200, 200, 200, 200});
     });

@@ -20,5 +20,23 @@
     </div>
     <input type="checkbox" name="scales" id="checkbox-1" checked />
     <label for="scales">Scales</label>
+    <script>
+        const targetNode = document.getElementById("test-1");
+        console.assert(targetNode, "test-1 not found");
+        // Options for the observer (which mutations to observe)
+        const config = {attributes: true};
+        const callback = function(mutationsList, observer) {
+            for(let mutation of mutationsList) {
+                if (mutation.type === 'attributes') {
+                    sendTelexEvent('test-1', 'test_event', mutation.target);
+                }
+            }
+        };
+
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
+    </script>
 </body>
 </html>

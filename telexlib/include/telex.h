@@ -330,13 +330,13 @@ namespace Telex {
          */
         void close();
         /**
-         * @function onUiExit
+         * @function onExit
          * @param onExitFunction
          * @return Ui
          *
          * Callback just before exit.
          */
-        Ui& onUiExit(std::function<void ()> onExitFunction = nullptr);
+        Ui& onExit(std::function<void ()> onExitFunction = nullptr);
         /**
          * @function onReload
          * @param onReleadFunction

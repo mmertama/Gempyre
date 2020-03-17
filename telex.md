@@ -58,7 +58,7 @@ after event loop has been started.
     * [ explicit Ui(const Filemap&amp; filemap, const std::string&amp; indexHtml, unsigned short port = UseDefaultPort, const std::string&amp; root = UseDefaultRoot) ](#explicit-uiconst-filemap-filemap-const-stdstring-indexhtml-unsigned-short-port-usedefaultport-const-stdstring-root-usedefaultroot)
     * [ void exit() ](#void-exit)
     * [ void close() ](#void-close)
-    * [ Ui&amp; onUiExit(std::function&lt;void ()&gt; onExitFunction = nullptr) ](#ui-onuiexitstdfunctionvoid-onexitfunction-nullptr)
+    * [ Ui&amp; onExit(std::function&lt;void ()&gt; onExitFunction = nullptr) ](#ui-onexitstdfunctionvoid-onexitfunction-nullptr)
     * [ Ui&amp; onReload(std::function&lt;void ()&gt; onReleadFunction = nullptr) ](#ui-onreloadstdfunctionvoid-onreleadfunction-nullptr)
     * [ Ui&amp; onOpen(std::function&lt;void ()&gt; onOpenFunction = nullptr) ](#ui-onopenstdfunctionvoid-onopenfunction-nullptr)
     * [ Ui&amp; onError(std::function&lt;void (const std::string&amp; element, const std::string&amp; info)&gt; onErrorFunction = nullptr) ](#ui-onerrorstdfunctionvoid-const-stdstring-element-const-stdstring-info-onerrorfunction-nullptr)
@@ -230,8 +230,8 @@ Exits the eventloop and make application to close.
 ##### void close() 
 
 Asks Client window to close (which then signals application to close)
-<a id="ui-onuiexitstdfunctionvoid-onexitfunction-nullptr"></a>
-##### Ui&amp; onUiExit(std::function&lt;void ()&gt; onExitFunction = nullptr) 
+<a id="ui-onexitstdfunctionvoid-onexitfunction-nullptr"></a>
+##### Ui&amp; onExit(std::function&lt;void ()&gt; onExitFunction = nullptr) 
 ###### *Param:* onExitFunction 
 ###### *Return:* Ui 
 

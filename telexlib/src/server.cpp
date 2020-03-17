@@ -238,11 +238,13 @@ std::unique_ptr<std::thread> Server::makeServer(unsigned short port,
 
                                              },
                                              [this](auto ws, auto code, auto message) {
-                                                 if(code == 1000 ||  code == 1001 || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
-                                                     TelexUtils::log(TelexUtils::LogLevel::Error, "WS", "closed on error", code, message);
-                                                 }   else if(code != 0) {
-                                                     TelexUtils::log(TelexUtils::LogLevel::Debug, "WS", "Non closing error", code, message);
-                                                     return;
+                                                 if(code != 1001) {  //browser window closed
+                                                     if(code == 1000 /*||  code == 1001*/ || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
+                                                         TelexUtils::log(TelexUtils::LogLevel::Error, "WS", "closed on error", code, message);
+                                                     }   else if(code != 0) {
+                                                         TelexUtils::log(TelexUtils::LogLevel::Debug, "WS", "Non closing error", code, message);
+                                                         return;
+                                                     }
                                                  }
                                                  //exit request
                                                  TelexUtils::log(TelexUtils::LogLevel::Debug, "WS", "close", code, message);

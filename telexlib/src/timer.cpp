@@ -16,19 +16,14 @@ void TimerMgr::start() {
             if(currentSleep > std::chrono::milliseconds{0}) {
                 std::unique_lock<std::mutex> lock(m_waitMutex);
                 const auto begin = std::chrono::steady_clock::now();
+                TelexUtils::log(TelexUtils::LogLevel::Debug, "timer wait now:", data.id);
                 m_cv.wait_for(lock, std::chrono::duration(currentSleep)); //more or less poll
                 const auto end = std::chrono::steady_clock::now();
                 const auto actualWait = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
                 TelexUtils::log(TelexUtils::LogLevel::Debug, "timer awake id:", data.id , currentSleep.count(), actualWait.count(), m_queue.size());
                 m_queue.reduce(actualWait);
-                continue; // we has slept
+                continue; // we have slept
             }
-    /*
-          const auto blessed = m_queue.takeBless(data.id);
-            if(!blessed) {
-                Utils::log(Utils::LogLevel::Debug, "timer not blessed, id:", data.id, m_queue.size());
-                continue;
-            } */
             TelexUtils::log(TelexUtils::LogLevel::Debug, "timer pop id:", data.id, m_queue.size());
             m_queue.pop();
             data.func(data.id);
@@ -69,4 +64,24 @@ bool TimerMgr::bless(int id) {
         return false;
     m_queue.bless(id);
     return true;
+}
+
+bool TimerMgr::blessed(int id) const {
+    if(m_queue.empty())
+        return false;
+    return m_queue.blessed(id);
+}
+
+bool TimerMgr::takeBless(int id) {
+    return m_queue.takeBless(id);
+}
+
+void TimerMgr::flush(bool doRun) {
+    if(!m_queue.empty()) {
+        TelexUtils::log(TelexUtils::LogLevel::Debug, "flush");
+        m_queue.setNow(doRun); //There was a feature that on flush (on exit) all timers are run.
+        m_exit = true;
+        m_cv.notify_all();
+        m_timerThread.wait();
+    }
 }
