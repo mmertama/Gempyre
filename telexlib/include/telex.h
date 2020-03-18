@@ -82,6 +82,11 @@ namespace Telex {
      */
     TELEX_EX void setDebug();
 
+    /**
+     * @function version
+     */
+    TELEX_EX std::tuple<int, int, int> version();
+
     class Data;
     using DataPtr = std::shared_ptr<Data>;
     class TELEX_EX Data {

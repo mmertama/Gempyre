@@ -45,6 +45,15 @@ void Telex::setDebug() {
     TelexUtils::setLogLevel(TelexUtils::LogLevel::Debug, false);
 }
 
+#define STR(x) #x
+#define TOSTRING(x) STR(x)
+
+std::tuple<int, int, int> Telex::version() {
+    static_assert (TOSTRING(TELEX_PROJECT_VERSION)[0], "TELEX_PROJECT_VERSION not set");
+    const auto c = TelexUtils::split<std::vector<std::string>>(TOSTRING(TELEX_PROJECT_VERSION), '.');
+    return {TelexUtils::to<int>(c[0]), TelexUtils::to<int>(c[1]), TelexUtils::to<int>(c[2])};
+}
+
 /**
  * The server assumes that file are found at root, therefore we add a '/' if missing
  */

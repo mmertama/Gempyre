@@ -1,4 +1,5 @@
-#include "telex.h"
+#include <telex.h>
+#include <telex_utils.h>
 #include "tick_resource.h"
 
 using namespace std::chrono_literals;
@@ -22,6 +23,8 @@ int main(int /*argc*/, char** /*argv*/) {
         if(count1 == 100)
             ui.stopTimer(id);
     });
+    const auto [ver, min, maj] = Telex::version();
+    Telex::Element(ui, "ver").setHTML(TelexUtils::join(std::vector<std::string>{std::to_string(ver), std::to_string(min), std::to_string(maj)}, "."));
     ui.run();
     return 0;
 }
