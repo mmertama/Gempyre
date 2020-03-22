@@ -73,7 +73,7 @@ int main(int /*argc*/, char** /*argv*/) {
                          const auto value = attrs.find("value");
                          telex_utils_assert_x(value != attrs.end(), "button has no value");
                          const auto key = value->second;
-                         el.subscribe("click", [key, total, last, operation] (const Telex::Element::Event&) mutable {
+                         el.subscribe("click", [key, total, last, operation] (const Telex::Event&) mutable {
                             operation(total, last, key);
                          });
                      }

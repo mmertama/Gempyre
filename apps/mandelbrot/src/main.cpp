@@ -46,27 +46,27 @@ int main(int /*argc*/, char** /*argv*/) {
         const auto type = *canvas.type();
         telex_graphics_assert(type == "canvas", "the element is expected to be a canvas")
         const auto rect = *canvas.rect();
-        iterations.subscribe("change",[&mandelbrot, &updater](const Telex::Element::Event& ev){
+        iterations.subscribe("change",[&mandelbrot, &updater](const Telex::Event& ev){
 
             const auto value = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("value")));
             mandelbrot->setIterations(value);
             mandelbrot->update(updater);
         }, {"value"});
 
-        colors.subscribe("change",[&mandelbrot, &updater](const Telex::Element::Event& ev){
+        colors.subscribe("change",[&mandelbrot, &updater](const Telex::Event& ev){
             const auto value = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("value")));
             mandelbrot->setColors(value);
             mandelbrot->update(updater);
         }, {"value"});
 
-        canvas.subscribe("mousedown", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics] (const Telex::Element::Event& ev) {
+        canvas.subscribe("mousedown", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics] (const Telex::Event& ev) {
             mousex = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientX"))) - rect.x;
             mousey = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientY"))) - rect.y;
             mousedown = true;
             backupGraphics = graphics.clone();
         }, {"clientX", "clientY"});
 
-        canvas.subscribe("mouseup", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics, &mandelbrot, &coordinateStack, &radius, &zooms, &updater](const Telex::Element::Event& ev) {
+        canvas.subscribe("mouseup", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics, &mandelbrot, &coordinateStack, &radius, &zooms, &updater](const Telex::Event& ev) {
             const auto mx = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientX"))) - rect.x;
             const auto my = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientY"))) - rect.y;
             mousedown = false;
@@ -82,7 +82,7 @@ int main(int /*argc*/, char** /*argv*/) {
             zooms.setHTML(std::to_string(coordinateStack.size() - 1));
         }, {"clientX", "clientY"});
 
-        canvas.subscribe("mousemove", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics, &blend](const Telex::Element::Event& ev) {
+        canvas.subscribe("mousemove", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics, &blend](const Telex::Event& ev) {
             if(mousedown) {
                 const auto mx = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientX"))) - rect.x;
                 const auto my = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientY"))) - rect.y;
@@ -94,7 +94,7 @@ int main(int /*argc*/, char** /*argv*/) {
             }
         }, {"clientX", "clientY"}, 200ms);
 
-        canvas.subscribe("dblclick", [&coordinateStack, &mandelbrot, &radius, &zooms, &updater](const Telex::Element::Event&){
+        canvas.subscribe("dblclick", [&coordinateStack, &mandelbrot, &radius, &zooms, &updater](const Telex::Event&){
             if(coordinateStack.size() == 1) {
               return;
             }

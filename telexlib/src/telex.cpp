@@ -513,7 +513,7 @@ void Ui::eventLoop() {
                 const auto handlers = std::get<1>(*element);
                 const auto h = handlers.find(handlerName);
                 if(h != handlers.end()) {
-                    h->second(Element::Event{std::make_shared<Element>(*this, std::move(element->first)), std::move(std::get<2>(it))});
+                    h->second(Event{Element(*this, std::move(element->first)), std::move(std::get<2>(it))});
                 } else {
                     TelexUtils::log(TelexUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element", std::get<0>(it));
                 }

@@ -5,7 +5,7 @@ int main(int /*argc*/, char** /*argv*/)  {
    Telex::Element text(ui, "content");
    Telex::Element button(ui, "startbutton");
    button.setHTML("Hello?");
-   button.subscribe("click", [&text](const Telex::Element::Event&) {
+   button.subscribe("click", [&text](const Telex::Event&) {
        text.setHTML("Hello World!");
      });
    ui.run();

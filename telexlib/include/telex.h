@@ -115,6 +115,7 @@ namespace Telex {
         friend class Ui;
     };
 
+    struct Event;
 
     /**
      * @class Element
@@ -125,11 +126,6 @@ namespace Telex {
         using Attributes = std::unordered_map<std::string, std::string>;
         using Values = std::unordered_map<std::string, std::string>;
         using Elements = std::vector<Element>;
-        struct Event {
-            std::shared_ptr<Element> element;
-            const std::unordered_map<std::string, std::any> properties;
-        };
-        using Handler = std::function<void(const Event& el)>;
         struct Rect {int x; int y; int width; int height;};
     public:
         Element(const Element& other) = default;
@@ -184,12 +180,13 @@ namespace Telex {
          * @function subscribe
          * @param name
          * @param handler
+         * @param properties
          * @param throttle
          * @return Element
          *
          * Set a function to listen ui event.
          */
-        Element& subscribe(const std::string& name, std::function<void(const Event& ev)> handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& = 0ms);
+        Element& subscribe(const std::string& name, std::function<void(const Event& ev)> handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
         /**
          * @function setHTML
          * @param name
@@ -263,6 +260,11 @@ namespace Telex {
         Ui* m_ui;
         std::string m_id;
         friend class Ui;
+        using Handler = std::function<void(const Event& el)>;
+    };
+    struct Event {
+        Element element;
+        const std::unordered_map<std::string, std::any> properties;
     };
     /**
      * @scopeend

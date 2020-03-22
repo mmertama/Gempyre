@@ -72,7 +72,7 @@ int main(int /*argc*/, char** /*argv*/)  {
     Telex::Ui ui({{"/hexview.html", Hexviewhtml}, {"/hexview.css", Hexviewcss}, {"/text_x_hex.png", Text_x_hexpng}},
                  "hexview.html", miniview, "500 640 Hexview");
     Telex::Element fileDialog(ui, "openfile");
-    fileDialog.subscribe("click", [&ui, &filename](const Telex::Element::Event&) {
+    fileDialog.subscribe("click", [&ui, &filename](const Telex::Event&) {
         const auto out = TelexClient::Dialog<Telex::Ui>(ui).openFileDialog();
 
         if(out.has_value()) {

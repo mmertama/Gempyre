@@ -356,8 +356,8 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
         CONSTRUCT_UI
         bool ok = false;
         Telex::Element el(ui, "test-1");
-        el.subscribe("test_event", [&ok, &ui, &el](const Telex::Element::Event& eel) {
-            ok = eel.element->id() == el.id();
+        el.subscribe("test_event", [&ok, &ui, &el](const Telex::Event& eel) {
+            ok = eel.element.id() == el.id();
             ui.exit();
         });
         ui.startTimer(2s, true, [&el]()  {

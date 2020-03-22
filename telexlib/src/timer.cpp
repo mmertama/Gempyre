@@ -5,7 +5,7 @@ using namespace Telex;
 
 void TimerMgr::start() {
     m_exit = false;
-    m_timerThread = std::async([this](){
+    m_timerThread = std::async([this]() {
         TelexUtils::log(TelexUtils::LogLevel::Debug, "timer thread start");
         for(;;) {
             const auto itemOr = m_queue.peek();

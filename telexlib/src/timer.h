@@ -51,7 +51,6 @@ public:
             store.push_back(std::move(m_queue.top()));
             m_queue.pop();
         }
-
         for(auto& c : store) {
             c.currentTime -= sleep;
             m_queue.push(c);

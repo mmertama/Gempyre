@@ -45,25 +45,27 @@ Telex::Element addDir(Telex::Ui& ui, Telex::Element& root, const std::string& ro
         const auto fullname = rootname + basename + (isDir ? "/" : "");
         const auto id = TelexUtils::substitute(fullname, " ", "_");
         auto current = Telex::Element(ui, id, "LI", parent)
-            .subscribe("click", [&ui, root, &openDirs, showHidden, fullname, basename] (const Telex::Element::Event& el) {
-                const auto attVal = el.element->attributes();
+            .subscribe("click", [&ui, root, &openDirs, showHidden, fullname, basename] (const Telex::Event& ev) {
+                Telex::Element el(ev.element);
+                const auto attVal = el.attributes();
                 if(attVal.has_value()) {
                     const auto att = attVal.value();
                     if(att.find("class")->second == closeClass) {
+
                         const auto path = att.find("name")->second;
-                        addDir(ui, *el.element, path, openDirs, showHidden);
-                        el.element->setAttribute("class", openClass);
-                        openDirs.emplace(el.element->id(), path);
+                        addDir(ui, el, path, openDirs, showHidden);
+                        el.setAttribute("class", openClass);
+                        openDirs.emplace(el.id(), path);
                     } else if(att.find("class")->second == openClass) {
-                        const auto childrenVal = el.element->children();
+                        const auto childrenVal = el.children();
                         if(childrenVal.has_value()) {
                             auto children = childrenVal.value();
                             for(auto& e : children) {
                                 const auto a = e.attributes();
                                 e.remove();
                             }
-                            el.element->setAttribute("class", closeClass);
-                            auto it = openDirs.find(std::make_tuple(el.element->id(), ""));
+                            el.setAttribute("class", closeClass);
+                            auto it = openDirs.find(std::make_tuple(el.id(), ""));
                             if(it != openDirs.end())
                                 openDirs.erase(it);
                         }
@@ -102,8 +104,8 @@ int main(int argc, char** argv) {
     reload = [&ui, &reload, &openPages, root, holdingElement, &showHidden]() mutable { //this function constructs the ui
          auto rootElement = addDir(ui, holdingElement, root, openPages, showHidden);
          Telex::Element(ui, "name").setHTML(TelexUtils::hostName());
-         Telex::Element(ui, "hiddenbox").subscribe("checked", [&reload, &showHidden, rootElement](const Telex::Element::Event& el) mutable {
-             const auto values = el.element->values();
+         Telex::Element(ui, "hiddenbox").subscribe("checked", [&reload, &showHidden, rootElement](const Telex::Event& el) mutable {
+             const auto values = el.element.values();
              if(values.has_value()) {
                  const auto bstr = values.value().at("checked");
                  showHidden = bstr == "true";

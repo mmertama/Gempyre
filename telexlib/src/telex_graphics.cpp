@@ -47,7 +47,7 @@ std::string CanvasElement::addImage(const std::string& url, const std::function<
     }
     Telex::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
-        imageElement.subscribe("load", [loaded, name](const Telex::Element::Event&) {
+        imageElement.subscribe("load", [loaded, name](const Telex::Event&) {
             loaded(name);
         });
     imageElement.setAttribute("style", "display:none");
