@@ -1,7 +1,5 @@
 #include "telex_graphics.h"
 #include "telex_utils.h"
-#include <random>
-#include <chrono>
 
 using namespace Telex;
 
@@ -38,13 +36,7 @@ void CanvasElement::paint(const CanvasPtr& canvas) {
 }
 
 std::string CanvasElement::addImage(const std::string& url, const std::function<void (const std::string& id)> &loaded) {
-    const auto seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
-    std::default_random_engine generator(seed);
-    std::uniform_int_distribution<int> distribution('a', 'z');
-    std::string name = "image_";
-    for(int i = 0; i < 8; i++) {
-        name += static_cast<char>(distribution(generator));
-    }
+    const auto name = generateId("image");
     Telex::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
         imageElement.subscribe("load", [loaded, name](const Telex::Event&) {

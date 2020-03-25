@@ -150,6 +150,17 @@ namespace Telex {
          * Creates a new elements as given HTML type and parent.
          */
         Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent);
+
+        /**
+         * @function Element
+         * @param ui
+         * @param htmlElement
+         * @param parent
+         *
+         * Creates a new elements as given HTML type and parent.
+         */
+        Element(Ui& ui, const std::string& htmlElement, const Element& parent);
+
         virtual ~Element() = default;
         /**
          * @function ui
@@ -256,6 +267,7 @@ namespace Telex {
     protected:
         void send(const DataPtr& data);
         void send(const std::string& type, const std::any& data);
+        static const std::string generateId(const std::string& prefix);
     protected:
         Ui* m_ui;
         std::string m_id;

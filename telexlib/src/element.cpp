@@ -1,9 +1,23 @@
 #include "telex.h"
 #include "telex_utils.h"
-
 #include "telex_internal.h"
 
+#include <random>
+#include <chrono>
+
+
 using namespace Telex;
+
+const std::string Element::generateId(const std::string& prefix) {
+    const auto seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
+    std::default_random_engine generator(seed);
+    std::uniform_int_distribution<int> distribution('a', 'z');
+    std::string name = prefix + "_";
+    for(int i = 0; i < 8; i++) {
+        name += static_cast<char>(distribution(generator));
+    }
+    return name;
+}
 
 Element::Element(Ui& ui, const std::string& id) : m_ui(&ui), m_id(id) {
     if(m_ui->m_elements.find(id) == m_ui->m_elements.end())
@@ -11,6 +25,10 @@ Element::Element(Ui& ui, const std::string& id) : m_ui(&ui), m_id(id) {
 }
 
 Element::Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent) : Element(ui, id) {
+    ui.send(parent, "create", std::unordered_map<std::string, std::string>{{"new_id", m_id}, {"html_element", htmlElement}});
+}
+
+Element::Element(Ui& ui, const std::string& htmlElement, const Element& parent) : Element(ui, generateId("__element")) {
     ui.send(parent, "create", std::unordered_map<std::string, std::string>{{"new_id", m_id}, {"html_element", htmlElement}});
 }
 
