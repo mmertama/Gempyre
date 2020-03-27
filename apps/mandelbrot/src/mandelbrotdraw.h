@@ -15,7 +15,7 @@ using namespace std::chrono_literals;
 
 class MandelbrotDraw {
 public:
-    using Color = Telex::Graphics::Color;
+    using Color = Telex::Color::type;
     MandelbrotDraw(Telex::Graphics& g, const Mandelbrot::Number& left, const Mandelbrot::Number& top, const Mandelbrot::Number& right, const Mandelbrot::Number& bottom, int iterations) :
         m_g(g), m_height(static_cast<Mandelbrot::Number>(g.height())), m_left(left), m_right(right), m_top(top), m_bottom(bottom), m_iterations(iterations) {
         makeLut();
@@ -104,12 +104,12 @@ private:
     }
     void makeLut() {
         m_colorlut.resize(static_cast<size_t>(m_iterations));
-        const auto r0 = static_cast<double>(Telex::Canvas::r(m_colorStart));
-        const auto g0 = static_cast<double>(Telex::Canvas::g(m_colorStart));
-        const auto b0 = static_cast<double>(Telex::Canvas::b(m_colorStart));
-        const auto r1 = static_cast<double>(Telex::Canvas::r(m_colorEnd));
-        const auto g1 = static_cast<double>(Telex::Canvas::g(m_colorEnd));
-        const auto b1 = static_cast<double>(Telex::Canvas::b(m_colorEnd));
+        const auto r0 = static_cast<double>(Telex::Color::r(m_colorStart));
+        const auto g0 = static_cast<double>(Telex::Color::g(m_colorStart));
+        const auto b0 = static_cast<double>(Telex::Color::b(m_colorStart));
+        const auto r1 = static_cast<double>(Telex::Color::r(m_colorEnd));
+        const auto g1 = static_cast<double>(Telex::Color::g(m_colorEnd));
+        const auto b1 = static_cast<double>(Telex::Color::b(m_colorEnd));
         auto r = r0;
         auto g = g0;
         auto b = b0;

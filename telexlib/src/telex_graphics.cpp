@@ -3,19 +3,19 @@
 
 using namespace Telex;
 
-Canvas::~Canvas() {
+CanvasData::~CanvasData() {
 }
 
-CanvasPtr CanvasElement::makeCanvas(int width, int height) { //could be const, but is it sustainable?
-    m_tile = std::shared_ptr<Canvas>(new Canvas(std::min(width, TileWidth), std::min(height, TileHeight), m_id));
-    return std::shared_ptr<Canvas>(new Canvas(width, height, m_id)); //private cannot use make_...
+CanvasDataPtr CanvasElement::makeCanvas(int width, int height) { //could be const, but is it sustainable?
+    m_tile = std::shared_ptr<CanvasData>(new CanvasData(std::min(width, TileWidth), std::min(height, TileHeight), m_id));
+    return std::shared_ptr<CanvasData>(new CanvasData(width, height, m_id)); //private cannot use make_...
 }
 
 CanvasElement::~CanvasElement() {
     m_tile.reset();
 }
 
-void CanvasElement::paint(const CanvasPtr& canvas) {
+void CanvasElement::paint(const CanvasDataPtr& canvas) {
     for(auto j = 0 ; j < canvas->height ; j += TileHeight) {
         const auto height = std::min(TileHeight, canvas->height - j);
         for(auto i = 0 ; i < canvas->width ; i += TileWidth) {
@@ -26,10 +26,10 @@ void CanvasElement::paint(const CanvasPtr& canvas) {
                 auto trgPos = m_tile->data() + width * h;
                 std::copy(lineStart, lineStart + width, trgPos);
             }
-            m_tile->writeHeader({static_cast<Canvas::Data::dataT>(i),
-                                 static_cast<Canvas::Data::dataT>(j),
-                                 static_cast<Canvas::Data::dataT>(width),
-                                 static_cast<Canvas::Data::dataT>(height)});
+            m_tile->writeHeader({static_cast<CanvasData::Data::dataT>(i),
+                                 static_cast<CanvasData::Data::dataT>(j),
+                                 static_cast<CanvasData::Data::dataT>(width),
+                                 static_cast<CanvasData::Data::dataT>(height)});
            send(m_tile);
         }
     }
@@ -47,7 +47,7 @@ std::string CanvasElement::addImage(const std::string& url, const std::function<
     return name;
 }
 
-void CanvasElement::paintImage(const std::string imageId, int x, int y, const Rect& clippingRect) {
+void CanvasElement::paintImage(const std::string& imageId, int x, int y, const Rect& clippingRect) {
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
         send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
                                                                     {"pos", std::vector<int>{x, y}}});
@@ -57,7 +57,7 @@ void CanvasElement::paintImage(const std::string imageId, int x, int y, const Re
                                                                          {"clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height}}});
 }
 
-void CanvasElement::paintImage(const std::string imageId, const Rect& targetRect, const Element::Rect& clippingRect) {
+void CanvasElement::paintImage(const std::string& imageId, const Rect& targetRect, const Element::Rect& clippingRect) {
     if(targetRect.width <= 0 || targetRect.height <= 0)
         return;
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
@@ -71,7 +71,7 @@ void CanvasElement::paintImage(const std::string imageId, const Rect& targetRect
 }
 
 
-void Graphics::drawRect(const Element::Rect& rect, Color color) {
+void Graphics::drawRect(const Element::Rect& rect, Color::type color) {
     if(rect.width <= 0 || rect.width <= 0)
         return;
     const auto x = std::max(0, rect.x);
@@ -94,18 +94,18 @@ void Graphics::merge(const Graphics& other) {
     for(auto i = 0U; i < m_canvas->size(); i++) {
        const auto p = pos[i];
        const auto po = posOther[i];
-       const auto ao = Telex::Canvas::alpha(po);
-       const auto a = Telex::Canvas::alpha(p);
-       const auto r = Telex::Canvas::r(p) * (0xFF - ao);
-       const auto g = Telex::Canvas::g(p) * (0xFF - ao);
-       const auto b = Telex::Canvas::b(p) * (0xFF - ao);
+       const auto ao = Color::alpha(po);
+       const auto a = Color::alpha(p);
+       const auto r = Color::r(p) * (0xFF - ao);
+       const auto g = Color::g(p) * (0xFF - ao);
+       const auto b = Color::b(p) * (0xFF - ao);
 
 
-       const auto ro = (Telex::Canvas::r(po) * ao);
-       const auto go = (Telex::Canvas::g(po) * ao);
-       const auto bo = (Telex::Canvas::b(po) * ao);
+       const auto ro = (Color::r(po) * ao);
+       const auto go = (Color::g(po) * ao);
+       const auto bo = (Color::b(po) * ao);
 
-       const auto pix = Telex::Canvas::rgbaClamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a);
+       const auto pix = Color::rgbaClamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a);
        pos[i] = pix;
     }
 }
