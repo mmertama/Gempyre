@@ -47,6 +47,24 @@ std::string CanvasElement::addImage(const std::string& url, const std::function<
     return name;
 }
 
+std::vector<std::string> CanvasElement::addImages(const std::vector<std::string>& urls, const std::function<void (const std::vector<std::string>)>& loaded) {
+    std::vector<std::string> names;
+    auto result = std::make_shared<std::map<std::string, bool>>();
+    std::for_each(urls.begin(), urls.end(), [this, &names, loaded, &result](const auto& url){
+        const auto name = addImage(url, [loaded, result](const std::string& id) {
+            (*result)[id] = true;
+            if(loaded && std::find_if(result->begin(), result->end(), [](const auto& r){return !r.second;}) == result->end()) {
+                std::vector<std::string> keys;
+                std::transform(result->begin(), result->end(), std::back_inserter(keys), [](const auto& it){return it.first;});
+                loaded(keys);
+            }
+        });
+        result->emplace(name, false);
+        names.push_back(name);
+    });
+    return names;
+}
+
 void CanvasElement::paintImage(const std::string& imageId, int x, int y, const Rect& clippingRect) {
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
         send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},

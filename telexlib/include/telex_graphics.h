@@ -164,6 +164,13 @@ public:
      */
     std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
     /**
+     * @brief addImages
+     * @param urls
+     * @param loaded
+     * @return
+     */
+    std::vector<std::string> addImages(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
+    /**
       * @function paintImage
       * @param imageId
       * @param x

@@ -329,7 +329,7 @@ function handleJson(msg) {
     
         const el = msg.element.length > 0 ?  document.getElementById(msg.element) : document.body;
         if(!el) {
-            errlog(msg.element, 'not found:"', msg.element, '"');
+            errlog(msg.element, 'element not found:"' + msg.element + '"');
             return;
         }
         switch(msg.type) {
