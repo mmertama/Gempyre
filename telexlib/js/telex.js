@@ -267,6 +267,95 @@ function paintImage(element, imageName, pos, rect, clip) {
     }
 }
 
+function canvasDraw(element, commands) {
+    const ctx = element.getContext("2d");
+    if(!ctx) {
+        errlog(id, "has no graphics context");
+        return;
+    }
+    let cmdpos = 0;
+    while(cmdpos < commands.length) {
+        const cmd = commands[cmdpos++];
+        switch(cmd) {
+        case 'strokeRect':
+            ctx.strokeRect(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'clearRect':
+            ctx.clearRect(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'fillRect':
+            ctx.fillRect(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'fillText':
+            ctx.fillText(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'strokeText':
+            ctx.strokeText(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'arc':
+            ctx.arc(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'ellipse':
+            ctx.arc(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'beginPath':
+            ctx.beginPath();
+            break;
+        case 'closePath':
+            ctx.closePath();
+            break;
+        case 'lineTo':
+            ctx.lineTo(commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'moveTo':
+            ctx.moveTo(commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'bezierCurveTo':
+             ctx.bezierCurveTo(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+             break;
+        case 'quadraticCurveTo':
+             ctx.quadraticCurveTo(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+             break;
+        case 'arcTo':
+             ctx.arcTo(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+             break;
+        case 'rect':
+            ctx.rect(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'stroke':
+            ctx.stroke();
+            break;
+        case 'fill':
+            ctx.fill();
+            break;
+        case 'fillStyle':
+            ctx.fillStyle = commands[cmdpos++];
+            break;
+        case 'strokeStyle':
+            ctx.strokeStyle = commands[cmdpos++];
+            break;
+        case 'lineWidth':
+            ctx.lineWidth = commands[cmdpos++];
+            break;
+        case 'font':
+            ctx.font = commands[cmdpos++];
+            break;
+        case 'textAlign':
+            ctx.textAlign = commands[cmdpos++];
+            break;
+        case 'save':
+            ctx.save();
+            break;
+        case 'restore':
+            ctx.restore();
+            break;
+        default:
+            errlog(cmd, "is not supported command:" + cmdpos + ", in commands:" + commands);
+            return;
+        }
+    }
+}
+
 function handleJson(msg) {
         switch(msg.type) {
         case 'batch':
@@ -322,7 +411,7 @@ function handleJson(msg) {
             } break;
         }
 
-        if(msg.type == 'query') {
+        if(msg.type === 'query') {
             serveQuery(msg.element, msg.query_id, msg.query);
             return;
         }
@@ -350,6 +439,9 @@ function handleJson(msg) {
                 break;
             case 'paint_image':
                 paintImage(el, msg.image, msg.pos, msg.rect, msg.clip);
+                break;
+            case 'canvas_draw':
+                canvasDraw(el, msg.commands);
                 break;
             default:
                 errlog(msg.type, "Unknown type");       

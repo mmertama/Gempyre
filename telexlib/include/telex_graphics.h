@@ -104,6 +104,7 @@ class TELEX_EX CanvasElement : public Element {
     static constexpr auto TileWidth = 64;  // used for server spesific stuff - bigger than a limit (16384) causes random crashes
     static constexpr auto TileHeight = 63; // as there are some header info
 public:
+    using CommandList = std::vector<std::variant<std::string, double>>;
     ~CanvasElement();
     /**
      * @function CanvasElement
@@ -111,14 +112,22 @@ public:
      *
      * Copy
      */
-    CanvasElement(const CanvasElement& other) : Element(other) {m_tile = other.m_tile;}
+    CanvasElement(const CanvasElement& other) : Element(other) {
+        m_tile = other.m_tile;
+        m_width = other.m_width;
+        m_height = other.m_height;
+    }
     /**
      * @function CanvasElement
      * @param other
      *
      * Move
      */
-    CanvasElement(CanvasElement&& other) : Element(std::move(other)) {m_tile = std::move(other.m_tile);}
+    CanvasElement(CanvasElement&& other) : Element(std::move(other)) {
+        m_tile = std::move(other.m_tile);
+        m_width = other.m_width;
+        m_height = other.m_height;
+    }
     /**
      * @function CanvasElement
      * @param ui
@@ -189,8 +198,21 @@ public:
       * Paint an image.
       */
     void paintImage(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0});
+    /**
+     * @function draw
+     * @param canvasCommands
+     */
+    void draw(const CommandList& canvasCommands);
+
+    /**
+     * @brief erase
+     * @param resized
+     */
+    void erase(bool resized = false);
 private:
     CanvasDataPtr m_tile;
+    int m_width = 0;
+    int m_height = 0;
 };
 /**
  * @scopeend

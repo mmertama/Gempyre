@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <future>
 #include <limits>
+#include <iomanip>
 
 /**
   * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
@@ -168,6 +169,19 @@ template <class T>
     return n;
 }
 
+
+ template< typename T >
+ /**
+  * @function toHex
+  * @param ival
+  * @return
+  */
+ std::string toHex(T ival) {
+   std::stringstream stream;
+   stream << std::setfill('0') << std::setw(sizeof(T) * 2)
+          << std::hex << ival;
+   return stream.str();
+ }
 
 /**
  * @scopeend

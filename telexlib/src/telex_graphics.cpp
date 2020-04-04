@@ -89,6 +89,32 @@ void CanvasElement::paintImage(const std::string& imageId, const Rect& targetRec
 }
 
 
+void CanvasElement::draw(const std::vector<std::variant<std::string, double> > &canvasCommands) {
+    if(canvasCommands.empty())
+        return;
+    std::vector<std::string> commandString;
+    std::transform(canvasCommands.begin(), canvasCommands.end(), std::back_inserter(commandString), [](auto&& arg) -> std::string {
+         if(const auto doubleval = std::get_if<double>(&arg))
+            return std::to_string(*doubleval);
+         return std::get<std::string>(arg);
+    });
+    send("canvas_draw", std::unordered_map<std::string, std::any>{{"commands", commandString}});
+}
+
+void CanvasElement::erase(bool resized) {
+    if(resized || m_width <= 0 || m_height <= 0) {
+        const auto rv = rect();
+        if(rv) {
+            m_width = rv->width;
+            m_height = rv->height;
+        } else {
+            return;
+        }
+    }
+    draw({"clearRect", 0, 0, m_width, m_height});
+}
+
+
 void Graphics::drawRect(const Element::Rect& rect, Color::type color) {
     if(rect.width <= 0 || rect.width <= 0)
         return;
