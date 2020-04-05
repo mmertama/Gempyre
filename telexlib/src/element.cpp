@@ -33,8 +33,14 @@ Element::Element(Ui& ui, const std::string& htmlElement, const Element& parent) 
 }
 
 
-Element& Element::subscribe(const std::string& name, Handler handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
-    m_ui->m_elements[m_id].emplace(name, handler);
+Element& Element::subscribe(const std::string& name, std::function<void(const Event&)> handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
+    m_ui->m_elements[m_id].emplace(name, [handler](const Ui::Event& event) {
+        std::unordered_map<std::string, std::string> properties;
+        for(const auto& [k, v] : event.properties)
+            properties.emplace(k, std::any_cast<std::string>(v));
+        Telex::Event ev{event.element, std::move(properties)};
+        handler(ev);
+    });
     m_ui->send(*this, "event", std::unordered_map<std::string, std::any>{
                    {"event", name}, {"properties", properties}, {"throttle", std::to_string(throttle.count())}});
     return *this;

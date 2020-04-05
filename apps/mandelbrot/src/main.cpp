@@ -48,27 +48,27 @@ int main(int /*argc*/, char** /*argv*/) {
         const auto rect = *canvas.rect();
         iterations.subscribe("change",[&mandelbrot, &updater](const Telex::Event& ev){
 
-            const auto value = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("value")));
+            const auto value = *TelexUtils::toOr<int>(ev.properties.at("value"));
             mandelbrot->setIterations(value);
             mandelbrot->update(updater);
         }, {"value"});
 
         colors.subscribe("change",[&mandelbrot, &updater](const Telex::Event& ev){
-            const auto value = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("value")));
+            const auto value = *TelexUtils::toOr<int>(ev.properties.at("value"));
             mandelbrot->setColors(value);
             mandelbrot->update(updater);
         }, {"value"});
 
         canvas.subscribe("mousedown", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics] (const Telex::Event& ev) {
-            mousex = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientX"))) - rect.x;
-            mousey = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientY"))) - rect.y;
+            mousex = *TelexUtils::toOr<int>(ev.properties.at("clientX")) - rect.x;
+            mousey = *TelexUtils::toOr<int>(ev.properties.at("clientY")) - rect.y;
             mousedown = true;
             backupGraphics = graphics.clone();
         }, {"clientX", "clientY"});
 
         canvas.subscribe("mouseup", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics, &mandelbrot, &coordinateStack, &radius, &zooms, &updater](const Telex::Event& ev) {
-            const auto mx = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientX"))) - rect.x;
-            const auto my = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientY"))) - rect.y;
+            const auto mx = *TelexUtils::toOr<int>(ev.properties.at("clientX")) - rect.x;
+            const auto my = *TelexUtils::toOr<int>(ev.properties.at("clientY")) - rect.y;
             mousedown = false;
             graphics = std::move(backupGraphics);
             const auto delta = std::max(mx - mousex, my - mousey);
@@ -84,8 +84,8 @@ int main(int /*argc*/, char** /*argv*/) {
 
         canvas.subscribe("mousemove", [&mousex, &mousey, &mousedown, rect, &graphics, &backupGraphics, &blend](const Telex::Event& ev) {
             if(mousedown) {
-                const auto mx = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientX"))) - rect.x;
-                const auto my = *TelexUtils::toOr<int>(std::any_cast<std::string>(ev.properties.at("clientY"))) - rect.y;
+                const auto mx = *TelexUtils::toOr<int>(ev.properties.at("clientX")) - rect.x;
+                const auto my = *TelexUtils::toOr<int>(ev.properties.at("clientY")) - rect.y;
                 blend.drawRect(Telex::Element::Rect{0, 0, rect.width, rect.height}, Telex::Graphics::pix(0x73, 0x73, 0x73, 0x83));
                 blend.drawRect(Telex::Element::Rect{mousex, mousey, mx - mousex, my - mousey}, Telex::Graphics::pix(0,0,0,0));
                 graphics.merge(backupGraphics);

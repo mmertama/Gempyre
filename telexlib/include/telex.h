@@ -272,11 +272,10 @@ namespace Telex {
         Ui* m_ui;
         std::string m_id;
         friend class Ui;
-        using Handler = std::function<void(const Event& el)>;
     };
     struct Event {
         Element element;
-        const std::unordered_map<std::string, std::any> properties;
+        std::unordered_map<std::string, std::string> properties;
     };
     /**
      * @scopeend
@@ -286,6 +285,11 @@ namespace Telex {
       * @class Ui
      */
     class TELEX_EX Ui {
+        struct Event {
+            Element element;
+            const std::unordered_map<std::string, std::any> properties;
+        };
+        using Handler = std::function<void(const Event& el)>;
     public:
         using Filemap = std::unordered_map<std::string, std::string>;
         using TimerId = int;
@@ -556,7 +560,7 @@ namespace Telex {
         std::unique_ptr<EventMap<std::string, std::any>> m_responsemap;
         std::unique_ptr<Semaphore>  m_sema;
         std::unique_ptr<TimerMgr> m_timers;
-        using HandlerMap = std::unordered_map<std::string, Element::Handler>;
+        using HandlerMap = std::unordered_map<std::string, Handler>;
         std::unordered_map<std::string, HandlerMap> m_elements;
         std::deque<std::function<bool ()>> m_requestqueue;
         std::deque<std::function<void ()>> m_timerqueue;
