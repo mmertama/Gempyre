@@ -86,7 +86,7 @@ std::optional<std::string> Telex::toString(const std::any& any) {
     }
 }
 
-/*
+
 std::optional<std::any> Telex::toAny(const std::string& str) {
     const auto j = json::parse(str);
     if(j.empty())
@@ -123,4 +123,4 @@ std::optional<std::any> Telex::toAny(const std::string& str) {
     }
     return std::nullopt;
 }
-*/
+

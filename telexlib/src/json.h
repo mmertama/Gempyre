@@ -7,7 +7,7 @@
 
 namespace Telex {
 std::optional<std::string> toString(const std::any& any);
-//std::optional<std::any> toAny(const std::string& str);
+std::optional<std::any> toAny(const std::string& str);
 }
 
 #endif // JSON_H
