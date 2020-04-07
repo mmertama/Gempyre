@@ -349,6 +349,51 @@ function canvasDraw(element, commands) {
         case 'restore':
             ctx.restore();
             break;
+        case 'rotate':
+            ctx.rotate(commands[cmdpos++]);
+            break;
+        case 'translate':
+            ctx.translate(commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'scale':
+            ctx.scale(commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'drawImage':
+            const image = document.getElementById(commands[cmdpos++]);
+            if(!image) {
+                errlog("drawImage", commands[cmdpos - 1] + " image not found");
+                return;
+            }
+            ctx.drawImage(image, commands[cmdpos++], commands[cmdpos++]);
+            break;
+        case 'drawImageRect':
+            const image1 = document.getElementById(commands[cmdpos++]);
+            if(!image1) {
+                errlog("drawImageRect", commands[cmdpos - 1] + " image not found");
+                return;
+            }
+            ctx.drawImage(image1,
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++]);
+            break;
+        case 'drawImageClip':
+            const image2 = document.getElementById(commands[cmdpos++]);
+            if(!image2) {
+                errlog("drawImageRect", commands[cmdpos - 1] + " image not found");
+                return;
+            }
+            ctx.drawImage(image2,
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++],
+                          commands[cmdpos++]);
+            break;
         default:
             errlog(cmd, "is not supported command:" + cmdpos + ", in commands:" + commands);
             return;
