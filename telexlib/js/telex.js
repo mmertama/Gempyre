@@ -56,20 +56,15 @@ function removeElement(el, id) {
 
 function throttled(delay, fn) {
   let lastCall = null;
-  const lastFuncion = fn;
+  const lastFunction = fn;
   return function (...args) {
     const now = (new Date).getTime();
     if (lastCall && now - lastCall < delay) {
-      //  setTimeout(function() {
-      //      if(lastFuncion)
-      //          lastFuncion.apply(this, args);
-      //      lastFuncion = null;
-      //  }, delay + 1);
         return;
     }
     lastCall = now;
-    const rvalue = lastFuncion(...args);
-    lastFuncion = null;
+    const rvalue = lastFunction(...args);
+   // lastFunction = null;
     return rvalue;
   }
 }
