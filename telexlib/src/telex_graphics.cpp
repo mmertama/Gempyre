@@ -159,4 +159,3 @@ void Graphics::update() {
         m_element.paint(m_canvas);
 }
 
-

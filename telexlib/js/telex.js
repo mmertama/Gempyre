@@ -291,7 +291,7 @@ function canvasDraw(element, commands) {
             ctx.arc(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
             break;
         case 'ellipse':
-            ctx.arc(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
+            ctx.ellipse(commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++], commands[cmdpos++]);
             break;
         case 'beginPath':
             ctx.beginPath();
@@ -376,7 +376,7 @@ function canvasDraw(element, commands) {
         case 'drawImageClip':
             const image2 = document.getElementById(commands[cmdpos++]);
             if(!image2) {
-                errlog("drawImageRect", commands[cmdpos - 1] + " image not found");
+                errlog("drawImageClip", commands[cmdpos - 1] + " image not found");
                 return;
             }
             ctx.drawImage(image2,
