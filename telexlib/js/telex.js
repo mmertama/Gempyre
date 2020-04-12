@@ -384,6 +384,7 @@ function canvasDraw(element, commands) {
                           commands[cmdpos++],
                           commands[cmdpos++],
                           commands[cmdpos++],
+
                           commands[cmdpos++],
                           commands[cmdpos++],
                           commands[cmdpos++],

@@ -466,7 +466,7 @@ public:
     FrameComposer scale(const double x, double y)  {m_composition.insert(m_composition.end(), {"scale", x, y}); return *this;}
     FrameComposer drawImage(const std::string& id, double x, double y)  {m_composition.insert(m_composition.end(), {"drawImage", id, x, y}); return *this;}
     FrameComposer drawImage(const std::string& id, const Telex::Element::Rect& rect)  {m_composition.insert(m_composition.end(), {"drawImageRect", id, rect.x, rect.y, rect.width, rect.height}); return *this;}
-    FrameComposer drawImage(const std::string& id, const Telex::Element::Rect& rect, const Telex::Element::Rect& clip) {m_composition.insert(m_composition.end(), {"drawImageClip", id, rect.x, rect.y, rect.width, rect.height, clip.x, clip.y, clip.width, clip.height}); return *this;}
+    FrameComposer drawImage(const std::string& id, const Telex::Element::Rect& clip, const Telex::Element::Rect& rect) {m_composition.insert(m_composition.end(), {"drawImageClip", id, clip.x, clip.y, clip.width, clip.height, rect.x, rect.y, rect.width, rect.height}); return *this;}
     const Telex::CanvasElement::CommandList& composed() const {return m_composition;}
 private:
     Telex::CanvasElement::CommandList m_composition;
