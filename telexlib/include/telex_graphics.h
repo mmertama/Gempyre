@@ -463,7 +463,7 @@ public:
     FrameComposer fill() {m_composition.insert(m_composition.end(), {"fill"}); return *this;}
     FrameComposer fillStyle(const std::string& color) {m_composition.insert(m_composition.end(), {"fillStyle", color}); return *this;}
     FrameComposer strokeStyle(const std::string& color) {m_composition.insert(m_composition.end(), {"strokeStyle", color}); return *this;}
-    FrameComposer lineWidth(const std::string& width) {m_composition.insert(m_composition.end(), {"lineWidth", width}); return *this;}
+    FrameComposer lineWidth(double width) {m_composition.insert(m_composition.end(), {"lineWidth", width}); return *this;}
     FrameComposer font(const std::string& style) {m_composition.insert(m_composition.end(), {"font", style}); return *this;}
     FrameComposer textAlign(const std::string& align) {m_composition.insert(m_composition.end(), {"textAlign", align}); return *this;}
     FrameComposer save() {m_composition.insert(m_composition.end(), {"save"}); return *this;}

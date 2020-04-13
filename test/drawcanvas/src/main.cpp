@@ -13,17 +13,16 @@ int main(int /*argc*/, char** /*argv*/) {
 
     Telex::CanvasElement canvas(ui, "canvas");
 
-    canvas.draw({
-                    "lineWidth", 10,
-                    "strokeRect", 75, 140, 150, 110,
-                    "fillRect", 130, 190, 40, 60,
-                    "beginPath",
-                    "moveTo", 50, 140,
-                    "lineTo", 150, 60,
-                    "lineTo", 250, 140,
-                    "closePath",
-                    "stroke"
-                });
+    canvas.draw(Telex::FrameComposer()
+                    .lineWidth(10)
+                    .strokeRect({75, 140, 150, 110})
+                    .fillRect({130, 190, 40, 60})
+                    .beginPath()
+                    .moveTo(50, 140)
+                    .lineTo(150, 60)
+                    .lineTo(250, 140)
+                    .closePath()
+                    .stroke());
 
 
     canvas.draw({
@@ -112,6 +111,25 @@ int main(int /*argc*/, char** /*argv*/) {
         "font", "20px monospace",
         "fillText", "Telex", 400, 51,
                 });
+
+    bool erase = false;
+    //canvas is no KB focus, use root instead!
+    ui.root().subscribe("keydown", [&canvas, &erase](const auto& e) {
+        if(TelexUtils::to<int>(e.properties.at("keyCode")) != 'T')
+            return;
+        if(erase) {
+            canvas.draw(Telex::FrameComposer().clearRect({450, 350, 100 , 150}));
+            erase = false;
+        } else {
+            auto f = Telex::FrameComposer();
+            f.beginPath();
+            f.fillStyle("red");
+            f.ellipse(500, 400, 50, 75, M_PI / 4., 0, 2. * M_PI);
+            f.fill();
+            canvas.draw(f);
+            erase = true;
+        }
+    }, {"keyCode"});
 
 
     ui.run();
