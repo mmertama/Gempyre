@@ -101,6 +101,10 @@ void CanvasElement::draw(const std::vector<std::variant<std::string, double> > &
     send("canvas_draw", std::unordered_map<std::string, std::any>{{"commands", commandString}});
 }
 
+void CanvasElement::draw(const FrameComposer& frameComposer) {
+    draw(frameComposer.composed());
+}
+
 void CanvasElement::erase(bool resized) {
     if(resized || m_width <= 0 || m_height <= 0) {
         const auto rv = rect();

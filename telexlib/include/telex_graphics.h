@@ -40,6 +40,8 @@
  */
 namespace  Telex {
 
+class FrameComposer;
+
 /**
  * @class The Canvas class
  *
@@ -204,6 +206,11 @@ public:
      */
     void draw(const CommandList& canvasCommands);
 
+    /**
+     * @brief function
+     * @param frameComposer
+     */
+    void draw(const FrameComposer& frameComposer);
     /**
      * @brief erase
      * @param resized
@@ -423,12 +430,12 @@ private:
 };
 
 /**
- * @function The FrameComposer class
+ * @class The FrameComposer class
  * typesafe CommandList composer
  */
 class FrameComposer {
 public:
-    FrameComposer();
+    FrameComposer() {}
     FrameComposer(Telex::CanvasElement::CommandList& lst) : m_composition(lst) {}
     FrameComposer(FrameComposer&& other) = default;
     FrameComposer(const FrameComposer& other) = default;
