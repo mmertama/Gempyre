@@ -1,6 +1,0 @@
-cmake_minimum_required (VERSION 3.8)
-set(NAME tests)
-project (${NAME})
-add_subdirectory(calc)
-add_subdirectory(treeview)
-add_subdirectory(mandelbrot)

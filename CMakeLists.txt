@@ -36,7 +36,6 @@ add_subdirectory(telexlib)
 add_subdirectory(affiliates)
 add_subdirectory(test)
 add_subdirectory(blog)
-add_subdirectory(apps)
 
 if(EXISTS $ENV{MDMAKER})
     set(MARKDOWNMAKER $ENV{MDMAKER})
