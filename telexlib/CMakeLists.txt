@@ -35,9 +35,9 @@ if (WIN32)
             TEST_COMMAND ""
             )
         if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
-            set(UV_LIB "${UV_DIR}/src/LIBUV-build/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+            set(UV_LIB "${UV_DIR}/src/libuv-build/Debug/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
         else()
-            set(UV_LIB "${UV_DIR}/src/LIBUV-build/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+            set(UV_LIB "${UV_DIR}/src/libuv-build/Release/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
         endif()
         set(UV_SOURCES "${UV_DIR}/src/libuv")
         add_custom_target(luv_lib DEPENDS ${UV_LIB})

@@ -12,6 +12,8 @@ include_directories(
     include
 )
 
+#maybe only for msvc, but shall not hurt..
+add_compile_options(-D_USE_MATH_DEFINES)
 find_package (telex REQUIRED PATHS ../..)
 
 add_executable(${PROJECT_NAME}
