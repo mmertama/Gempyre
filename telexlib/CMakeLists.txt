@@ -22,6 +22,13 @@ endif()
 if (WIN32)
         set(UV_NAME "libuv")
         set(UV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/${UV_NAME}")
+
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
+            set(UV_LIB_DIR "${UV_DIR}/src/libuv-build/Debug")
+        else()
+            set(UV_LIB_DIR "${UV_DIR}/src/libuv-build/Release")
+        endif()
+
         externalproject_add(libuv
             PREFIX ${UV_DIR}
             GIT_REPOSITORY https://github.com/libuv/libuv.git
@@ -33,12 +40,11 @@ if (WIN32)
             UPDATE_COMMAND ""
             PATCH_COMMAND ""
             TEST_COMMAND ""
+            BINARY_DIR "${UV_LIB_DIR}"
             )
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
-            set(UV_LIB "${UV_DIR}/src/libuv-build/Debug/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
-        else()
-            set(UV_LIB "${UV_DIR}/src/libuv-build/Release/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
-        endif()
+
+        set(UV_LIB "${UV_LIB_DIR}/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
         set(UV_SOURCES "${UV_DIR}/src/libuv")
         add_custom_target(luv_lib DEPENDS ${UV_LIB})
 endif()
