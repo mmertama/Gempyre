@@ -126,7 +126,27 @@ namespace Telex {
         using Attributes = std::unordered_map<std::string, std::string>;
         using Values = std::unordered_map<std::string, std::string>;
         using Elements = std::vector<Element>;
-        struct Rect {int x; int y; int width; int height;};
+        /**
+         * @class The Rect
+         */
+        struct Rect {
+            /**
+             * @brief x
+             */
+            int x;
+            /**
+             * @brief y
+             */
+            int y;
+            /**
+             * @brief width
+             */
+            int width;
+            /**
+             * @brief height
+             */
+            int height;
+        };
     public:
         Element(const Element& other) = default;
         Element(Element&& other) = default;

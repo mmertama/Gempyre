@@ -139,7 +139,7 @@ public:
      */
     CanvasElement(Ui& ui, const std::string& id) : Element(ui, id) {}
     /**
-     * @brief CanvasElement
+     * @function CanvasElement
      * @param ui
      * @param id
      * @param parent
@@ -150,7 +150,7 @@ public:
     CanvasElement& operator=(const CanvasElement& other) = default;
     CanvasElement& operator=(CanvasElement&& other) = default;
     /**
-     * @brief makeCanvas
+     * @function makeCanvas
      * @param width
      * @param height
      * @return CanvasPtr
@@ -159,7 +159,7 @@ public:
      */
     CanvasDataPtr makeCanvas(int width, int height);
     /**
-     * @brief paint
+     * @function paint
      * @param canvas
      *
      * Draw a given bitmap.
@@ -175,7 +175,7 @@ public:
      */
     std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
     /**
-     * @brief addImages
+     * @function addImages
      * @param urls
      * @param loaded
      * @return
@@ -207,12 +207,12 @@ public:
     void draw(const CommandList& canvasCommands);
 
     /**
-     * @brief function
+     * @function function
      * @param frameComposer
      */
     void draw(const FrameComposer& frameComposer);
     /**
-     * @brief erase
+     * @function erase
      * @param resized
      */
     void erase(bool resized = false);
@@ -424,6 +424,7 @@ public:
      * Draw Graphics.
      */
     void update();
+
 private:
     Telex::CanvasElement m_element;
     Telex::CanvasDataPtr m_canvas;
@@ -435,45 +436,235 @@ private:
  */
 class FrameComposer {
 public:
+    /**
+     * @function FrameComposer
+     */
     FrameComposer() {}
+    /**
+     * @function FrameComposer
+     * @param lst
+     */
     FrameComposer(Telex::CanvasElement::CommandList& lst) : m_composition(lst) {}
     FrameComposer(FrameComposer&& other) = default;
     FrameComposer(const FrameComposer& other) = default;
+    /**
+     * @function strokeRect
+     * @param r
+     * @return
+     */
     FrameComposer strokeRect(const Telex::Element::Rect& r) {m_composition.insert(m_composition.end(), {"strokeRect", r.x, r.y, r.width, r.height}); return *this;}
+    /**
+     * @function clearRect
+     * @param r
+     * @return
+     */
     FrameComposer clearRect(const Telex::Element::Rect& r) {m_composition.insert(m_composition.end(), {"clearRect", r.x, r.y, r.width, r.height}); return *this;}
+    /**
+     * @function fillRect
+     * @param r
+     * @return
+     */
     FrameComposer fillRect(const Telex::Element::Rect& r) {m_composition.insert(m_composition.end(), {"fillRect", r.x, r.y, r.width, r.height}); return *this;}
+    /**
+     * @function fillText
+     * @param text
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer fillText(const std::string& text, double x, double y) {m_composition.insert(m_composition.end(), {"fillText", text, x, y}); return *this;}
+    /**
+     * @function strokeText
+     * @param text
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer strokeText(const std::string& text, double x, double y) {m_composition.insert(m_composition.end(), {"strokeText", text, x, y}); return *this;}
+    /**
+     * @function arc
+     * @param x
+     * @param y
+     * @param r
+     * @param sAngle
+     * @param eAngle
+     * @return
+     */
     FrameComposer arc(double x, double y, double r, double sAngle, double eAngle) {
         m_composition.insert(m_composition.end(), {"arc", x, y, r, sAngle, eAngle}); return *this;}
+    /**
+     * @function ellipse
+     * @param x
+     * @param y
+     * @param radiusX
+     * @param radiusY
+     * @param rotation
+     * @param startAngle
+     * @param endAngle
+     * @return
+     */
     FrameComposer ellipse(double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle) {
         m_composition.insert(m_composition.end(), {"ellipse", x, y, radiusX, radiusY, rotation, startAngle, endAngle}); return *this;}
+    /**
+     * @function beginPath
+     * @return
+     */
     FrameComposer beginPath()  {m_composition.insert(m_composition.end(), {"beginPath"}); return *this;}
+    /**
+     * @function closePath
+     * @return
+     */
     FrameComposer closePath() {m_composition.insert(m_composition.end(), {"closePath"}); return *this;}
+    /**
+     * @function lineTo
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer lineTo(double x, double y) {m_composition.insert(m_composition.end(), {"lineTo", x, y}); return *this;}
+    /**
+     * @function moveTo
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer moveTo(double x, double y)  {m_composition.insert(m_composition.end(), {"moveTo", x, y}); return *this;}
+    /**
+     * @function bezierCurveTo
+     * @param cp1x
+     * @param cp1y
+     * @param cp2x
+     * @param cp2y
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer bezierCurveTo(double cp1x, double cp1y, double cp2x, double cp2y, double x, double y) {
         m_composition.insert(m_composition.end(), {"bezierCurveTo", cp1x, cp1y, cp2x, cp2y, x,  y}); return *this;}
+    /**
+     * @function quadraticCurveTo
+     * @param cpx
+     * @param cpy
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer quadraticCurveTo(double cpx, double cpy, double x, double y) {
         m_composition.insert(m_composition.end(), {"quadraticCurveTo", cpx, cpy, x, y}); return *this;}
+    /**
+     * @function arcTo
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param radius
+     * @return
+     */
     FrameComposer arcTo(double x1, double y1, double x2, double y2, double radius) {
         m_composition.insert(m_composition.end(), {"arcTo", x1, y1, x2, y2, radius}); return *this;}
+    /**
+     * @function rect
+     * @param r
+     * @return
+     */
     FrameComposer rect(const Telex::Element::Rect& r) {m_composition.insert(m_composition.end(), {"rect", r.x, r.y, r.width, r.height}); return *this;}
+    /**
+     * @function stroke
+     * @return
+     */
     FrameComposer stroke() {m_composition.insert(m_composition.end(), {"stroke"}); return *this;}
+    /**
+     * @function fill
+     * @return
+     */
     FrameComposer fill() {m_composition.insert(m_composition.end(), {"fill"}); return *this;}
+    /**
+     * @function fillStyle
+     * @param color
+     * @return
+     */
     FrameComposer fillStyle(const std::string& color) {m_composition.insert(m_composition.end(), {"fillStyle", color}); return *this;}
+    /**
+     * @function strokeStyle
+     * @param color
+     * @return
+     */
     FrameComposer strokeStyle(const std::string& color) {m_composition.insert(m_composition.end(), {"strokeStyle", color}); return *this;}
+    /**
+     * @function lineWidth
+     * @param width
+     * @return
+     */
     FrameComposer lineWidth(double width) {m_composition.insert(m_composition.end(), {"lineWidth", width}); return *this;}
+    /**
+     * @function font
+     * @param style
+     * @return
+     */
     FrameComposer font(const std::string& style) {m_composition.insert(m_composition.end(), {"font", style}); return *this;}
+    /**
+     * @function textAlign
+     * @param align
+     * @return
+     */
     FrameComposer textAlign(const std::string& align) {m_composition.insert(m_composition.end(), {"textAlign", align}); return *this;}
+    /**
+     * @function save
+     * @return
+     */
     FrameComposer save() {m_composition.insert(m_composition.end(), {"save"}); return *this;}
+    /**
+     * @function restore
+     * @return
+     */
     FrameComposer restore() {m_composition.insert(m_composition.end(), {"restore"}); return *this;}
+    /**
+     * @function rotate
+     * @param angle
+     * @return
+     */
     FrameComposer rotate(double angle)  {m_composition.insert(m_composition.end(), {"rotate", angle}); return *this;}
+    /**
+     * @function translate
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer translate(double x, double y)  {m_composition.insert(m_composition.end(), {"translate", x, y}); return *this;}
+    /**
+     * @function scale
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer scale(const double x, double y)  {m_composition.insert(m_composition.end(), {"scale", x, y}); return *this;}
+    /**
+     * @function drawImage
+     * @param id
+     * @param x
+     * @param y
+     * @return
+     */
     FrameComposer drawImage(const std::string& id, double x, double y)  {m_composition.insert(m_composition.end(), {"drawImage", id, x, y}); return *this;}
+    /**
+     * @function drawImage
+     * @param id
+     * @param rect
+     * @return
+     */
     FrameComposer drawImage(const std::string& id, const Telex::Element::Rect& rect)  {m_composition.insert(m_composition.end(), {"drawImageRect", id, rect.x, rect.y, rect.width, rect.height}); return *this;}
+    /**
+     * @function drawImage
+     * @param id
+     * @param clip
+     * @param rect
+     * @return
+     */
     FrameComposer drawImage(const std::string& id, const Telex::Element::Rect& clip, const Telex::Element::Rect& rect) {m_composition.insert(m_composition.end(), {"drawImageClip", id, clip.x, clip.y, clip.width, clip.height, rect.x, rect.y, rect.width, rect.height}); return *this;}
+    /**
+     * @function composed
+     * @return
+     */
     const Telex::CanvasElement::CommandList& composed() const {return m_composition;}
 private:
     Telex::CanvasElement::CommandList m_composition;

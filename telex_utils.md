@@ -12,10 +12,11 @@ implementation and test applications.
     * [ inline std::string qq(const std::string&amp; s) ](#inline-stdstring-qqconst-stdstring-s)
     * [ inline std::string chop(const std::string&amp; s) ](#inline-stdstring-chopconst-stdstring-s)
     * [ inline std::string chop(const std::string&amp; s, const std::string&amp; chopped) ](#inline-stdstring-chopconst-stdstring-s-const-stdstring-chopped)
-    * [  std::string substitute(const std::string&amp; str, const std::string&amp; substring,  const std::string&amp; substitution) ](#stdstring-substituteconst-stdstring-str-const-stdstring-substring-const-stdstring-substitution)
+    * [ UTILS_EX std::string substitute(const std::string&amp; str, const std::string&amp; substring,  const std::string&amp; substitution) ](#utils_ex-stdstring-substituteconst-stdstring-str-const-stdstring-substring-const-stdstring-substitution)
     * [ T to(const std::string&amp; source) ](#t-toconst-stdstring-source)
     * [ std::optional&lt;T&gt; toOr(const std::string&amp; source) ](#stdoptionalt-toorconst-stdstring-source)
     * [ T toLow(const T&amp; str) ](#t-tolowconst-t-str)
+    * [ std::string toHex(T ival) ](#stdstring-tohext-ival)
     * [ bool contains(const T&amp; container, const std::string&amp; s) ](#bool-containsconst-t-container-const-stdstring-s)
     * [ std::optional&lt;T&gt; at(const C&amp; container, const std::string&amp; s, unsigned index = 0) ](#stdoptionalt-atconst-c-container-const-stdstring-s-unsigned-index-0)
     * [ T atOr(const C&amp; container, const std::string&amp; s, const T&amp; defaultValue, unsigned index = 0) ](#t-atorconst-c-container-const-stdstring-s-const-t-defaultvalue-unsigned-index-0)
@@ -26,27 +27,27 @@ implementation and test applications.
     * [ std::string join(const T&amp; t, const std::string joinChar = &quot;&quot; ) ](#stdstring-joinconst-t-t-const-stdstring-joinchar)
     * [ T merge(const T&amp; b1, const T&amp; b2) ](#t-mergeconst-t-b1-const-t-b2)
     * [ T merge(const T&amp; b1, const T&amp; b2, Arg ...args) ](#t-mergeconst-t-b1-const-t-b2-arg-args)
-    * [   std::string hexify(const std::string&amp; src, const std::string pat) ](#stdstring-hexifyconst-stdstring-src-const-stdstring-pat)
-    * [   std::string unhexify(const std::string&amp; src) ](#stdstring-unhexifyconst-stdstring-src)
-    * [  OS currentOS() ](#os-currentos)
+    * [ UTILS_EX  std::string hexify(const std::string&amp; src, const std::string pat) ](#utils_ex-stdstring-hexifyconst-stdstring-src-const-stdstring-pat)
+    * [ UTILS_EX  std::string unhexify(const std::string&amp; src) ](#utils_ex-stdstring-unhexifyconst-stdstring-src)
+    * [ UTILS_EX OS currentOS() ](#utils_ex-os-currentos)
     * [ inline bool doFatal(const std::string&amp; txt, std::function&lt;void()&gt; f, const char* file, int line) ](#inline-bool-dofatalconst-stdstring-txt-stdfunctionvoid-f-const-char-file-int-line)
-    * [  std::string getLink(const std::string&amp; fname) ](#stdstring-getlinkconst-stdstring-fname)
-    * [  bool isDir(const std::string&amp; fname) ](#bool-isdirconst-stdstring-fname)
-    * [  std::string workingDir() ](#stdstring-workingdir)
-    * [  std::string absPath(const std::string&amp; rpath) ](#stdstring-abspathconst-stdstring-rpath)
-    * [  std::string pathPop(const std::string&amp; filename) ](#stdstring-pathpopconst-stdstring-filename)
-    * [  std::vector&lt;std::tuple&lt;std::string, bool, std::string&gt;&gt; directory(const std::string&amp; dirname) ](#stdvectorstdtuplestdstring-bool-stdstring-directoryconst-stdstring-dirname)
-    * [  std::string tempName() ](#stdstring-tempname)
-    * [  std::string systemEnv(const std::string&amp; env) ](#stdstring-systemenvconst-stdstring-env)
-    * [  bool isHiddenEntry(const std::string&amp; filename) ](#bool-ishiddenentryconst-stdstring-filename)
-    * [  bool isExecutable(const std::string&amp; filename) ](#bool-isexecutableconst-stdstring-filename)
-    * [  SSIZE_T fileSize(const std::string&amp; filename) ](#ssize_t-filesizeconst-stdstring-filename)
-    * [  bool rename(const std::string&amp; of, const std::string&amp; nf) ](#bool-renameconst-stdstring-of-const-stdstring-nf)
-    * [  void removeFile(const std::string&amp; filename) ](#void-removefileconst-stdstring-filename)
-    * [  bool fileExists(const std::string&amp; filename) ](#bool-fileexistsconst-stdstring-filename)
+    * [ UTILS_EX std::string getLink(const std::string&amp; fname) ](#utils_ex-stdstring-getlinkconst-stdstring-fname)
+    * [ UTILS_EX bool isDir(const std::string&amp; fname) ](#utils_ex-bool-isdirconst-stdstring-fname)
+    * [ UTILS_EX std::string workingDir() ](#utils_ex-stdstring-workingdir)
+    * [ UTILS_EX std::string absPath(const std::string&amp; rpath) ](#utils_ex-stdstring-abspathconst-stdstring-rpath)
+    * [ UTILS_EX std::string pathPop(const std::string&amp; filename) ](#utils_ex-stdstring-pathpopconst-stdstring-filename)
+    * [ UTILS_EX std::vector&lt;std::tuple&lt;std::string, bool, std::string&gt;&gt; directory(const std::string&amp; dirname) ](#utils_ex-stdvectorstdtuplestdstring-bool-stdstring-directoryconst-stdstring-dirname)
+    * [ UTILS_EX std::string tempName() ](#utils_ex-stdstring-tempname)
+    * [ UTILS_EX std::string systemEnv(const std::string&amp; env) ](#utils_ex-stdstring-systemenvconst-stdstring-env)
+    * [ UTILS_EX bool isHiddenEntry(const std::string&amp; filename) ](#utils_ex-bool-ishiddenentryconst-stdstring-filename)
+    * [ UTILS_EX bool isExecutable(const std::string&amp; filename) ](#utils_ex-bool-isexecutableconst-stdstring-filename)
+    * [ UTILS_EX SSIZE_T fileSize(const std::string&amp; filename) ](#utils_ex-ssize_t-filesizeconst-stdstring-filename)
+    * [ UTILS_EX bool rename(const std::string&amp; of, const std::string&amp; nf) ](#utils_ex-bool-renameconst-stdstring-of-const-stdstring-nf)
+    * [ UTILS_EX void removeFile(const std::string&amp; filename) ](#utils_ex-void-removefileconst-stdstring-filename)
+    * [ UTILS_EX bool fileExists(const std::string&amp; filename) ](#utils_ex-bool-fileexistsconst-stdstring-filename)
     * [ std::string writeToTemp(const T&amp; data) ](#stdstring-writetotempconst-t-data)
     * [ std::vector&lt;T&gt; slurp(const std::string&amp; file, const size_t max = std::numeric_limits&lt;size_t&gt;::max()) ](#stdvectort-slurpconst-stdstring-file-const-size_t-max-stdnumeric_limitssize_tmax)
-    * [  std::string slurp(const std::string&amp; file, const size_t max = std::numeric_limits&lt;size_t&gt;::max()) ](#stdstring-slurpconst-stdstring-file-const-size_t-max-stdnumeric_limitssize_tmax)
+    * [ UTILS_EX std::string slurp(const std::string&amp; file, const size_t max = std::numeric_limits&lt;size_t&gt;::max()) ](#utils_ex-stdstring-slurpconst-stdstring-file-const-size_t-max-stdnumeric_limitssize_tmax)
 
 ---
 <a id="TelexUtils"></a>
@@ -70,8 +71,8 @@ implementation and test applications.
 ###### *Param:* s 
 ###### *Param:* chopped 
 ###### *Return:*  
-<a id="stdstring-substituteconst-stdstring-str-const-stdstring-substring-const-stdstring-substitution"></a>
-#####  std::string substitute(const std::string&amp; str, const std::string&amp; substring,  const std::string&amp; substitution) 
+<a id="utils_ex-stdstring-substituteconst-stdstring-str-const-stdstring-substring-const-stdstring-substitution"></a>
+##### UTILS_EX std::string substitute(const std::string&amp; str, const std::string&amp; substring,  const std::string&amp; substitution) 
 ###### *Param:* str 
 ###### *Param:* substring 
 ###### *Param:* substitution 
@@ -87,6 +88,10 @@ implementation and test applications.
 <a id="t-tolowconst-t-str"></a>
 ##### T toLow(const T&amp; str) 
 ###### *Param:* str 
+###### *Return:*  
+<a id="stdstring-tohext-ival"></a>
+##### std::string toHex(T ival) 
+###### *Param:* ival 
 ###### *Return:*  
 
 ---
@@ -160,18 +165,18 @@ implementation and test applications.
 
 ---
 ##### Misc Utils 
-<a id="stdstring-hexifyconst-stdstring-src-const-stdstring-pat"></a>
-#####   std::string hexify(const std::string&amp; src, const std::string pat) 
+<a id="utils_ex-stdstring-hexifyconst-stdstring-src-const-stdstring-pat"></a>
+##### UTILS_EX  std::string hexify(const std::string&amp; src, const std::string pat) 
 ###### *Param:* src 
 ###### *Param:* pat 
 ###### *Return:*  
-<a id="stdstring-unhexifyconst-stdstring-src"></a>
-#####   std::string unhexify(const std::string&amp; src) 
+<a id="utils_ex-stdstring-unhexifyconst-stdstring-src"></a>
+##### UTILS_EX  std::string unhexify(const std::string&amp; src) 
 ###### *Param:* src 
 ###### *Return:*  
 ###### The OS enum 
-<a id="os-currentos"></a>
-#####  OS currentOS() 
+<a id="utils_ex-os-currentos"></a>
+##### UTILS_EX OS currentOS() 
 ###### *Return:*  
 <a id="inline-bool-dofatalconst-stdstring-txt-stdfunctionvoid-f-const-char-file-int-line"></a>
 ##### inline bool doFatal(const std::string&amp; txt, std::function&lt;void()&gt; f, const char* file, int line) 
@@ -185,58 +190,58 @@ implementation and test applications.
 
 ---
 ##### File Utils 
-<a id="stdstring-getlinkconst-stdstring-fname"></a>
-#####  std::string getLink(const std::string&amp; fname) 
+<a id="utils_ex-stdstring-getlinkconst-stdstring-fname"></a>
+##### UTILS_EX std::string getLink(const std::string&amp; fname) 
 ###### *Param:* fname 
 ###### *Return:*  
-<a id="bool-isdirconst-stdstring-fname"></a>
-#####  bool isDir(const std::string&amp; fname) 
+<a id="utils_ex-bool-isdirconst-stdstring-fname"></a>
+##### UTILS_EX bool isDir(const std::string&amp; fname) 
 ###### *Param:* fname 
 ###### *Return:*  
-<a id="stdstring-workingdir"></a>
-#####  std::string workingDir() 
+<a id="utils_ex-stdstring-workingdir"></a>
+##### UTILS_EX std::string workingDir() 
 ###### *Return:*  
-<a id="stdstring-abspathconst-stdstring-rpath"></a>
-#####  std::string absPath(const std::string&amp; rpath) 
+<a id="utils_ex-stdstring-abspathconst-stdstring-rpath"></a>
+##### UTILS_EX std::string absPath(const std::string&amp; rpath) 
 ###### *Param:* rpath 
 ###### *Return:*  
-<a id="stdstring-pathpopconst-stdstring-filename"></a>
-#####  std::string pathPop(const std::string&amp; filename) 
+<a id="utils_ex-stdstring-pathpopconst-stdstring-filename"></a>
+##### UTILS_EX std::string pathPop(const std::string&amp; filename) 
 ###### *Param:* filename 
 ###### *Return:*  
-<a id="stdvectorstdtuplestdstring-bool-stdstring-directoryconst-stdstring-dirname"></a>
-#####  std::vector&lt;std::tuple&lt;std::string, bool, std::string&gt;&gt; directory(const std::string&amp; dirname) 
+<a id="utils_ex-stdvectorstdtuplestdstring-bool-stdstring-directoryconst-stdstring-dirname"></a>
+##### UTILS_EX std::vector&lt;std::tuple&lt;std::string, bool, std::string&gt;&gt; directory(const std::string&amp; dirname) 
 ###### *Param:* dirname 
 ###### *Return:*  
-<a id="stdstring-tempname"></a>
-#####  std::string tempName() 
+<a id="utils_ex-stdstring-tempname"></a>
+##### UTILS_EX std::string tempName() 
 ###### *Return:*  
-<a id="stdstring-systemenvconst-stdstring-env"></a>
-#####  std::string systemEnv(const std::string&amp; env) 
+<a id="utils_ex-stdstring-systemenvconst-stdstring-env"></a>
+##### UTILS_EX std::string systemEnv(const std::string&amp; env) 
 ###### *Param:* env 
 ###### *Return:*  
-<a id="bool-ishiddenentryconst-stdstring-filename"></a>
-#####  bool isHiddenEntry(const std::string&amp; filename) 
+<a id="utils_ex-bool-ishiddenentryconst-stdstring-filename"></a>
+##### UTILS_EX bool isHiddenEntry(const std::string&amp; filename) 
 ###### *Param:* filename 
 ###### *Return:*  
-<a id="bool-isexecutableconst-stdstring-filename"></a>
-#####  bool isExecutable(const std::string&amp; filename) 
+<a id="utils_ex-bool-isexecutableconst-stdstring-filename"></a>
+##### UTILS_EX bool isExecutable(const std::string&amp; filename) 
 ###### *Param:* filename 
 ###### *Return:*  
-<a id="ssize_t-filesizeconst-stdstring-filename"></a>
-#####  SSIZE_T fileSize(const std::string&amp; filename) 
+<a id="utils_ex-ssize_t-filesizeconst-stdstring-filename"></a>
+##### UTILS_EX SSIZE_T fileSize(const std::string&amp; filename) 
 ###### *Param:* filename 
 ###### *Return:*  
-<a id="bool-renameconst-stdstring-of-const-stdstring-nf"></a>
-#####  bool rename(const std::string&amp; of, const std::string&amp; nf) 
+<a id="utils_ex-bool-renameconst-stdstring-of-const-stdstring-nf"></a>
+##### UTILS_EX bool rename(const std::string&amp; of, const std::string&amp; nf) 
 ###### *Param:* of 
 ###### *Param:* nf 
 ###### *Return:*  
-<a id="void-removefileconst-stdstring-filename"></a>
-#####  void removeFile(const std::string&amp; filename) 
+<a id="utils_ex-void-removefileconst-stdstring-filename"></a>
+##### UTILS_EX void removeFile(const std::string&amp; filename) 
 ###### *Param:* filename 
-<a id="bool-fileexistsconst-stdstring-filename"></a>
-#####  bool fileExists(const std::string&amp; filename) 
+<a id="utils_ex-bool-fileexistsconst-stdstring-filename"></a>
+##### UTILS_EX bool fileExists(const std::string&amp; filename) 
 ###### *Param:* filename 
 ###### *Return:*  
 <a id="stdstring-writetotempconst-t-data"></a>
@@ -248,8 +253,8 @@ implementation and test applications.
 ###### *Param:* file 
 ###### *Param:* max 
 ###### *Return:*  
-<a id="stdstring-slurpconst-stdstring-file-const-size_t-max-stdnumeric_limitssize_tmax"></a>
-#####  std::string slurp(const std::string&amp; file, const size_t max = std::numeric_limits&lt;size_t&gt;::max()) 
+<a id="utils_ex-stdstring-slurpconst-stdstring-file-const-size_t-max-stdnumeric_limitssize_tmax"></a>
+##### UTILS_EX std::string slurp(const std::string&amp; file, const size_t max = std::numeric_limits&lt;size_t&gt;::max()) 
 ###### *Param:* file 
 ###### *Param:* max 
 ###### *Return:*  
