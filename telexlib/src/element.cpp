@@ -120,14 +120,14 @@ Data::Data(size_t sz, dataT type, const std::string& owner, const std::vector<da
         m_data[1] = static_cast<dataT>(sz);
         m_data[2] = align(static_cast<dataT>(owner.size()));
         m_data[3] = static_cast<dataT>(header.size());
-        std::copy(header.begin(), header.end(), end());
-        auto idData = reinterpret_cast<uint16_t*>(end() + header.size());
+        std::copy(header.begin(), header.end(), endPtr());
+        auto idData = reinterpret_cast<uint16_t*>(endPtr() + header.size());
         std::copy(owner.begin(), owner.end(), idData);
 }
 
 std::string Data::owner() const {
     std::string out;
-    const auto pos = reinterpret_cast<const uint16_t*>(end() + m_data[3]);
+    const auto pos = reinterpret_cast<const uint16_t*>(endPtr() + m_data[3]);
     for(auto i = 0U; i < m_data[2]; i++) {
         const wchar_t c = pos[i];
         if(c == 0) //name is padded to alignement so there may be extra zeroes
@@ -139,7 +139,7 @@ std::string Data::owner() const {
 
 std::vector<Telex::Data::dataT> Data::header() const {
     std::vector<dataT> out;
-    std::copy(end(), end() + m_data[3], std::back_inserter(out));
+    std::copy(endPtr(), endPtr() + m_data[3], std::back_inserter(out));
     return out;
 }
 

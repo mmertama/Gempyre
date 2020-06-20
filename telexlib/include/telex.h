@@ -1,6 +1,7 @@
 ﻿#ifndef TELEX_H
 #define TELEX_H
 
+#include <iterator>
 #include <string>
 #include <unordered_map>
 #include <functional>
@@ -91,16 +92,41 @@ namespace Telex {
     using DataPtr = std::shared_ptr<Data>;
     class TELEX_EX Data {
     public:
+        template <class T> class iteratorT {
+        public:
+            using iterator_category = std::forward_iterator_tag; //could be upgraded, but I assume there is no need
+            using value_type = T;
+            using difference_type = void;
+            using pointer = T*;
+            using reference = T&;
+            iteratorT(pointer data = nullptr) : m_data(data) {}
+            iteratorT(const iteratorT& other) = default;
+            iteratorT& operator=(const iteratorT& other) = default;
+            bool operator==(const iteratorT& other) const  {return m_data == other.m_data;}
+            bool operator!=(const iteratorT& other) const  {return m_data != other.m_data;}
+            reference operator*() {return *m_data;}
+            const reference operator*() const {return *m_data;}
+            pointer operator->() {return m_data;}
+            value_type operator++() {++m_data ; return *m_data;}
+            value_type operator++(int) {auto temp(m_data); ++m_data; return *temp;}
+        private:
+            pointer m_data;
+        };
         using dataT = uint32_t;
+        using iterator = iteratorT<dataT>;
+        using const_iterator = iteratorT<const dataT>;
+    public:
         dataT* data();
         const dataT* data() const;
         size_t size() const;
-        dataT* begin() {return data();}
-        dataT* end() {return data() + size();}
-        const dataT* begin() const {return data();}
-        const dataT* end() const {return data() + size();}
+        Data::iterator begin() {return data();}
+        Data::iterator end() {return data() + size();}
+        const Data::const_iterator begin() const {return data();}
+        const Data::const_iterator end() const {return data() + size();}
         dataT& operator[](int index) {return (data()[index]);}
         dataT operator[](int index) const {return (data()[index]);}
+        dataT* endPtr() {return data() + size();}
+        const dataT* endPtr() const {return data() + size();}
         void writeHeader(const std::vector<dataT>& header);
         std::vector<dataT> header() const;
         std::string owner() const;
@@ -565,6 +591,16 @@ namespace Telex {
          * Sends locally buffered message to UI
          */
         void endBatch();
+        /**
+         * @function holdTimers
+         * @param hold
+         */
+        void holdTimers(bool hold) {m_hold = hold;}
+        /**
+         * @function isHold
+         * @return
+         */
+        bool isHold() const {return m_hold;}
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);
@@ -592,6 +628,7 @@ namespace Telex {
         std::function<void ()> m_startup;
         Filemap m_filemap;
         std::mutex m_mutex;
+        bool m_hold = false;
         friend class Element;
         friend class Server;
     };

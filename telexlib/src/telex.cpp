@@ -461,7 +461,7 @@ void Ui::eventLoop() {
 
 
         //shoot pending requests
-        while(!m_timerqueue.empty() && m_status != State::EXIT) {
+        while(!m_timerqueue.empty() && m_status != State::EXIT && !m_onOpen && !m_hold) {
             TelexUtils::log(TelexUtils::LogLevel::Debug, "Do timer request", m_timerqueue.size());
             const auto timerfunction = std::move(m_timerqueue.front());
             m_timerqueue.pop_front();
@@ -475,7 +475,12 @@ void Ui::eventLoop() {
 
         if(m_onOpen && m_status == State::RUNNING && m_server->isConnected()) {
             const auto fptr = m_onOpen;
-            addRequest([fptr](){fptr(); return true;}); //we try to keep logic call order
+            holdTimers(true);
+            addRequest([fptr, this](){
+                fptr();
+                holdTimers(false);
+                return true;
+            }); //we try to keep logic call order
             m_onOpen = nullptr; //as the function may reset the function, we do let that happen
         }
 

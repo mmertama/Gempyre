@@ -103,7 +103,7 @@ using CanvasDataPtr = std::shared_ptr<CanvasData>;
  * The CanvasElement class
  */
 class TELEX_EX CanvasElement : public Element {
-    static constexpr auto TileWidth = 64;  // used for server spesific stuff - bigger than a limit (16384) causes random crashes
+    static constexpr auto TileWidth = 64;  // used for server spesific stuff - bigger than a limit (16384) causes random crashes (There is a issue somewhere, this not really work if something else)
     static constexpr auto TileHeight = 63; // as there are some header info
 public:
     using CommandList = std::vector<std::variant<std::string, double>>;
@@ -424,6 +424,14 @@ public:
      * Draw Graphics.
      */
     void update();
+
+    /**
+     * @function ptr
+     * @return
+     */
+    CanvasDataPtr ptr() {
+        return m_canvas;
+    }
 
 private:
     Telex::CanvasElement m_element;

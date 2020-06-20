@@ -24,9 +24,16 @@ if (WIN32)
         set(UV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/${UV_NAME}")
 
         if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
-            set(UV_LIB_DIR "${UV_DIR}/src/libuv-build/Debug")
+             set(UV_LIB_DIR "${UV_DIR}/src/libuv-build/Debug")
         else()
             set(UV_LIB_DIR "${UV_DIR}/src/libuv-build/Release")
+        endif()
+
+        set(UV_LIB "${UV_LIB_DIR}/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+        if(NOT EXISTS ${UV_LIB})
+            message("Lib uv not found: ${UV_LIB}")
+            file(REMOVE_RECURSE ${UV_DIR}) #upon release debug cmake dont understand (?) target file
         endif()
 
         externalproject_add(libuv
@@ -43,10 +50,11 @@ if (WIN32)
             BINARY_DIR "${UV_LIB_DIR}"
             )
 
-        set(UV_LIB "${UV_LIB_DIR}/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
 
         set(UV_SOURCES "${UV_DIR}/src/libuv")
         add_custom_target(luv_lib DEPENDS ${UV_LIB})
+        add_dependencies(luv_lib libuv)
 endif()
 
 
