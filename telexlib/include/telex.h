@@ -1,4 +1,4 @@
-﻿#ifndef TELEX_H
+#ifndef TELEX_H
 #define TELEX_H
 
 #include <iterator>
@@ -105,7 +105,7 @@ namespace Telex {
             bool operator==(const iteratorT& other) const  {return m_data == other.m_data;}
             bool operator!=(const iteratorT& other) const  {return m_data != other.m_data;}
             reference operator*() {return *m_data;}
-            const reference operator*() const {return *m_data;}
+            reference operator*() const {return *m_data;}
             pointer operator->() {return m_data;}
             value_type operator++() {++m_data ; return *m_data;}
             value_type operator++(int) {auto temp(m_data); ++m_data; return *temp;}
