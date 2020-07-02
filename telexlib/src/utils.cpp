@@ -295,7 +295,11 @@ std::string TelexUtils::absPath(const std::string& rpath) {
 #endif
 }
 
-
+std::string TelexUtils::baseName(const std::string& filename) {
+    const auto dname = pathPop(filename);
+    return dname.empty() ? filename :
+        filename.substr(dname.length() + 1);
+}
 
 std::string TelexUtils::pathPop(const std::string& filename) {
     const auto p = filename.find_last_of('/');

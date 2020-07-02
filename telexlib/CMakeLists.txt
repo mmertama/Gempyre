@@ -6,7 +6,7 @@ include(GNUInstallDirs)
 include(ExternalProject)
 include(../scripts/addResource.cmake_script)
 
-project (telex VERSION 0.1.1 LANGUAGES CXX C)
+project (telex VERSION 0.1.2 LANGUAGES CXX C)
 set(CMAKE_CXX_FLAGS "-DTELEX_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
 
 if(NOT CMAKE_BUILD_TYPE)

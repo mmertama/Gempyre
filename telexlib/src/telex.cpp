@@ -69,6 +69,13 @@ static Ui::Filemap normalizeNames(const Ui::Filemap& files) {
     return normalized;
 }
 
+static Ui::Filemap toFileMap(const std::string& filename) {
+    const auto bytes = TelexUtils::slurp<Base64::Byte>(filename);
+    const auto encoded = Base64::encode(bytes);
+    const auto name = TelexUtils::baseName(filename);
+    return {{'/' + name, encoded}};
+}
+
  std::string Ui::toStr(const std::atomic<Telex::Ui::State>& s) {
      const std::unordered_map<Telex::Ui::State, std::string> m{
          {Ui::State::NOTSTARTED, "NOTSTARTED"},
@@ -98,7 +105,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port
     : Ui(filemap, indexHtml, DefaultBrowser, "", port, root) {}
 
 Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui({}, indexHtml, browser, extraParams, port, root){}
+    Ui(toFileMap(indexHtml), '/' + TelexUtils::baseName(indexHtml), browser, extraParams, port, root){}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     m_eventqueue(std::make_unique<EventQueue<std::tuple<std::string, std::string, std::unordered_map<std::string, std::any>>>>()),

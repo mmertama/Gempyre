@@ -536,6 +536,12 @@ UTILS_EX std::string pathPop(const std::string& filename);
 UTILS_EX std::vector<std::tuple<std::string, bool, std::string>> directory(const std::string& dirname);
 UTILS_EX std::string readProcess(const std::string& processName);
 /**
+ * @function baseName
+ * @param filename
+ * @return
+ */
+UTILS_EX std::string baseName(const std::string& filename);
+/**
  * @function tempName
  * @return
  */
