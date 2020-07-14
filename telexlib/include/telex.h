@@ -256,12 +256,12 @@ namespace Telex {
         /**
          * @function setAttribute
          * @param attr
-         * @param values
+         * @param value
          * @return Element
          *
          * Set a given attribute a given name
          */
-        Element& setAttribute(const std::string& attr, const std::string& values);
+        Element& setAttribute(const std::string& attr, const std::string& value = "");
         /**
          * @function attributes
          * @return optional Attributes
@@ -269,6 +269,12 @@ namespace Telex {
          * Return Attributes.
          */
         std::optional<Attributes> attributes() const;
+        /**
+         * @function removeAttribute
+         * @param attr
+         * @return Element
+         */
+        Element& removeAttribute(const std::string& attr);
         /**
          * @function children
          * @return optional Elements

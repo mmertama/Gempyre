@@ -484,6 +484,9 @@ function handleJson(msg) {
             case 'canvas_draw':
                 canvasDraw(el, msg.commands);
                 break;
+            case 'remove_attribute':
+                el.removeAttribute(msg.attribute)
+                break;
             default:
                 errlog(msg.type, "Unknown type");       
         }

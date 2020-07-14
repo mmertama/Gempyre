@@ -56,6 +56,11 @@ Element& Element::setAttribute(const std::string &attr, const std::string &value
     return *this;
 }
 
+Element& Element::removeAttribute(const std::string &attr) {
+    m_ui->send(*this, "remove_attribute", std::unordered_map<std::string, std::string>{{"attribute", attr}});
+    return *this;
+}
+
 std::optional<Element::Attributes> Element::attributes() const {
     const auto attributes = m_ui->query<Element::Attributes>(m_id, "attributes");
     return m_ui->m_status == Ui::State::RUNNING ? attributes : std::nullopt;
