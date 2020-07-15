@@ -477,6 +477,68 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     });
     ui.run();
     return ok;
+}},
+{R"(Element& removeAttribute(const std::string& attr))", [](const std::string& browser) {
+    CONSTRUCT_UI
+    bool ok = false;
+    ui.onOpen([&ok, &ui]() {
+        Telex::Element el(ui, "hidden");
+        auto attrs0 = el.attributes();
+        if(attrs0->find("hidden") == attrs0->end())
+            return;
+        el.removeAttribute("hidden");
+        const auto attrs = el.attributes();
+        ok = attrs->find("hidden") == attrs->end();
+        ui.exit();
+    });
+    ui.run();
+    return ok;
+}},
+{R"(Element& removeStyle(const std::string& attr))", [](const std::string& browser) {
+    CONSTRUCT_UI
+    bool ok = false;
+    ui.onOpen([&ok, &ui]() {
+        Telex::Element el(ui, "styled");
+        const auto style0 = el.styles({"color"}).value();
+        if(style0.find("color") == style0.end() || style0.at("color") != "rgb(255, 0, 0)") {
+            const auto color0 = style0.at("color");
+            ui.exit();
+            return;
+        }
+        el.removeStyle("color");
+        const auto style = el.styles({"color"});
+        const auto color = style->at("color");
+        ok = color != "red";
+        ui.exit();
+    });
+    ui.run();
+    return ok;
+}},
+{R"(Element& setStyle(const std::string& attr))", [](const std::string& browser) {
+    CONSTRUCT_UI
+    bool ok = false;
+    ui.onOpen([&ok, &ui]() {
+        Telex::Element el(ui, "test-1");
+        el.setStyle("color", "blue");
+        const auto style = el.styles({"color"});
+        ok = style->at("color") == "rgb(0, 0, 255)";
+        ui.exit();
+    });
+    ui.run();
+    return ok;
+}},
+{R"(std::optional<Values> styles() const)", [](const std::string& browser) {
+    CONSTRUCT_UI
+    bool ok = false;
+    ui.onOpen([&ok, &ui]() {
+        Telex::Element el(ui, "styled");
+        const auto style0 = el.styles({"color", "font-size"}).value();
+        const auto it = style0.find("color");
+        ok = it != style0.end() && style0.at("color") == "rgb(255, 0, 0)" && style0.at("font-size") == "32px";
+        ui.exit();
+    });
+    ui.run();
+    return ok;
 }}};
 
 

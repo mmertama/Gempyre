@@ -61,9 +61,24 @@ Element& Element::removeAttribute(const std::string &attr) {
     return *this;
 }
 
+Element& Element::setStyle(const std::string &styleName, const std::string &value) {
+    m_ui->send(*this, "set_style", std::unordered_map<std::string, std::string>{{"style", styleName}, {"value", value}});
+    return *this;
+}
+
+Element& Element::removeStyle(const std::string &styleName) {
+    m_ui->send(*this, "remove_style", std::unordered_map<std::string, std::string>{{"style", styleName}});
+    return *this;
+}
+
 std::optional<Element::Attributes> Element::attributes() const {
     const auto attributes = m_ui->query<Element::Attributes>(m_id, "attributes");
     return m_ui->m_status == Ui::State::RUNNING ? attributes : std::nullopt;
+}
+
+std::optional<Element::Values> Element::styles(const std::vector<std::string>& keys) const {
+    const auto styles = m_ui->query<Element::Values>(m_id, "styles", keys);
+    return m_ui->m_status == Ui::State::RUNNING ? styles : std::nullopt;
 }
 
 std::optional<Element::Values> Element::values() const {

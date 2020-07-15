@@ -126,7 +126,7 @@ function id(el) {
     return el.id;
 }
 
-function serveQuery(element, query_id, query) {
+function serveQuery(element, query_id, query, query_params) {
     const el = element.length > 0 ? document.getElementById(element) : document.body;
     if(!el) {
         errlog(element, 'not found:', element, '" for query"');
@@ -156,6 +156,21 @@ function serveQuery(element, query_id, query) {
                 'query_value': 'value',
                 'value': {value: el.value, checked: el.checked, 'name': el.name, 'named':el[el.name]}}));
             break;
+        case 'styles':
+            const styles = new Object();
+            const computedStyles = window.getComputedStyle(el);
+            for(const s of query_params)
+                styles[s] = computedStyles[s]
+            //    if(s in computedStyles)
+            //    styles[s.name] = s.value;
+            socket.send(JSON.stringify({
+                'type': 'query',
+                'query_id': query_id,
+                'query_value': 'styles',
+                'styles': styles
+              //  'styles': {'obj':'styles', 'type': typeof(computedStyles), 'sz':Object.keys(computedStyles)}
+                                       }));
+            break
         case 'innerHTML':
              socket.send(JSON.stringify({
                 'type': 'query',
@@ -453,7 +468,7 @@ function handleJson(msg) {
         }
 
         if(msg.type === 'query') {
-            serveQuery(msg.element, msg.query_id, msg.query);
+            serveQuery(msg.element, msg.query_id, msg.query, msg.query_params);
             return;
         }
     
@@ -486,6 +501,12 @@ function handleJson(msg) {
                 break;
             case 'remove_attribute':
                 el.removeAttribute(msg.attribute)
+                break;
+            case 'set_style':
+                el.style[msg.style] = msg.value;
+                break;
+            case 'remove_style':
+                el.style[msg.style] = undefined;
                 break;
             default:
                 errlog(msg.type, "Unknown type");       

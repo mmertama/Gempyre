@@ -270,11 +270,30 @@ namespace Telex {
          */
         std::optional<Attributes> attributes() const;
         /**
+         * @function setStyle
+         * @param style
+         * @param value
+         * @return Element
+         */
+        Element& setStyle(const std::string& style, const std::string& value);
+        /**
+         * @function removeStyle
+         * @param style
+         * @return Element
+         */
+        Element& removeStyle(const std::string& style);
+        /**
          * @function removeAttribute
          * @param attr
          * @return Element
          */
         Element& removeAttribute(const std::string& attr);
+        /**
+         * @brief styles
+         * @param keys
+         * @return
+         */
+        std::optional<Values> styles(const std::vector<std::string>& keys) const;
         /**
          * @function children
          * @return optional Elements
@@ -611,7 +630,7 @@ namespace Telex {
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);
         void send(const Element& el, const std::string& type, const std::any& data);
-        template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString);
+        template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
         void pendingClose();
         void eventLoop();
         static std::string toStr(const std::atomic<State>&);

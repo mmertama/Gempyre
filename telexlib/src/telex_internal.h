@@ -51,13 +51,14 @@ template <>
 }
 
 template<class T>
-std::optional<T> Ui::query(const std::string& elId, const std::string& queryString)  {
+std::optional<T> Ui::query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams)  {
     T response;
     if(m_status == State::RUNNING) {
         const auto queryId = std::to_string(m_server->queryId());
 
-        addRequest([this, queryId, elId, queryString](){
-            return m_server->send({{"type", "query"}, {"query_id", queryId}, {"element", elId},{"query", queryString}});
+        addRequest([this, queryId, elId, queryString, queryParams](){
+            return m_server->send({{"type", "query"}, {"query_id", queryId}, {"element", elId},{"query", queryString}},
+                                  std::unordered_map<std::string, std::any>{{"query_params", queryParams}});
         });
 
         for(;;) {   //start waiting the response
