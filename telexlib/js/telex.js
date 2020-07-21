@@ -482,7 +482,9 @@ function handleJson(msg) {
                 el.innerHTML = msg.html;
                 break;
             case 'attribute':
-                el.setAttribute(msg.attribute,  msg.value);
+                const val = JSON.parse(msg.value);
+                el.setAttribute(msg.attribute,  val); //This works in some cases
+                el[msg.attribute] = val;              //...and this in some :-D
                 break;
             case 'create':
                 createElement(el, msg.html_element, msg.new_id);
