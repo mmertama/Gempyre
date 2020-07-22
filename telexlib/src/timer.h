@@ -28,6 +28,11 @@ public:
     };
     public:
     TimeQueue() {
+#ifdef SINGLETON
+        static int assert_count = 0;
+        assert(assert_count == 0);
+        ++assert_count;
+#endif
     }
 
     int append(const TimeType& ms, const Function& func) {
@@ -119,12 +124,17 @@ public:
 
 
     std::optional<DataEntry> peek() const {
-        std::lock_guard<std::mutex> guard(m_mutex);
+        TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer queue peek");
+        std::unique_lock<std::mutex> guard(m_mutex);
         if(!m_queue.empty()) {
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer queue not empty");
             const auto it = m_queue.top();
             const auto value = std::optional(it);
+            guard.unlock(); // I have no idea why RAII wont work, unlock does
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer queue return");
             return value;
         }
+        TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer queue is empty");
         return std::nullopt;
     }
 
@@ -173,6 +183,13 @@ public:
         }
     }
     void flush(bool doRun);
+    TimerMgr() {
+#ifdef SINGLETON
+        static int assert_count = 0;
+        assert(assert_count == 0);
+        ++assert_count;
+#endif
+    }
 private:
     void start();
 private:

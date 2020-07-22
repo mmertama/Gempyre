@@ -8,12 +8,19 @@ void TimerMgr::start() {
     m_timerThread = std::async([this]() {
         TelexUtils::log(TelexUtils::LogLevel::Debug, "timer thread start");
         for(;;) {
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer thread loop");
             const auto itemOr = m_queue.peek();
-            if(!itemOr.has_value())
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer queue peeked");
+            if(!itemOr.has_value()) {
+                TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer thread loop exit");
                 break; //empty
+            }
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer thread has value");
             const auto data = itemOr.value();
             const auto currentSleep = data.currentTime;
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer thread wait", currentSleep.count());
             if(currentSleep > std::chrono::milliseconds{0}) {
+                TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer thread lock active");
                 std::unique_lock<std::mutex> lock(m_waitMutex);
                 const auto begin = std::chrono::steady_clock::now();
                 TelexUtils::log(TelexUtils::LogLevel::Debug, "timer wait now:", data.id);
@@ -26,8 +33,10 @@ void TimerMgr::start() {
             }
             TelexUtils::log(TelexUtils::LogLevel::Debug, "timer pop id:", data.id, m_queue.size());
             m_queue.pop();
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer thread function");
             data.func(data.id);
             if(!m_exit) {
+                TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "timer thread reappend");
                 m_queue.reAppend(data.initialTime, data.func, data.id); //restart it
             } else {
                  TelexUtils::log(TelexUtils::LogLevel::Debug, "timer exit on, id:", data.id, m_queue.size());
