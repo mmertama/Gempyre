@@ -481,8 +481,13 @@ function handleJson(msg) {
             case 'html':
                 el.innerHTML = msg.html;
                 break;
-            case 'attribute':
-                const val = JSON.parse(msg.value);
+            case 'set_attribute':
+                let val = 0
+                try  {
+                   val = JSON.parse(msg.value); // In case of number or boolean this works, but string gives Syntax error,
+                } catch(ex) {                    // There can be funny side effects with this....
+                    val = msg.value
+                }
                 el.setAttribute(msg.attribute,  val); //This works in some cases
                 el[msg.attribute] = val;              //...and this in some :-D
                 break;

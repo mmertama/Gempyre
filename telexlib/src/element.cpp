@@ -52,7 +52,7 @@ Element& Element::setHTML(const std::string& htmlText) {
 }
 
 Element& Element::setAttribute(const std::string &attr, const std::string &value) {
-    m_ui->send(*this, "attribute", std::unordered_map<std::string, std::string>{{"attribute", attr}, {"value", value}});
+    m_ui->send(*this, "set_attribute", std::unordered_map<std::string, std::string>{{"attribute", attr}, {"value", value}});
     return *this;
 }
 
