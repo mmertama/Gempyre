@@ -41,8 +41,17 @@ const std::string DefaultBrowser =
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 constexpr char Name[] = "Telex";
 
-void Telex::setDebug() {
-    TelexUtils::setLogLevel(TelexUtils::LogLevel::Debug, false);
+void Telex::setDebug(Telex::DebugLevel level) {
+    const std::unordered_map<Telex::DebugLevel, TelexUtils::LogLevel> lvl =  {
+        {Telex::DebugLevel::None, TelexUtils::LogLevel::None},
+        {Telex::DebugLevel::Fatal, TelexUtils::LogLevel::Fatal},
+        {Telex::DebugLevel::Error, TelexUtils::LogLevel::Error},
+        {Telex::DebugLevel::Warning, TelexUtils::LogLevel::Warning},
+        {Telex::DebugLevel::Info, TelexUtils::LogLevel::Info},
+        {Telex::DebugLevel::Debug, TelexUtils::LogLevel::Debug},
+        {Telex::DebugLevel::Debug_Trace, TelexUtils::LogLevel::Debug_Trace}
+    };
+    TelexUtils::setLogLevel(lvl.at(level), false);
 }
 
 #define STR(x) #x

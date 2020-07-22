@@ -77,11 +77,12 @@ namespace Telex {
     template <class T> class IdList;
     template <class K, class T> class EventMap;
 
+    enum class DebugLevel{None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
     /**
      * @function setDebug
      * Enable debug outputs
      */
-    TELEX_EX void setDebug();
+    TELEX_EX void setDebug(DebugLevel level = DebugLevel::Debug);
 
     /**
      * @function version
