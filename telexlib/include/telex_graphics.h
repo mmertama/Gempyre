@@ -159,13 +159,6 @@ public:
      */
     CanvasDataPtr makeCanvas(int width, int height);
     /**
-     * @function paint
-     * @param canvas
-     *
-     * Draw a given bitmap.
-     */
-    void paint(const CanvasDataPtr& canvas);
-    /**
      * @function addImage
      * @param url
      * @param loaded
@@ -216,6 +209,13 @@ public:
      * @param resized
      */
     void erase(bool resized = false);
+
+    bool hasCanvas() const {
+        return !!m_tile;
+    }
+private:
+    friend class Graphics;
+    void paint(const CanvasDataPtr& canvas);
 private:
     CanvasDataPtr m_tile;
     int m_width = 0;
@@ -310,16 +310,14 @@ public:
      *
      * Construct a Graphics and create a Canvas.
      */
-    Graphics(const Telex::CanvasElement& element, int width, int height) : m_element(element), m_canvas(m_element.makeCanvas(width, height)) {
-    }
+    Graphics(const Telex::CanvasElement& element, int width, int height);
     /**
      * @function Graphics
      * @param element
      *
      * Creates a Graphics without a Canvas, call `create` to construct an actual Canvas.
      */
-    Graphics(const Telex::CanvasElement& element) : m_element(element) {
-    }
+    Graphics(const Telex::CanvasElement& element);
     Graphics(Graphics&& other) = default;
     Graphics(const Graphics& other) = default;
     Graphics& operator=(const Graphics& other) = default;
@@ -340,12 +338,8 @@ public:
      *
      * Clone this Graphics.
      */
-    Graphics clone() const {
-        Graphics other(m_element);
-        other.create(m_canvas->width, m_canvas->height);
-        std::copy(m_canvas->begin(), m_canvas->end(), other.m_canvas->data());
-        return other;
-    }
+    Graphics clone() const;
+
     /**
      * @function pix
      * @param r
@@ -370,7 +364,9 @@ public:
      *
      * Set a pixel.
      */
-    void setPixel(int x, int y, Color::type color) {m_canvas->put(x, y, color);}
+    void setPixel(int x, int y, Color::type color) {
+        m_canvas->put(x, y, color);
+    }
     /**
      * @function setAlpha
      * @param x
@@ -388,12 +384,16 @@ public:
      * @return int
      *
      */
-    int width() const {return m_canvas->width;}
+    int width() const {
+        return m_canvas->width;
+    }
     /**
      * @function height
      * @return int
      */
-    int height() const {return m_canvas->height;}
+    int height() const {
+        return m_canvas->height;
+    }
     /**
      * @function drawRect
      * @param rect

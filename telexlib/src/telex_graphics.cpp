@@ -7,7 +7,8 @@ CanvasData::~CanvasData() {
 }
 
 CanvasDataPtr CanvasElement::makeCanvas(int width, int height) { //could be const, but is it sustainable?
-    m_tile = std::shared_ptr<CanvasData>(new CanvasData(std::min(width, TileWidth), std::min(height, TileHeight), m_id));
+    assert(width > 0 && height > 0);
+    m_tile = std::shared_ptr<CanvasData>(new CanvasData(/*std::min(width,*/ TileWidth/*)*/, /*td::min(height,*/ TileHeight/*)*/, m_id));
     return std::shared_ptr<CanvasData>(new CanvasData(width, height, m_id)); //private cannot use make_...
 }
 
@@ -16,16 +17,32 @@ CanvasElement::~CanvasElement() {
 }
 
 void CanvasElement::paint(const CanvasDataPtr& canvas) {
+    if(!canvas) {
+        TelexUtils::log(TelexUtils::LogLevel::Error, "Won't paint as canvas is NULL");
+        return;
+    }
+    if(!m_tile) {
+        TelexUtils::log(TelexUtils::LogLevel::Error, "Won't paint as buffer is NULL");
+        return;
+    }
+    if(canvas->height <= 0 || canvas->width <= 0 ) {
+        TelexUtils::log(TelexUtils::LogLevel::Debug, "Won't paint as canvas size is 0");
+        return;
+    }
+    TelexUtils::log(TelexUtils::LogLevel::Debug, "Sending canvas data");
+
     for(auto j = 0 ; j < canvas->height ; j += TileHeight) {
         const auto height = std::min(TileHeight, canvas->height - j);
         for(auto i = 0 ; i < canvas->width ; i += TileWidth) {
             const auto width = std::min(TileWidth, canvas->width - i);
             const auto srcPos = canvas->data() + i + (j * canvas->width);
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "Copy canvas frame", i, j, width, height);
             for(int h = 0; h < height; h++) {
                 const auto lineStart = srcPos + (h * canvas->width);
                 auto trgPos = m_tile->data() + width * h;
                 std::copy(lineStart, lineStart + width, trgPos);
             }
+            TelexUtils::log(TelexUtils::LogLevel::Debug_Trace, "Sending canvas frame", i, j, width, height);
             m_tile->writeHeader({static_cast<CanvasData::Data::dataT>(i),
                                  static_cast<CanvasData::Data::dataT>(j),
                                  static_cast<CanvasData::Data::dataT>(width),
@@ -33,6 +50,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas) {
            send(m_tile);
         }
     }
+    TelexUtils::log(TelexUtils::LogLevel::Debug, "Sent canvas data");
 }
 
 std::string CanvasElement::addImage(const std::string& url, const std::function<void (const std::string& id)> &loaded) {
@@ -118,6 +136,18 @@ void CanvasElement::erase(bool resized) {
     draw({"clearRect", 0, 0, m_width, m_height});
 }
 
+Graphics::Graphics(const Telex::CanvasElement& element, int width, int height) : m_element(element), m_canvas(m_element.makeCanvas(width, height)) {
+    TelexUtils::log(TelexUtils::LogLevel::Debug, "Graphics consructed", width, height);
+}
+/**
+ * @function Graphics
+ * @param element
+ *
+ * Creates a Graphics without a Canvas, call `create` to construct an actual Canvas.
+ */
+Graphics::Graphics(const Telex::CanvasElement& element) : m_element(element) {
+    TelexUtils::log(TelexUtils::LogLevel::Info, "Graphics without canvas created, create() must be called");
+}
 
 void Graphics::drawRect(const Element::Rect& rect, Color::type color) {
     if(rect.width <= 0 || rect.width <= 0)
@@ -157,6 +187,14 @@ void Graphics::merge(const Graphics& other) {
        pos[i] = pix;
     }
 }
+
+
+Graphics Graphics::clone() const {
+        Graphics other(m_element);
+        other.create(m_canvas->width, m_canvas->height);
+        std::copy(m_canvas->begin(), m_canvas->end(), other.m_canvas->data());
+        return other;
+    }
 
 void Graphics::update() {
     if(m_canvas)
