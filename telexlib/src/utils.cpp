@@ -109,7 +109,15 @@ void TelexUtils::init() {
 }
 
 std::string TelexUtils::toStr(LogLevel l) {
-    const std::unordered_map<LogLevel, std::string> m = {{LogLevel::None, "NONE"}, {LogLevel::Error, "ERROR"}, {LogLevel::Warning, "WARNING"}, {LogLevel::Info, "INFO"}, {LogLevel::Debug, "DEBUG"}, {LogLevel::Fatal, "FATAL"}};
+    const std::unordered_map<LogLevel, std::string> m = {
+        {LogLevel::None, "NONE"},
+        {LogLevel::Error, "ERROR"},
+        {LogLevel::Warning, "WARNING"},
+        {LogLevel::Info, "INFO"},
+        {LogLevel::Debug, "DEBUG"},
+        {LogLevel::Fatal, "FATAL"},
+        {LogLevel::Debug_Trace, "TRACE"}
+    };
     return m.at(l);
 }
 
