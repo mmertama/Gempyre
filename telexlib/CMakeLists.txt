@@ -323,3 +323,20 @@ if(UNIX AND NOT APPLE)
 endif()
 
 
+#if (LINUX)
+#    set(CMAKE_INSTALL_PREFIX "/usr")
+#endif()
+#
+#if (MACOS)
+#    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+#    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+#endif()
+#
+#if (NOT WIN32)
+#install(TARGETS ${PROJECT_NAME}
+#        LIBRARY DESTINATION lib
+#        FILES ${TELEX_HEADERS} DESTINATION include
+#)
+#else()
+#
+#endif()
