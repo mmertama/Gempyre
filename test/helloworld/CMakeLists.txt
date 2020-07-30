@@ -5,14 +5,14 @@ project (helloworld)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
-     ../../telexlib/include
+     ../../gempyrelib/include
 )
 
-find_package (telex REQUIRED PATHS ../..)
+find_package (gempyre REQUIRED PATHS ../..)
 
 add_executable(helloworld main.cpp)
 
-target_link_libraries (helloworld telex)
+target_link_libraries (helloworld gempyre)
 
 
 

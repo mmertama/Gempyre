@@ -8,7 +8,7 @@
     </style>
 </header>
 <body>
-    <script src="/telex.js"></script>
+    <script src="/gempyre.js"></script>
     <div id="styled">Unit tests</div>
     <div id="hidden" hidden>Hidden</div>
     <div class="test-class">class 1</div>
@@ -38,7 +38,7 @@
         const callback = function(mutationsList, observer) {
             for(let mutation of mutationsList) {
                 if (mutation.type === 'attributes') {
-                    sendTelexEvent('test-1', 'test_event', mutation.target);
+                    sendGempyre Event('test-1', 'test_event', mutation.target);
                 }
             }
         };

@@ -1,5 +1,5 @@
-#include <telex.h>
-#include <telex_utils.h>
+#include <gempyre.h>
+#include <gempyre_utils.h>
 #include <iostream>
 #include <vector>
 #include <tuple>
@@ -9,21 +9,21 @@
 
 using namespace std::chrono_literals;
 
-#define CONSTRUCT_UI Telex::Ui ui({{"/test.html", Unittestshtml}}, "test.html", browser);
+#define CONSTRUCT_UI Gempyre::Ui ui({{"/test.html", Unittestshtml}}, "test.html", browser);
 
 std::string headlessParams() {
-    switch(TelexUtils::currentOS()) {
-    case TelexUtils::OS::WIN: return  "--headless --disable-gpu --remote-debugging-port=9222";
+    switch(GempyreUtils::currentOS()) {
+    case GempyreUtils::OS::WIN: return  "--headless --disable-gpu --remote-debugging-port=9222";
     default:return "--headless --disable-gpu";
     }
 }
 
 
 std::string defaultChrome() {
-    switch(TelexUtils::currentOS()) {
-    case TelexUtils::OS::MAC: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
-    case TelexUtils::OS::WIN: return  R"("C:\Program Files (86)\Google\Chrome\Application\chrome.exe")";
-    case TelexUtils::OS::LINUX: return  R"(chromium-browser)";  //R"(google-chrome)";
+    switch(GempyreUtils::currentOS()) {
+    case GempyreUtils::OS::MAC: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
+    case GempyreUtils::OS::WIN: return  R"("C:\Program Files (86)\Google\Chrome\Application\chrome.exe")";
+    case GempyreUtils::OS::LINUX: return  R"(chromium-browser)";  //R"(google-chrome)";
     default: return "";
     }
 }
@@ -37,42 +37,42 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 
 {R"(explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port))",
         [](const std::string& ){
-    const std::string html = TelexUtils::systemEnv("TELEX-UNITTEST-HTML") ;
+    const std::string html = GempyreUtils::systemEnv("GEMPYRE-UNITTEST-HTML") ;
     if(html.empty()) {
-        std::cerr << "no TELEX-UNITTEST-HTML set" << std::endl;
+        std::cerr << "no GEMPYRE-UNITTEST-HTML set" << std::endl;
         return false;
     }
 
-    const std::string browser = TelexUtils::systemEnv("TELEX-UNITTEST-HTML") ;
+    const std::string browser = GempyreUtils::systemEnv("GEMPYRE-UNITTEST-HTML") ;
     if(browser.empty()) {
-        std::cerr << "no TELEX-UNITTEST-BROWSER set" << std::endl;
+        std::cerr << "no GEMPYRE-UNITTEST-BROWSER set" << std::endl;
         return false;
     }
-    Telex::Ui ui(html, browser, "", 50000);
+    Gempyre::Ui ui(html, browser, "", 50000);
     ui.exit();
     ui.run();
     return true;
 }},
 {R"(explicit Ui(const std::string& indexHtml))",
         [](const std::string& ){
-    const std::string html = TelexUtils::systemEnv("TELEX-UNITTEST-HTML") ;
+    const std::string html = GempyreUtils::systemEnv("GEMPYRE-UNITTEST-HTML") ;
     if(html.empty()) {
-        std::cerr << "no TELEX-UNITTEST-HTML set" << std::endl;
+        std::cerr << "no GEMPYRE-UNITTEST-HTML set" << std::endl;
         return false;
     }
-    Telex::Ui ui(html);
+    Gempyre::Ui ui(html);
     ui.exit();
     ui.run();
     return true;
 }},
 {R"(explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port))",
         [](const std::string& ){
-    const std::string browser = TelexUtils::systemEnv("TELEX-UNITTEST-HTML") ;
+    const std::string browser = GempyreUtils::systemEnv("GEMPYRE-UNITTEST-HTML") ;
     if(browser.empty()) {
-        std::cerr << "no TELEX-UNITTEST-BROWSER set" << std::endl;
+        std::cerr << "no GEMPYRE-UNITTEST-BROWSER set" << std::endl;
         return false;
     }
-    Telex::Ui ui({{"/test.html", Unittestshtml}}, "test.html", browser, "", 50000);
+    Gempyre::Ui ui({{"/test.html", Unittestshtml}}, "test.html", browser, "", 50000);
     return true;
 }},
 {R"(explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port))",
@@ -176,7 +176,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
         ui.eval("document.write('<h3 id=\\\"foo\\\">Bar</h3>')");
         bool ok = false;
         ui.onOpen([&ok, &ui]() {
-            Telex::Element el(ui, "foo");
+            Gempyre::Element el(ui, "foo");
             const auto html = el.html();
             ok = html.has_value() && html.value() == "Bar";
             ui.exit();
@@ -215,7 +215,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 {R"(TimerId startTimer(const std::chrono::milliseconds& ms, const std::function<bool (TimerId id)>& timerFunc))",
         [](const std::string& browser) {
         CONSTRUCT_UI
-        ui.startTimer(1000ms, true, [&ui](Telex::Ui::TimerId /*id*/)  {
+        ui.startTimer(1000ms, true, [&ui](Gempyre::Ui::TimerId /*id*/)  {
            ui.exit();
         });
         ui.run();
@@ -252,9 +252,9 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 }},
 {R"(std::string addressOf(const std::string& filepath) const)",
         [](const std::string& browser){
-    const std::string html = TelexUtils::systemEnv("TELEX-UNITTEST-HTML") ;
+    const std::string html = GempyreUtils::systemEnv("GEMPYRE-UNITTEST-HTML") ;
     if(html.empty()) {
-        std::cerr << "no TELEX-UNITTEST-HTML set" << std::endl;
+        std::cerr << "no GEMPYRE-UNITTEST-HTML set" << std::endl;
         return false;
     }
     CONSTRUCT_UI
@@ -303,7 +303,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     const auto r = ui.resource("/test.html");
     if(!r)
         return false;
-    const std::string html = TelexUtils::join(*r);
+    const std::string html = GempyreUtils::join(*r);
     const auto p1 = html.find("html");
     const auto p2 = html.find("html");
     return p1 == p2;
@@ -312,13 +312,13 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
         [](const std::string& browser){
     CONSTRUCT_UI
     const std::string test = "The quick brown fox jumps over the lazy dog";
-    const auto tempFile = TelexUtils::writeToTemp(test);
+    const auto tempFile = GempyreUtils::writeToTemp(test);
     const auto ok = ui.addFile("test_data", tempFile);
     if(!ok)
         return false;
-    TelexUtils::removeFile(tempFile);
+    GempyreUtils::removeFile(tempFile);
     const auto r = ui.resource("test_data");
-    const std::string text = TelexUtils::join(*r);
+    const std::string text = GempyreUtils::join(*r);
     const auto p1 = text.find("quick");
     return p1 != std::string::npos && text.length() == test.length();
 }}
@@ -329,7 +329,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 {R"(Element(Ui& ui, const std::string& id))",
         [](const std::string& browser) {
     CONSTRUCT_UI
-    Telex::Element foo(ui, "test-1");
+    Gempyre::Element foo(ui, "test-1");
     return true;
 }},
 {R"(Element(Ui& ui, const std::string& id, const std::string& htmlElement, Element& parent))",
@@ -337,8 +337,8 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
         CONSTRUCT_UI
         bool ok = false;
         ui.onOpen([&ok, &ui]() {
-            Telex::Element parent(ui, "test-1");
-            Telex::Element(ui, "boing", "div", parent);
+            Gempyre::Element parent(ui, "test-1");
+            Gempyre::Element(ui, "boing", "div", parent);
             const auto cop = parent.children();
             ok = cop.has_value() && std::find_if(cop->begin(), cop->end(), [](const auto el ){return el.id() == "boing";}) != cop->end();
             ui.exit();
@@ -348,15 +348,15 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 {R"(std::string id() const)",
         [](const std::string& browser){
     CONSTRUCT_UI
-    Telex::Element foo(ui, "test-1");
+    Gempyre::Element foo(ui, "test-1");
     return foo.id() == "test-1";
 }},
 {R"(Element& subscribe(const std::string& name, Handler handler))",
         [](const std::string& browser) {
         CONSTRUCT_UI
         bool ok = false;
-        Telex::Element el(ui, "test-1");
-        el.subscribe("test_event", [&ok, &ui, &el](const Telex::Event& eel) {
+        Gempyre::Element el(ui, "test-1");
+        el.subscribe("test_event", [&ok, &ui, &el](const Gempyre::Event& eel) {
             ok = eel.element.id() == el.id();
             ui.exit();
         });
@@ -372,7 +372,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 {R"(Element& setHTML(const std::string& htmlText))",
         [](const std::string& browser) {
     CONSTRUCT_UI
-    Telex::Element el(ui, "test-1");
+    Gempyre::Element el(ui, "test-1");
     el.setHTML("Test-dyn");
     bool ok = false;
     ui.onOpen([&ok, &ui, &el]() {
@@ -386,7 +386,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
 {R"(Element& setAttribute(const std::string& attr, const std::string& values))",
         [](const std::string& browser) {
     CONSTRUCT_UI
-    Telex::Element el(ui, "test-1");
+    Gempyre::Element el(ui, "test-1");
     el.setAttribute("value", "Test-attr-dyn");
     bool ok = false;
     ui.onOpen([&ok, &ui, &el]() {
@@ -404,7 +404,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "test-1");
+        Gempyre::Element el(ui, "test-1");
         const auto attrs = el.attributes();
         ok = attrs.has_value()
                 && attrs->find("value") != attrs->end()
@@ -419,7 +419,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "test-1");
+        Gempyre::Element el(ui, "test-1");
         const auto chlds = el.children();
         ok = chlds.has_value()
                 && chlds->size() > 2
@@ -434,7 +434,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "checkbox-1");
+        Gempyre::Element el(ui, "checkbox-1");
         const auto values = el.values();
         ok = values.has_value()
                 && values->find("checked") != values->end()
@@ -449,7 +449,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "test-1");
+        Gempyre::Element el(ui, "test-1");
         const auto html = el.html();
         ok = html.has_value() && html.value().find("Test-1") != std::string::npos;
         ui.exit();
@@ -462,13 +462,13 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "test-1");
+        Gempyre::Element el(ui, "test-1");
         const auto chlds = el.children();
         ok = chlds.has_value()
                 && chlds->size() > 3
                 && (*chlds)[3].id() == "test-child-3";
         if(ok) {
-            Telex::Element c(ui,"test-child-3");
+            Gempyre::Element c(ui,"test-child-3");
             c.remove();
             const auto cop = el.children();
             ok = cop.has_value() && std::find_if(cop->begin(), cop->end(), [](const auto el ){return el.id() == "test-child-3";}) == cop->end();
@@ -482,7 +482,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "hidden");
+        Gempyre::Element el(ui, "hidden");
         auto attrs0 = el.attributes();
         if(attrs0->find("hidden") == attrs0->end())
             return;
@@ -498,7 +498,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "styled");
+        Gempyre::Element el(ui, "styled");
         const auto style0 = el.styles({"color"}).value();
         if(style0.find("color") == style0.end() || style0.at("color") != "rgb(255, 0, 0)") {
             const auto color0 = style0.at("color");
@@ -518,7 +518,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "test-1");
+        Gempyre::Element el(ui, "test-1");
         el.setStyle("color", "blue");
         const auto style = el.styles({"color"});
         ok = style->at("color") == "rgb(0, 0, 255)";
@@ -531,7 +531,7 @@ const std::vector<std::tuple<std::string, std::function<bool (const std::string&
     CONSTRUCT_UI
     bool ok = false;
     ui.onOpen([&ok, &ui]() {
-        Telex::Element el(ui, "styled");
+        Gempyre::Element el(ui, "styled");
         const auto style0 = el.styles({"color", "font-size"}).value();
         const auto it = style0.find("color");
         ok = it != style0.end() && style0.at("color") == "rgb(255, 0, 0)" && style0.at("font-size") == "32px";
@@ -554,26 +554,26 @@ static std::unordered_map<unsigned, std::string> nonRun {
 };
 
 int main(int args, char* argv[]) {
-    const auto tests =  TelexUtils::merge(Uitests, Eltests);
-    const auto alist = TelexUtils::parseArgs(args, argv, {
-                                            {"tests", 't', TelexUtils::ArgType::REQ_ARG},
-                                            {"skipped", 's', TelexUtils::ArgType::REQ_ARG},
-                                            {"debug", 'd', TelexUtils::ArgType::NO_ARG},
-                                            {"chrome", 'c', TelexUtils::ArgType::REQ_ARG},
-                                            {"headless", 'h', TelexUtils::ArgType::NO_ARG}
+    const auto tests =  GempyreUtils::merge(Uitests, Eltests);
+    const auto alist = GempyreUtils::parseArgs(args, argv, {
+                                            {"tests", 't', GempyreUtils::ArgType::REQ_ARG},
+                                            {"skipped", 's', GempyreUtils::ArgType::REQ_ARG},
+                                            {"debug", 'd', GempyreUtils::ArgType::NO_ARG},
+                                            {"chrome", 'c', GempyreUtils::ArgType::REQ_ARG},
+                                            {"headless", 'h', GempyreUtils::ArgType::NO_ARG}
                                         });
-    const auto params = std::get_if<TelexUtils::Params>(&alist);
+    const auto params = std::get_if<GempyreUtils::Params>(&alist);
     std::set<unsigned> skipped;
     std::string browser;
     if(params) {
-        const auto opts = std::get<TelexUtils::Options>(*params);
-        if(TelexUtils::contains(opts, "debug")) {
-            Telex::setDebug();
+        const auto opts = std::get<GempyreUtils::Options>(*params);
+        if(GempyreUtils::contains(opts, "debug")) {
+            Gempyre::setDebug();
         }
-        if(TelexUtils::contains(opts, "browser")) {
-            browser = TelexUtils::qq(opts.find("browser")->second)  + " " + headlessParams();
+        if(GempyreUtils::contains(opts, "browser")) {
+            browser = GempyreUtils::qq(opts.find("browser")->second)  + " " + headlessParams();
         }
-        if(TelexUtils::contains(opts, "headless")) {
+        if(GempyreUtils::contains(opts, "headless")) {
             browser = defaultChrome() + " " + headlessParams();
             nonRun.emplace(5, "Not work on headless");
             nonRun.emplace(6, "Not work on headless");
@@ -596,9 +596,9 @@ int main(int args, char* argv[]) {
         if(lp != opts.end()) {
             for(auto i = 1U; i <= tests.size(); i++)
                 skipped.emplace(i);
-            const auto list = TelexUtils::split<std::vector<std::string>>(lp->second, ',');
+            const auto list = GempyreUtils::split<std::vector<std::string>>(lp->second, ',');
             for(const auto& l : list) {
-                const auto lop = TelexUtils::toOr<unsigned>(l);
+                const auto lop = GempyreUtils::toOr<unsigned>(l);
                 if(lop.has_value()) {
                     const auto index = lop.value();
                     const auto it = skipped.find(index);
@@ -608,9 +608,9 @@ int main(int args, char* argv[]) {
         }
         const auto sp = opts.find("skipped");
         if(sp != opts.end()) {
-            const auto list = TelexUtils::split<std::vector<std::string>>(sp->second, ',');
+            const auto list = GempyreUtils::split<std::vector<std::string>>(sp->second, ',');
             for(const auto& l : list) {
-                const auto lop = TelexUtils::toOr<unsigned>(l);
+                const auto lop = GempyreUtils::toOr<unsigned>(l);
                 if(lop.has_value()) {
                     const auto index = lop.value();
                     skipped.emplace(index);
@@ -638,11 +638,11 @@ int main(int args, char* argv[]) {
         std::cout << testNo << " ";
         if(f) {
             const auto result = std::time(nullptr);
-            std::cout << "Execute test for " << n << "..." << '[' << TelexUtils::chop(std::asctime(std::localtime(&result))) << "]" << std::flush;
+            std::cout << "Execute test for " << n << "..." << '[' << GempyreUtils::chop(std::asctime(std::localtime(&result))) << "]" << std::flush;
             std::cerr << std::flush;
-            auto wait = TelexUtils::waitExpire(30s, [testNo, &failedTotal](){
+            auto wait = GempyreUtils::waitExpire(30s, [testNo, &failedTotal](){
                  const auto result = std::time(nullptr);
-                 std::cerr << "Test " << testNo << " took too long " << "fail " << '[' << TelexUtils::chop(std::asctime(std::localtime(&result))) << "]" << std::endl;
+                 std::cerr << "Test " << testNo << " took too long " << "fail " << '[' << GempyreUtils::chop(std::asctime(std::localtime(&result))) << "]" << std::endl;
                  ++failedTotal;
             });
             const bool success = f(browser);

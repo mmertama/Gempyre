@@ -8,11 +8,11 @@ include(../../scripts/addResource.cmake_script)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
-     ../../telexlib/include
+     ../../gempyrelib/include
     include
 )
 
-find_package (telex REQUIRED PATHS ../..)
+find_package (gempyre REQUIRED PATHS ../..)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -21,7 +21,7 @@ add_executable(${PROJECT_NAME}
 
 addResource(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html stuff/owl.png)
 
-target_link_libraries (${PROJECT_NAME} telex)
+target_link_libraries (${PROJECT_NAME} gempyre)
 
 
 

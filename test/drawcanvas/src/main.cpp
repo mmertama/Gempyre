@@ -1,5 +1,5 @@
-#include "telex_graphics.h"
-#include "telex_utils.h"
+#include "gempyre_graphics.h"
+#include "gempyre_utils.h"
 #include "drawcanvas_resource.h"
 #include <iostream>
 #include <cmath>
@@ -8,12 +8,12 @@ using namespace std::chrono_literals;
 
 
 int main(int /*argc*/, char** /*argv*/) {
-    Telex::setDebug();
-    Telex::Ui ui({{"/drawcanvas.html", Drawcanvashtml}}, "drawcanvas.html");
+    Gempyre::setDebug();
+    Gempyre::Ui ui({{"/drawcanvas.html", Drawcanvashtml}}, "drawcanvas.html");
 
-    Telex::CanvasElement canvas(ui, "canvas");
+    Gempyre::CanvasElement canvas(ui, "canvas");
 
-    canvas.draw(Telex::FrameComposer()
+    canvas.draw(Gempyre::FrameComposer()
                     .lineWidth(10)
                     .strokeRect({75, 140, 150, 110})
                     .fillRect({130, 190, 40, 60})
@@ -58,7 +58,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     const auto x = 300.;
     const auto y = 300.;
-    Telex::CanvasElement::CommandList commands({
+    Gempyre::CanvasElement::CommandList commands({
                                                    "beginPath",
                                                    "lineWidth", 1,
                                                    "strokeStyle", "blue",
@@ -73,7 +73,7 @@ int main(int /*argc*/, char** /*argv*/) {
         commands.push_back(x);
         commands.push_back(y);
         commands.push_back("fillStyle");
-        commands.push_back("#" + TelexUtils::toHex<int>(::rand()));
+        commands.push_back("#" + GempyreUtils::toHex<int>(::rand()));
         commands.push_back("lineTo");
         commands.push_back(x + ::sin(i + pof) * 100.);
         commands.push_back(y + ::cos(i + pof) * 100.);
@@ -109,19 +109,19 @@ int main(int /*argc*/, char** /*argv*/) {
         "fillText", "Solenoidal serenity", 52, 512,
         "restore",
         "font", "20px monospace",
-        "fillText", "Telex", 400, 51,
+        "fillText", "Gempyre", 400, 51,
                 });
 
     bool erase = false;
     //canvas is no KB focus, use root instead!
     ui.root().subscribe("keydown", [&canvas, &erase](const auto& e) {
-        if(TelexUtils::to<int>(e.properties.at("keyCode")) != 'T')
+        if(GempyreUtils::to<int>(e.properties.at("keyCode")) != 'T')
             return;
         if(erase) {
-            canvas.draw(Telex::FrameComposer().clearRect({450, 350, 100 , 150}));
+            canvas.draw(Gempyre::FrameComposer().clearRect({450, 350, 100 , 150}));
             erase = false;
         } else {
-            auto f = Telex::FrameComposer();
+            auto f = Gempyre::FrameComposer();
             f.beginPath();
             f.fillStyle("red");
             f.ellipse(500, 400, 50, 75, M_PI / 4., 0, 2. * M_PI);

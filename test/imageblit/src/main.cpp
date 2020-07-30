@@ -1,11 +1,11 @@
-#include "telex_graphics.h"
-#include "telex_utils.h"
+#include "gempyre_graphics.h"
+#include "gempyre_utils.h"
 #include "imageblit_resource.h"
 #include <iostream>
 
 using namespace std::chrono_literals;
 
-void writeText(int x, int y, const std::string& text, Telex::CanvasElement& el) {
+void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el) {
     el.ui().beginBatch();
     const auto width = 1000. / 9.;
     const auto height = 1000. / 9.;
@@ -30,15 +30,15 @@ void writeText(int x, int y, const std::string& text, Telex::CanvasElement& el) 
 }
 
 int main(int argc, char** argv) {
-   // Telex::setDebug();
-    const auto args = TelexUtils::parseArgs(argc, argv, {{"resources", 'r', TelexUtils::ArgType::REQ_ARG}});
-    const auto options = std::get<TelexUtils::Options>(std::get<TelexUtils::Params>(args));
+   // Gempyre::setDebug();
+    const auto args = GempyreUtils::parseArgs(argc, argv, {{"resources", 'r', GempyreUtils::ArgType::REQ_ARG}});
+    const auto options = std::get<GempyreUtils::Options>(std::get<GempyreUtils::Params>(args));
     const auto it = options.find("resources");
     const auto root = (it != options.end()) ? (it->second + "/") : std::string("");
 
-    Telex::Ui ui({{"/imageblit.html", Imageblithtml}, {"/owl.png", Owlpng}}, "imageblit.html", Telex::Ui::UseDefaultPort, root);
+    Gempyre::Ui ui({{"/imageblit.html", Imageblithtml}, {"/owl.png", Owlpng}}, "imageblit.html", Gempyre::Ui::UseDefaultPort, root);
 
-    Telex::CanvasElement canvas(ui, "canvas");
+    Gempyre::CanvasElement canvas(ui, "canvas");
 
     //Five ways to load image
 
@@ -58,23 +58,23 @@ int main(int argc, char** argv) {
         canvas.paintImage("some_sceneid", {0, 200, 200, 200});
     });
     /* This does not work
-    Telex::Element(ui, "some_sceneid").subscribe("load", [&canvas] (const Telex::Element::Event&){
+    Gempyre::Element(ui, "some_sceneid").subscribe("load", [&canvas] (const Gempyre::Element::Event&){
          canvas.paintImage("some_sceneid", {0, 200, 200, 200});
     });
     */
     const auto simage1 = root + "free-scenery-7.jpg";
-    if(TelexUtils::fileExists(simage1)) {
+    if(GempyreUtils::fileExists(simage1)) {
         if(!ui.addFile("/scene.jpg", simage1)) {
-            std::cerr << "Cannot load " << simage1 << " (try: -r <PATH TO>/Telex-framework/test/imageblit/stuff)" << std::endl;
+            std::cerr << "Cannot load " << simage1 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
             return -1;
         }
     } else ui.alert(simage1 + " not found!");
 
     //4) add as resource and image
     const auto simage2 = root + "tom-hanssens-shot-01.jpg";
-    if(TelexUtils::fileExists(simage2)) {
+    if(GempyreUtils::fileExists(simage2)) {
         if(!ui.addFile("/scene2.jpg", simage2)) {
-            std::cerr << "Cannot load " << simage2 << " (try: -r <PATH TO>/Telex-framework/test/imageblit/stuff)" << std::endl;
+            std::cerr << "Cannot load " << simage2 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
             return -1;
         }
     } else ui.alert(simage2 + " not found!");
@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 
     canvas.addImage("leigh-kellogg-captainamerica-poseframes-2.jpg", [&canvas, &ui, &frame](const auto& marica){
         ui.startTimer(50ms, false, [&canvas, &frame, marica]{
-            const std::vector<Telex::Element::Rect> frames{
+            const std::vector<Gempyre::Element::Rect> frames{
                 {100, 300, 248, 344},
                 {348, 300, 282, 344},
                 {616, 300, 278, 344},

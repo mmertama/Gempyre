@@ -1,7 +1,7 @@
-#include <telex.h>
+#include <gempyre.h>
 
 int main(int /*args*/, char** /*argv*/) {
-    Telex::Ui ui("./minihello.html");
+    Gempyre::Ui ui("./minihello.html");
     ui.run();
 	return 0;
 }

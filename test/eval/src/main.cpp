@@ -1,9 +1,9 @@
-#include "telex.h"
+#include "gempyre.h"
 #include "eval_resource.h"
 
 int main(int /*argc*/, char** /*argv*/) {
-    Telex::setDebug();
-    Telex::Ui ui({{"/eval.html", Evalhtml}}, "eval.html");
+    Gempyre::setDebug();
+    Gempyre::Ui ui({{"/eval.html", Evalhtml}}, "eval.html");
     ui.eval(R"(var para = document.createElement("P");
             var t = document.createTextNode("This is a paragraph.");
             para.appendChild(t);

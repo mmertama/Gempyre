@@ -5,11 +5,13 @@ function (addResource)
         ${ARGN}
         )
     
-    if(NOT EXISTS ${TELEX_DIR})
-        if(EXISTS $ENV{TELEX_DIR})
-            set(TELEX_DIR $ENV{TELEX_DIR})
-        else()
-            message(FATAL_ERROR "TELEX_DIR is not set neither TELEX_DIR Environment variable is not pointing to Telex dir")
+    if(NOT EXISTS ${GEMPYRE_DIR})
+        if(EXISTS $ENV{GEMPYRE_DIR})
+            set(GEMPYRE_DIR $ENV{GEMPYRE_DIR})
+        elsif(exists ../gempyrelib)
+	    set(GEMPYRE_DIR ..)
+	else()
+            message(FATAL_ERROR "GEMPYRE_DIR is not set neither GEMPYRE_DIR Environment variable is not pointing to Gempyre dir")
         endif()
     endif()
     
@@ -21,7 +23,7 @@ function (addResource)
       
     add_custom_command(
         OUTPUT ${ADD_RESOURCE_TARGET}
-        COMMAND python ${TELEX_DIR}/scripts/genStringResource.py ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
+        COMMAND python ${GEMPYRE_DIR}/scripts/genStringResource.py ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
     
