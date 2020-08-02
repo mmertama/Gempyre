@@ -14,11 +14,11 @@ JNIEXPORT jint JNICALL Java_MainActivity_CallMain(JNIEnv* env, jobject obj) {
 }
     
 int androidStart(const std::string& url) {
-    jstring urlString = (*Androidenv)->NewStringUTF(Androidenv, url);
-    jclass cls = (*Androidenv)->GetObjectClass(Androidenv, Androidobj);
-    jmethodID methodId = (*Androidenv)->GetMethodID(Androidenv, cls, "onLoad", "([Ljava/lang/String;)I");
+    jstring urlString = Androidenv->NewStringUTF(url);
+    jclass cls = Androidenv->GetObjectClass(Androidobj);
+    jmethodID methodId = Androidenv->GetMethodID(cls, "onLoad", "([Ljava/lang/String;)I");
     if (methodId == 0) {
         return -99;
     }
-    return (*Androidenv)->CallVoidMethod(Androidenv, Androidobj, methodId, urlString);
+    return Androidenv->CallVoidMethod(Androidobj, methodId, urlString);
 }
