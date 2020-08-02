@@ -19,7 +19,7 @@ if(WIN32)
     add_compile_options(-D_WIN32)
 endif()
 
-if (WIN32)
+if (WIN32 OR ANDROID)
         set(UV_NAME "libuv")
         set(UV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/${UV_NAME}")
 
@@ -93,13 +93,15 @@ externalproject_add(libsockets
 
 set(SOCKETS_LIB_NAME uSockets${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-if(NOT WIN32)
+if(WIN32 OR ANDROID)
+    message("Compile UV lib in")
+else()
     add_custom_command(
         OUTPUT ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
         COMMAND make && mv ${SOCKETS_LIB_NAME} ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
         WORKING_DIRECTORY ${SOCKETS_SOURCES}
     )
-add_custom_target(makecmd DEPENDS ${SOCKETS_DIR}/${SOCKETS_LIB_NAME})
+    add_custom_target(makecmd DEPENDS ${SOCKETS_DIR}/${SOCKETS_LIB_NAME})
 endif()
 
 
@@ -218,16 +220,7 @@ if(ANDROID)
     set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android.cpp)
 endif()
 
-if(NOT WIN32)
-    include_directories(
-        ${INCLUDES}
-        )
-
-    add_library(${PROJECT_NAME}
-        ${GEMPYRE_SRC}
-    )
-else()
-
+if(WIN32 OR ANDROID)
     include_directories(
         ${INCLUDES}
         ${UV_SOURCES}/include
@@ -242,7 +235,13 @@ else()
         ${SOCKETS_HRD}
         ${GEMPYRE_SRC}
     )
-
+else()
+    include_directories(
+        ${INCLUDES}
+        )
+    add_library(${PROJECT_NAME}
+        ${GEMPYRE_SRC}
+    )
 endif()
 
 if(CMAKE_BUILD_TYPE EQUAL "RELEASE")
@@ -257,25 +256,17 @@ add_dependencies(${PROJECT_NAME} libsockets)
 add_dependencies(${PROJECT_NAME} libwebsockets)
 add_dependencies(${PROJECT_NAME} libjson)
 
-if (NOT WIN32)
+if (WIN32 OR ANDROID)
+    add_dependencies(libsockets libuv)
+    add_dependencies(${PROJECT_NAME} luv_lib)
+else()
     add_dependencies(${PROJECT_NAME} makecmd)
     add_dependencies(makecmd libsockets)
 endif()
 
-if (WIN32)
-    add_dependencies(libsockets libuv)
-    add_dependencies(${PROJECT_NAME} luv_lib)
-endif()
-
 #add_dependencies(${PROJECT_NAME} gempyrejs)
 
-if (NOT WIN32)
-    target_link_libraries (${PROJECT_NAME}
-        PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-#    PRIVATE nlohmann_json::nlohmann_json #this wont work properly with find_package as it assumes the lib is somewhere
-    PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
-        -lstdc++)
-else()
+if(WIN32)
     message("uvidir ${UV_LIB}")
     set(WIN_LIB  psapi.lib userenv.lib iphlpapi.lib)
     target_link_libraries (${PROJECT_NAME}
@@ -283,7 +274,23 @@ else()
         PRIVATE ${UV_LIB}
 	PRIVATE ${WIN_LIB}
   #      PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
-	)	
+        )
+elseif(ANDROID)
+    message("uvidir ${UV_LIB}")
+    #set(ANDROID_LIB  psapi.lib userenv.lib iphlpapi.lib)
+    target_link_libraries (${PROJECT_NAME}
+        PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+        PRIVATE ${UV_LIB}
+  #	PRIVATE ${ANDROID_LIB}
+  #      PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
+        -lstdc++
+        )
+else()
+    target_link_libraries (${PROJECT_NAME}
+        PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+#    PRIVATE nlohmann_json::nlohmann_json #this wont work properly with find_package as it assumes the lib is somewhere
+    PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
+        -lstdc++)
 endif()
 
 set(GEMPYRE_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE INTERNAL "")
