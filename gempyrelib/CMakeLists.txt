@@ -20,6 +20,7 @@ if(WIN32)
 endif()
 
 if (WIN32 OR ANDROID)
+        message("Need Libuv...")
         set(UV_NAME "libuv")
         set(UV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/${UV_NAME}")
 
@@ -39,7 +40,7 @@ if (WIN32 OR ANDROID)
         externalproject_add(libuv
             PREFIX ${UV_DIR}
             GIT_REPOSITORY https://github.com/libuv/libuv.git
-            GIT_TAG v1.34.0
+           #s GIT_TAG v1.34.0
             GIT_PROGRESS true
             CMAKE_ARGS -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_BENCH=OFF -DCMAKE_BUILD_TYPE=Release
             UPDATE_DISCONNECTED false
@@ -49,12 +50,9 @@ if (WIN32 OR ANDROID)
             TEST_COMMAND ""
             BINARY_DIR "${UV_LIB_DIR}"
             )
-
-
-
         set(UV_SOURCES "${UV_DIR}/src/libuv")
-        add_custom_target(luv_lib DEPENDS ${UV_LIB})
-        add_dependencies(luv_lib libuv)
+        #add_custom_target(luv_lib DEPENDS ${UV_LIB})
+        #add_dependencies(luv_lib libuv)
 endif()
 
 
@@ -258,7 +256,7 @@ add_dependencies(${PROJECT_NAME} libjson)
 
 if (WIN32 OR ANDROID)
     add_dependencies(libsockets libuv)
-    add_dependencies(${PROJECT_NAME} luv_lib)
+    #add_dependencies(${PROJECT_NAME} luv_lib)
 else()
     add_dependencies(${PROJECT_NAME} makecmd)
     add_dependencies(makecmd libsockets)
