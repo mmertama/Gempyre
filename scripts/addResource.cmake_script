@@ -15,7 +15,7 @@ function (addResource)
         elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../Gempyre/gempyrelib)
                set(GEMPYRE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Gempyre)
 	else()
-            message(FATAL_ERROR "GEMPYRE_DIR is not set neither GEMPYRE_DIR Environment variable is not pointing to Gempyre dir (current: ${CMAKE_CURRENT_SOURCE_DIR})")
+            message(FATAL_ERROR "GEMPYRE_DIR is not set neither GEMPYRE_DIR Environment variable is not pointing to Gempyre dir (current working dir: ${CMAKE_CURRENT_SOURCE_DIR})")
         endif()
     endif()
     

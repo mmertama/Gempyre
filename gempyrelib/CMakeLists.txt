@@ -215,7 +215,7 @@ set(GEMPYRE_SRC
     )
 
 if(ANDROID)
-    set(GEMPYRE_SRC ${GEMPYRE_SRC} android.cpp)
+    set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android.cpp)
 endif()
 
 if(NOT WIN32)
