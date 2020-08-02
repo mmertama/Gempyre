@@ -23,36 +23,38 @@ if (WIN32 OR ANDROID)
         message("Need Libuv...")
         set(UV_NAME "libuv")
         set(UV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/${UV_NAME}")
-
+		
+		set(UV_LIB_DIR "${UV_DIR}/src/libuv-build")
+		
         if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
-             set(UV_LIB_DIR "${UV_DIR}/src/libuv-build/Debug")
+             set(UV_LIB "${UV_LIB_DIR}/Debug/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
         else()
-            set(UV_LIB_DIR "${UV_DIR}/src/libuv-build/Release")
+             set(UV_LIB "${UV_LIB_DIR}/Release/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
         endif()
 
-        set(UV_LIB "${UV_LIB_DIR}/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+       
 
-        if(NOT EXISTS ${UV_LIB})
-            message("Lib uv not found: ${UV_LIB}")
-            file(REMOVE_RECURSE ${UV_DIR}) #upon release debug cmake dont understand (?) target file
-        endif()
-
-        externalproject_add(libuv
+        externalproject_add(
+			${UV_NAME}
             PREFIX ${UV_DIR}
             GIT_REPOSITORY https://github.com/libuv/libuv.git
-           #s GIT_TAG v1.34.0
+            GIT_TAG v1.34.0
             GIT_PROGRESS true
-            CMAKE_ARGS -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_BENCH=OFF -DCMAKE_BUILD_TYPE=Release
+            CMAKE_ARGS -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_BENCH=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${UV_LIB_DIR}
             UPDATE_DISCONNECTED false
-            INSTALL_COMMAND ""
+            INSTALL_COMMAND ${CMAKE_COMMAND} --build . --target install
             UPDATE_COMMAND ""
             PATCH_COMMAND ""
             TEST_COMMAND ""
-            BINARY_DIR "${UV_LIB_DIR}"
             )
+			
         set(UV_SOURCES "${UV_DIR}/src/libuv")
-        #add_custom_target(luv_lib DEPENDS ${UV_LIB})
-        #add_dependencies(luv_lib libuv)
+		
+		set(INCLUDES
+			"${UV_SOURCES}/include"
+		)
+		 
+	
 endif()
 
 
@@ -92,7 +94,7 @@ externalproject_add(libsockets
 set(SOCKETS_LIB_NAME uSockets${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 if(WIN32 OR ANDROID)
-    message("Compile UV lib in")
+    message("...")
 else()
     add_custom_command(
         OUTPUT ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
@@ -183,6 +185,7 @@ if(NOT MSVC)
 endif()
 
 set(INCLUDES
+	${INCLUDES}
     include
     ${WEBSOCKETS_SOURCES}/src
     ${SOCKETS_SOURCES}/src
@@ -218,25 +221,21 @@ if(ANDROID)
     set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android.cpp)
 endif()
 
-if(WIN32 OR ANDROID)
-    include_directories(
+include_directories(
         ${INCLUDES}
-        ${UV_SOURCES}/include
-    )
+        )
 
+if(WIN32 OR ANDROID)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
 
 
-    add_library(${PROJECT_NAME}
+    add_library("${PROJECT_NAME}"
         ${SOCKETS_SRC}
         ${SOCKETS_HRD}
         ${GEMPYRE_SRC}
     )
 else()
-    include_directories(
-        ${INCLUDES}
-        )
     add_library(${PROJECT_NAME}
         ${GEMPYRE_SRC}
     )
@@ -255,8 +254,7 @@ add_dependencies(${PROJECT_NAME} libwebsockets)
 add_dependencies(${PROJECT_NAME} libjson)
 
 if (WIN32 OR ANDROID)
-    add_dependencies(libsockets libuv)
-    #add_dependencies(${PROJECT_NAME} luv_lib)
+    add_dependencies(libsockets uv_files libuv)
 else()
     add_dependencies(${PROJECT_NAME} makecmd)
     add_dependencies(makecmd libsockets)
@@ -265,13 +263,12 @@ endif()
 #add_dependencies(${PROJECT_NAME} gempyrejs)
 
 if(WIN32)
-    message("uvidir ${UV_LIB}")
-    set(WIN_LIB  psapi.lib userenv.lib iphlpapi.lib)
+    message("uvlib is set as:${UV_LIB}")
+    set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib)
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${UV_LIB}
-	PRIVATE ${WIN_LIB}
-  #      PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
+		PRIVATE ${WIN_LIB}
         )
 elseif(ANDROID)
     message("uvidir ${UV_LIB}")
@@ -279,8 +276,7 @@ elseif(ANDROID)
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${UV_LIB}
-  #	PRIVATE ${ANDROID_LIB}
-  #      PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
+		#	PRIVATE ${ANDROID_LIB}
         -lstdc++
         )
 else()

@@ -7,7 +7,7 @@ CanvasData::~CanvasData() {
 }
 
 CanvasDataPtr CanvasElement::makeCanvas(int width, int height) { //could be const, but is it sustainable?
-    assert(width > 0 && height > 0);
+    gempyre_graphics_assert(width > 0 && height > 0, "Graphics size is expected be more than zero");
     m_tile = std::shared_ptr<CanvasData>(new CanvasData(/*std::min(width,*/ TileWidth/*)*/, /*td::min(height,*/ TileHeight/*)*/, m_id));
     return std::shared_ptr<CanvasData>(new CanvasData(width, height, m_id)); //private cannot use make_...
 }

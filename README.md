@@ -18,6 +18,15 @@ Gempyre API has few headers
 * [Gempyre core in _gempyre.h_](gempyre.md), everything that basic application needs.
 * [Gempyre Utils in _gempyre_utils.h_](gempyre_utils.md), miscellaneous collection or function that helps writing applications.
 * [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive and games.
+
+How to build on Windows 10
+* Install git bash from https://gitforwindows.org/
+* Run git clone https://github.com/mmertama/Gempyre.git on git bash console.
+* Install cmake https://cmake.org/download/ (let it to be added in path)
+* Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
+* Install Python 3.8 (3.6 >= shall be ok) https://www.python.org/downloads/windows/
+* From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
+* Run "msvc_build.bat" at Gempyre folder
  
 
 Copyright
