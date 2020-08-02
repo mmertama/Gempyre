@@ -40,7 +40,7 @@ if (WIN32 OR ANDROID)
         externalproject_add(libuv
             PREFIX ${UV_DIR}
             GIT_REPOSITORY https://github.com/libuv/libuv.git
-           #s GIT_TAG v1.34.0
+           # GIT_TAG v1.34.0
             GIT_PROGRESS true
             CMAKE_ARGS -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_BENCH=OFF -DCMAKE_BUILD_TYPE=Release
             UPDATE_DISCONNECTED false
@@ -256,7 +256,7 @@ add_dependencies(${PROJECT_NAME} libjson)
 
 if (WIN32 OR ANDROID)
     add_dependencies(libsockets libuv)
-    #add_dependencies(${PROJECT_NAME} luv_lib)
+    add_dependencies(${PROJECT_NAME} libuv)
 else()
     add_dependencies(${PROJECT_NAME} makecmd)
     add_dependencies(makecmd libsockets)
@@ -265,7 +265,7 @@ endif()
 #add_dependencies(${PROJECT_NAME} gempyrejs)
 
 if(WIN32)
-    message("uvidir ${UV_LIB}")
+    message("uvdir ${UV_LIB}")
     set(WIN_LIB  psapi.lib userenv.lib iphlpapi.lib)
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
@@ -274,7 +274,7 @@ if(WIN32)
   #      PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
         )
 elseif(ANDROID)
-    message("uvidir ${UV_LIB}")
+    message("uvdir ${UV_LIB}")
     #set(ANDROID_LIB  psapi.lib userenv.lib iphlpapi.lib)
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
