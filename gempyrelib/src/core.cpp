@@ -38,6 +38,10 @@ const std::string DefaultBrowser =
 #endif
         ;
 
+#ifdef ANDROID_OS
+extern int android_start(const std::string&);
+#endif
+
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 constexpr char Name[] = "Gempyre";
 
@@ -220,7 +224,12 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                             + std::to_string(port) + "/"
                             + (appPage.empty() ? "index.html" : appPage)
                             + " " + extraParams;
-                    const auto result = std::system((cmdLine + "&").c_str() );
+                     const auto result =
+#ifndef ANDROID_OS
+                    std::system((cmdLine + "&").c_str() );
+#else
+                    android_start(cmdLine);
+#endif
                     if(result != 0) {
                         GempyreUtils::log(GempyreUtils::LogLevel::Fatal,"Cannot open:", cmdLine);
                     } else {

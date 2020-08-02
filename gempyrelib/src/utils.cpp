@@ -673,6 +673,8 @@ GempyreUtils::OS GempyreUtils::currentOS() {
     return OS::WIN;
 #elif defined(UNIX_OS)
     return OS::LINUX;
+#elif defined(ANDROID_OS)
+    return OS::ANDROID;
 #else
     return OS::OTHER;
 #endif

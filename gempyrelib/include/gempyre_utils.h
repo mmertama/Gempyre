@@ -395,7 +395,7 @@ UTILS_EX  std::string unhexify(const std::string& src);
 /**
  * @brief The OS enum
  */
-enum class OS {OTHER, MAC, WIN, LINUX};
+enum class OS {OTHER, MAC, WIN, LINUX, ANDROID};
 /**
  * @function currentOS
  * @return

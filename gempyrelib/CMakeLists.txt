@@ -214,6 +214,10 @@ set(GEMPYRE_SRC
     src/internal.h
     )
 
+if(ANDROID)
+    set(GEMPYRE_SRC ${GEMPYRE_SRC} android.cpp)
+endif()
+
 if(NOT WIN32)
     include_directories(
         ${INCLUDES}
