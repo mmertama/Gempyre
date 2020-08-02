@@ -668,15 +668,15 @@ std::shared_ptr<GempyreUtils::expiror> GempyreUtils::waitExpire(std::chrono::sec
 
 GempyreUtils::OS GempyreUtils::currentOS() {
 #if defined(MAC_OS)
-    return OS::MAC;
+    return OS::MacOs;
 #elif defined(WINDOWS_OS)
-    return OS::WIN;
+    return OS::WinOs;
 #elif defined(UNIX_OS)
-    return OS::LINUX;
+    return OS::LinuxOs;
 #elif defined(ANDROID_OS)
-    return OS::ANDROID;
+    return OS::AndroidOs;
 #else
-    return OS::OTHER;
+    return OS::OtherOs;
 #endif
 }
 

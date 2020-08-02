@@ -13,7 +13,7 @@ using namespace std::chrono_literals;
 
 std::string headlessParams() {
     switch(GempyreUtils::currentOS()) {
-    case GempyreUtils::OS::WIN: return  "--headless --disable-gpu --remote-debugging-port=9222";
+    case GempyreUtils::OS::WinOs: return  "--headless --disable-gpu --remote-debugging-port=9222";
     default:return "--headless --disable-gpu";
     }
 }
@@ -21,9 +21,9 @@ std::string headlessParams() {
 
 std::string defaultChrome() {
     switch(GempyreUtils::currentOS()) {
-    case GempyreUtils::OS::MAC: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
-    case GempyreUtils::OS::WIN: return  R"("C:\Program Files (86)\Google\Chrome\Application\chrome.exe")";
-    case GempyreUtils::OS::LINUX: return  R"(chromium-browser)";  //R"(google-chrome)";
+    case GempyreUtils::OS::MacOs: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
+    case GempyreUtils::OS::WinOs: return  R"("C:\Program Files (86)\Google\Chrome\Application\chrome.exe")";
+    case GempyreUtils::OS::LinuxOs: return  R"(chromium-browser)";  //R"(google-chrome)";
     default: return "";
     }
 }
