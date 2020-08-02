@@ -5,6 +5,8 @@ JNIEnv* Androidenv;
 jobject Androidobj;
 
 
+extern int main(int, char**);
+
 JNIEXPORT jint JNICALL Java_MainActivity_CallMain(JNIEnv* env, jobject obj) {
     Androidenv = env;
     Androidobj = obj;
@@ -19,4 +21,4 @@ int androidStart(const std::string& url) {
         return -99;
     }
     return (*Androidenv)->CallVoidMethod(Androidenv, Androidobj, methodId, urlString);
-}   
+}
