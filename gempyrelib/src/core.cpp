@@ -109,7 +109,6 @@ Ui::Ui(const std::string& indexHtml, unsigned short port, const std::string& roo
 #elif defined(WINDOWS_OS)
 	"start /max"
 #else
-#error "I have no idea what browser should be spawned, please use other constructor"
 	""
 #endif
     ,"", port, root) {}
