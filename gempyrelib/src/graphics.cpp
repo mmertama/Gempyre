@@ -107,13 +107,15 @@ void CanvasElement::paintImage(const std::string& imageId, const Rect& targetRec
 }
 
 
-void CanvasElement::draw(const std::vector<std::variant<std::string, double> > &canvasCommands) {
+void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands) {
     if(canvasCommands.empty())
         return;
     std::vector<std::string> commandString;
     std::transform(canvasCommands.begin(), canvasCommands.end(), std::back_inserter(commandString), [](auto&& arg) -> std::string {
          if(const auto doubleval = std::get_if<double>(&arg))
             return std::to_string(*doubleval);
+         if(const auto intval = std::get_if<int>(&arg))
+            return std::to_string(*intval);
          return std::get<std::string>(arg);
     });
     send("canvas_draw", std::unordered_map<std::string, std::any>{{"commands", commandString}});

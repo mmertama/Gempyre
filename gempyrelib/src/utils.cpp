@@ -687,6 +687,19 @@ std::string GempyreUtils::currentTimeString() {
     return GempyreUtils::chop(timebuf);
 }
 
+std::string GempyreUtils::lastError() {
+#ifdef WINDOWS_OS
+    const DWORD size = 256;
+    WCHAR buffer[size];
+    DWORD dw = GetLastError();
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+       nullptr, dw, 0,buffer, size, NULL );
+    return std::string(buffer);
+#else
+    return std::string(::strerror(errno));
+#endif
+}
+
 #ifdef UNIX_OS //fix if needed
 bool GempyreUtils::setPriority(int priority) {
       sched_param sch;

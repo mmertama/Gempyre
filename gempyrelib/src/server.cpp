@@ -212,12 +212,12 @@ std::unique_ptr<std::thread> Server::makeServer(unsigned short port,
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "makeServe - execute");
         auto behavior = options(
                                              [this](auto ws, auto) {
-                                                                      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "open");
+                                                                      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS open");
                                                                       m_broadcaster->append(ws);
                                                                       m_onOpen(m_broadcaster->size());
                                                                    },
                                              [this](auto ws, auto message, auto opCode) {
-                                                                       GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "message", message, opCode);
+                                                                       GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS message", message, opCode);
                                                                        const auto jsObj = json::parse(message);
                                                                        const auto f = jsObj.find("type");
                                                                        if(f != jsObj.end()) {
@@ -307,13 +307,16 @@ std::unique_ptr<std::thread> Server::makeServer(unsigned short port,
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "listening on port:", m_port);
                 m_closeData = socket;
                 if(!m_onListen(m_port)){
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "List callback failed, closing");
                     doClose();
+                } else {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listen ok, wait for event");
                 }
             } else if(port > 0) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "listening on port:", port, "failed");
+                GempyreUtils::log(GempyreUtils::LogLevel::Error, "listening on port:", port, "failed", GempyreUtils::lastError());
                 m_onClose(Close::EXIT, -1);
             } else {
-                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "listening on port:", m_port, "failed");
+                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "try listen on port:", m_port, "failed", GempyreUtils::lastError());
                 m_onClose(Close::FAIL, -1);
             }
             }).run();

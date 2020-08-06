@@ -425,6 +425,7 @@ UTILS_EX std::string toStr(LogLevel l);
 UTILS_EX DebugStream logStream(LogLevel logLevel);
 UTILS_EX void init();
 UTILS_EX std::string currentTimeString();
+UTILS_EX std::string lastError();
 
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
@@ -445,7 +446,9 @@ inline void log(LogLevel level, const T& e) {
     } else {
         if(level <= logLevel()) {
             logStream(level).print() << '[' << GempyreUtils::currentTimeString() << "] " << toStr(level) << " " << e << std::endl;
-            if(level == LogLevel::Fatal) std::abort();
+            if(level == LogLevel::Fatal)  {
+                std::exit(-999);
+            }
         }
     }
 }
@@ -461,7 +464,9 @@ template<typename T>
 inline void log_t(LogLevel level, const T& e) {
     if(level <= logLevel()) {
         logStream(level).print() << e << std::endl;
-        if(level == LogLevel::Fatal) std::abort();
+        if(level == LogLevel::Fatal) {
+            std::exit(-999);
+        }
     }
 }
 

@@ -4,6 +4,7 @@ cmake_minimum_required (VERSION 3.14)
 # locations on all platforms.
 include(GNUInstallDirs)
 include(ExternalProject)
+include(FetchContent)
 include(../scripts/addResource.cmake_script)
 
 project (gempyre VERSION 0.2.0 LANGUAGES CXX C)
@@ -21,40 +22,37 @@ endif()
 
 if (WIN32 OR ANDROID)
         message("Need Libuv...")
-        set(UV_NAME "libuv")
-        set(UV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/${UV_NAME}")
-		
-		set(UV_LIB_DIR "${UV_DIR}/src/libuv-build")
-		
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
-             set(UV_LIB "${UV_LIB_DIR}/Debug/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
-        else()
-             set(UV_LIB "${UV_LIB_DIR}/Release/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
-        endif()
 
-       
+        set(UV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/libuv")
+        set(UV_LIB_DIR "${UV_DIR}/src/libuv-build")
+		
+        if (MSVC)
+            if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
+                 set(UV_LIB "${UV_LIB_DIR}/Debug/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+            else()
+                 set(UV_LIB "${UV_LIB_DIR}/Release/${CMAKE_STATIC_LIBRARY_PREFIX}uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+            endif()
+			message("MSVC builds artifacts upon release type")
+         else()
+             set(UV_LIB "${UV_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+         endif()
 
-        externalproject_add(
-			${UV_NAME}
+        externalproject_add(libuv
             PREFIX ${UV_DIR}
             GIT_REPOSITORY https://github.com/libuv/libuv.git
             GIT_TAG v1.34.0
             GIT_PROGRESS true
+            BUILD_BYPRODUCTS ${UV_LIB}
             CMAKE_ARGS -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_BENCH=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${UV_LIB_DIR}
             UPDATE_DISCONNECTED false
-            INSTALL_COMMAND ${CMAKE_COMMAND} --build . --target install
+            INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --target install
             UPDATE_COMMAND ""
             PATCH_COMMAND ""
             TEST_COMMAND ""
             )
-			
+
         set(UV_SOURCES "${UV_DIR}/src/libuv")
-		
-		set(INCLUDES
-			"${UV_SOURCES}/include"
-		)
-		 
-	
+        set(INCLUDES "${UV_SOURCES}/include")
 endif()
 
 
@@ -76,32 +74,49 @@ externalproject_add(libjson
 
 set(SOCKETS_NAME "uSockets")
 set(SOCKETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extra/uNetworking/${SOCKETS_NAME}")
-set(SOCKETS_SOURCES "${SOCKETS_DIR}/src/libsockets")
-externalproject_add(libsockets
-    PREFIX ${SOCKETS_DIR}
-    GIT_REPOSITORY https://github.com/uNetworking/uSockets.git
-    GIT_TAG v0.3.2
-    GIT_PROGRESS true
-    UPDATE_DISCONNECTED false
-    BUILD_COMMAND  "" #make ${SOCKETS_SOURCES}/Makefile
-    CONFIGURE_COMMAND ""
-    INSTALL_COMMAND ""
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-    TEST_COMMAND ""
-    )
-
-set(SOCKETS_LIB_NAME uSockets${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 if(WIN32 OR ANDROID)
-    message("...")
-else()
-    add_custom_command(
-        OUTPUT ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
-        COMMAND make && mv ${SOCKETS_LIB_NAME} ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
-        WORKING_DIRECTORY ${SOCKETS_SOURCES}
+    # Sources are just globbed in the project, see later
+    FetchContent_Declare(
+      libsockets
+      GIT_REPOSITORY https://github.com/uNetworking/uSockets.git
+      GIT_TAG v0.3.2
     )
-    add_custom_target(makecmd DEPENDS ${SOCKETS_DIR}/${SOCKETS_LIB_NAME})
+    
+    FetchContent_GetProperties(libsockets)
+    if(NOT libsockets_POPULATED)
+        FetchContent_Populate(libsockets)
+    endif()
+	set(SOCKETS_SOURCES "${libsockets_SOURCE_DIR}")
+
+else()
+	set(SOCKETS_SOURCES "${SOCKETS_DIR}/src/libsockets")
+    externalproject_add(libsockets
+        PREFIX ${SOCKETS_DIR}
+        GIT_REPOSITORY https://github.com/uNetworking/uSockets.git
+        GIT_TAG v0.3.2
+        GIT_PROGRESS true
+        UPDATE_DISCONNECTED false
+        BUILD_COMMAND  "" #make ${SOCKETS_SOURCES}/Makefile
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND ""
+        UPDATE_COMMAND ""
+        PATCH_COMMAND ""
+        TEST_COMMAND ""
+        )
+
+    set(SOCKETS_LIB_NAME uSockets${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(SOCKETS_LIB ${SOCKETS_DIR}/${SOCKETS_LIB_NAME})
+    #set(SOCKETS_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}uSockets${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+
+    add_custom_command(
+        OUTPUT ${SOCKETS_LIB}
+        COMMAND make && mv ${SOCKETS_LIB_NAME} ${SOCKETS_LIB}
+        WORKING_DIRECTORY ${SOCKETS_SOURCES}
+        DEPENDS libsockets
+    )
+    add_custom_target(makecmd DEPENDS ${SOCKETS_LIB})
 endif()
 
 
@@ -121,7 +136,7 @@ externalproject_add(libwebsockets
     TEST_COMMAND ""
     )
 set(WEBSOCKETS_SOURCES "${WEBSOCKETS_DIR}/src/libwebsockets")
-add_dependencies(libwebsockets libsockets)
+
 
 find_path(ZLIB_H zlib.h PATHS
     ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}
@@ -180,12 +195,12 @@ set(CMAKE_CXX_FLAGS, "-DUWS_NO_ZLIB ${CMAKE_CXX_FLAGS}")
 set(CMAKE_C_FLAGS, "-DUWS_NO_ZLIB ${CMAKE_C_FLAGS}")
 
 
-if(NOT MSVC)
-	find_package (Threads REQUIRED)
+if(NOT (MSVC OR ANDROID))
+    find_package (Threads REQUIRED)
 endif()
 
 set(INCLUDES
-	${INCLUDES}
+    ${INCLUDES}
     include
     ${WEBSOCKETS_SOURCES}/src
     ${SOCKETS_SOURCES}/src
@@ -224,13 +239,26 @@ endif()
 include_directories(
         ${INCLUDES}
         )
+        
+
+
 
 if(WIN32 OR ANDROID)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
+endif()
 
-
-    add_library("${PROJECT_NAME}"
+if(ANDROID)
+    #openssl is not there
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLIBUS_NO_SSL")
+    list(REMOVE_ITEM SOCKETS_SRC "${SOCKETS_SOURCES}/src/ssl.c")
+    add_library(${PROJECT_NAME}
+        ${SOCKETS_SRC}
+        ${SOCKETS_HRD}
+        ${GEMPYRE_SRC}
+    )
+elseif(WIN32)
+    add_library(${PROJECT_NAME}
         ${SOCKETS_SRC}
         ${SOCKETS_HRD}
         ${GEMPYRE_SRC}
@@ -249,16 +277,15 @@ endif()
 
 addResource(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js)
 
-add_dependencies(${PROJECT_NAME} libsockets)
 add_dependencies(${PROJECT_NAME} libwebsockets)
 add_dependencies(${PROJECT_NAME} libjson)
 
 if (WIN32 OR ANDROID)
-    add_dependencies(libsockets libuv)
+    #add_dependencies(libsockets libuv)
     add_dependencies(${PROJECT_NAME} libuv)
 else()
+    add_dependencies(libwebsockets libsockets)
     add_dependencies(${PROJECT_NAME} makecmd)
-    add_dependencies(makecmd libsockets)
 endif()
 
 #add_dependencies(${PROJECT_NAME} gempyrejs)
@@ -269,22 +296,18 @@ if(WIN32)
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${UV_LIB}
-		PRIVATE ${WIN_LIB}
+        PRIVATE ${WIN_LIB}
         )
 elseif(ANDROID)
     message("uvdir ${UV_LIB}")
-    #set(ANDROID_LIB  psapi.lib userenv.lib iphlpapi.lib)
     target_link_libraries (${PROJECT_NAME}
-        PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${UV_LIB}
-		#	PRIVATE ${ANDROID_LIB}
         -lstdc++
         )
 else()
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-#    PRIVATE nlohmann_json::nlohmann_json #this wont work properly with find_package as it assumes the lib is somewhere
-    PRIVATE ${SOCKETS_DIR}/${SOCKETS_LIB_NAME}
+        PRIVATE ${SOCKETS_LIB}
         -lstdc++)
 endif()
 

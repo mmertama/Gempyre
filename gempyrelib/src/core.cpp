@@ -39,13 +39,13 @@ const std::string DefaultBrowser =
         ;
 
 #ifdef ANDROID_OS
-extern int android_start(const std::string&);
+extern int androidLoadUi(const std::string&);
 #endif
 
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 constexpr char Name[] = "Gempyre";
 
-void Gempyre::setDebug(Gempyre::DebugLevel level) {
+void Gempyre::setDebug(Gempyre::DebugLevel level, bool useLog) {
     const std::unordered_map<Gempyre::DebugLevel, GempyreUtils::LogLevel> lvl =  {
         {Gempyre::DebugLevel::None, GempyreUtils::LogLevel::None},
         {Gempyre::DebugLevel::Fatal, GempyreUtils::LogLevel::Fatal},
@@ -55,8 +55,15 @@ void Gempyre::setDebug(Gempyre::DebugLevel level) {
         {Gempyre::DebugLevel::Debug, GempyreUtils::LogLevel::Debug},
         {Gempyre::DebugLevel::Debug_Trace, GempyreUtils::LogLevel::Debug_Trace}
     };
-    GempyreUtils::setLogLevel(lvl.at(level), false);
+    GempyreUtils::setLogLevel(lvl.at(level), useLog);
 }
+
+
+#ifndef ANDROID_OS
+void Gempyre::setJNIENV(void*, void*) {
+    GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "setJNIENV should not be called within current OS");
+}
+#endif
 
 #define STR(x) #x
 #define TOSTRING(x) STR(x)
@@ -217,7 +224,9 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
                     m_status = State::RUNNING;
                     const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
+#ifndef ANDROID_OS
                     gempyre_utils_assert_x(!browser.empty() || !DefaultBrowser.empty(), "I have no idea what browser should be spawned, please use other constructor");
+#endif
                     const auto cmdLine = (browser.empty() ? DefaultBrowser : browser)
                             + " " + SERVER_ADDRESS + ":"
                             + std::to_string(port) + "/"
@@ -227,7 +236,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
 #ifndef ANDROID_OS
                     std::system((cmdLine + "&").c_str() );
 #else
-                    android_start(cmdLine);
+                    androidLoadUi(cmdLine);
 #endif
                     if(result != 0) {
                         GempyreUtils::log(GempyreUtils::LogLevel::Fatal,"Cannot open:", cmdLine);
@@ -671,5 +680,6 @@ bool Ui::addFile(const std::string& url, const std::string& file) {
     m_filemap.insert_or_assign(url, std::move(string));
     return true;
 }
+
 
 
