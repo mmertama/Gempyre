@@ -7,6 +7,10 @@ UI Framework
 
 Gempyre is a C++ UI framework. It is a UI framework without widgets - instead  the UI is composed using common web tools and frameworks.  Therefore Gempyre is small, easy to learn and quick to take in use.
 
+For Android support, visit also [Gempyre-Android](https://github.com/mmertama/Gempyre-Android)
+
+If you prefer Python, please try [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) 
+
 The application engine is implemented using C++, the UI is constructed using  Javascript, CSS and HTML like any front end; all common frameworks from the vast pool web technologies shall be available as long as the UI elements can be refrerred using ids. Gempyre library provides a  C++ interface to interact with the UI - the API is only a few dozen calls. Gempyre is intended for applications that has a solid C++ core (or C) and takes benefit of rapid UI development without extra hassle with complex/expensive/platform specific/quirky UI development. Gempyre combines power of C++ with vast options of front end development tools, sources, documents frameworks that are only available on for Web Developers.
 
 Gempyre is multiplatform, its core is written using C++17  (tested OSX (CLang), Ubuntu (gcc) and Windows 10 (MSVC) ).   The Gempyre framework can be downloaded at Github under MIT license.
