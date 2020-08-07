@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.14)
 
+project (gempyre VERSION 0.2.0 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -7,7 +8,7 @@ include(ExternalProject)
 include(FetchContent)
 include(../scripts/addResource.cmake_script)
 
-project (gempyre VERSION 0.2.0 LANGUAGES CXX C)
+
 set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -240,9 +241,6 @@ include_directories(
         ${INCLUDES}
         )
         
-
-
-
 if(WIN32 OR ANDROID)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
