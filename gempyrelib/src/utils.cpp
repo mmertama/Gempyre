@@ -690,7 +690,7 @@ std::string GempyreUtils::currentTimeString() {
 std::string GempyreUtils::lastError() {
 #ifdef WINDOWS_OS
     const DWORD size = 256;
-    WCHAR buffer[size];
+    char buffer[size];
     DWORD dw = GetLastError();
     FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
        nullptr, dw, 0,buffer, size, NULL );
