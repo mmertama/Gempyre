@@ -27,7 +27,7 @@ function (addResource)
       
     add_custom_command(
         OUTPUT ${ADD_RESOURCE_TARGET}
-        COMMAND python ${GEMPYRE_DIR}/scripts/genStringResource.py ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
+        COMMAND python3 ${GEMPYRE_DIR}/scripts/genStringResource.py ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
     
