@@ -23,6 +23,16 @@ Gempyre API has few headers
 * [Gempyre Utils in _gempyre_utils.h_](gempyre_utils.md), miscellaneous collection or function that helps writing applications.
 * [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive and games.
 
+How to build on Linux
+* Run git clone https://github.com/mmertama/Gempyre.git.
+* cmake CMakeLists.txt
+* make 
+
+How to build on MacOS
+* Run git clone https://github.com/mmertama/Gempyre.git .
+* cmake CMakeLists.txt
+* make
+
 How to build on Windows 10
 * Install git bash from https://gitforwindows.org/
 * Run git clone https://github.com/mmertama/Gempyre.git on git bash console.
