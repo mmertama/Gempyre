@@ -1,0 +1,47 @@
+import webview
+import asyncio
+import websockets
+from urllib.parse import urlparse
+import sys
+
+def on_start(ws_uri):
+    async def extension(websocket, path):
+        async for message in websocket:
+            await websocket.send(message)
+
+
+
+    wsuri = "ws://{}:{}/gempyre".format(uri.host, uri.port())
+  
+
+    asyncio.get_event_loop().run_until_complete(
+        websockets.serve(extension, 'localhost', 8765))
+    asyncio.get_event_loop().run_forever()
+
+def main():
+    width = 1024
+    height = 768
+    title = "Gempyre Application"
+
+    if sys.argv.length < 2:
+        sys.exit("Usage: URL <width> <height> <title>")
+        
+    if sys.argv.length > 2:
+        width = int(sys.argv[2])
+        
+    if sys.argv.length > 3:
+        height = int(sys.argv[3])
+        
+    if sys.argv.length > 4:
+        title = sys.argv[4]
+    
+    uri_string = sys.argv[1]
+    
+    uri = urlparse(uri_string)
+      
+    webview.create_window(title, uri=uri_string, width=width, height=height)
+    webview.start(lambda: on_start(uri.host, uri.port()))
+    
+    
+if __name__ == "__main__":
+    main()
