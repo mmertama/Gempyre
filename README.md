@@ -42,6 +42,12 @@ How to build on Windows 10
 * From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
 * Run "msvc_build.bat" at Gempyre folder
  
+ Projects using Gempyre:
+ * [mandelbrot-Gempyre](https://github.com/mmertama/mandelbrot-Gempyre)
+ * [treeview-Gempyre](https://github.com/mmertama/treeview-Gempyre)
+ * [hexview-Gempyre](https://github.com/mmertama/hexview-Gempyre)
+ * [calc-Gempyre](https://github.com/mmertama/calc-Gempyre)
+ 
 
 Copyright
 Markus Mertama 2020
