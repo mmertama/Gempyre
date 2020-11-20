@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.8)
-set(NAME gempyreclient)
+set(NAME gempyreqtclient)
 project (${NAME})
 
 set(CMAKE_CXX_STANDARD 17)

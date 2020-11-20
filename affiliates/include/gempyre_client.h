@@ -1,6 +1,7 @@
 #ifndef GEMPYRECLIENT_H
 #define GEMPYRECLIENT_H
 
+#include <unordered_map>
 
 namespace GempyreClient {
 
@@ -14,6 +15,7 @@ public:
      */
     Dialog(T& gempyreUi) : m_this(gempyreUi) {}
     using AnyMap = std::unordered_map<std::string, std::any>;
+    using Filter = std::vector<std::tuple<std::string, std::vector<std::string>>>;
 
     /**
      * @brief openDirDialog
@@ -25,8 +27,7 @@ public:
      */
     std::optional<std::string> openFileDialog(const std::string& caption = "",
                                   const std::string& root = "",
-                                  const std::string& filterName = "",
-                                  const std::vector<std::string> filters = {}) {
+                                  const Filter& filters = {}) {
         std::vector<std::any> filterList;
         std::transform(filters.begin(), filters.end(), std::back_inserter(filterList), [](const auto& s) { return std::make_any<std::string>(s);});
         const auto out = m_this.extension("openFile", {{"caption", caption}, {"dir", root}, {"filter", std::make_any<AnyMap>(AnyMap{
@@ -48,8 +49,7 @@ public:
      */
     std::optional<std::vector<std::string>> openFilesDialog(const std::string& caption = "",
                                   const std::string& root = "",
-                                  const std::string& filterName = "",
-                                  const std::vector<std::string> filters = {}) {
+                                  const Filter& filters = {}) {
         std::vector<std::any> filterList;
         std::transform(filters.begin(), filters.end(), std::back_inserter(filterList), [](const auto& s) {return std::make_any(s);});
         const auto out = m_this.extension("openFiles", {{"caption", caption}, {"dir", root}, {"filter", std::make_any<AnyMap>(AnyMap{
@@ -89,8 +89,7 @@ public:
      */
      std::optional<std::string> saveFileDialog(const std::string& caption = "",
                                       const std::string& root = "",
-                                      const std::string& filterName = "",
-                                      const std::vector<std::string> filters = {}) {
+                                      const Filter& filters = {}) {
         std::vector<std::any> filterList;
         std::transform(filters.begin(), filters.end(), std::back_inserter(filterList), [](const auto& s) { return std::make_any(s);});
         const auto out = m_this.extension("saveFile", {{"caption", caption}, {"dir", root}, {"filter", std::make_any<AnyMap>(AnyMap{

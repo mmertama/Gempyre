@@ -180,7 +180,7 @@ void MainWindow::extensionSocket(const QString& title) {
                         makeFilters(params["filter"].toObject()));
                 m_socket->sendTextMessage(QJsonDocument(QJsonObject({
                                                                     {"type", "extension_response"},
-                                                                    {"extension_call", "savesFileResponse"},
+                                                                    {"extension_call", "saveFileResponse"},
                                                                     {"id", id},
                                                                     {"savesFileResponse", file}})).toJson());
             }

@@ -1,0 +1,2 @@
+pywebview
+websockets
