@@ -8,6 +8,24 @@
 
 #include <QDebug>
 
+//"Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
+static QString makeFilters(const QJsonObject& filters) {
+    QStringList filterList;
+    for(const auto& k : filters.keys()) {
+        QString filter = k;
+        const auto exts = filters[k].toArray();
+        filter.append(" (");
+        QStringList es;
+        std::transform(exts.begin(), exts.end(), std::back_inserter(es), [](const auto& s){return s.toString();});
+        filter.append(es.join(' '));
+        filter.append(')');
+        filterList.append(filter);
+    }
+    qDebug() << "makeFilters" << filters << filterList.join(";;");
+    return filterList.join(";;");
+}
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
@@ -80,27 +98,6 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-
-static QString makeFilters(const QJsonObject& filters) {
-    QStringList filterList;
-    for(const auto& f : filters) {
-        const auto fe = f.toObject();
-        QString filter;
-        if(fe.contains("title")) {
-            const auto title = fe["title"].toString();
-            filter.append(title);
-        }
-        filter.append('(');
-        const auto exts = f["filters"].toArray();
-        QStringList es;
-        std::transform(exts.begin(), exts.end(), std::back_inserter(es), [](const auto& s){return s.toString();});
-        filter.append(es.join(' '));
-        filter.append(')');
-        filterList.append(filter);
-    }
-    return filterList.join(";;");
-}
-
 void MainWindow::extensionSocket(const QString& title) {
     QObject::connect(m_socket.get(), QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this, [this, title] (QAbstractSocket::SocketError err) {
         //if(error != QWebSocket::Clos)
@@ -137,9 +134,10 @@ void MainWindow::extensionSocket(const QString& title) {
             }
 
             const auto callid = obj["extension_call"].toString();
-            const auto params = obj["extension_parameters"].toObject();
+            const auto params = QJsonDocument::fromJson(obj["extension_parameters"].toString().toUtf8()).object();
             const auto id = obj["extension_id"].toString();
             if(callid == "openFile") {
+                qDebug() << "params" << obj << params;
                 const auto file = QFileDialog::getOpenFileName(this,
                         params["caption"].toString(),
                         params["dir"].toString(),
@@ -170,7 +168,7 @@ void MainWindow::extensionSocket(const QString& title) {
                 m_socket->sendTextMessage(QJsonDocument(QJsonObject({
                                                                     {"type", "extension_response"},
                                                                     {"extension_call", "openDirResponse"},
-                                                                    {"id", id},
+                                                                    {"extension_id", id},
                                                                     {"openDirResponse", dir}})).toJson());
             }
             else if(callid == "saveFile") {
@@ -181,8 +179,8 @@ void MainWindow::extensionSocket(const QString& title) {
                 m_socket->sendTextMessage(QJsonDocument(QJsonObject({
                                                                     {"type", "extension_response"},
                                                                     {"extension_call", "saveFileResponse"},
-                                                                    {"id", id},
-                                                                    {"savesFileResponse", file}})).toJson());
+                                                                    {"extension_id", id},
+                                                                    {"saveFileResponse", file}})).toJson());
             }
             else {
                 QMessageBox::warning(this, title, QString("\"%1\" is not valid extension requests").arg(callid), QMessageBox::Ok);

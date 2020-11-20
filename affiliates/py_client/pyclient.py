@@ -11,10 +11,11 @@ do_exit = None
 
 # file_types = ('Image Files (*.bmp;*.jpg;*.gif)', 'All files (*.*)')
 def make_filters(filters):
+    if not filters:
+        return tuple()
     filters_list = []
-    print(filters)
-    for f in filters:
-        filter_string = "{} ({})".format(f['title'], f['filters'].join(';'))
+    for k, f in filters.items():
+        filter_string = "{} ({})".format(k, ';'.join(f))
         filters_list.append(filter_string)
     return tuple(filters_list)
 
@@ -64,45 +65,52 @@ def on_show(window, host, port):
                 ext_id = obj['extension_id']
 
                 if call_id == "openFile":
-                    # caption = params['caption']
                     dir_name = params['dir']
                     filters = params["filter"]
-
-
 
                     result = window.create_file_dialog(webview.OPEN_DIALOG,
                                                        directory=dir_name,
                                                        allow_multiple=False,
                                                        file_types=make_filters(filters))
-
-                    filename = result # tkinter.filedialog.askopenfilename()
-                       # initialdir=dir_name, title=caption, filetypes=make_filters(filters))
-
-                    #ui.mainloop()
-
                     response = json.dumps({
                         'type': "extension_response",
                         'extension_call': "openFileResponse",
                         'extension_id': ext_id,
-                        'openFileResponse': filename})
+                        'openFileResponse': str(result[0]) if result else ""})
                 if call_id == "openFiles":
+                    dir_name = params['dir']
+                    filters = params["filter"]
+                    result = window.create_file_dialog(webview.OPEN_DIALOG,
+                                                       directory=dir_name,
+                                                       allow_multiple=True,
+                                                       file_types=make_filters(filters))
                     response = json.dumps({
                         'type': "extension_response",
                         'extension_call': "openFilesResponse",
                         'extension_id': ext_id,
-                        'openFilesResponse': "pyclient.py"})
+                        'openFilesResponse': list(result) if result else []})
                 if call_id == "openDir":
+                    dir_name = params['dir']
+                    result = window.create_file_dialog(webview.FOLDER_DIALOG,
+                                                       directory=dir_name,
+                                                       allow_multiple=False)
                     response = json.dumps({
                         'type': "extension_response",
                         'extension_call': "openDirResponse",
                         'extension_id': ext_id,
-                        'openDirResponse': "pyclient.py"})
+                        'openDirResponse': str(result[0]) if result else ""})
                 if call_id == "saveFile":
+                    dir_name = params['dir']
+                    filters = params["filter"]
+                    result = window.create_file_dialog(webview.SAVE_DIALOG,
+                                                       directory=dir_name,
+                                                       allow_multiple=False,
+                                                       file_types=make_filters(filters))
                     response = json.dumps({
                         'type': "extension_response",
                         'extension_call': "saveFileResponse",
                         'extension_id': ext_id,
-                        'saveFileResponse': "pyclient.py"})
+                        'saveFileResponse': str(result) if result else ""})
 
                 await ws.send(response)
 

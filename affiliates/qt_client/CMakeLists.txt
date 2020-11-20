@@ -4,18 +4,15 @@ project (${NAME})
 
 set(CMAKE_CXX_STANDARD 17)
 
-if(WIN32)
-	set (CMAKE_PREFIX_PATH "$ENV{QTDIR}/lib/cmake")
-	if(NOT EXISTS ${CMAKE_PREFIX_PATH})
-		message(WARNING "Unable to find cmake packages for Qt!")
-		return()
-	endif()
+set (CMAKE_PREFIX_PATH "$ENV{QTDIR}/lib/cmake")
+if(NOT EXISTS ${CMAKE_PREFIX_PATH})
+        message(WARNING "Unable to find cmake packages for Qt!")
+        return()
 endif()
 
 find_package(Qt5 COMPONENTS Widgets WebEngineWidgets WebSockets)
 
-if(Qt5)
-
+if(Qt5_FOUND)
 	set(CMAKE_AUTOMOC ON)
 	set(CMAKE_AUTORCC ON)
 	set(CMAKE_AUTOUIC ON)
@@ -29,6 +26,6 @@ if(Qt5)
 
 	target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::WebSockets Qt5::WebEngineWidgets)
 else()
-	message(WARNING "Qt is missing some components")
+        message(WARNING "Qt5 is not found missing some components")
 	return()
 endif()
