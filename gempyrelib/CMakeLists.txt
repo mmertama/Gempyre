@@ -309,6 +309,8 @@ else()
         -lstdc++)
 endif()
 
+#TODO affiliates are missing!
+
 set(GEMPYRE_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE INTERNAL "")
 set(GEMPYRE_TARGETS_EXPORT_NAME       "${PROJECT_NAME}")
 set(GEMPYRE_CMAKE_CONFIG_TEMPLATE     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.in")
@@ -336,6 +338,7 @@ export(
     FILE ${GEMPYRE_CMAKE_PROJECT_TARGETS_FILE}
     )
 
+#TODO: fix these
 if(UNIX AND NOT APPLE)
     install(
        TARGETS ${PROJECT_NAME}
