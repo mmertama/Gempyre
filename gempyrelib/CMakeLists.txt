@@ -15,6 +15,10 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+if(WIN32 AND NOT MSVC)
+
+endif()
+
 if(WIN32)
     set(CMAKE_CXX_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_CXX_FLAGS}")
     add_compile_options(-DWINDOWS_EXPORT)
@@ -28,13 +32,20 @@ if (WIN32 OR ANDROID)
         set(UV_LIB_DIR "${UV_DIR}/src/libuv-build")
 		
         if (MSVC)
-            if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
-                 set(UV_LIB "${UV_LIB_DIR}/Debug/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
-            else()
-                 set(UV_LIB "${UV_LIB_DIR}/Release/${CMAKE_STATIC_LIBRARY_PREFIX}uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+            if(${CMAKE_GENERATOR} STREQUAL "Ninja")
+                set(UV_LIB "${UV_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+           else()
+                if(CMAKE_BUILD_TYPE STREQUAL "Debug") #these actally pretty same, change if debug is needed.
+                     set(UV_LIB "${UV_LIB_DIR}/Debug/uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+                else()
+                     set(UV_LIB "${UV_LIB_DIR}/Release/${CMAKE_STATIC_LIBRARY_PREFIX}uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
+                endif()
+                message("MSVC builds artifacts upon release type")
             endif()
-			message("MSVC builds artifacts upon release type")
          else()
+             if(NOT ANDROID)
+                  find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
+             endif()
              set(UV_LIB "${UV_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}uv_a${CMAKE_STATIC_LIBRARY_SUFFIX}")
          endif()
 
@@ -290,7 +301,11 @@ endif()
 
 if(WIN32)
     message("uvlib is set as:${UV_LIB}")
-    set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib)
+    if(MSVC)
+        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib)
+    else()
+        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib ws2_32.lib)
+    endif()
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${UV_LIB}
@@ -308,6 +323,8 @@ else()
         PRIVATE ${SOCKETS_LIB}
         -lstdc++)
 endif()
+
+#TODO affiliates are missing!
 
 set(GEMPYRE_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE INTERNAL "")
 set(GEMPYRE_TARGETS_EXPORT_NAME       "${PROJECT_NAME}")
@@ -336,6 +353,7 @@ export(
     FILE ${GEMPYRE_CMAKE_PROJECT_TARGETS_FILE}
     )
 
+#TODO: fix these
 if(UNIX AND NOT APPLE)
     install(
        TARGETS ${PROJECT_NAME}

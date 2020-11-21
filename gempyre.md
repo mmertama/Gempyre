@@ -34,7 +34,7 @@ To resolve issue there is onOpen callback that is called immediately
 after event loop has been started.
 
 * [Gempyre ](#gempyre)
-* [ void setDebug(DebugLevel level = DebugLevel::Debug) ](#-void-setdebug-debuglevel-level-debuglevel-debug-)
+* [ void setDebug(DebugLevel level = DebugLevel::Debug, bool useLog = false) ](#-void-setdebug-debuglevel-level-debuglevel-debug-bool-uselog-false-)
 * [ std::tuple<int, int, int> version() ](#-std-tupleint-int-int-version-)
 * [Element ](#element)
 * [The Rect ](#the-rect)
@@ -94,8 +94,10 @@ after event loop has been started.
 ---
 ### Gempyre 
 Common namespace for Gempyre implementation.
-#####  void setDebug(DebugLevel level = DebugLevel::Debug) 
+#####  void setDebug(DebugLevel level = DebugLevel::Debug, bool useLog = false) 
 Enable debug outputs
+###### *Param:* level 
+###### *Param:* useLog 
 #####  std::tuple<int, int, int> version() 
 
 ---

@@ -89,6 +89,23 @@ static Ui::Filemap normalizeNames(const Ui::Filemap& files) {
     return normalized;
 }
 
+template <class C>
+static bool containsAll(const C& container, const std::initializer_list<typename C::value_type>& lst) {
+    for(const auto& i : lst) {
+        if(std::find(container.begin(), container.end(), i) == container.end())
+            return false;
+    }
+    return true;
+}
+
+template <class C>
+static std::vector<typename C::key_type> keys(const C& map) {
+    std::vector<typename C::key_type> k;
+    std::transform(map.begin(), map.end(), std::back_inserter(k), [](const auto& p){return p.first;});
+    return k;
+}
+
+
 static Ui::Filemap toFileMap(const std::string& filename) {
     const auto bytes = GempyreUtils::slurp<Base64::Byte>(filename);
     const auto encoded = Base64::encode(bytes);
@@ -166,6 +183,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                             auto k = params.at(key);
                             m_responsemap->push(id, std::move(k));
                         } else if(type == "extension_response") {
+                            gempyre_utils_assert_x(containsAll(keys(params), {"extension_id", "extension_call"}), "extension_response invalid parameters");
                             const auto id = std::any_cast<std::string>(params.at("extension_id"));
                             const auto key = std::any_cast<std::string>(params.at("extension_call"));
                             auto k = params.at(key);
