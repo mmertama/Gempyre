@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='py_client',
     version='',
-    packages=['pywebview', 'websocket', 'tkinter'],
+    install_requires=['webview', 'websockets'],
     url='https://github.com/mmertama/Gempyre',
     license='',
     author='markusmertama',
