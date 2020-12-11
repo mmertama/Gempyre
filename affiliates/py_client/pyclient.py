@@ -133,7 +133,18 @@ def main():
         
     if len(sys.argv) > 4:
         title = sys.argv[4]
-    
+
+    extra = {}
+
+    if sys.platform == 'win32':
+        extra['gui']='cef'
+
+    if len(sys.argv) > 5:
+        for e in sys.argv[5].split(';'):
+            m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
+            extra[m[1]] = m[2]
+
+
     uri_string = sys.argv[1]
     
     uri = urlparse(uri_string)
@@ -141,7 +152,7 @@ def main():
     window = webview.create_window(title, url=uri_string, width=width, height=height)
     window.shown += lambda: on_show(window, uri.hostname, uri.port)
     window.closing += on_close
-    webview.start()
+    webview.start(**extra)
 
     
 if __name__ == "__main__":
