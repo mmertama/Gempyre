@@ -26,17 +26,7 @@ using namespace Gempyre;
 
 const std::string SERVER_ADDRESS = "http://localhost";
 
-const std::string DefaultBrowser =
-#if defined(UNIX_OS) //maybe works only on Debian derivatives
-    "x-www-browser"
-#elif defined(MAC_OS)
-    "open"
-#elif defined(WINDOWS_OS)
-    "start /max"
-#else
-    ""
-#endif
-        ;
+
 
 #ifdef ANDROID_OS
 extern int androidLoadUi(const std::string&);
@@ -138,7 +128,7 @@ Ui::Ui(const std::string& indexHtml, unsigned short port, const std::string& roo
     ,"", port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root)
-    : Ui(filemap, indexHtml, DefaultBrowser, "", port, root) {}
+    : Ui(filemap, indexHtml, GempyreUtils::osBrowser(), "", port, root) {}
 
 Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser, extraParams, port, root){}
@@ -243,9 +233,9 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                     m_status = State::RUNNING;
                     const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
 #ifndef ANDROID_OS
-                    gempyre_utils_assert_x(!browser.empty() || !DefaultBrowser.empty(), "I have no idea what browser should be spawned, please use other constructor");
+                    gempyre_utils_assert_x(!browser.empty() || !GempyreUtils::osBrowser().empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
-                    const auto cmdLine = (browser.empty() ? DefaultBrowser : browser)
+                    const auto cmdLine = (browser.empty() ? GempyreUtils::osBrowser() : browser)
                             + " " + SERVER_ADDRESS + ":"
                             + std::to_string(port) + "/"
                             + (appPage.empty() ? "index.html" : appPage)

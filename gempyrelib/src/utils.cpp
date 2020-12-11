@@ -680,6 +680,20 @@ GempyreUtils::OS GempyreUtils::currentOS() {
 #endif
 }
 
+std::string GempyreUtils::osBrowser() {
+    return
+    #if defined(UNIX_OS) //maybe works only on Debian derivatives
+        "x-www-browser"
+    #elif defined(MAC_OS)
+        "open"
+    #elif defined(WINDOWS_OS)
+        "start /max"
+    #else
+        ""
+    #endif
+            ;
+}
+
 std::string GempyreUtils::currentTimeString() {
     const auto result = std::time(nullptr);
     char timebuf[64];

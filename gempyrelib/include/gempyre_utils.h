@@ -407,6 +407,13 @@ UTILS_EX bool setPriority(int priority);
 UTILS_EX std::pair<int, int> getPriorityLevels();
 #endif
 
+/**
+ * @brief osBrowser
+ * @return
+ */
+UTILS_EX std::string osBrowser();
+
+
 
 class DebugStream {
 public:
