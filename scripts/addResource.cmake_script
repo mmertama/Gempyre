@@ -24,10 +24,18 @@ function (addResource)
     else()
         set(MINIFY "")
     endif()
+	
+	if(NOT WIN32)
+		find_program(PYTHON "python3" REQUIRED)
+		set (PYTHON3 python3)
+	else()
+		find_program(PYTHON "python" REQUIRED)
+		set (PYTHON3 python)
+	endif()
       
     add_custom_command(
         OUTPUT ${ADD_RESOURCE_TARGET}
-        COMMAND python3 ${GEMPYRE_DIR}/scripts/genStringResource.py ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
+        COMMAND ${PYTHON3} ${GEMPYRE_DIR}/scripts/genStringResource.py ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
     
