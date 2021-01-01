@@ -27,7 +27,6 @@ def on_close():
 
 
 def on_show(window, host, port):
-    print("on_start", host, port)
     ws_uri = "ws://{}:{}/gempyre".format(host, port)
 
     async def extender():
@@ -45,12 +44,10 @@ def on_show(window, host, port):
                 try:
                     await receive
                 except asyncio.exceptions.CancelledError:
-                    print("do close")
                     await ws.close()
                     return
 
                 doc = receive.result()
-                print("web socket received", doc)
 
                 receive = loop.create_task(ws.recv())
                 obj = json.loads(doc)
