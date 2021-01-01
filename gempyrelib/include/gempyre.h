@@ -77,7 +77,7 @@ namespace Gempyre {
     template <class T> class IdList;
     template <class K, class T> class EventMap;
 
-    enum class DebugLevel{None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
+    enum class DebugLevel{NoDebug, Fatal, Error, Warning, Info, Debug, Debug_Trace};
     /**
      * @function setDebug
      * Enable debug outputs
