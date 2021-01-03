@@ -37,7 +37,7 @@ constexpr char Name[] = "Gempyre";
 
 void Gempyre::setDebug(Gempyre::DebugLevel level, bool useLog) {
     const std::unordered_map<Gempyre::DebugLevel, GempyreUtils::LogLevel> lvl =  {
-        {Gempyre::DebugLevel::NoDebug, GempyreUtils::LogLevel::None},
+        {Gempyre::DebugLevel::Quiet, GempyreUtils::LogLevel::None},
         {Gempyre::DebugLevel::Fatal, GempyreUtils::LogLevel::Fatal},
         {Gempyre::DebugLevel::Error, GempyreUtils::LogLevel::Error},
         {Gempyre::DebugLevel::Warning, GempyreUtils::LogLevel::Warning},
