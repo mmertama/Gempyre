@@ -22,6 +22,10 @@
 #include <sys/stat.h>
 
 #include <stdio.h>
+#include <ifaddrs.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include "gempyre_utils.h"
 
@@ -741,3 +745,29 @@ UTILS_EX std::pair<int, int> GempyreUtils::getPriorityLevels() {
 }
 #endif
 
+
+
+std::vector<std::string> GempyreUtils::ipAddress() {
+    std::vector<std::string> addresses;
+    struct ifaddrs *ifaddr;
+    if (::getifaddrs(&ifaddr) < 0)
+        return addresses;
+    /* Walk through linked list, maintaining head pointer so we can free list later */
+    for (auto *ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (!ifa->ifa_addr)
+            continue;
+        const auto family = ifa->ifa_addr->sa_family;
+        if (family == AF_INET || family == AF_INET6) {
+            char host[1025];
+            const auto s = ::getnameinfo(ifa->ifa_addr, (family == AF_INET) ?
+                                           sizeof(struct sockaddr_in) :
+                                           sizeof(struct sockaddr_in6),
+                               host, sizeof(host),
+                               NULL, 0, NI_NUMERICHOST);
+           if(s == 0)
+              addresses.push_back(host);
+        }
+    }
+    ::freeifaddrs(ifaddr);
+    return addresses;
+}

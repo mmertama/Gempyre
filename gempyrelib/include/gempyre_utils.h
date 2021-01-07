@@ -651,6 +651,9 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
  */
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
+
+UTILS_EX std::vector<std::string> ipAddress();
+
 /**
  * @scopeend
  */
