@@ -34,7 +34,7 @@
 #define gempyre_utils_assert_x(b, x) (b || GempyreUtils::doFatal(x, nullptr, __FILE__, __LINE__))
 #define gempyre_utils_assert_x_f(b, x, f) (b || GempyreUtils::doFatal(x, f, __FILE__, __LINE__))
 #define gempyre_utils_fatal(x) GempyreUtils::doFatal(x, nullptr, __FILE__, __LINE__)
-#define gempyre_utils_fatal_f(x) GempyreUtils::doFatal(x, f, __FILE__, __LINE__)
+#define gempyre_utils_fatal_f(x, f) GempyreUtils::doFatal(x, f, __FILE__, __LINE__)
 #define gempyre_utils_auto_clean(p, f) std::unique_ptr<std::remove_pointer<decltype(p)>::type, decltype(&f)> _ ## p (p, &f)
 #define gempyre_utils_auto_close(p, f) GempyreUtils::_Close<std::decay_t<decltype(p)>, decltype(&f)> _ ## p (p, &f)
 
