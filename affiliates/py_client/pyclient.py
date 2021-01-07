@@ -121,30 +121,34 @@ def main():
 
     if len(sys.argv) < 2:
         sys.exit("Usage: URL <width> <height> <title>")
-        
-    if len(sys.argv) > 2:
-        width = int(sys.argv[2])
-        
-    if len(sys.argv) > 3:
-        height = int(sys.argv[3])
-        
-    if len(sys.argv) > 4:
-        title = sys.argv[4]
 
     extra = {}
+    uri = None
 
-    if sys.platform == 'win32':
-        extra['gui']='cef'
+    try:
+        if len(sys.argv) > 2:
+            width = int(sys.argv[2])
 
-    if len(sys.argv) > 5:
-        for e in sys.argv[5].split(';'):
-            m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
-            extra[m[1]] = m[2]
+        if len(sys.argv) > 3:
+            height = int(sys.argv[3])
 
+        if len(sys.argv) > 4:
+            title = sys.argv[4]
 
-    uri_string = sys.argv[1]
-    
-    uri = urlparse(uri_string)
+        if sys.platform == 'win32':
+            extra['gui'] = 'cef'
+
+        if len(sys.argv) > 5:
+            for e in sys.argv[5].split(';'):
+                m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
+                extra[m[1]] = m[2]
+
+        uri_string = sys.argv[1]
+        uri = urlparse(uri_string)
+
+    except ValueError as err:
+        print("Invalid parameters", err, sys.argv, file=sys.stderr)
+        sys.exit(-1)
 
     window = webview.create_window(title, url=uri_string, width=width, height=height)
     window.shown += lambda: on_show(window, uri.hostname, uri.port)
