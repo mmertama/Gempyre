@@ -35,7 +35,7 @@ implementation and test applications.
 * [ bool isDir(const std::string& fname) ](#-bool-isdir-const-std-string-fname-)
 * [ std::string workingDir() ](#-std-string-workingdir-)
 * [ std::string absPath(const std::string& rpath) ](#-std-string-abspath-const-std-string-rpath-)
-* [ std::string pathPop(const std::string& filename) ](#-std-string-pathpop-const-std-string-filename-)
+* [ std::string pathPop(const std::string& filename, int steps = 1) ](#-std-string-pathpop-const-std-string-filename-int-steps-1-)
 * [ std::vector<std::tuple<std::string, bool, std::string>> directory(const std::string& dirname) ](#-std-vectorstd-tuplestd-string-bool-std-string-directory-const-std-string-dirname-)
 * [ std::string baseName(const std::string& filename) ](#-std-string-basename-const-std-string-filename-)
 * [ std::string tempName() ](#-std-string-tempname-)
@@ -157,6 +157,8 @@ implementation and test applications.
 ###### The OS enum 
 #####  OS currentOS() 
 ###### *Return:*  
+###### osBrowser 
+###### *Return:*  
 ##### inline bool doFatal(const std::string& txt, std::function<void()> f, const char* file, int line) 
 ###### *Param:* txt 
 ###### *Param:* f 
@@ -179,7 +181,7 @@ implementation and test applications.
 #####  std::string absPath(const std::string& rpath) 
 ###### *Param:* rpath 
 ###### *Return:*  
-#####  std::string pathPop(const std::string& filename) 
+#####  std::string pathPop(const std::string& filename, int steps = 1) 
 ###### *Param:* filename 
 ###### *Return:*  
 #####  std::vector<std::tuple<std::string, bool, std::string>> directory(const std::string& dirname) 

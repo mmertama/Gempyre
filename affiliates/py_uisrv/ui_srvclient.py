@@ -8,7 +8,11 @@ def main():
     port = int(re.search(r'port=(\S+)', ' '.join(sys.argv))[1])
     command = [x for x in sys.argv if not re.match(r'(port|host)=', x) and sys.argv.index(x) > 0]
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, port))
+    try:
+        sock.connect((host, port))
+    except ConnectionRefusedError as cre:
+        print("Cannot connect to", host, port, cre)
+        return -2;
     encoded = str.encode(' '.join(command))
     sock.send(len(encoded).to_bytes(8, byteorder='big'))
     sock.send(encoded)

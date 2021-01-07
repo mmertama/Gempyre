@@ -13,9 +13,9 @@ except ImportError:
     print("Warning: pywebview is not installed", file=sys.stderr)
 
 
-def main(gui):
+def main(port, gui):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((socket.gethostbyname('localhost'), 43101))
+    server_socket.bind((socket.gethostbyname('localhost'), port))
     server_socket.listen(5)
     while True:
         client_socket, address = server_socket.accept()
@@ -37,5 +37,6 @@ def main(gui):
 
 
 if __name__ == '__main__':
-    ui = sys.argv[1:]
-    main(ui)
+    port = int(sys.argv[1])
+    ui = sys.argv[2:]
+    main(port, ui)

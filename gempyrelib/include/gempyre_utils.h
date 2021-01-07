@@ -539,7 +539,7 @@ UTILS_EX std::string absPath(const std::string& rpath);
  * @param filename
  * @return
  */
-UTILS_EX std::string pathPop(const std::string& filename);
+UTILS_EX std::string pathPop(const std::string& filename, int steps = 1);
 /**
  * @function directory
  * @param dirname
@@ -652,7 +652,8 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
 
-UTILS_EX std::vector<std::string> ipAddress();
+enum AddressType{Ipv4 = 0x1, Ipv6 = 0x2};
+UTILS_EX std::vector<std::string> ipAddresses(int addressType);
 
 /**
  * @scopeend

@@ -313,9 +313,13 @@ std::string GempyreUtils::baseName(const std::string& filename) {
         filename.substr(dname.length() + 1);
 }
 
-std::string GempyreUtils::pathPop(const std::string& filename) {
-    const auto p = filename.find_last_of('/');
-    return p != std::string::npos ? filename.substr(0, p) : "";
+std::string GempyreUtils::pathPop(const std::string& filename, int steps) {
+    if (steps <= 0)
+        return filename;
+    else {
+        const auto p = filename.find_last_of('/');
+        return pathPop(p != std::string::npos ? filename.substr(0, p) : "", steps - 1);
+    }
 }
 
 #ifndef WINDOWS_OS
@@ -747,7 +751,7 @@ UTILS_EX std::pair<int, int> GempyreUtils::getPriorityLevels() {
 
 
 
-std::vector<std::string> GempyreUtils::ipAddress() {
+std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     std::vector<std::string> addresses;
     struct ifaddrs *ifaddr;
     if (::getifaddrs(&ifaddr) < 0)
@@ -757,14 +761,15 @@ std::vector<std::string> GempyreUtils::ipAddress() {
         if (!ifa->ifa_addr)
             continue;
         const auto family = ifa->ifa_addr->sa_family;
-        if (family == AF_INET || family == AF_INET6) {
+        if ((family == AF_INET && (addressType & AddressType::Ipv4)) ||
+                (family == AF_INET6 && (addressType & AddressType::Ipv6))) {
             char host[1025];
             const auto s = ::getnameinfo(ifa->ifa_addr, (family == AF_INET) ?
                                            sizeof(struct sockaddr_in) :
                                            sizeof(struct sockaddr_in6),
                                host, sizeof(host),
                                NULL, 0, NI_NUMERICHOST);
-           if(s == 0)
+           if(s == 0 && std::strcmp(host, "127.0.0.1") && std::strcmp(host, "::1"))
               addresses.push_back(host);
         }
     }
