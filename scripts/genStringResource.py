@@ -53,7 +53,7 @@ with open(outName, 'w') as file:
         file.write('");\n')
 
     list_name = re.sub('[^a-zA-Z_]', '', os.path.basename(outName)).capitalize()
-    file.write('const std::unordered_map<std::string, const std::string_view> ' + list_name + '{\n')
+    file.write('const std::unordered_map<std::string, std::string_view> ' + list_name + '{\n')
     for k, v in item_list.items():
         file.write('\t{"/' + k + '", ' + v + '},\n')
     file.write('};\n')

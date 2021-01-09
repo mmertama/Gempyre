@@ -118,7 +118,7 @@ namespace Gempyre {
         };
         using Handler = std::function<void(const Event& el)>;
     public:
-        using Filemap = std::unordered_map<std::string, std::string>;
+        using Filemap = std::unordered_map<std::string, std::string_view>;
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr char UseDefaultRoot[] = "";   //zero means default root
