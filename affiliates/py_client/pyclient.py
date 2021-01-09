@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import sys
 import webview
 import websockets
+import re
 
 do_exit = None
 
@@ -139,6 +140,7 @@ def main():
             extra['gui'] = 'cef'
 
         if len(sys.argv) > 5:
+            print(sys.argv)
             for e in sys.argv[5].split(';'):
                 m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
                 extra[m[1]] = m[2]

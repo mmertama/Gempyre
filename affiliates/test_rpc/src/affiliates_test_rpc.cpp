@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     const auto hostName = std::string(argc > 1 ? argv[1] : "127.0.0.1");
     const auto localAddr = GempyreUtils::ipAddresses(GempyreUtils::AddressType::Ipv4);
     const auto commandLine = GempyreUtils::join(std::vector<std::string>({std::string("host=") + hostName,
-    "port=43101", std::string(localAddr[0]), "400", "400", "Remote, but near"}), " ");
+    "port=43102", std::string(localAddr[0]), "400", "400", "\"Remote, but near\""}), " ");
 
     const std::string python3 = GempyreUtils::which("python3").empty() ? "python" : "python3";
 

@@ -38,7 +38,6 @@ add_subdirectory(gempyrelib)
 option(HAS_AFFILIATES "Affiliats are built" ON)
 option(HAS_TEST "Test are built" ON)
 option(HAS_BLOG "Blog examples are built" ON)
-option(HAS_MDMAKER "Try generate docs" ON)
 
 
 if(HAS_AFFILIATES)
@@ -53,24 +52,4 @@ if(HAS_BLOG)
     add_subdirectory(blog)
 endif()
 
-if(HAS_MDMAKER)
-    if(EXISTS $ENV{MDMAKER})
-        set(MARKDOWNMAKER $ENV{MDMAKER})
-    else()
-        find_program (MARKDOWNMAKER mdmaker)
-    endif()
-
-    if(EXISTS ${MARKDOWNMAKER})
-        FILE(GLOB README_FILES "gempyrelib/include/*.h")
-        foreach(FILE ${README_FILES})
-            get_filename_component(BASE_NAME ${FILE} NAME_WE)
-            add_custom_target("${BASE_NAME}_readme"
-                COMMAND ${MARKDOWNMAKER} ${FILE} -o ${CMAKE_CURRENT_SOURCE_DIR}/${BASE_NAME}.md
-                DEPENDS ${FILE})
-            add_dependencies(${NAME} "${BASE_NAME}_readme")
-        endforeach()
-    else()
-        message("mdmaker not found (install in path or set MDMAKER env), cannot generate documentation")
-    endif()
-endif()
 
