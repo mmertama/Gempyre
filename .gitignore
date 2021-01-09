@@ -73,3 +73,6 @@ _deps
 *.cbp
 affiliates/test/affiliates_test
 blog/hello2/hello2
+affiliates/test_rpc/affiliates_test_rpc
+install_manifest.txt
+

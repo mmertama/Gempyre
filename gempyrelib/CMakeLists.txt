@@ -353,8 +353,10 @@ export(
     FILE ${GEMPYRE_CMAKE_PROJECT_TARGETS_FILE}
     )
 
-#TODO: fix these
-if(UNIX AND NOT APPLE)
+ 
+file(GLOB HEADERS include/*.h) 
+
+if(NOT WIN32)
     install(
        TARGETS ${PROJECT_NAME}
        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -362,10 +364,14 @@ if(UNIX AND NOT APPLE)
        COMPONENT library
        )
     install(
-       FILES "src/gempyre.h"
-       INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+       FILES ${HEADERS}
+       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} 
        )
+    install(FILES ${PROJECT_NAME}Config.cmake DESTINATION lib/cmake/Foo)
+	
 endif()
+
+
 
 
 #if (LINUX)
