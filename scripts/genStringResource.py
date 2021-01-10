@@ -41,7 +41,7 @@ with open(outName, 'w') as file:
             content = jsmin(infile.read()) if domin else infile.read()
             encoded = base64.standard_b64encode(content).decode('utf-8')
 
-        sname = re.sub('[^a-zA-Z_]', '', os.path.basename(inName)).capitalize()
+        sname = re.sub('[^0-9a-zA-Z_]', '', os.path.basename(inName)).capitalize()
 
         item_list[os.path.basename(inName)] = sname
 
