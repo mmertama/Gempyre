@@ -48,7 +48,8 @@ static std::string fileToMime(const std::string& filename) {
         {"*.ico", "image/x-icon"},
         {"*.png", "image/png"},
         {"*.jpg", "image/jpeg"},
-        {"*.gif", "image/gif"}
+        {"*.gif", "image/gif"},
+        {"*.svg", "image/svg+xml"}
     };
     const auto it = mimes.find(ext);
     return it == mimes.end() ? " application/octet-stream" : std::string(it->second);
