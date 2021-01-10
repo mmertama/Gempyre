@@ -35,6 +35,7 @@ using namespace Gempyre;
 constexpr unsigned short PORT_MIN = 30000;
 constexpr unsigned short PORT_MAX = 30500;
 
+
 static std::string fileToMime(const std::string& filename) {
     const auto index = filename.find_last_of('.');
     if(index == std::string::npos)
@@ -45,14 +46,16 @@ static std::string fileToMime(const std::string& filename) {
         {".css", "text/css;charset=utf-8"},
         {".js", "text/javascript;charset=utf-8"},
         {".txt", "text/txt;charset=utf-8"},
-        {"*.ico", "image/x-icon"},
-        {"*.png", "image/png"},
-        {"*.jpg", "image/jpeg"},
-        {"*.gif", "image/gif"},
-        {"*.svg", "image/svg+xml"}
+        {".ico", "image/x-icon"},
+        {".png", "image/png"},
+        {".jpg", "image/jpeg"},
+        {".gif", "image/gif"},
+        {".svg", "image/svg+xml"}
     };
     const auto it = mimes.find(ext);
-    return it == mimes.end() ? " application/octet-stream" : std::string(it->second);
+    const auto mimeType = it == mimes.end() ? " application/octet-stream" : std::string(it->second);
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Mime type:", filename, mimeType);
+    return mimeType;
 }
 
 
