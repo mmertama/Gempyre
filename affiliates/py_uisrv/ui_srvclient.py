@@ -16,7 +16,7 @@ def main(params):
         sock.connect((host, port))
     except ConnectionRefusedError as cre:
         print("Cannot connect to", host, port, cre)
-        return -2;
+        return -2
     sock.send(len(commands).to_bytes(8, byteorder='big'))
     for command in commands:
         encoded = str.encode(command)
