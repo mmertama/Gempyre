@@ -26,7 +26,6 @@
   * gempyre_utils.h contains a collection utility functions used internally within Gempyre
   * implementation and test applications.
   *
-  * @toc
   */
 
 #define GEMPYREUTILSDEBUG(x) GempyreUtils::log(Utils::LogLevel::Debug, x, __FILE__, __LINE__)
@@ -86,56 +85,28 @@ enum class LogLevel{None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
 
 
 /**
-  * @scope String Utils
+  * String Utils
   */
 
-/**
- * @function qq
- * @param s
- * @return
- */
 inline std::string qq(const std::string& s) {
     return '"' + s + '"';
 }
 
-/**
- * @function chop
- * @param s
- * @return
- */
 inline std::string chop(const std::string& s) {
     auto str = s;
     str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
     return str;
 }
 
-/**
- * @function chop
- * @param s
- * @param chopped
- * @return
- */
 inline std::string chop(const std::string& s, const std::string& chopped) {
     auto str = s;
     str.erase(str.find_last_not_of(chopped) + 1);
     return str;
 }
 
-/**
- * @function substitute
- * @param str
- * @param substring
- * @param substitution
- * @return
- */
 UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
 
 template <typename T>
-/**
- * @function to
- * @param source
- * @return
- */
 T to(const std::string& source) {
     std::istringstream ss(source);
     T v;
@@ -144,11 +115,6 @@ T to(const std::string& source) {
 }
 
 template <typename T>
-/**
- * @function toOr
- * @param source
- * @return
- */
 std::optional<T> toOr(const std::string& source) {
     std::istringstream ss(source);
     T v;
@@ -157,11 +123,6 @@ std::optional<T> toOr(const std::string& source) {
 }
 
 template <class T>
-/**
- * @function toLow
- * @param str
- * @return
- */
  T toLow(const T& str) {
     T n;
     std::transform(str.begin(), str.end(), std::back_inserter(n),
@@ -171,11 +132,6 @@ template <class T>
 
 
  template< typename T >
- /**
-  * @function toHex
-  * @param ival
-  * @return
-  */
  std::string toHex(T ival) {
    std::stringstream stream;
    stream << std::setfill('0') << std::setw(sizeof(T) * 2)
@@ -184,29 +140,15 @@ template <class T>
  }
 
 /**
- * @scopeend
- * @scope Container Utils
+ * Container Utils
  */
 
 template<typename T>
-/**
- * @function contains
- * @param container
- * @param s
- * @return
- */
 bool contains(const T& container, const std::string& s) {
     return container.find(s) != container.end();
 }
 
 template<typename C, typename T>
-/**
- * @function at
- * @param container
- * @param s
- * @param index
- * @return
- */
 std::optional<T> at(const C& container, const std::string& s, unsigned index = 0) {
     const auto range = container.equal_range(s);
     const auto it = std::next(range.first, index);
@@ -215,14 +157,6 @@ std::optional<T> at(const C& container, const std::string& s, unsigned index = 0
 }
 
 template<typename C, typename T>
-/**
- * @function atOr
- * @param container
- * @param s
- * @param defaultValue
- * @param index
- * @return
- */
 T atOr(const C& container, const std::string& s, const T& defaultValue, unsigned index = 0) {
     const auto v = at<C, T>(container, s, index);
     return v.has_value() ? v.value() : defaultValue;
@@ -230,12 +164,6 @@ T atOr(const C& container, const std::string& s, const T& defaultValue, unsigned
 
 
 template <class Container>
-/**
- * @function split
- * @param str
- * @param splitChar
- * @return
- */
 Container split(const std::string& str, const char splitChar = ' ') {
     Container con;
     std::istringstream iss(str);
@@ -247,16 +175,6 @@ Container split(const std::string& str, const char splitChar = ' ') {
 
 
 template <class IT>
-/**
- * @function joinPairs
- * @param begin
- * @param end
- * @param startChar
- * @param endChar
- * @param divChar
- * @param joinChar
- * @return
- */
 std::string joinPairs(const IT& begin, const IT& end, const std::string& startChar = "{", const std::string& endChar = "}", const std::string& divChar = ":" , const std::string& joinChar = "" ) {
     std::string s;
     std::ostringstream iss(s);
@@ -272,15 +190,6 @@ std::string joinPairs(const IT& begin, const IT& end, const std::string& startCh
 }
 
 template <class T>
-/**
- * @function joinPairs
- * @param obj
- * @param startChar
- * @param endChar
- * @param divChar
- * @param joinChar
- * @return
- */
 std::string joinPairs(const T& obj, const std::string& startChar = "{", const std::string endChar = "}", const std::string& divChar = ":" , const std::string& joinChar = "" ) {
     return joinPairs(obj.begin(), obj.end(), startChar, endChar, divChar, joinChar);
 }
@@ -294,13 +203,6 @@ std::vector<K> keys(const T& map) {
 }
 
 template <class IT>
-/**
- * @function join
- * @param begin
- * @param end
- * @param joinChar
- * @return
- */
 std::string join(const IT& begin, const IT& end, const std::string joinChar = "" ) {
     std::string s;
     std::ostringstream iss(s);
@@ -316,23 +218,11 @@ std::string join(const IT& begin, const IT& end, const std::string joinChar = ""
 }
 
 template <class T>
-/**
- * @function join
- * @param t
- * @param joinChar
- * @return
- */
 std::string join(const T& t, const std::string joinChar = "" ) {
     return join(t.begin(), t.end(), joinChar);
 }
 
 template <class T>
-/**
-    * @function merge
-    * @param b1
-    * @param b2
-    * @return
-    */
 T merge(const T& b1, const T& b2) {
        T bytes(b1.size() + b2.size());
        auto begin = bytes.begin();
@@ -344,13 +234,6 @@ T merge(const T& b1, const T& b2) {
 
 
 template <class T, typename ...Arg>
-/**
- * @function merge
- * @param b1
- * @param b2
- * @param args
- * @return
- */
 T merge(const T& b1, const T& b2, Arg ...args) {
     T bytes(b1.size() + b2.size());
     auto begin = bytes.begin();
@@ -360,9 +243,8 @@ T merge(const T& b1, const T& b2, Arg ...args) {
     return merge(bytes, args...);
 }
 
- /**
- * @scopeend
- * @scope Misc Utils
+ /*
+ *  Misc Utils
  */
 
 class expiror;
@@ -378,28 +260,11 @@ private:
     friend std::shared_ptr<GempyreUtils::expiror> GempyreUtils::waitExpire(std::chrono::seconds s, const std::function<void ()>& onExpire);
 };
 
-/**
- * @function hexify
- * @param src
- * @param pat
- * @return
- */
 UTILS_EX  std::string hexify(const std::string& src, const std::string pat);
-/**
- * @function unhexify
- * @param src
- * @return
- */
 UTILS_EX  std::string unhexify(const std::string& src);
 
-/**
- * @brief The OS enum
- */
 enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs};
-/**
- * @function currentOS
- * @return
- */
+
 UTILS_EX OS currentOS();
 
 #ifdef UNIX_OS //fix if needed
@@ -407,10 +272,7 @@ UTILS_EX bool setPriority(int priority);
 UTILS_EX std::pair<int, int> getPriorityLevels();
 #endif
 
-/**
- * @brief osBrowser
- * @return
- */
+
 UTILS_EX std::string osBrowser();
 
 
@@ -484,26 +346,19 @@ inline void log_t(LogLevel level, const std::nullptr_t&, Args... args) {
     log_t(level, args...);
 }
 
-/**
- * @function doFatal
- * @param txt
- * @param f
- * @param file
- * @param line
- * @return
- */
+
 inline bool doFatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
     if(f) f();
     log(LogLevel::Fatal, txt, "at", file, "line:", line);
     return false;
 }
 
-/**
-* @scopeend
-*/
+enum AddressType{Ipv4 = 0x1, Ipv6 = 0x2};
+UTILS_EX std::vector<std::string> ipAddresses(int addressType);
+
 
 /**
-  * @scope File Utils
+  * File Utils
   */
 
 #ifdef UNIX_OS //fix if needed
@@ -511,104 +366,26 @@ UTILS_EX long timeStamp(const std::string& filename);
 UTILS_EX std::string appPath();
 #endif
 
-/**
- * @function getLink
- * @param fname
- * @return
- */
 UTILS_EX std::string getLink(const std::string& fname);
-/**
- * @function isDir
- * @param fname
- * @return
- */
 UTILS_EX bool isDir(const std::string& fname);
-/**
- * @function workingDir
- * @return
- */
 UTILS_EX std::string workingDir();
-/**
- * @function absPath
- * @param rpath
- * @return
- */
 UTILS_EX std::string absPath(const std::string& rpath);
-/**
- * @function pathPop
- * @param filename
- * @return
- */
 UTILS_EX std::string pathPop(const std::string& filename, int steps = 1);
-/**
- * @function directory
- * @param dirname
- * @return
- */
 UTILS_EX std::vector<std::tuple<std::string, bool, std::string>> directory(const std::string& dirname);
 UTILS_EX std::string readProcess(const std::string& processName);
-/**
- * @function baseName
- * @param filename
- * @return
- */
 UTILS_EX std::string baseName(const std::string& filename);
-/**
- * @function tempName
- * @return
- */
 UTILS_EX std::string tempName();
 UTILS_EX std::string hostName();
-/**
- * @function systemEnv
- * @param env
- * @return
- */
 UTILS_EX std::string systemEnv(const std::string& env);
-/**
- * @function isHiddenEntry
- * @param filename
- * @return
- */
 UTILS_EX bool isHiddenEntry(const std::string& filename);
-/**
- * @function isExecutable
- * @param filename
- * @return
- */
 UTILS_EX bool isExecutable(const std::string& filename);
-/**
- * @function fileSize
- * @param filename
- * @return
- */
 UTILS_EX SSIZE_T fileSize(const std::string& filename);
-/**
- * @function rename
- * @param of
- * @param nf
- * @return
- */
 UTILS_EX bool rename(const std::string& of, const std::string& nf);
-/**
- * @function removeFile
- * @param filename
- */
 UTILS_EX void removeFile(const std::string& filename);
-/**
- * @function fileExists
- * @param filename
- * @return
- */
 UTILS_EX bool fileExists(const std::string& filename);
 UTILS_EX std::string which(const std::string& filename);
 
 template <class T>
-/**
- * @function writeToTemp
- * @param data
- * @return
- */
 std::string writeToTemp(const T& data) {
     const auto name = GempyreUtils::tempName();
     std::ofstream out(name, std::ios::out | std::ios::binary);
@@ -619,12 +396,6 @@ std::string writeToTemp(const T& data) {
 
 
 template <class T>
-/**
- * @function slurp
- * @param file
- * @param max
- * @return
- */
 std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max()) {
    std::vector<T> vec;
    std::ifstream stream(file, std::ios::in | std::ios::binary | std::ios::ate);
@@ -643,27 +414,9 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
    return vec;
  }
 
-/**
- * @function slurp
- * @param file
- * @param max
- * @return
- */
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
-
-enum AddressType{Ipv4 = 0x1, Ipv6 = 0x2};
-UTILS_EX std::vector<std::string> ipAddresses(int addressType);
-
-/**
- * @scopeend
- */
-
-
 }
-/**
- * @scopeend
- */
 
 
 #endif // UTILS_H
