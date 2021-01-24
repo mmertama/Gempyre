@@ -744,8 +744,8 @@ std::string GempyreUtils::lastError() {
     DWORD dw = GetLastError();
     return lastError(dw);
 #else
-    const int err = errno
-    return lastError(err));
+    const int err = errno;
+    return lastError(err);
 #endif
 }
 
