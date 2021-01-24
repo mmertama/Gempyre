@@ -1,12 +1,27 @@
 #ifndef WINDOWS_OS
+
 #include <getopt.h>
 #include <unistd.h>
 #include <syslog.h>
 #include <dirent.h>
 #include <libgen.h>
+
+#include <ifaddrs.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
 #else
-#include <Windows.h>
+
+#ifndef _WINSOCKAPI_                              
+    #include <winsock2.h>                           
+#endif   
+#include <Windows.h>                                
+#include <iphlpapi.h>
+#include <Ws2tcpip.h>
+
 #endif
+
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
@@ -22,15 +37,28 @@
 #include <sys/stat.h>
 
 #include <stdio.h>
-#include <ifaddrs.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netdb.h>
+
+
 
 #include "gempyre_utils.h"
 
 //without <filesystem> support
 #include <stdlib.h>
+
+namespace GempyreUtils {
+template<typename T>
+static std::string lastError(T err) {
+#ifdef WINDOWS_OS
+    const DWORD size = 256;
+    char buffer[size];
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+       nullptr, err, 0,buffer, size, NULL );
+    return std::string(buffer);
+#else
+    return std::string(::strerror(err));
+#endif
+}
+}
 
 using namespace std::chrono_literals;
 using namespace GempyreUtils;
@@ -97,6 +125,8 @@ UTILS_LOGLVEL
 Error
 #endif
 ;
+
+
 
 void GempyreUtils::init() {
 #ifdef WINDOWS_OS
@@ -711,14 +741,11 @@ std::string GempyreUtils::currentTimeString() {
 
 std::string GempyreUtils::lastError() {
 #ifdef WINDOWS_OS
-    const DWORD size = 256;
-    char buffer[size];
     DWORD dw = GetLastError();
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-       nullptr, dw, 0,buffer, size, NULL );
-    return std::string(buffer);
+    return lastError(dw);
 #else
-    return std::string(::strerror(errno));
+    const int err = errno
+    return lastError(err));
 #endif
 }
 
@@ -744,15 +771,15 @@ bool GempyreUtils::setPriority(int priority) {
       return true;
 }
 
-UTILS_EX std::pair<int, int> GempyreUtils::getPriorityLevels() {
+std::pair<int, int> GempyreUtils::getPriorityLevels() {
     return {sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO)};
 }
 #endif
 
 
-
 std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     std::vector<std::string> addresses;
+#ifndef WINDOWS_OS
     struct ifaddrs *ifaddr;
     if (::getifaddrs(&ifaddr) < 0)
         return addresses;
@@ -775,4 +802,59 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     }
     ::freeifaddrs(ifaddr);
     return addresses;
+
+#else
+    const auto family = addressType == AddressType::Ipv4 
+    ? AF_INET : (addressType == AddressType::Ipv6 ? AF_INET6 :  AF_UNSPEC);  
+    const ULONG flags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_SKIP_FRIENDLY_NAME;
+    ULONG adapterBufferSize = 15 * 1024;
+    auto buf_ptr = std::make_unique<uint8_t[]>(adapterBufferSize);
+    IP_ADAPTER_ADDRESSES* adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buf_ptr.get());
+    while(true)  {
+        const auto err = GetAdaptersAddresses(AF_INET, flags, nullptr, adapters, &adapterBufferSize);
+        if(err == ERROR_SUCCESS )
+            break;
+        else if(err == ERROR_BUFFER_OVERFLOW) {
+            buf_ptr.swap(std::make_unique<uint8_t[]>(adapterBufferSize));
+             adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buf_ptr.get());
+        }
+        else {
+            log(LogLevel::Error, "ipAddresses error:", lastError(err));
+            return addresses;
+        }
+    }
+    for(auto adapter = adapters; adapter; adapter = adapter->Next) {
+        if (IF_TYPE_SOFTWARE_LOOPBACK == adapter->IfType)     // Skip loopback adapters
+            continue;
+        for(auto* address = adapter->FirstUnicastAddress; address; address = address->Next) {
+            const auto family = address->Address.lpSockaddr->sa_family;
+            if(family == AF_INET) {
+                auto ipv4 = reinterpret_cast<SOCKADDR_IN*>(address->Address.lpSockaddr);
+                char str_buffer[INET_ADDRSTRLEN] = {0};
+                inet_ntop(AF_INET, &(ipv4->sin_addr), str_buffer, INET_ADDRSTRLEN);
+                addresses.push_back(std::string(str_buffer));
+                }
+            else if(family == AF_INET6) {
+                SOCKADDR_IN6* ipv6 = reinterpret_cast<SOCKADDR_IN6*>(address->Address.lpSockaddr);
+                char str_buffer[INET6_ADDRSTRLEN] = {0};
+                inet_ntop(AF_INET6, &(ipv6->sin6_addr), str_buffer, INET6_ADDRSTRLEN);
+                // Detect and skip non-external addresses,https://stackoverflow.com/questions/122208/get-the-ip-address-of-local-computer
+                auto is_link_local = false;
+                auto is_special_use = false;
+                const auto ipv6_str = std::string(str_buffer);
+                if (0 == ipv6_str.find("fe")) {
+                    char c = ipv6_str[2];
+                    if (c == '8' || c == '9' || c == 'a' || c == 'b')
+                        is_link_local = true;
+            
+                } else if (0 == ipv6_str.find("2001:0:"))
+                    is_special_use = true;
+                if (!(is_link_local || is_special_use))
+                    addresses.push_back(ipv6_str);
+        
+            }
+        }
+    }           
+    return addresses;
+#endif
 }
