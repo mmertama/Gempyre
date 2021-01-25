@@ -507,9 +507,15 @@ void Ui::eventLoop() {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Do timer request", m_timerqueue.size());
             const auto timerfunction = std::move(m_timerqueue.front());
             m_timerqueue.pop_front();
+            if(!timerfunction) {
+                //TODO: Maybe timer.reduce takes function off puts back ,and that cause sometimes an error - should be fixed
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer queue miss",
+                                  toStr(m_status), !m_timerqueue.empty() && m_status != State::EXIT);
+                continue;
+            }
             timerfunction();
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Dod timer request", m_timerqueue.size(),
-                       m_timerqueue.empty(), toStr(m_status), !m_timerqueue.empty() && m_status != State::EXIT);
+                              toStr(m_status), !m_timerqueue.empty() && m_status != State::EXIT);
         }
 
         if(m_status == State::PENDING)
