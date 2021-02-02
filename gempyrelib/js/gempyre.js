@@ -100,7 +100,14 @@ function addEvent(el, source, eventname, properties, throttle) {
         log("do event", el, source, eventname, values, event);
         socket.send(JSON.stringify({'type': 'event',  'element': source, 'event': eventname, 'properties':values}));
     };
-    el.addEventListener(eventname, throttle && throttle > 0 ? throttled(throttle, handler) : handler);
+
+    const usedHandler = throttle && throttle > 0 ? throttled(throttle, handler) : handler;
+    if(eventname === 'resize') { //Only window supports the resize event
+        window.addEventListener(eventname, usedHandler);
+    }
+    else {
+        el.addEventListener(eventname, usedHandler);
+    }
 }
 
 function sendGempyreEvent(source, eventname, values) {
