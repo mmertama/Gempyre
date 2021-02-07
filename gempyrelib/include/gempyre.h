@@ -163,6 +163,7 @@ namespace Gempyre {
         void endBatch();
         void holdTimers(bool hold) {m_hold = hold;}
         bool isHold() const {return m_hold;}
+        std::optional<double> devicePixelRatio() const;
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);

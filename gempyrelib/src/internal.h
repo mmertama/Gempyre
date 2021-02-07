@@ -50,6 +50,7 @@ template <>
     response = attr;
 }
 
+
 template<class T>
 std::optional<T> Ui::query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams)  {
     T response;

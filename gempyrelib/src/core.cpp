@@ -695,5 +695,9 @@ bool Ui::addFile(const std::string& url, const std::string& file) {
     return true;
 }
 
+std::optional<double> Ui::devicePixelRatio() const {
+    const auto value = const_cast<Ui*>(this)->query<std::string>("", "devicePixelRatio");
+    return value.has_value() && m_status == Ui::State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
+}
 
 

@@ -200,6 +200,14 @@ function serveQuery(element, query_id, query, query_params) {
                'query_value': 'bounding_rect',
                'bounding_rect': {'x':r.left, 'y':r.top, 'width': r.right - r.left, 'height': r.bottom - r.top}}));
            break;
+        case 'devicePixelRatio':
+            socket.send(JSON.stringify({
+                                           'type': 'query',
+                                           'query_id': query_id,
+                                           'query_value': 'devicePixelRatio',
+                                           'devicePixelRatio': window.devicePixelRatio
+                                       }));
+            break;
         default:
             errlog(query_id, "Unknown query " + query);
     }
