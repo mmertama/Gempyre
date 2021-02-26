@@ -266,8 +266,8 @@ std::unique_ptr<std::thread> Server::makeServer(unsigned short port,
             const auto serverData = m_onGet(url);
             std::string page;
             if(serverData.has_value()) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "server get:", page.size());
                 page = serverData.value();
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "server get:", page.size());
             } else {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "server get does an file query");
                 std::string fullPath;
