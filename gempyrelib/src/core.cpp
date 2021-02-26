@@ -213,6 +213,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                 }
                 },
                 [this](const std::string& name)->std::optional<std::string> { //get
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get", name);
                     if(name == "/gempyre.js") {
                         const auto encoded = Base64::decode(Gempyrejs);
                         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
@@ -224,6 +225,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
                         return std::optional<std::string>(page);
                     }
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get - not found from:", GempyreUtils::join(GempyreUtils::keys(m_filemap), ","));
                     return std::nullopt;
                 },
                 [this, indexHtml, browser, extraParams](auto port)->bool { //listening
