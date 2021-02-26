@@ -221,9 +221,16 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                     }
                     const auto it = m_filemap.find(name);
                     if(it != m_filemap.end()) {
+                        if(it->second.size() == 0) {
+                            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Empty data:", it->first);
+                        }
                         const auto encoded = Base64::decode(it->second);
+                        if(encoded.size() == 0) {
+                            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Invalid Base64:", it->first);
+                            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "This is bad:", it->second);
+                        }
                         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
-                        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get:", std::distance(encoded.begin(), encoded.end()), page.size(), it->second.size());
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get:", page.size(), it->second.size());
                         return std::make_optional(page);
                     }
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get - not found from:", GempyreUtils::join(GempyreUtils::keys(m_filemap), ","));
