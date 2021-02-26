@@ -217,13 +217,13 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                     if(name == "/gempyre.js") {
                         const auto encoded = Base64::decode(Gempyrejs);
                         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
-                        return std::optional<std::string>(page);
+                        return std::make_optional(page);
                     }
                     const auto it = m_filemap.find(name);
                     if(it != m_filemap.end()) {
                         const auto encoded = Base64::decode(it->second);
                         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
-                        return std::optional<std::string>(page);
+                        return std::make_optional(page);
                     }
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get - not found from:", GempyreUtils::join(GempyreUtils::keys(m_filemap), ","));
                     return std::nullopt;
