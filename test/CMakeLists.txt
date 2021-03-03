@@ -7,3 +7,5 @@ add_subdirectory(tick)
 add_subdirectory(unittests)
 add_subdirectory(imageblit)
 add_subdirectory(drawcanvas)
+add_subdirectory(audio
+)
