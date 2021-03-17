@@ -49,6 +49,17 @@ How to build on Windows 10
  * [hexview-Gempyre](https://github.com/mmertama/hexview-Gempyre)
  * [calc-Gempyre](https://github.com/mmertama/calc-Gempyre)
  
+ 
+ Things in pipeline
+--------------------
+* Update / improve documentation (C++ and Python)  
+* make install for system install
+* Binary releases (Maybe installer / some packet manager support / pip)
+* Use GTest for API testing
+* Raspberry build (remote and local UI)
+* Native application window for OSX, Linux and Windows as default
+* Support for secure web socket (nice for remote UIs)
+
 
 Copyright
 Markus Mertama 2020
