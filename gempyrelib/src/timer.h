@@ -20,12 +20,14 @@ public:
     using Function = std::function<void (int)>;
     using TimeType = std::chrono::milliseconds;
     struct DataEntry {
+        DataEntry(const TimeType& t, const Function& f, const TimeType& i, int d) : currentTime(t), func(f), initialTime(i), id(d) {}
         TimeType currentTime = std::chrono::milliseconds(0);
         Function func = nullptr;
         TimeType initialTime = std::chrono::milliseconds(0);
         int id = 0;
         char _PADDING[4] =  "\0\0\0";
     };
+    using Data = std::shared_ptr<DataEntry>;
     public:
     TimeQueue() {
 #ifdef SINGLETON
@@ -38,27 +40,27 @@ public:
     int append(const TimeType& ms, const Function& func) {
         std::lock_guard<std::mutex> guard(m_mutex);
         ++m_id;
-        m_queue.push(DataEntry{ms, func, ms, m_id});
+        m_queue.emplace(std::make_shared<DataEntry>(ms, func, ms, m_id));
         m_blessed.emplace(m_id);
         return m_id;
     }
 
     void reAppend(const TimeType& ms, const Function& func, int id) {
         std::lock_guard<std::mutex> guard(m_mutex);
-        m_queue.push(DataEntry{ms, func, ms, id});
+        m_queue.emplace(std::make_shared<DataEntry>(ms, func, ms, id));
     }
 
     void reduce(const TimeType& sleep) {
         std::lock_guard<std::mutex> guard(m_mutex);
-        std::vector<DataEntry> store;
+        std::vector<Data> store;
         store.reserve(m_queue.size());
         while(!m_queue.empty()) {
-            store.push_back(std::move(m_queue.top()));
+            store.emplace_back(std::move(m_queue.top()));
             m_queue.pop();
         }
         for(auto& c : store) {
-            c.currentTime -= sleep;
-            m_queue.push(c);
+            c->currentTime -= sleep;
+            m_queue.emplace(c);
         }
     }
 
@@ -89,36 +91,36 @@ public:
 
     void remove(int id) {
         std::lock_guard<std::mutex> guard(m_mutex);
-        std::vector<DataEntry> store;
-        store.reserve(m_queue.size());
-        while(!m_queue.empty()) {
-            store.push_back(std::move(m_queue.top()));
-            m_queue.pop();
-        }
+              std::vector<Data> store;
+              store.reserve(m_queue.size());
+              while(!m_queue.empty()) {
+                  store.emplace_back(std::move(m_queue.top()));
+                  m_queue.pop();
+              }
 
-        for(auto& c : store) {
-            if(c.id != id)
-                m_queue.push(c);
-        }
+              for(auto& c : store) {
+                  if(c->id != id)
+                      m_queue.emplace(c);
+              }
     }
 
     void setNow(bool keepBless = true) {
         std::lock_guard<std::mutex> guard(m_mutex);
-        std::vector<DataEntry> store;
+        std::vector<Data> store;
         store.reserve(m_queue.size());
         while(!m_queue.empty()) {
-            store.push_back(std::move(m_queue.top()));
+            store.emplace_back(std::move(m_queue.top()));
             m_queue.pop();
         }
         for(auto& c : store) {
             if(!keepBless) {
-                const auto it = m_blessed.find(c.id);
+                const auto it = m_blessed.find(c->id);
                 if(it != m_blessed.end()) {
                     m_blessed.erase(it);
                 }
             }
-            c.currentTime = std::chrono::milliseconds{0};
-            m_queue.push(c);
+            c->currentTime = std::chrono::milliseconds{0};
+            m_queue.emplace(c);
         }
     }
 
@@ -129,7 +131,7 @@ public:
         if(!m_queue.empty()) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer queue not empty");
             const auto it = m_queue.top();
-            const auto value = std::optional(it);
+            const auto value = std::make_optional(*it);
             guard.unlock(); // I have no idea why RAII wont work, unlock does
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer queue return");
             return value;
@@ -156,13 +158,13 @@ public:
 
 
 private:
-    struct  MsComp {
-        bool operator ()(const DataEntry& a, const DataEntry& b) const {
-            return a.currentTime > b.currentTime;
-        }
+    struct Comp {
+    bool operator()(const Data& a, const Data& b) const {
+            return a->currentTime > b->currentTime;
+        };
     };
     mutable std::mutex m_mutex;
-    std::priority_queue<DataEntry, std::vector<DataEntry>, MsComp> m_queue;
+    std::priority_queue<Data, std::vector<Data>, Comp> m_queue;
     int m_id = 0;
     std::set<int> m_blessed;
 };
