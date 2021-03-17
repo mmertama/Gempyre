@@ -114,6 +114,12 @@ T to(const std::string& source) {
     return v;
 }
 
+template <>
+inline std::string to<std::string>(const std::string& source)
+{
+    return source;
+}
+
 template <typename T>
 std::optional<T> toOr(const std::string& source) {
     std::istringstream ss(source);
@@ -168,9 +174,42 @@ Container split(const std::string& str, const char splitChar = ' ') {
     Container con;
     std::istringstream iss(str);
     for(std::string token; iss.good() && std::getline(iss, token, splitChar);) {
-        con.insert(con.end(), token);
+        con.insert(con.end(), to<typename Container::value_type>(token));
     }
     return con;
+}
+
+
+template <class T, typename K = typename T::key_type>
+std::vector<K> keys(const T& map) {
+    std::vector<K> ks; ks.resize(map.size());
+    std::transform(map.begin(), map.end(), ks.begin(), [](const auto& p) {return p.first;});
+    return ks;
+}
+
+template <class IT, typename J=typename IT::value_type, typename K=typename IT::value_type>
+std::string join(const IT& begin,
+                 const IT& end,
+                 const std::string joinChar = "",
+                 const std::function<J (const K&)>& f = [](const K& k)->J{return k;}) {
+    std::string s;
+    std::ostringstream iss(s);
+    if(begin != end) {
+        for(auto it = begin;;) {
+            iss << f(*it);
+            if(++it == end) break;
+            if(!joinChar.empty())
+                iss << joinChar;
+        }
+    }
+    return iss.str();
+}
+
+template <class T, typename J=typename T::value_type, typename K=typename T::value_type>
+std::string join(const T& t,
+                 const std::string joinChar = "",
+                 const std::function<J (const K&)>& f = [](const K& k)->J{return k;}) {
+    return join(t.begin(), t.end(), joinChar, f);
 }
 
 
@@ -192,34 +231,6 @@ std::string joinPairs(const IT& begin, const IT& end, const std::string& startCh
 template <class T>
 std::string joinPairs(const T& obj, const std::string& startChar = "{", const std::string endChar = "}", const std::string& divChar = ":" , const std::string& joinChar = "" ) {
     return joinPairs(obj.begin(), obj.end(), startChar, endChar, divChar, joinChar);
-}
-
-
-template <class T, typename K = typename T::key_type>
-std::vector<K> keys(const T& map) {
-    std::vector<K> ks; ks.resize(map.size());
-    std::transform(map.begin(), map.end(), ks.begin(), [](const auto& p) {return p.first;});
-    return ks;
-}
-
-template <class IT>
-std::string join(const IT& begin, const IT& end, const std::string joinChar = "" ) {
-    std::string s;
-    std::ostringstream iss(s);
-    if(begin != end) {
-        for(auto it = begin;;) {
-            iss << *it;
-            if(++it == end) break;
-            if(!joinChar.empty())
-                iss << joinChar;
-        }
-    }
-    return iss.str();
-}
-
-template <class T>
-std::string join(const T& t, const std::string joinChar = "" ) {
-    return join(t.begin(), t.end(), joinChar);
 }
 
 template <class T>

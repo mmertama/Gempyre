@@ -77,3 +77,4 @@ affiliates/test_rpc/affiliates_test_rpc
 install_manifest.txt
 
 .vscode
+test/audio/audiotest
