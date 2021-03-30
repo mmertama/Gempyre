@@ -59,9 +59,9 @@ How to build on Windows 10
 * Raspberry build (remote and local UI)
 * Native application window for OSX, Linux and Windows as default
 * Support for secure web socket (nice for remote UIs)
-* Flatbuffer instread of JSON 
+* Flatbuffer instead of JSON 
 
 
 Copyright
-Markus Mertama 2020
+Markus Mertama 2020, 2021
 
