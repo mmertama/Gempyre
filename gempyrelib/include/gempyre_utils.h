@@ -14,6 +14,7 @@
 #include <future>
 #include <limits>
 #include <iomanip>
+#include <any>
 
 /**
   * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
@@ -38,17 +39,13 @@
 #define gempyre_utils_auto_close(p, f) GempyreUtils::_Close<std::decay_t<decltype(p)>, decltype(&f)> _ ## p (p, &f)
 
 
-//#ifdef WINDOWS_OS
 #ifdef WINDOWS_EXPORT
 	#define UTILS_EX __declspec(dllexport)
-//    #else
-//        #define UTILS_EX __declspec(dllimport)
-//    #endif
 #else
     #define UTILS_EX
 #endif
 
-#ifdef WINDOWS_OS
+#ifdef _MSC_VER
 using SSIZE_T = long long;
 #else
 using SSIZE_T = ssize_t;
@@ -88,21 +85,11 @@ enum class LogLevel{None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
   * String Utils
   */
 
-inline std::string qq(const std::string& s) {
-    return '"' + s + '"';
-}
+UTILS_EX std::string qq(const std::string& s);
 
-inline std::string chop(const std::string& s) {
-    auto str = s;
-    str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
-    return str;
-}
+UTILS_EX std::string chop(const std::string& s);
 
-inline std::string chop(const std::string& s, const std::string& chopped) {
-    auto str = s;
-    str.erase(str.find_last_not_of(chopped) + 1);
-    return str;
-}
+UTILS_EX std::string chop(const std::string& s, const std::string& chopped);
 
 UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
 
@@ -180,6 +167,13 @@ Container split(const std::string& str, const char splitChar = ' ') {
 }
 
 
+template <typename IT>
+inline constexpr std::string_view make_string_view(IT begin, IT end)
+{
+    return   (begin == end) ? std::string_view{nullptr} : std::string_view{&*begin, std::distance(begin, end)};
+}
+
+
 template <class T, typename K = typename T::key_type>
 std::vector<K> keys(const T& map) {
     std::vector<K> ks; ks.resize(map.size());
@@ -187,39 +181,16 @@ std::vector<K> keys(const T& map) {
     return ks;
 }
 
-template <class IT, typename J=typename IT::value_type, typename K=typename IT::value_type>
+template <class IT, typename In=typename IT::value_type, typename Out=typename IT::value_type>
 std::string join(const IT& begin,
                  const IT& end,
                  const std::string joinChar = "",
-                 const std::function<J (const K&)>& f = [](const K& k)->J{return k;}) {
+                 const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
     std::string s;
     std::ostringstream iss(s);
     if(begin != end) {
         for(auto it = begin;;) {
             iss << f(*it);
-            if(++it == end) break;
-            if(!joinChar.empty())
-                iss << joinChar;
-        }
-    }
-    return iss.str();
-}
-
-template <class T, typename J=typename T::value_type, typename K=typename T::value_type>
-std::string join(const T& t,
-                 const std::string joinChar = "",
-                 const std::function<J (const K&)>& f = [](const K& k)->J{return k;}) {
-    return join(t.begin(), t.end(), joinChar, f);
-}
-
-
-template <class IT>
-std::string joinPairs(const IT& begin, const IT& end, const std::string& startChar = "{", const std::string& endChar = "}", const std::string& divChar = ":" , const std::string& joinChar = "" ) {
-    std::string s;
-    std::ostringstream iss(s);
-    if(begin != end) {
-        for(auto it = begin;;) {
-            iss << startChar << (*it).first << divChar << (*it).second << endChar;
             if(!(++it != end)) break;
             if(!joinChar.empty())
                 iss << joinChar;
@@ -228,10 +199,13 @@ std::string joinPairs(const IT& begin, const IT& end, const std::string& startCh
     return iss.str();
 }
 
-template <class T>
-std::string joinPairs(const T& obj, const std::string& startChar = "{", const std::string endChar = "}", const std::string& divChar = ":" , const std::string& joinChar = "" ) {
-    return joinPairs(obj.begin(), obj.end(), startChar, endChar, divChar, joinChar);
+template <class T, typename In=typename T::value_type, typename Out=typename T::value_type>
+std::string join(const T& t,
+                 const std::string joinChar = "",
+                 const std::function<Out (const In&)>& f = [](const In& v)->Out{return v;}) {
+    return join(t.begin(), t.end(), joinChar, f);
 }
+
 
 template <class T>
 T merge(const T& b1, const T& b2) {
@@ -385,6 +359,7 @@ UTILS_EX std::string pathPop(const std::string& filename, int steps = 1);
 UTILS_EX std::vector<std::tuple<std::string, bool, std::string>> directory(const std::string& dirname);
 UTILS_EX std::string readProcess(const std::string& processName);
 UTILS_EX std::string baseName(const std::string& filename);
+/// Generate unique name (prefer <filesystem> if available)
 UTILS_EX std::string tempName();
 UTILS_EX std::string hostName();
 UTILS_EX std::string systemEnv(const std::string& env);
@@ -426,6 +401,11 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
  }
 
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
+
+UTILS_EX std::optional<std::string> toJsonString(const std::any& any);
+UTILS_EX std::optional<std::any> jsonToAny(const std::string& str);
+
+UTILS_EX bool isAvailable(int port);
 
 }
 

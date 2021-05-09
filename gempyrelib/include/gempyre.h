@@ -47,8 +47,11 @@ namespace Gempyre {
 
     enum class DebugLevel{Quiet, Fatal, Error, Warning, Info, Debug, Debug_Trace};
 
+    /// set debuging level and target, defauls to std::cout
     GEMPYRE_EX void setDebug(DebugLevel level = DebugLevel::Debug, bool useLog = false);
+    /// Internal for Android
     GEMPYRE_EX void setJNIENV(void* env, void* obj);
+    /// Return current version
     GEMPYRE_EX std::tuple<int, int, int> version();
 
     class Data;
@@ -68,7 +71,9 @@ namespace Gempyre {
             int height;
         };
     public:
+        /// Copy constructor
         Element(const Element& other) = default;
+        /// Move constructor
         Element(Element&& other) = default;
         Element& operator=(const Element& other) {m_ui = other.m_ui; m_id = other.m_id; return *this;}
         Element& operator=(Element&& other) {m_ui = other.m_ui; m_id = std::move(other.m_id); return *this;}
@@ -100,6 +105,7 @@ namespace Gempyre {
         void send(const DataPtr& data);
         void send(const std::string& type, const std::any& data);
         static const std::string generateId(const std::string& prefix);
+        size_t payloadSize() const;
     protected:
         Ui* m_ui;
         std::string m_id;
@@ -131,38 +137,66 @@ namespace Gempyre {
         Ui(const Ui& other) = delete;
         Ui(Ui&& other) = delete;
 
+        ///Application gracefully finish the event loop and exits.
         void exit();
+        ///Requires Client window to close (that cause the application to close).
         void close();
 
-        Ui& onExit(std::function<void ()> onExitFunction = nullptr);
-        Ui& onReload(std::function<void ()> onReleadFunction = nullptr);
-        Ui& onOpen(std::function<void ()> onOpenFunction = nullptr);
-        Ui& onError(std::function<void (const std::string& element, const std::string& info)> onErrorFunction = nullptr);
+        ///The callback is called before before the eventloop exit.
+        Ui& onExit(std::function<void ()> onExitFunction);
+        ///The callback is called on UI reload.
+        Ui& onReload(std::function<void ()> onReleadFunction);
+        ///The callback is called on UI open.
+        Ui& onOpen(std::function<void ()> onOpenFunction);
+        ///The callback is called on error.
+        Ui& onError(std::function<void (const std::string& element, const std::string& info)> onErrorFunction);
+        ///Starts the event loop.
         void run();
 
+        ///Set broser to verbose mode
         void setLogging(bool logging);
+        ///Executes eval string in UI context.
         void eval(const std::string& eval);
+        ///Send a debug message on UI.
         void debug(const std::string& msg);
+        ///Show an alert window.
         void alert(const std::string& msg);
+        ///Opens an url in the UI view
         void open(const std::string& url, const std::string& name = "");
 
+        ///Starts a timer.
         TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (TimerId id)>& timerFunc);
+        ///Starts a timer.
         TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void ()>& timerFunc);
-        bool stopTimer(TimerId);
+        ///Stops a timer.
+        bool stopTimer(TimerId timerId);
 
+        ///Get a (virtual) root element.
         Element root() const;
+        ///Get a local file path an URL, can be used with open.
         std::string addressOf(const std::string& filepath) const;
+        ///Get elements by class name
         std::optional<Element::Elements> byClass(const std::string& className) const;
+        ///Get elements by name
         std::optional<Element::Elements> byName(const std::string& className) const;
 
+        ///Test function to measure round trip time
         std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> ping() const;
+        ///Access an UI extension
         std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        ///Get a compiled in resource string.
         std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
+        ///Add a file data into Gempyre to be accessed via url
         bool addFile(const std::string& url, const std::string& file);
+        ///Starts an UI write batch, no messages are sent to USER until endBatch
         void beginBatch();
+        ///Ends an UI read batch, push all stored messages at once.
         void endBatch();
+        ///Set all timers to hold. Can be used to pause UI actions.
         void holdTimers(bool hold) {m_hold = hold;}
+        ///Tells if timers are on hold.
         bool isHold() const {return m_hold;}
+        ///Get an native UI device pixel ratio.
         std::optional<double> devicePixelRatio() const;
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};

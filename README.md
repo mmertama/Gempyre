@@ -38,10 +38,16 @@ How to build on Windows 10
 * Install git bash from https://gitforwindows.org/
 * Run git clone https://github.com/mmertama/Gempyre.git on git bash console.
 * Install cmake https://cmake.org/download/ (let it to be added in path)
-* Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
-* Install Python 3.8 (3.6 >= shall be ok) https://www.python.org/downloads/windows/
-* From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
-* Run "msvc_build.bat" at Gempyre folder
+* MSVC:
+    * Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
+    * Install Python 3.8 (3.6 >= shall be ok) https://www.python.org/downloads/windows/
+    * From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
+    * Run "msvc_install.bat" at Gempyre folder.
+* MinGW
+        * See Instrictions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
+        * Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"
+        * Add C:\msys64\mingw64\bin and C:\msys64\usr\bin to your path
+        * Then you can execute "mingw_install.bat" Windows Command promt at Gempyre folder.
  
  Projects using Gempyre:
  * [mandelbrot-Gempyre](https://github.com/mmertama/mandelbrot-Gempyre)
@@ -51,16 +57,20 @@ How to build on Windows 10
  
  
  Things in pipeline
---------------------
+---------------------
 * Update / improve documentation (C++ and Python)  
-* make install for system install
 * Binary releases (Maybe installer / some packet manager support / pip)
-* Use GTest for API testing
 * Raspberry build (remote and local UI)
 * Native application window for OSX, Linux and Windows as default
 * Support for secure web socket (nice for remote UIs)
-* Flatbuffer instead of JSON 
+* Flatbuffer/protobuf instead of JSON 
+* Compile time resources (static map) 
 
+Late updates
+----------------
+* Proper build and install with cmake
+* Use GTest for API testing
+* Rewrote timers + other smaller fixes
 
 Copyright
 Markus Mertama 2020, 2021

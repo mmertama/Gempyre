@@ -1,5 +1,6 @@
 #include "gempyre_graphics.h"
 #include "gempyre_utils.h"
+#include <any>
 
 using namespace Gempyre;
 
@@ -83,49 +84,63 @@ std::vector<std::string> CanvasElement::addImages(const std::vector<std::string>
     return names;
 }
 
-void CanvasElement::paintImage(const std::string& imageId, int x, int y, const Rect& clippingRect) {
+void CanvasElement::paintImage(const std::string& imageId, int x, int y, const Rect& clippingRect) const {
+    auto This = const_cast<CanvasElement*>(this);
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
-        send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
+        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
                                                                     {"pos", std::vector<int>{x, y}}});
     else
-        send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
+        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
                                                                          {"pos", std::vector<int>{x, y}},
                                                                          {"clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height}}});
 }
 
-void CanvasElement::paintImage(const std::string& imageId, const Rect& targetRect, const Element::Rect& clippingRect) {
+void CanvasElement::paintImage(const std::string& imageId, const Rect& targetRect, const Element::Rect& clippingRect) const {
     if(targetRect.width <= 0 || targetRect.height <= 0)
         return;
+    auto This = const_cast<CanvasElement*>(this);
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
-        send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
+        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
                                                                      {"rect", std::vector<int>{targetRect.x, targetRect.y, targetRect.width, targetRect.height}}});
     else
-        send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
+        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
                                                                          {"rect", std::vector<int>{targetRect.x, targetRect.y, targetRect.width, targetRect.height}},
                                                                          {"clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height}}});
 
 }
 
 
-void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands) {
+void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands) const {
     if(canvasCommands.empty())
         return;
     std::vector<std::string> commandString;
-    std::transform(canvasCommands.begin(), canvasCommands.end(), std::back_inserter(commandString), [](auto&& arg) -> std::string {
+    /*std::transform(canvasCommands.begin(), canvasCommands.end(), std::back_inserter(commandString), [](auto&& arg) -> std::string {
          if(const auto doubleval = std::get_if<double>(&arg))
             return std::to_string(*doubleval);
          if(const auto intval = std::get_if<int>(&arg))
             return std::to_string(*intval);
          return std::get<std::string>(arg);
-    });
-    send("canvas_draw", std::unordered_map<std::string, std::any>{{"commands", commandString}});
+    });*/
+    const auto str = [](auto&& arg) -> std::string {
+            if(const auto doubleval = std::get_if<double>(&arg))
+               return std::to_string(*doubleval);
+            if(const auto intval = std::get_if<int>(&arg))
+               return std::to_string(*intval);
+            return std::string(std::get<std::string>(arg));
+       };
+    for(auto&& cmd : canvasCommands)  {
+        auto s = str(cmd);
+        commandString.emplace_back(s);
+    }
+    auto This = const_cast<CanvasElement*>(this);
+    This->send("canvas_draw", std::unordered_map<std::string, std::any>{{"commands", commandString}});
 }
 
-void CanvasElement::draw(const FrameComposer& frameComposer) {
+void CanvasElement::draw(const FrameComposer& frameComposer) const {
     draw(frameComposer.composed());
 }
 
-void CanvasElement::erase(bool resized) {
+void CanvasElement::erase(bool resized) const {
     if(resized || m_width <= 0 || m_height <= 0) {
         const auto rv = rect();
         if(rv) {

@@ -1,0 +1,57 @@
+<html>
+<header>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta charset="UTF-8">
+    <style>
+    #styled {
+        color:red;
+        font-size:32px
+    }
+    </style>
+    <title>Api Tests</title>
+</header>
+<body>
+    <script src="/gempyre.js"></script>
+    <div id="styled">Unit tests</div>
+    <div id="hidden" hidden>Hidden</div>
+    <div class="test-class">class 1</div>
+    <div class="test-class">class 2</div>
+    <div class="test-class">class 3</div>
+    <div name="test-name">name 1</div>
+    <div name="test-name">name 2</div>
+    <div name="test-name">name 3</div>
+    <div name="test-name">name 4</div>
+    <div id="other">
+        <div class="test-class">class 4</div>
+        <div name="test-name">name 5</div>
+    <div>
+    <div id="test-1" value="Test-attr">Test-1
+        <div id="test-child-0">c0</div>
+        <div id="test-child-1">c1</div>
+        <div id="test-child-2">c2</div>
+        <div id="test-child-3">c3</div>
+    </div>
+    <input type="checkbox" name="scales" id="checkbox-1" checked />
+    <label for="scales">Scales</label>
+    <script>
+        const targetNode = document.getElementById("test-1");
+        console.assert(targetNode, "test-1 not found");
+        // Options for the observer (which mutations to observe)
+        const config = {attributes: true};
+        const callback = function(mutationsList, observer) {
+            for(let mutation of mutationsList) {
+                if (mutation.type === 'attributes') {
+                    sendGempyreEvent('test-1', 'test_event', mutation.target);
+                }
+            }
+        };
+
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
+    </script>
+</body>
+</html>

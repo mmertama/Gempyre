@@ -12,9 +12,8 @@
 #include <netdb.h>
 
 #else
-
 #ifndef _WINSOCKAPI_                              
-    #include <winsock2.h>                           
+    #include <winsock2.h>
 #endif   
 #include <Windows.h>                                
 #include <iphlpapi.h>
@@ -37,6 +36,7 @@
 #include <sys/stat.h>
 
 #include <stdio.h>
+#include <variant>
 
 
 
@@ -93,18 +93,26 @@ private:
     }
     void write() {
         std::ptrdiff_t n = pptr() - pbase();
-#pragma GCC diagnostic push
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#pragma clang diagnostic ignored "-Wformat-security"
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef COMPILER_CLANG
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wformat-nonliteral"
+    #pragma clang diagnostic ignored "-Wformat-security"
+#endif
+#ifdef COMPILER_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #pragma GCC diagnostic ignored "-Wformat-security"
+#endif
         char ntBuf[SZ];
         std::memcpy(ntBuf, m_buffer, static_cast<size_t>(n));
         ntBuf[n] = '\0';
         ::syslog(m_prio, ntBuf);
-#pragma clang diagnostic pop
-#pragma GCC diagnostic pop
+#ifdef COMPILER_CLANG
+    #pragma clang diagnostic pop
+#endif
+#ifdef COMPILER_GCC
+    #pragma GCC diagnostic pop
+#endif
         pbump(static_cast<int>(-n));
     }
 private:
@@ -127,18 +135,23 @@ Error
 ;
 
 
-
 void GempyreUtils::init() {
 #ifdef WINDOWS_OS
 	if(!LoadLibraryA("ntdll.dll")) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot preload", "ntdll.dll");
+        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot preload", "ntdll.dll");
 	}
 	if(!LoadLibraryA("kernel32.dll")) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot preload", "kernel32.dll");
+        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot preload", "kernel32.dll");
 	}
 	if(!LoadLibraryA("advapi32.dll")) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot preload", "advapi32.dll");
+        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot preload", "advapi32.dll");
 	}
+    WSADATA wsa;
+    const auto version = MAKEWORD(2, 2);
+    const int code = WSAStartup(version, &wsa);
+    if(0 != code) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Cannot initialize socket, Windows WSAStartup failed: code", code, "Last error:",  lastError());
+    }
 #endif
 }
 
@@ -153,6 +166,24 @@ std::string GempyreUtils::toStr(LogLevel l) {
         {LogLevel::Debug_Trace, "TRACE"}
     };
     return m.at(l);
+}
+
+std::string GempyreUtils::qq(const std::string& s) {
+   std::stringstream ss;
+   ss << std::quoted(s);
+   return ss.str();
+}
+
+std::string GempyreUtils::chop(const std::string& s) {
+    auto str = s;
+    str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
+    return str;
+}
+
+std::string GempyreUtils::chop(const std::string& s, const std::string& chopped) {
+    auto str = s;
+    str.erase(str.find_last_not_of(chopped) + 1);
+    return str;
 }
 
 void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level, bool useSysLog) {
@@ -264,13 +295,13 @@ std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std
         const auto arg = plist[i];
         if(arg[0] == '-') {
             if(arg.length() < 2)
-                return ParsedParameters(i);
-            auto it = args.end();
+                return ParsedParameters{static_cast<int>(i)};
+            decltype(args.end()) it;
             bool longOpt = false;
             auto assing = arg.end();
             if(arg[1] == '-') {
                 if(arg.length() < 3)
-                    return ParsedParameters(i);
+                    return ParsedParameters{static_cast<int>(i)};
                 longOpt = true;
                 const auto key = arg.substr(2);
                 assing = std::find(arg.begin(), arg.end(), '=');
@@ -293,7 +324,7 @@ std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std
                     } else if(i + 1 < plist.size()) {
                         val = plist[i + 1];
                         ++i;
-                    } else return ParsedParameters(i);
+                    } else return ParsedParameters{static_cast<int>(i)};
                     options.emplace(std::get<std::string>(*it), val);
                     } break;
                 case ArgType::OPT_ARG: {
@@ -373,9 +404,19 @@ std::string GempyreUtils::readProcess(const std::string& processName) {
 std::string GempyreUtils::tempName() {
 #ifndef USE_TEMPNAM
 //in MT this may NOT be any more safe than the std::tmpnam
+#ifdef MAC_OS
+    const auto tmp = std::getenv("TMPDIR");
+    assert(tmp); // should alway be there;
+    assert(tmp[std::strlen(tmp) - 1] == '/');
+    constexpr char ext[] = "ecutils_XXXXXX";
+    char name[1024] = {0};
+    std::strcat(name, tmp);
+    std::strcat(name, ext);
+#else
     constexpr char tpl[] = "/tmp/ecutils_XXXXXX";
     char name[sizeof tpl];
     std::strcpy(name, tpl);
+#endif
     const auto fd = ::mkstemp(name);
     ::close(fd);
 #else
@@ -777,6 +818,31 @@ std::pair<int, int> GempyreUtils::getPriorityLevels() {
 #endif
 
 
+bool GempyreUtils::isAvailable(int port) {
+    const int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if(sockfd < 0 ) {
+        return false;
+    }
+    struct sockaddr_in serv_addr = {};
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(port);
+    if (bind(sockfd, reinterpret_cast<struct sockaddr *>(&serv_addr), sizeof(serv_addr)) < 0) {
+        if( errno == EADDRINUSE )
+           return false;
+        }
+#ifndef WINDOWS_OS    
+    if (close (sockfd) < 0 ) {
+        return false;
+    }
+#else
+ if (closesocket (sockfd) < 0 ) {
+        return false;
+    }
+#endif
+    return true;
+}
+
 std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     std::vector<std::string> addresses;
 #ifndef WINDOWS_OS
@@ -815,8 +881,8 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
         if(err == ERROR_SUCCESS )
             break;
         else if(err == ERROR_BUFFER_OVERFLOW) {
-            buf_ptr.swap(std::make_unique<uint8_t[]>(adapterBufferSize));
-             adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buf_ptr.get());
+            buf_ptr = std::make_unique<uint8_t[]>(adapterBufferSize);
+            adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buf_ptr.get());
         }
         else {
             log(LogLevel::Error, "ipAddresses error:", lastError(err));
@@ -858,3 +924,4 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     return addresses;
 #endif
 }
+

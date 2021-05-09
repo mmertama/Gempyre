@@ -1,14 +1,48 @@
 /*jshint esversion: 6 */
-var uri = "ws://" +  window.location.hostname + ':' + window.location.port + "/gempyre";
+var gempyreAddress = window.location.hostname + ':' + window.location.port;
+var httpUrl = "http://" + gempyreAddress;
+var uri = "ws://" + gempyreAddress + "/gempyre";
+
 //var uri = "ws://127.0.0.1:8080/gempyre";
 var socket = new WebSocket(uri);
 socket.binaryType = 'arraybuffer';
 
 var logging = true;
 
+var sys_log = console.log;
+var sys_warn = console.warn;
+var sys_info = console.info;
+var sys_error = console.error;
+
+function g_log(msg) {
+    const logged = Array.prototype.slice.call(arguments).join(', ');
+    socket.send(JSON.stringify({'type': 'log', 'level': 'log', 'msg': logged}));
+    sys_log(msg);
+}
+
+function g_warn(msg) {
+    const logged = Array.prototype.slice.call(arguments).join(', ');
+    socket.send(JSON.stringify({'type': 'log', 'level': 'warn', 'msg': logged}));
+    sys_warn(msg);
+}
+
+function g_info(msg) {
+    const logged = Array.prototype.slice.call(arguments).join(', ');
+    socket.send(JSON.stringify({'type': 'log', 'level': 'info', 'msg': logged}));
+    sys_info(msg);
+}
+
+function g_error(msg) {
+    const logged = Array.prototype.slice.call(arguments).join(', ');
+    socket.send(JSON.stringify({'type': 'log', 'level': 'error', 'msg': logged}));
+    sys_error(msg);
+}
+
+
 function log(...logStr) {
-    if(logging)
+   // if(logging) {
         console.log(...logStr);
+ //   }
 } 
 
 function errlog(source, text) {
@@ -36,13 +70,13 @@ function createElement(parent, tag, id) {
 }
 
 function removeElement(el, id) {
-    if(el.id != id) {
+    if(el.id !== id) {
         const element = document.getElementById(id);
         if(!element) {
             errlog("removeElement", "Cannot find " + id);
             return;
         }
-        if(element.parentNone == el)
+        if(element.parentNone === el)
             el.removeChild(element);
         else {
             errlog("removeElement", el.id + " is not a parent of " + id);
@@ -70,7 +104,6 @@ function throttled(delay, fn) {
 }
 
 function addEvent(el, source, eventname, properties, throttle) {
-    console.log("addEventing", el, source, eventname, throttle);
     handler = (event) => {
 
         if(socket.readyState !== 1)
@@ -103,9 +136,15 @@ function addEvent(el, source, eventname, properties, throttle) {
 
     const usedHandler = throttle && throttle > 0 ? throttled(throttle, handler) : handler;
     if(eventname === 'resize') { //Only window supports the resize event
+        console.log("addEventing", "window", source, eventname, throttle);
         window.addEventListener(eventname, usedHandler);
     }
+    else if(el === document.body && eventname === 'scroll' ) { //root == document.body, document listens scroll
+        console.log("addEventing", "document", source, eventname, throttle);
+        document.addEventListener(eventname, usedHandler);
+    }
     else {
+        console.log("addEventing", el, source, eventname, throttle);
         el.addEventListener(eventname, usedHandler);
     }
 }
@@ -151,7 +190,7 @@ function serveQuery(element, query_id, query, query_params) {
          case 'children':
             const children = [];
             for(const c of el.childNodes) {
-                if(c.nodeType == 1) //only elements
+                if(c.nodeType === 1) //only elements
                     children.push(id(c));  //just ids
             }
             socket.send(JSON.stringify({'type': 'query', 'query_id': query_id, 'query_value': 'children', 'children': children}));
@@ -217,7 +256,7 @@ function sendCollection(name, query_id, query, collectionFunction) {
     const children = [];
     const collection = collectionFunction(name);
     for(const c of collection) {
-        if(c.nodeType == 1)
+        if(c.nodeType === 1)
             children.push(id(c)); 
     }
     socket.send(JSON.stringify({'type': 'query', 'query_id': query_id, 'query_value': 'children', 'children': children}));   
@@ -241,7 +280,6 @@ function handleBinary(buffer) {
         const w = bytes[headerOffset + 2];
         const h = bytes[headerOffset + 3];
         const idOffset = (4 * 4) + dataOffset + datalen;
-        console.log("Datam", bytes, dataOffset, x, y, w, h, idOffset);
         const words = new Uint16Array(buffer, idOffset, idLen * 2);
         let id = "";
         for(let i = 0 ; i < words.length && words[i] > 0; i++)
@@ -254,7 +292,7 @@ function handleBinary(buffer) {
         const ctx = element.getContext("2d", {alpha:false});
         if(ctx) {
             const bytesLen = w * h * 4;
-            const imageData = data.length == bytesLen ? new ImageData(data, w, h) : new ImageData(data.slice(0, bytesLen), w, h);
+            const imageData = data.length === bytesLen ? new ImageData(data, w, h) : new ImageData(data.slice(0, bytesLen), w, h);
             ctx.putImageData(imageData, x, y);
         } else {
             errlog(id, "has no graphics context");
@@ -420,12 +458,30 @@ function canvasDraw(element, commands) {
                           commands[cmdpos++],
                           commands[cmdpos++]);
             break;
+        case 'textBaseline':
+            ctx.textBaseline = commands[cmdpos++];
+            break;    
         default:
             errlog(cmd, "is not supported command:" + cmdpos + ", in commands:" + commands);
             return;
         }
     }
 }
+
+function httpGetBin(msg) {
+    const pull_id = msg['id'];
+    fetch(httpUrl  + '/data/' + pull_id)
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => handleBinary(arrayBuffer))
+}
+
+function httpGetJson(msg) {
+    const pull_id = msg['id'];
+    fetch(httpUrl + '/data/' + pull_id)
+    .then(response => response.json())
+    .then(json => handleJson(json))
+}
+
 
 function handleJson(msg) {
         switch(msg.type) {
@@ -446,7 +502,18 @@ function handleJson(msg) {
             socket.close();
             return;
         case 'logging':
-            logging = msg.logging == "true" ? true : false;
+            logging = msg.logging === "true" ? true : false;
+            if(logging) {
+                console.log = g_log;
+                console.info = g_info;
+                console.warn = g_warn;
+                console.error = g_error;
+            } else {
+                console.log = sys_log;
+                console.info = sys_info;
+                console.warn = sys_warn;
+                console.error = sys_error;
+            }
             return;
         case 'debug':
             console.log(msg.debug);
@@ -480,6 +547,12 @@ function handleJson(msg) {
                 socket.send(JSON.stringify({'type': 'query', 'query_id': msg.query_id, 'query_value': 'pong', 'pong': String(Date.now())    }));
                 return;
             } break;
+        case 'pull_binary':
+            httpGetBin(msg);
+            return;
+        case 'pull_json':
+            httpGetJson(msg);
+            return;
         }
 
         if(msg.type === 'query') {
@@ -552,12 +625,7 @@ socket.onmessage =
         handleBinary(event.data);
         return;
     }
-    //let msg = null;
-    //try {
     const msg = JSON.parse(event.data);
-    //}  catch(error) {
-    //      errlog("onMessage - exception:", error + " on Event event:" + event.data);
-    //}
     handleJson(msg);
  }
 

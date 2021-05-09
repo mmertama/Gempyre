@@ -2,6 +2,8 @@
 #define GEMPYRE_GRAPHICS_H
 
 #include <gempyre.h>
+#include <initializer_list>
+		
 
 /**
   * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
@@ -25,9 +27,9 @@
 
 #ifdef WINDOWS_EXPORT
     #ifndef GEMPYRE_EX
-        #define GEMPYRE_EX __declspec( dllexport )
-    #else
-        #define GEMPYRE_EX
+        #define GGEMPYRE_EX __declspec( dllexport )
+    //#else
+    //    #define GEMPYRE_EX
     #endif
 #endif
 
@@ -36,7 +38,6 @@
 namespace  Gempyre {
 
 class FrameComposer;
-
 
 class GEMPYRE_EX CanvasData : public Data {
 private:
@@ -69,7 +70,7 @@ class GEMPYRE_EX CanvasElement : public Element {
     static constexpr auto TileWidth = 64;  // used for server spesific stuff - bigger than a limit (16384) causes random crashes (There is a issue somewhere, this not really work if something else)
     static constexpr auto TileHeight = 63; // as there are some header info
 public:
-    using Command = std::variant<std::string, double, int>;   
+    using Command = std::variant<std::string, double, int>;
     using CommandList = std::vector<Command>;
     ~CanvasElement();
     CanvasElement(const CanvasElement& other)
@@ -94,11 +95,11 @@ public:
     CanvasDataPtr makeCanvas(int width, int height);
     std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
     std::vector<std::string> addImages(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
-    void paintImage(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0});
-    void paintImage(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0});
-    void draw(const CommandList& canvasCommands);
-    void draw(const FrameComposer& frameComposer);
-    void erase(bool resized = false);
+    void paintImage(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
+    void paintImage(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
+    void draw(const CommandList& canvasCommands) const;
+    void draw(const FrameComposer& frameComposer) const;
+    void erase(bool resized = false) const;
     bool hasCanvas() const {
         return !!m_tile;
     }
@@ -107,8 +108,8 @@ private:
     void paint(const CanvasDataPtr& canvas);
 private:
     CanvasDataPtr m_tile;
-    int m_width = 0;
-    int m_height = 0;
+    mutable int m_width = 0;
+    mutable int m_height = 0;
 };
 
 namespace  Color {
@@ -189,43 +190,45 @@ public:
     FrameComposer(Gempyre::CanvasElement::CommandList& lst) : m_composition(lst) {}
     FrameComposer(FrameComposer&& other) = default;
     FrameComposer(const FrameComposer& other) = default;
-    FrameComposer strokeRect(const Gempyre::Element::Rect& r) {m_composition.insert(m_composition.end(), {"strokeRect", r.x, r.y, r.width, r.height}); return *this;}
-    FrameComposer clearRect(const Gempyre::Element::Rect& r) {m_composition.insert(m_composition.end(), {"clearRect", r.x, r.y, r.width, r.height}); return *this;}
-    FrameComposer fillRect(const Gempyre::Element::Rect& r) {m_composition.insert(m_composition.end(), {"fillRect", r.x, r.y, r.width, r.height}); return *this;}
-    FrameComposer fillText(const std::string& text, double x, double y) {m_composition.insert(m_composition.end(), {"fillText", text, x, y}); return *this;}
-    FrameComposer strokeText(const std::string& text, double x, double y) {m_composition.insert(m_composition.end(), {"strokeText", text, x, y}); return *this;}
+    FrameComposer strokeRect(const Gempyre::Element::Rect& r) {return push({"strokeRect", r.x, r.y, r.width, r.height});}
+    FrameComposer clearRect(const Gempyre::Element::Rect& r) {return push({"clearRect", r.x, r.y, r.width, r.height});}
+    FrameComposer fillRect(const Gempyre::Element::Rect& r) {return push({"fillRect", r.x, r.y, r.width, r.height});}
+    FrameComposer fillText(const std::string& text, double x, double y) {return push({"fillText", text, x, y});}
+    FrameComposer strokeText(const std::string& text, double x, double y) {return push({"strokeText", text, x, y});}
     FrameComposer arc(double x, double y, double r, double sAngle, double eAngle) {
-        m_composition.insert(m_composition.end(), {"arc", x, y, r, sAngle, eAngle}); return *this;}
+        return push({"arc", x, y, r, sAngle, eAngle});}
     FrameComposer ellipse(double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle) {
-        m_composition.insert(m_composition.end(), {"ellipse", x, y, radiusX, radiusY, rotation, startAngle, endAngle}); return *this;}
-    FrameComposer beginPath()  {m_composition.insert(m_composition.end(), {"beginPath"}); return *this;}
-    FrameComposer closePath() {m_composition.insert(m_composition.end(), {"closePath"}); return *this;}
-    FrameComposer lineTo(double x, double y) {m_composition.insert(m_composition.end(), {"lineTo", x, y}); return *this;}
-    FrameComposer moveTo(double x, double y)  {m_composition.insert(m_composition.end(), {"moveTo", x, y}); return *this;}
+        return push({"ellipse", x, y, radiusX, radiusY, rotation, startAngle, endAngle});}
+    FrameComposer beginPath()  {return push({"beginPath"});}
+    FrameComposer closePath() {return push({"closePath"});}
+    FrameComposer lineTo(double x, double y) {return push({"lineTo", x, y});}
+    FrameComposer moveTo(double x, double y)  {return push({"moveTo", x, y});}
     FrameComposer bezierCurveTo(double cp1x, double cp1y, double cp2x, double cp2y, double x, double y) {
-        m_composition.insert(m_composition.end(), {"bezierCurveTo", cp1x, cp1y, cp2x, cp2y, x,  y}); return *this;}
+        return push({"bezierCurveTo", cp1x, cp1y, cp2x, cp2y, x,  y});}
     FrameComposer quadraticCurveTo(double cpx, double cpy, double x, double y) {
-        m_composition.insert(m_composition.end(), {"quadraticCurveTo", cpx, cpy, x, y}); return *this;}
+        return push({"quadraticCurveTo", cpx, cpy, x, y});}
     FrameComposer arcTo(double x1, double y1, double x2, double y2, double radius) {
-        m_composition.insert(m_composition.end(), {"arcTo", x1, y1, x2, y2, radius}); return *this;}
-    FrameComposer rect(const Gempyre::Element::Rect& r) {m_composition.insert(m_composition.end(), {"rect", r.x, r.y, r.width, r.height}); return *this;}
-    FrameComposer stroke() {m_composition.insert(m_composition.end(), {"stroke"}); return *this;}
-    FrameComposer fill() {m_composition.insert(m_composition.end(), {"fill"}); return *this;}
-    FrameComposer fillStyle(const std::string& color) {m_composition.insert(m_composition.end(), {"fillStyle", color}); return *this;}
-    FrameComposer strokeStyle(const std::string& color) {m_composition.insert(m_composition.end(), {"strokeStyle", color}); return *this;}
-    FrameComposer lineWidth(double width) {m_composition.insert(m_composition.end(), {"lineWidth", width}); return *this;}
-    FrameComposer font(const std::string& style) {m_composition.insert(m_composition.end(), {"font", style}); return *this;}
-    FrameComposer textAlign(const std::string& align) {m_composition.insert(m_composition.end(), {"textAlign", align}); return *this;}
-    FrameComposer save() {m_composition.insert(m_composition.end(), {"save"}); return *this;}
-    FrameComposer restore() {m_composition.insert(m_composition.end(), {"restore"}); return *this;}
-    FrameComposer rotate(double angle)  {m_composition.insert(m_composition.end(), {"rotate", angle}); return *this;}
-    FrameComposer translate(double x, double y)  {m_composition.insert(m_composition.end(), {"translate", x, y}); return *this;}
-    FrameComposer scale(const double x, double y)  {m_composition.insert(m_composition.end(), {"scale", x, y}); return *this;}
-    FrameComposer drawImage(const std::string& id, double x, double y)  {m_composition.insert(m_composition.end(), {"drawImage", id, x, y}); return *this;}
-    FrameComposer drawImage(const std::string& id, const Gempyre::Element::Rect& rect)  {m_composition.insert(m_composition.end(), {"drawImageRect", id, rect.x, rect.y, rect.width, rect.height}); return *this;}
-    FrameComposer drawImage(const std::string& id, const Gempyre::Element::Rect& clip, const Gempyre::Element::Rect& rect) {m_composition.insert(m_composition.end(), {"drawImageClip", id, clip.x, clip.y, clip.width, clip.height, rect.x, rect.y, rect.width, rect.height}); return *this;}
+        return push({"arcTo", x1, y1, x2, y2, radius});}
+    FrameComposer rect(const Gempyre::Element::Rect& r) {return push({"rect", r.x, r.y, r.width, r.height});}
+    FrameComposer stroke() {return push({"stroke"});}
+    FrameComposer fill() {return push({"fill"});}
+    FrameComposer fillStyle(const std::string& color) {return push({"fillStyle", color});}
+    FrameComposer strokeStyle(const std::string& color) {return push({"strokeStyle", color});}
+    FrameComposer lineWidth(double width) {return push({"lineWidth", width});}
+    FrameComposer font(const std::string& style) {return push({"font", style});}
+    FrameComposer textAlign(const std::string& align) {return push({"textAlign", align});}
+    FrameComposer save() {return push({"save"});}
+    FrameComposer restore() {return push({"restore"});}
+    FrameComposer rotate(double angle)  {return push({"rotate", angle});}
+    FrameComposer translate(double x, double y)  {return push({"translate", x, y});}
+    FrameComposer scale(const double x, double y)  {return push({"scale", x, y});}
+    FrameComposer drawImage(const std::string& id, double x, double y)  {return push({"drawImage", id, x, y});}
+    FrameComposer drawImage(const std::string& id, const Gempyre::Element::Rect& rect)  {return push({"drawImageRect", id, rect.x, rect.y, rect.width, rect.height});}
+    FrameComposer drawImage(const std::string& id, const Gempyre::Element::Rect& clip, const Gempyre::Element::Rect& rect) {return push({"drawImageClip", id, clip.x, clip.y, clip.width, clip.height, rect.x, rect.y, rect.width, rect.height});}
+    FrameComposer textBaseline(const std::string& textBaseline) {return push({"textBaseline", textBaseline});}
     const Gempyre::CanvasElement::CommandList& composed() const {return m_composition;}
 private:
+    FrameComposer push(const std::initializer_list<Gempyre::CanvasElement::Command>& list) {m_composition.insert(m_composition.end(), list); return *this;}
     Gempyre::CanvasElement::CommandList m_composition;
 };
 }

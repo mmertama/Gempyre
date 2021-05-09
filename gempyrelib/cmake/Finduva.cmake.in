@@ -1,0 +1,12 @@
+include(FindPackageHandleStandardArgs)
+
+find_library(uva_LIBRARY
+  NAMES @UVA_LIB_NAME_CORE@
+  PATHS "@LIBRARY_FULL_DIR@"
+)
+
+find_package_handle_standard_args(uva
+    DEFAULT_MSG
+    uva_LIBRARY
+)
+

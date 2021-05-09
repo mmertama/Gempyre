@@ -1,6 +1,0 @@
-cmake_minimum_required (VERSION 3.8)
-set(NAME blog)
-project (${NAME})
-add_subdirectory(minihello)
-add_subdirectory(hello)
-add_subdirectory(hello2)

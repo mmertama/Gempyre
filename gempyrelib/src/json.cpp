@@ -1,9 +1,8 @@
-#include "json.h"
+#include <any>
 #include "gempyre_utils.h"
 #include <nlohmann/json.hpp>
 // for convenience
 using json = nlohmann::json;
-using namespace Gempyre;
 
 template<class T>
 std::optional<std::string> ContainertoString(const std::any& any) {
@@ -11,7 +10,7 @@ std::optional<std::string> ContainertoString(const std::any& any) {
         auto array = json::array();
         int p = 0;
         for(const auto& a : *v) {
-            const auto o = toString(a);
+            const auto o = GempyreUtils::toJsonString(a);
             ++p;
             if(!o.has_value()) {
                  GempyreUtils::log(GempyreUtils::LogLevel::Error, "Vec", p);
@@ -23,7 +22,7 @@ std::optional<std::string> ContainertoString(const std::any& any) {
     } else if(const auto* h = std::any_cast<std::unordered_map<std::string, T>>(&any)) {
         auto obj = json();
         for(const auto& [k, a] : *h) {
-            const auto o = toString(a);
+            const auto o = GempyreUtils::toJsonString(a);
             if(!o.has_value()) {
                  GempyreUtils::log(GempyreUtils::LogLevel::Error, "Hash", k);
                 return std::nullopt;
@@ -34,7 +33,7 @@ std::optional<std::string> ContainertoString(const std::any& any) {
     } else if(const auto* h = std::any_cast<std::map<std::string, T>>(&any)) {
         auto obj = json();
         for(const auto& [k, a] : *h) {
-            const auto o = toString(a);
+            const auto o = GempyreUtils::toJsonString(a);
             if(!o.has_value()) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "Map", k);
                 return std::nullopt;
@@ -46,7 +45,7 @@ std::optional<std::string> ContainertoString(const std::any& any) {
     return std::nullopt;
 }
 
-std::optional<std::string> Gempyre::toString(const std::any& any) {
+std::optional<std::string> GempyreUtils::toJsonString(const std::any& any) {
     if(const auto* i = std::any_cast<int>(&any)) {
         return json(*i).dump();
     } else if(const auto* d = std::any_cast<double>(&any)) {
@@ -87,7 +86,7 @@ std::optional<std::string> Gempyre::toString(const std::any& any) {
 }
 
 
-std::optional<std::any> Gempyre::toAny(const std::string& str) {
+std::optional<std::any> GempyreUtils::jsonToAny(const std::string& str) {
     const auto j = json::parse(str);
     if(j.empty())
         return std::nullopt;
@@ -104,7 +103,7 @@ std::optional<std::any> Gempyre::toAny(const std::string& str) {
     if(j.is_object()) {
         std::unordered_map<std::string, std::any> map;
         for( auto it = j.begin(); it != j.end(); ++it) {
-            const auto o = toAny(it.value().dump());
+            const auto o = jsonToAny(it.value().dump());
             if(!o.has_value())
                 return std::nullopt;
             map.emplace(it.key(), o.value());
@@ -114,7 +113,7 @@ std::optional<std::any> Gempyre::toAny(const std::string& str) {
     if(j.is_array()) {
         std::vector<std::any> vec;
         for( auto it = j.begin(); it != j.end(); ++it) {
-            const auto o = toAny(it.value().dump());
+            const auto o = jsonToAny(it.value().dump());
             if(!o.has_value())
                 return std::nullopt;
             vec.push_back(o.value());

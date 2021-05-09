@@ -1,0 +1,12 @@
+include(FindPackageHandleStandardArgs)
+
+find_library(uSockets_LIBRARY
+  NAMES @SOCKETS_LIB_NAME@
+  PATHS "@LIBRARY_FULL_DIR@"
+)
+
+find_package_handle_standard_args(uSockets
+    DEFAULT_MSG
+    uSockets_LIBRARY
+)
+
