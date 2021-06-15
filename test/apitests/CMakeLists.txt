@@ -18,7 +18,7 @@ add_executable(${PROJECT_NAME}
     gui/${PROJECT_NAME}.html
     )
 
-gtest_add_tests(TARGET ${PROJECT_NAME})
+gtest_discover_tests(${PROJECT_NAME})
 
 # add HTML into resources
 addResource(PROJECT ${PROJECT_NAME}

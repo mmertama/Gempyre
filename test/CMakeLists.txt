@@ -18,4 +18,5 @@ set(TEST_INCLUDE_DIR ${googletest_SOURCE_DIR}/googletest/include())
 set(TEST_LIBRARY_DIR ${googletest_BINARY_DIR})
 
 add_subdirectory(apitests)
+add_subdirectory(unittests)
 

@@ -132,6 +132,33 @@ static constexpr inline type b(type pixel) {
 static constexpr inline type alpha(type pixel) {
     return (pixel & static_cast<type>(0xFF000000)) >> 24;
 }
+
+static inline std::string rgba(type pixel) {
+    constexpr auto c = "0123456789ABCDEF";
+    std::string v("#RRGGBBAA");
+    v[1] =  c[r(pixel) >> 4];
+    v[2] =  c[r(pixel) & 0xF];
+    v[3] =  c[g(pixel) >> 4];
+    v[4] =  c[g(pixel) & 0xF];
+    v[5] =  c[b(pixel) >> 4];
+    v[6] =  c[b(pixel) & 0xF];
+    v[7] =  c[alpha(pixel) >> 4];
+    v[8] =  c[alpha(pixel) & 0xF];
+    return v;
+}
+
+static inline std::string rgb(type pixel) {
+    constexpr auto c = "0123456789ABCDEF";
+    std::string v("#RRGGBB");
+    v[1] =  c[r(pixel) >> 4];
+    v[2] =  c[r(pixel) & 0xF];
+    v[3] =  c[g(pixel) >> 4];
+    v[4] =  c[g(pixel) & 0xF];
+    v[5] =  c[b(pixel) >> 4];
+    v[6] =  c[b(pixel) & 0xF];
+    return v;
+}
+
 }
 
 
