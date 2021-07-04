@@ -72,6 +72,7 @@ class GEMPYRE_EX CanvasElement : public Element {
 public:
     using Command = std::variant<std::string, double, int>;
     using CommandList = std::vector<Command>;
+    using DrawCallback = std::function<void()>;
     ~CanvasElement();
     CanvasElement(const CanvasElement& other)
         : Element(other) {
@@ -99,6 +100,8 @@ public:
     void paintImage(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
     void draw(const CommandList& canvasCommands) const;
     void draw(const FrameComposer& frameComposer) const;
+    /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
+    void drawCompleted(const DrawCallback& drawCompletedCallback);
     void erase(bool resized = false) const;
     bool hasCanvas() const {
         return !!m_tile;
@@ -108,8 +111,9 @@ private:
     void paint(const CanvasDataPtr& canvas);
 private:
     CanvasDataPtr m_tile;
-    mutable int m_width = 0;
-    mutable int m_height = 0;
+    mutable int m_width{0};
+    mutable int m_height{0};
+    DrawCallback m_drawCallback{nullptr};
 };
 
 namespace  Color {

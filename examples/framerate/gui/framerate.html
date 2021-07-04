@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Snowflakes</title>
+  <style>
+      body {
+        background: linear-gradient("black", "white");
+      }
+      canvas {
+        background-color: #cccccc;
+        background: linear-gradient("black", "white");
+        }
+    #counter {
+       position: absolute;
+       left: 30px;
+       top: 10px;
+       font-size:12px;
+       }
+   #slider {
+      position: absolute;
+      left: 30px;
+      top: 40px;
+      }
+    </style>
+</head>
+<body>
+  <script src="/gempyre.js"></script>
+  <img id="flakes" hidden src="/flakes.png"/>
+  <h3 id="counter"></h3>
+  <div id="slider">
+    <label for="flakes_count" id="flakes_label"></label>
+    <input type="range" id="flakes_count" min="0" max="200" value="20" autofocus>
+  </div>
+  <canvas id="canvas" width=600 height=600>
+</body>
+</html>

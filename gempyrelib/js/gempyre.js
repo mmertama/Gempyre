@@ -14,6 +14,8 @@ var sys_warn = console.warn;
 var sys_info = console.info;
 var sys_error = console.error;
 
+const event_notifiers = new Set();
+
 function g_log(msg) {
     const logged = Array.prototype.slice.call(arguments).join(', ');
     socket.send(JSON.stringify({'type': 'log', 'level': 'log', 'msg': logged}));
@@ -553,6 +555,12 @@ function handleJson(msg) {
         case 'pull_json':
             httpGetJson(msg);
             return;
+        case 'event_notify':
+            if(msg.add)
+                event_notifiers.add(msg.name);
+            else
+                event_notifiers.delete(msg.name);
+            return;
         }
 
         if(msg.type === 'query') {
@@ -627,6 +635,13 @@ socket.onmessage =
     }
     const msg = JSON.parse(event.data);
     handleJson(msg);
+    if(event_notifiers.has(msg.type)) {
+        socket.send(JSON.stringify({
+                                       'type': 'event',
+                                       'element': msg.element.length ? msg.element : "",
+                                       'event': 'event_notify',
+                                       'properties':{'name': msg.type}}));
+    }
  }
 
 socket.onerror = function(event) {

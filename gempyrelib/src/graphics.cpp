@@ -140,6 +140,21 @@ void CanvasElement::draw(const FrameComposer& frameComposer) const {
     draw(frameComposer.composed());
 }
 
+
+void CanvasElement::drawCompleted(const DrawCallback& drawCompletedCallback) {
+    subscribe("event_notify", [this](const Event& ev) {
+        if(m_drawCallback && ev.properties.at("name") == "canvas_draw") {
+            m_drawCallback();
+        }
+    });
+    m_drawCallback = drawCompletedCallback;
+    send("event_notify", std::unordered_map<std::string, std::any>{
+                   {"name", "canvas_draw"},
+                   {"add", drawCompletedCallback != nullptr}
+               });
+
+}
+
 void CanvasElement::erase(bool resized) const {
     if(resized || m_width <= 0 || m_height <= 0) {
         const auto rv = rect();
@@ -217,4 +232,5 @@ void Graphics::update() {
     if(m_canvas)
         m_element.paint(m_canvas);
 }
+
 
