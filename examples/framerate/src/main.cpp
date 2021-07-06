@@ -11,31 +11,54 @@ using namespace std::chrono_literals;
 
 constexpr auto Speed = 20ms;
 
+constexpr int Width = 156;
+constexpr int Height = 175;
+
+constexpr std::array<int, 5> XCoords =  {0, 216, 434, 626, 826};
+constexpr std::array<int, 3> YCoords = {0, 292, 531};
+
 class Flake {
-static constexpr int size = 20;
 public:
-    Flake(int pos, int at = 0) : m_x(pos), m_y(at) {}
+    Flake(const std::tuple<int, int, int, double, int>& p) :
+        ix(XCoords[std::get<0>(p) % 5]),
+        iy(YCoords[std::get<0>(p) / 5]),
+        m_x(std::get<1>(p)),
+        m_y(std::get<2>(p)),
+        m_fallspeed(std::get<3>(p)),
+        m_size(std::get<4>(p)),
+        m_d(static_cast<double>(m_y)) {
+    }
     void draw(Gempyre::FrameComposer& fc) const {
         fc.drawImage("flakes",
-                     {0, 0, 200, 200},
-                     {m_x, m_y, size, size}
+                     {ix, iy, Width, Height},
+                     {m_x, m_y, m_size, m_size}
                      );
     }
 
     void setPos(int x, int y) {
         m_x = x;
         m_y = y;
+        m_d = static_cast<double>(m_y);
     }
 
     void fall(const int height) {
-        ++m_y;
-        if(m_y >= height)
-            m_y = -size;
+        m_d += m_fallspeed;
+        m_y = static_cast<int>(m_d);
+        if(m_y >= height) {
+            m_y = -m_size;
+            m_d = static_cast<double>(m_y);
+        }
     }
 
 private:
+    const int ix;
+    const int iy;
     int m_x = 0;
-    int m_y = 0;};
+    int m_y = 0;
+    const double m_fallspeed;
+    const int m_size;
+    double m_d = 0;
+};
 
 int main(int /*argc*/, char** /*argv*/) {
     Gempyre::setDebug(Gempyre::DebugLevel::Info);
@@ -68,7 +91,26 @@ int main(int /*argc*/, char** /*argv*/) {
           flakes_label.setHTML("Flakes: " + std::to_string(iterations));
     };
 
-    flakes_count.subscribe("change",  [&update_a_label, &flakes, &rect, &generator](const Gempyre::Event& ev) {
+    const auto flake_params = [&generator, &rect](){
+        std::uniform_int_distribution<int> distribution_s(0, 15);
+        const auto s = distribution_s(generator);
+
+
+        std::uniform_int_distribution<int> distribution_x(0, rect.width);
+        const auto pos = distribution_x(generator);
+        std::uniform_int_distribution<int> distribution_y(0, rect.height);
+        const auto at = distribution_y(generator);
+
+        std::uniform_int_distribution<int> distribution_f(800, 1200);
+        const auto f = static_cast<double>(distribution_f(generator)) / 1000.;
+
+        std::uniform_int_distribution<int> distribution_sz(40, 60);
+        const auto sz = distribution_sz(generator);
+
+        return std::make_tuple(s, pos, at, f, sz);
+    };
+
+    flakes_count.subscribe("change",  [&](const Gempyre::Event& ev) {
         const auto v = GempyreUtils::to<unsigned>(ev.properties.at("value"));
         update_a_label(v);
 
@@ -81,16 +123,12 @@ int main(int /*argc*/, char** /*argv*/) {
         }
 
         while(v > flakes.size()) {
-            std::uniform_int_distribution<int> distribution(0, rect.width);
-            const auto pos = distribution(generator);
-            std::uniform_int_distribution<int> distribution_y(0, rect.height);
-            const auto at = distribution_y(generator);
-            flakes.emplace_back(pos, at);
+            flakes.emplace_back(flake_params());
         }
 
     }, {"value"});
 
-    ui.onOpen([&flakes_count, &draw_flakes, &update_a_label, &canvas, &rect, &flakes, &generator]() {
+    ui.onOpen([&]() {
         rect = *canvas.rect();
         const auto v = GempyreUtils::to<int>(flakes_count.values()->at("value"));
         update_a_label(v);
@@ -98,11 +136,7 @@ int main(int /*argc*/, char** /*argv*/) {
         std::uniform_int_distribution<int> distribution(0, rect.width);
 
         for(int i = 0; i < v; i++) {
-            std::uniform_int_distribution<int> distribution_x(0, rect.width);
-            const auto pos = distribution_x(generator);
-            std::uniform_int_distribution<int> distribution_y(0, rect.height);
-            const auto at = distribution_y(generator);
-            flakes.emplace_back(pos, at);
+            flakes.emplace_back(flake_params());
         }
 
         draw_flakes(); // must be called only once, otherwise requests will duplicate
