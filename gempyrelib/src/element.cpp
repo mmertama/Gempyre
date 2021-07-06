@@ -1,6 +1,6 @@
 #include "gempyre.h"
 #include "gempyre_utils.h"
-#include "internal.h"
+#include "core.h"
 
 #include <random>
 #include <chrono>
@@ -127,9 +127,10 @@ void Element::send(const DataPtr& data) {
     m_ui->send(data);
 }
 
-void Element::send(const std::string& type, const std::any& data) {
-    m_ui->send(*this, type, data);
+void Element::send(const std::string& type, const std::any& data, bool unique) {
+    m_ui->send(*this, type, data, unique);
 }
+
 
 template <typename T> T align(T a) {return (a + 3U) & ~3U;}
 

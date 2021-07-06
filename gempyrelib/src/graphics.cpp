@@ -133,7 +133,8 @@ void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands) const
         commandString.emplace_back(s);
     }
     auto This = const_cast<CanvasElement*>(this);
-    This->send("canvas_draw", std::unordered_map<std::string, std::any>{{"commands", commandString}});
+    This->send("canvas_draw", std::unordered_map<std::string, std::any>{
+                   {"commands", commandString}}, true);
 }
 
 void CanvasElement::draw(const FrameComposer& frameComposer) const {

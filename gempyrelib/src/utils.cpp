@@ -773,11 +773,28 @@ std::string GempyreUtils::osBrowser() {
             ;
 }
 
+template<typename T>
+static std::string printTime(std::chrono::time_point<T> time) {
+    using namespace std;
+    using namespace std::chrono;
+
+    const auto curr_time = T::to_time_t(time);
+
+    char buf[100];
+    strftime(buf, sizeof(buf),"%Y-%m-%d %H:%M:%S",localtime(&curr_time));
+
+    typename T::duration since_epoch = time.time_since_epoch();
+    const auto s = duration_cast<std::chrono::seconds>(since_epoch);
+    since_epoch -= s;
+    const auto milli = duration_cast<std::chrono::milliseconds>(since_epoch);
+
+    strcat(buf, ":");
+    strcat(buf, std::to_string(milli.count()).c_str());
+    return std::string(buf);
+}
+
 std::string GempyreUtils::currentTimeString() {
-    const auto result = std::time(nullptr);
-    char timebuf[64];
-    strftime(timebuf, sizeof timebuf, "%c", std::localtime(&result));
-    return GempyreUtils::chop(timebuf);
+    return printTime(std::chrono::system_clock::now());
 }
 
 std::string GempyreUtils::lastError() {

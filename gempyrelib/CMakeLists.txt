@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.14)
 
-project (gempyre VERSION 0.3.5 LANGUAGES CXX C)
+project (gempyre VERSION 0.4.0 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -309,7 +309,8 @@ set(GEMPYRE_SRC
     src/json.cpp
     src/graphics.cpp
     src/element.cpp
-    src/internal.h
+    src/core.h
+    src/timequeue.h
     )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")

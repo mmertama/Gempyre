@@ -36,6 +36,11 @@ public:
         --m_count;
         return true;
     }
+
+    int count() const {
+        return m_count;
+    }
+
 private:
     std::mutex m_mtx;
     std::condition_variable m_cv;

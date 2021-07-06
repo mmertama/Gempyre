@@ -103,7 +103,7 @@ namespace Gempyre {
         std::optional<Rect> rect() const;
     protected:
         void send(const DataPtr& data);
-        void send(const std::string& type, const std::any& data);
+        void send(const std::string& type, const std::any& data, bool unique = false);
         static const std::string generateId(const std::string& prefix);
         size_t payloadSize() const;
     protected:
@@ -122,7 +122,7 @@ namespace Gempyre {
             Element element;
             const std::unordered_map<std::string, std::any> properties;
         };
-        using Handler = std::function<void(const Event& el)>;
+        using Handler = std::function<void (const Event& el)>;
     public:
         using Filemap = std::unordered_map<std::string, std::string>;
         using TimerId = int;
@@ -201,7 +201,7 @@ namespace Gempyre {
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);
-        void send(const Element& el, const std::string& type, const std::any& data);
+        void send(const Element& el, const std::string& type, const std::any& data, bool unique = false);
         template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
         void pendingClose();
         void eventLoop();
@@ -217,15 +217,16 @@ namespace Gempyre {
         std::unordered_map<std::string, HandlerMap> m_elements;
         std::deque<std::function<bool ()>> m_requestqueue;
         std::deque<std::function<void ()>> m_timerqueue;
-        std::function<void ()> m_onUiExit = nullptr;
-        std::function<void ()> m_onReload = nullptr;
-        std::function<void ()> m_onOpen = nullptr;
-        std::function<void (const std::string& element, const std::string& info)> m_onError = nullptr;
+        std::function<void ()> m_onUiExit{nullptr};
+        std::function<void ()> m_onReload{nullptr};
+        std::function<void ()> m_onOpen{nullptr};
+        std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
         std::unique_ptr<Server> m_server;
         std::function<void ()> m_startup;
         Filemap m_filemap;
         std::mutex m_mutex;
-        bool m_hold = false;
+        bool m_hold{false};
+        unsigned m_msgId{1};
         friend class Element;
         friend class Server;
     };

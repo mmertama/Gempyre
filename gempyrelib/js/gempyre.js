@@ -14,7 +14,7 @@ var sys_warn = console.warn;
 var sys_info = console.info;
 var sys_error = console.error;
 
-const event_notifiers = new Set();
+const event_notifiers = new Set(); // For non-JS nottifiers
 
 function g_log(msg) {
     const logged = Array.prototype.slice.call(arguments).join(', ');
@@ -627,6 +627,8 @@ socket.onopen = function(event) {
 };
 
 
+var last_msg_id = -1;
+
 socket.onmessage =
         function(event) {
     if(event.data instanceof ArrayBuffer) {
@@ -634,13 +636,24 @@ socket.onmessage =
         return;
     }
     const msg = JSON.parse(event.data);
+
+    if('msgid' in msg) {
+        msgid = parseInt(msg.msgid);
+        if(msgid <= last_msg_id)
+            return;
+        last_msg_id = msgid;
+    }
+
     handleJson(msg);
     if(event_notifiers.has(msg.type)) {
         socket.send(JSON.stringify({
                                        'type': 'event',
                                        'element': msg.element.length ? msg.element : "",
                                        'event': 'event_notify',
-                                       'properties':{'name': msg.type}}));
+                                       'properties':{
+                                           'name': msg.type,
+                                           'msgid': 'msgid' in msg ? msg.msgid : 0
+                                       }}));
     }
  }
 

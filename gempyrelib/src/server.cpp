@@ -133,6 +133,7 @@ public:
         for(auto& s : m_sockets) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket txt buffer", s->getBufferedAmount());
             const auto success = s->send(text, uWS::OpCode::TEXT);
+
             if(!success) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket t2 buffer", s->getBufferedAmount());
                 if(!m_backPressureMutex.try_lock_for(DELAY))

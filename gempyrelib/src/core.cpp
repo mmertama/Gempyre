@@ -19,7 +19,7 @@
 #include "idlist.h"
 #include "timer.h"
 
-#include "internal.h"
+#include "core.h"
 
 using namespace std::chrono_literals;
 using namespace Gempyre;
@@ -416,8 +416,11 @@ void Ui::endBatch() {
     });
 }
 
-void Ui::send(const Element& el, const std::string& type, const std::any& values) {
+void Ui::send(const Element& el, const std::string& type, const std::any& values, bool unique) {
     std::unordered_map<std::string, std::string> params {{"element", el.m_id}, {"type", type}};
+    if(unique) {     // for some reason WS message get sometimes duplicated in JS and that causes issues here, msgid msgs are only handled once
+        params.emplace("msgid", std::to_string(m_msgId++));
+    }
     if(const auto s = std::any_cast<std::string>(&values)) {
         params.emplace(type, *s);
         addRequest([this, params]() {
@@ -444,6 +447,7 @@ Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot,
 
 Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (int)>& timerFunc) {
     const int id = m_timers->append(ms, singleShot, timerFunc, [this](const std::function<void()>& f) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Add to timerqueue", m_timerqueue.size());
         m_timerqueue.emplace_back(f);
         m_sema->signal();
     });
@@ -486,10 +490,21 @@ void Ui::run() {
     //assert(m_status == State::EXIT);
 }
 
+
 void Ui::eventLoop() {
     while(m_server && m_server->isRunning()) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waiting");
-        m_sema->wait();
+
+        if(m_sema->count() == 0) {
+            const auto start = std::chrono::steady_clock::now();
+
+            m_sema->wait();
+
+            const auto end = std::chrono::steady_clock::now();
+            const auto duration = end - start;
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
+
+        }
+
         if(m_status == State::EXIT) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is exiting");
             break;
@@ -537,7 +552,6 @@ void Ui::eventLoop() {
             const auto timerfunction = std::move(m_timerqueue.front());
             m_timerqueue.pop_front();
             if(!timerfunction) {
-                //TODO: Maybe timer.reduce takes function off puts back ,and that cause sometimes an error - should be fixed
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer queue miss",
                                   toStr(m_status), !m_timerqueue.empty() && m_status != State::EXIT);
                 continue;
@@ -597,6 +611,7 @@ void Ui::eventLoop() {
                 const auto handlerName = std::get<1>(it);
                 const auto handlers = std::get<1>(*element);
                 const auto h = handlers.find(handlerName);
+
                 if(h != handlers.end()) {
                     h->second(Event{Element(*this, std::move(element->first)), std::move(std::get<2>(it))});
                 } else {

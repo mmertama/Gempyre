@@ -6,6 +6,7 @@ project (unittests)
 set(CMAKE_CXX_STANDARD 17)
 include_directories(
      ../../gempyrelib/include
+     ../../gempyrelib/src
     include
     ${TEST_INCLUDE_DIR}
 )

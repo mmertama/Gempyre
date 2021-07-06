@@ -9,7 +9,7 @@
 
 using namespace std::chrono_literals;
 
-constexpr auto Speed = 100ms;
+constexpr auto Speed = 20ms;
 
 class Flake {
 static constexpr int size = 20;
@@ -38,7 +38,7 @@ private:
     int m_y = 0;};
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::setDebug(Gempyre::DebugLevel::Warning);
+    Gempyre::setDebug(Gempyre::DebugLevel::Info);
     Gempyre::Ui ui(Framerate_resourceh, "framerate.html");
     Gempyre::CanvasElement canvas(ui, "canvas");
     Gempyre::Element flakes_count(ui, "flakes_count");
@@ -68,7 +68,7 @@ int main(int /*argc*/, char** /*argv*/) {
           flakes_label.setHTML("Flakes: " + std::to_string(iterations));
     };
 
-    flakes_count.subscribe("change", [&draw_flakes, &update_a_label, &flakes, &rect, &generator](const Gempyre::Event& ev) {
+    flakes_count.subscribe("change",  [&update_a_label, &flakes, &rect, &generator](const Gempyre::Event& ev) {
         const auto v = GempyreUtils::to<unsigned>(ev.properties.at("value"));
         update_a_label(v);
 
@@ -88,7 +88,6 @@ int main(int /*argc*/, char** /*argv*/) {
             flakes.emplace_back(pos, at);
         }
 
-        draw_flakes();
     }, {"value"});
 
     ui.onOpen([&flakes_count, &draw_flakes, &update_a_label, &canvas, &rect, &flakes, &generator]() {
@@ -106,14 +105,15 @@ int main(int /*argc*/, char** /*argv*/) {
             flakes.emplace_back(pos, at);
         }
 
-        draw_flakes();
+        draw_flakes(); // must be called only once, otherwise requests will duplicate
     });
 
     ui.startTimer(1s, false, [&start, &duration, &frame_count, &counter, &tick_count]() {
         const auto end = std::chrono::steady_clock::now();
         duration = end - start;
         start = end;
-        const auto deviation_persentage = (((duration / Speed) / tick_count) * 100.) - 100.;
+        const auto expected = duration / Speed;
+        const auto deviation_persentage = (expected / tick_count) * 100.;
         const auto fps = static_cast<double>(frame_count) / duration.count();
         frame_count = 0;
         tick_count = 0;

@@ -11,6 +11,7 @@
 #include <future>
 #include <set>
 
+#include "semaphore.h"
 #include "gempyre_utils.h"
 
 namespace Gempyre {
@@ -45,6 +46,7 @@ private:
     std::unique_ptr<TimeQueue> m_queue;
     std::mutex m_waitMutex;
     std::atomic<bool> m_exit = false;
+    Semaphore m_callWait;
 };
 }
 
