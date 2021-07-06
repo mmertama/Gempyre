@@ -47,7 +47,8 @@ void TimerMgr::start() {
             const auto begin = std::chrono::steady_clock::now();
 
             data.func(data.id);
-            m_callWait.wait();
+            if(!m_exit)
+                m_callWait.wait();
 
             const auto end = std::chrono::steady_clock::now(); //we may have had an early  wakeup
             const auto actualWait = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
@@ -96,6 +97,7 @@ void TimerMgr::flush(bool doRun) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "flush");
         m_queue->setNow(doRun);
         m_exit = true;
+        m_callWait.signal();
         m_cv.notify_all();
         m_timerThread.wait();
         m_queue->clear();
