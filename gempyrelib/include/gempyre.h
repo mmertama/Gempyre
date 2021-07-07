@@ -164,12 +164,25 @@ namespace Gempyre {
         ///Opens an url in the UI view
         void open(const std::string& url, const std::string& name = "");
 
-        ///Starts a timer.
+        [[deprecated ("startPeriodic and after instead")]]
         TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (TimerId id)>& timerFunc);
-        ///Starts a timer.
+        [[deprecated ("startPeriodic and after instead")]]
         TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void ()>& timerFunc);
-        ///Stops a timer.
+        [[deprecated ("use cancel")]]
         bool stopTimer(TimerId timerId);
+
+        ///Starts a perdiodic timer.
+        TimerId startPeriodic(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
+        ///Starts a perdiodic timer.
+        TimerId startPeriodic(const std::chrono::milliseconds& ms, const std::function<void ()>& timerFunc);
+
+        ///Starts a perdiodic timer.
+        TimerId after(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
+        ///Starts a perdiodic timer.
+        TimerId after(const std::chrono::milliseconds& ms, const std::function<void ()>& timerFunc);
+
+        ///Stops a timer.
+        bool cancel(TimerId timerId);
 
         ///Get a (virtual) root element.
         Element root() const;

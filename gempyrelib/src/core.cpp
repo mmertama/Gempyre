@@ -290,7 +290,7 @@ void Ui::pendingClose() {
     m_status = State::PENDING;
     m_timers->flush(false); //all timers are run here
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start 1s wait for pending");
-    startTimer(1000ms, true, [this]() { //delay as a get may come due page chage
+    after(1000ms, [this]() { //delay as a get may come due page chage
         if(m_status == State::PENDING) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending close, Status change --> Exit");
             m_status = State::CLOSE;
@@ -438,28 +438,52 @@ void Ui::send(const Element& el, const std::string& type, const std::any& values
     }
 }
 
+Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
+    const int id = m_timers->append(ms, false, timerFunc, [this](const std::function<void()>& f) {
+        m_timerqueue.emplace_back(f);
+        m_sema->signal();
+    });
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start Periodic", ms.count(), id);
+    return id;
+}
 
-Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void ()>& timerFunc) {
-    return startTimer(ms, singleShot, [timerFunc](TimerId) {
+Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::function<void ()> &timerFunc) {
+    return startPeriodic(ms, [timerFunc](TimerId) {
         return timerFunc();
     });
 }
 
-Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (int)>& timerFunc) {
-    const int id = m_timers->append(ms, singleShot, timerFunc, [this](const std::function<void()>& f) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Add to timerqueue", m_timerqueue.size());
+Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
+    const int id = m_timers->append(ms, true, timerFunc, [this](const std::function<void()>& f) {
         m_timerqueue.emplace_back(f);
         m_sema->signal();
     });
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start Timer", ms.count(), id);
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start After", ms.count(), id);
     return id;
 }
 
-bool Ui::stopTimer(TimerId id) {
+Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<void ()> &timerFunc) {
+    return after(ms, [timerFunc](TimerId) {
+        return timerFunc();
+    });
+}
+
+Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void ()>& timerFunc) {
+    return singleShot ? after(ms, timerFunc) : startPeriodic(ms, timerFunc);
+}
+
+Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (int)>& timerFunc) {
+    return singleShot ? after(ms, timerFunc) : startPeriodic(ms, timerFunc);
+}
+
+bool Ui::cancel(TimerId id) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Stop Timer", id);
     return m_timers->remove(id);
 }
 
+bool Ui::stopTimer(TimerId id) {
+    return cancel(id);
+}
 
 Ui& Ui::onExit(std::function<void ()> onUiExitFunction) {
     m_onUiExit = std::move(onUiExitFunction);

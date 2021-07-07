@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     //Five ways to load image
 
     //1) external resource using http/https from somewhere
-    ui.startTimer(2000ms, true, [&canvas]() {
+    ui.after(2000ms, [&canvas]() {
         writeText(0, 40, "the beach\nis place\nto be\npalm to\nstay under\nthe sea\nand sand", canvas);
     });
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
 
     //3). via page and add as a resources
-    ui.startTimer(2000ms, true, [&canvas]() {
+    ui.after(2000ms, [&canvas]() {
         canvas.paintImage("some_sceneid", {0, 200, 200, 200});
     });
     /* This does not work
@@ -84,14 +84,14 @@ int main(int argc, char** argv) {
     });
 
     //5) local file - see root parameter in constructor (assuming it is set correctly here to imageblit/stuff folder)
-    ui.startTimer(3000ms, true, [&canvas]() {
+    ui.after(3000ms, [&canvas]() {
         canvas.paintImage("huld", {0, 400, 200, 200});
     });
 
     auto frame = 0U;
 
     canvas.addImage("leigh-kellogg-captainamerica-poseframes-2.jpg", [&canvas, &ui, &frame](const auto& marica){
-        ui.startTimer(50ms, false, [&canvas, &frame, marica]{
+        ui.startPeriodic(50ms, [&canvas, &frame, marica]{
             const std::vector<Gempyre::Element::Rect> frames{
                 {100, 300, 248, 344},
                 {348, 300, 282, 344},

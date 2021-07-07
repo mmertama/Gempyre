@@ -142,7 +142,7 @@ int main(int /*argc*/, char** /*argv*/) {
         draw_flakes(); // must be called only once, otherwise requests will duplicate
     });
 
-    ui.startTimer(1s, false, [&start, &duration, &frame_count, &counter, &tick_count]() {
+    ui.startPeriodic(1s, [&start, &duration, &frame_count, &counter, &tick_count]() {
         const auto end = std::chrono::steady_clock::now();
         duration = end - start;
         start = end;
@@ -154,7 +154,7 @@ int main(int /*argc*/, char** /*argv*/) {
         counter.setHTML("FPS:" + std::to_string(fps) + ", deviation:" + std::to_string(deviation_persentage) + "%");
     });
 
-    ui.startTimer(Speed, false, [&flakes, &rect, &tick_count]() {
+    ui.startPeriodic(Speed, [&flakes, &rect, &tick_count]() {
         for(auto& f : flakes) {
             f.fall(rect.height);
         }

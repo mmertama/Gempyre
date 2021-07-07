@@ -161,7 +161,7 @@ TEST_F(TestUi, exit) {
 
 TEST_F(TestUi, exit_on_time) {
     bool ok = false;
-    m_ui->startTimer(2s, true, [this, &ok]()  {
+    m_ui->after(2s, [this, &ok]()  {
        m_ui->exit();
        ok = true;
     });
@@ -171,7 +171,7 @@ TEST_F(TestUi, exit_on_time) {
 
 
 TEST_F(TestUi, onExit) {
-    m_ui->startTimer(2s, true, [this]() {
+    m_ui->after(2s, [this]() {
        m_ui->close();
     });
     bool ok = false;
@@ -189,7 +189,7 @@ TEST_F(TestUi, close) {
        ok = true;
        m_ui->close();
     });
-    m_ui->startTimer(2s, true, [this]()  {
+    m_ui->after(2s, [this]()  {
       m_ui->exit();
     });
     m_ui->run();
@@ -229,7 +229,7 @@ TEST_F(TestUi, onOpen){
 TEST_F(TestUi, run) {
     bool ok = false;
     m_ui->onOpen([&ok, this](){
-        m_ui->startTimer(1000ms, true, [this, &ok]()  {
+        m_ui->after(1000ms, [this, &ok]()  {
            m_ui->exit();
            ok = true;
         });
@@ -240,7 +240,7 @@ TEST_F(TestUi, run) {
 }
 
 TEST_F(TestUi, setLogging) {
-    m_ui->startTimer(3s, true, [this]()  {
+    m_ui->after(3s, [this]()  {
        m_ui->setLogging(false);
        m_ui->exit();
     });
@@ -265,7 +265,7 @@ TEST_F(TestUi, eval) {
 }
 
 TEST_F(TestUi, debug) {
-    m_ui->startTimer(1000ms, true, [this]()  {
+    m_ui->after(1000ms, [this]()  {
        m_ui->exit();
     });
     m_ui->onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
@@ -287,7 +287,7 @@ TEST_F(TestUi, alert) {
 
 
 TEST_F(TestUi, open) {
-    m_ui->startTimer(1000ms, true, [this]()  {
+    m_ui->after(1000ms, [this]()  {
        m_ui->exit();
     });
     m_ui->onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
@@ -296,7 +296,7 @@ TEST_F(TestUi, open) {
 }
 
 TEST_F(TestUi, startTimer) {
-    m_ui->startTimer(1000ms, true, [this](Gempyre::Ui::TimerId id)  {
+    m_ui->after(1000ms, [this](Gempyre::Ui::TimerId id)  {
        (void)id;
        m_ui->exit();
     });
@@ -304,7 +304,7 @@ TEST_F(TestUi, startTimer) {
 }
 
 TEST_F(TestUi, startTimerNoId) {
-    m_ui->startTimer(1000ms, true, [this]()  {
+    m_ui->after(1000ms, [this]()  {
        m_ui->exit();
     });
     m_ui->run();
@@ -312,14 +312,14 @@ TEST_F(TestUi, startTimerNoId) {
 
 TEST_F(TestUi, stopTimer) {
     bool ok = true;
-    auto id = m_ui->startTimer(1000ms, true, [this, &ok]()  {
+    auto id = m_ui->after(1000ms, [this, &ok]()  {
        ok = false;
        m_ui->exit();
     });
-    m_ui->startTimer(3000ms, true, [this]() {
+    m_ui->after(3000ms, [this]() {
           m_ui->exit();
        });
-    m_ui->stopTimer(id);
+    m_ui->cancel(id);
     m_ui->run();
     EXPECT_TRUE(ok);
 }
@@ -330,27 +330,27 @@ TEST_F(TestUi, startManyTimers) {
     m_ui->onOpen([&test](){
         test += 'm';
     });
-    m_ui->startTimer(0ms, true, [&test](Gempyre::Ui::TimerId id)  {
+    m_ui->after(0ms, [&test](Gempyre::Ui::TimerId id)  {
        (void)id;
        test += 'o';
     });
-    m_ui->startTimer(1ms, true, [&test](Gempyre::Ui::TimerId id)  {
+    m_ui->after(1ms, [&test](Gempyre::Ui::TimerId id)  {
        (void)id;
        test += 'n';
     });
-    m_ui->startTimer(100ms, true, [&test](Gempyre::Ui::TimerId id)  {
+    m_ui->after(100ms, [&test](Gempyre::Ui::TimerId id)  {
        (void)id;
        test += 's';
     });
-    m_ui->startTimer(1000ms, true, [&test](Gempyre::Ui::TimerId id)  {
+    m_ui->after(1000ms, [&test](Gempyre::Ui::TimerId id)  {
        (void)id;
        test += 't';
     });
-    m_ui->startTimer(1001ms, true, [&test](Gempyre::Ui::TimerId id)  {
+    m_ui->after(1001ms, [&test](Gempyre::Ui::TimerId id)  {
        (void)id;
        test += 'e';
     });
-    m_ui->startTimer(10002ms, true, [&test, this](Gempyre::Ui::TimerId id)  {
+    m_ui->after(10002ms, [&test, this](Gempyre::Ui::TimerId id)  {
        (void)id;
        test += 'r';
        m_ui->exit();
@@ -361,17 +361,17 @@ TEST_F(TestUi, startManyTimers) {
 
 TEST_F(TestUi, timing) {
     const auto start = std::chrono::system_clock::now();
-    m_ui->startTimer(1000ms, true, [&start]()  {
+    m_ui->after(1000ms, [&start]()  {
         const auto end = std::chrono::system_clock::now();
         const auto diff = end - start;
         EXPECT_TRUE(diff >= 1000ms);
     });
-    m_ui->startTimer(2000ms, true, [&start]()  {
+    m_ui->after(2000ms, [&start]()  {
         const auto end = std::chrono::system_clock::now();
         const auto diff = end - start;
         EXPECT_TRUE(diff >= 2000ms);
     });
-    m_ui->startTimer(4000ms, true, [&start, this]()  {
+    m_ui->after(4000ms, [&start, this]()  {
         const auto end = std::chrono::system_clock::now();
         const auto diff = end - start;
         EXPECT_TRUE(diff >= 4000ms);
@@ -510,10 +510,10 @@ TEST_F(TestUi, subscribe) {
         ASSERT_TRUE(is_open);
         m_ui->exit();
     });
-    m_ui->startTimer(2s, true, [&]()  {
+    m_ui->after(2s, [&]()  {
           el.setAttribute("style", "color:green");
        });
-    m_ui->startTimer(10s, true, [&]()  {
+    m_ui->after(10s, [&]()  {
           m_ui->exit();
           ASSERT_TRUE(is_open);
        });
