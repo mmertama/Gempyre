@@ -16,6 +16,8 @@ var sys_error = console.error;
 
 const event_notifiers = new Set(); // For non-JS nottifiers
 
+var last_msg_id = -1;
+
 function g_log(msg) {
     const logged = Array.prototype.slice.call(arguments).join(', ');
     socket.send(JSON.stringify({'type': 'log', 'level': 'log', 'msg': logged}));
@@ -484,8 +486,30 @@ function httpGetJson(msg) {
     .then(json => handleJson(json))
 }
 
-
 function handleJson(msg) {
+
+    if('msgid' in msg) {
+        msgid = parseInt(msg.msgid);
+        if(msgid <= last_msg_id)
+            return;
+        last_msg_id = msgid;
+    }
+
+    handleJsonCommand(msg);
+
+    if(event_notifiers.has(msg.type)) {
+        socket.send(JSON.stringify({
+                                       'type': 'event',
+                                       'element': msg.element.length ? msg.element : "",
+                                       'event': 'event_notify',
+                                       'properties':{
+                                           'name': msg.type,
+                                           'msgid': 'msgid' in msg ? msg.msgid : 0
+                                       }}));
+    }
+}
+
+function handleJsonCommand(msg) {
         switch(msg.type) {
         case 'batch':
             msg.batches.forEach(item => handleJson(item));
@@ -626,9 +650,6 @@ socket.onopen = function(event) {
     socket.send(JSON.stringify({'type': 'uiready'}));
 };
 
-
-var last_msg_id = -1;
-
 socket.onmessage =
         function(event) {
     if(event.data instanceof ArrayBuffer) {
@@ -637,24 +658,7 @@ socket.onmessage =
     }
     const msg = JSON.parse(event.data);
 
-    if('msgid' in msg) {
-        msgid = parseInt(msg.msgid);
-        if(msgid <= last_msg_id)
-            return;
-        last_msg_id = msgid;
-    }
-
     handleJson(msg);
-    if(event_notifiers.has(msg.type)) {
-        socket.send(JSON.stringify({
-                                       'type': 'event',
-                                       'element': msg.element.length ? msg.element : "",
-                                       'event': 'event_notify',
-                                       'properties':{
-                                           'name': msg.type,
-                                           'msgid': 'msgid' in msg ? msg.msgid : 0
-                                       }}));
-    }
  }
 
 socket.onerror = function(event) {
