@@ -91,3 +91,4 @@ build
 mingw_build
 msvc_build
 *build_all
+GPUCache

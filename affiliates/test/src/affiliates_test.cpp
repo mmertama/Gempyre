@@ -26,6 +26,10 @@ int main(int argc, char* argv[]) {
     Gempyre::Element openDir(ui, "open_dir");
     Gempyre::Element saveFile(ui, "save_file");
 
+    Gempyre::Element(ui, "exit").subscribe("click", [&ui](const Gempyre::Event&) {
+        ui.exit();
+    });
+
     openFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
         const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openFileDialog("", "", {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
