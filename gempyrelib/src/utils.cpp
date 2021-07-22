@@ -41,6 +41,7 @@
 
 
 #include "gempyre_utils.h"
+#include "base64.h"
 
 //without <filesystem> support
 #include <stdlib.h>
@@ -940,5 +941,13 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     }           
     return addresses;
 #endif
+}
+
+std::string GempyreUtils::base64Encode(const unsigned char* bytes, size_t sz) {
+    return Base64::encode(bytes, sz);
+}
+
+std::vector<unsigned char> GempyreUtils::base64Decode(const std::string_view& data) {
+    return Base64::decode(data);
 }
 

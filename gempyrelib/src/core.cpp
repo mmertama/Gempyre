@@ -278,6 +278,11 @@ m_filemap(normalizeNames(filemap)) {
                        listener
                    );
     };
+
+    // automatically try to set app icon if favicon is available
+    const auto icon = resource("/favicon.ico");
+    if(icon)
+        setApplicationIcon(icon->data(), icon->size());
 }
 
 Ui::~Ui() {
@@ -719,6 +724,20 @@ std::optional<Element::Elements> Ui::byName(const std::string& className) const 
     return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
+void Ui::extensionApply(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+    const auto json = GempyreUtils::toJsonString(parameters);
+    gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
+    addRequest([this, callId, json]() {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension:", json.value());
+        return m_server->send({
+                                  {"type", "extension"},
+                                  {"extension_call", callId},
+                                  {"extension_id", ""},
+                                  {"extension_parameters", json.value()}});
+    });
+}
+
+
 std::optional<std::any> Ui::extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
     if(m_status != State::RUNNING) {
         return std::nullopt;
@@ -777,4 +796,7 @@ std::optional<double> Ui::devicePixelRatio() const {
     return value.has_value() && m_status == Ui::State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
 }
 
+void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen) {
+    extensionApply("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}});
+}
 

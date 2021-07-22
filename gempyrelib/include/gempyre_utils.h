@@ -407,6 +407,9 @@ UTILS_EX std::optional<std::any> jsonToAny(const std::string& str);
 
 UTILS_EX bool isAvailable(int port);
 
+UTILS_EX std::string base64Encode(const unsigned char* bytes, size_t sz);
+UTILS_EX std::vector<unsigned char> base64Decode(const std::string_view& data);
+
 }
 
 
