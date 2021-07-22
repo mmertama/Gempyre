@@ -325,7 +325,7 @@ m_filemap(normalizeNames(filemap)) {
     // automatically try to set app icon if favicon is available
     const auto icon = resource("/favicon.ico");
     if(icon)
-        setApplicationIcon(icon->data(), icon->size(), "ico");
+        setApplicationIcon(icon->data(), icon->size());
 }
 
 Ui::~Ui() {
@@ -767,7 +767,7 @@ std::optional<Element::Elements> Ui::byName(const std::string& className) const 
     return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
-void Ui::extensionCall(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+void Ui::extensionApply(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
     const auto json = GempyreUtils::toJsonString(parameters);
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
     addRequest([this, callId, json]() {
@@ -780,11 +780,8 @@ void Ui::extensionCall(const std::string& callId, const std::unordered_map<std::
     });
 }
 
-std::optional<std::any> Ui::extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
-    return extensionGet(callId, parameters);
-}
 
-std::optional<std::any> Ui::extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
+std::optional<std::any> Ui::extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
     if(m_status != State::RUNNING) {
         return std::nullopt;
     }
@@ -842,38 +839,7 @@ std::optional<double> Ui::devicePixelRatio() const {
     return value.has_value() && m_status == Ui::State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
 }
 
-void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen, const std::string& type) {
-    extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}, {"type", type}});
-}
-
-void Ui::resize(int width, int height) {
-    extensionCall("resize", {{"width", width}, {"height", height}});
-}
-
-void Ui::setTitle(const std::string& name) {
-    extensionCall("setTitle", {{"title", name}});
-}
-
-std::string Ui::stdParams(int width, int height, const std::string& title) {
-    std::stringstream ss;
-    ss << " --gempyre-width=" << width << " --gempyre-height=" << height << " --gempyre-title=\"" << title << "\""; // circle with spaces
-    return ss.str();
-}
-
-std::optional<std::string> Ui::addFile(Gempyre::Ui::Filemap& map, const std::string& file) {
-    if(!GempyreUtils::fileExists(file)) {
-        return std::nullopt;
-    }
-    auto url = GempyreUtils::substitute(file, R"([\/\\])", "_");
-    if(map.find(url) != map.end()) {
-        return std::nullopt;
-    }
-
-    url.insert(url.begin(), '/');
-
-    const auto data = GempyreUtils::slurp<Base64::Byte>(file);
-    const auto string = Base64::encode(data);
-    map.insert_or_assign(url, std::move(string));
-    return url;
+void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen) {
+    extensionApply("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}});
 }
 

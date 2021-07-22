@@ -217,11 +217,9 @@ namespace Gempyre {
         ///Access an UI extension
         void extensionCall(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
         ///Access an UI extension
-        [[nodiscard]] std::optional<std::any> extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
-
-        [[deprecated ("use extensionGet or extensionCall instead")]] std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
-
-
+        void extensionApply(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        ///Access an UI extension
+        std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
         ///Get a compiled in resource string.
         [[nodiscard]] std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
         ///Add a file data into Gempyre to be accessed via url
@@ -237,13 +235,9 @@ namespace Gempyre {
         ///Tells if timers are on hold.
         [[nodiscard]] bool isHold() const {return m_hold;}
         ///Get an native UI device pixel ratio.
-        [[nodiscard]] std::optional<double> devicePixelRatio() const;
-        ///Set application icon, fail silently if backend wont support
-        void setApplicationIcon(const uint8_t* data, size_t dataLen, const std::string& type);
-        /// resize, fail silently if backend wont support
-        void resize(int width, int height);
-        /// set title, fail silently if backend wont support
-        void setTitle(const std::string& name);
+        std::optional<double> devicePixelRatio() const;
+        ///Set application icon
+        void setApplicationIcon(const uint8_t* data, size_t dataLen);
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);
