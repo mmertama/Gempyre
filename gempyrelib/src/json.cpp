@@ -5,7 +5,7 @@
 using json = nlohmann::json;
 
 template<class T>
-std::optional<std::string> ContainertoString(const std::any& any) {
+static std::optional<std::string> containertoString(const std::any& any) {
     if(const auto* v = std::any_cast<std::vector<T>>(&any)) {
         auto array = json::array();
         int p = 0;
@@ -20,7 +20,7 @@ std::optional<std::string> ContainertoString(const std::any& any) {
         }
         return array.dump();
     } else if(const auto* h = std::any_cast<std::unordered_map<std::string, T>>(&any)) {
-        auto obj = json();
+        auto obj = json::object();
         for(const auto& [k, a] : *h) {
             const auto o = GempyreUtils::toJsonString(a);
             if(!o.has_value()) {
@@ -31,7 +31,7 @@ std::optional<std::string> ContainertoString(const std::any& any) {
         }
         return obj.dump();
     } else if(const auto* h = std::any_cast<std::map<std::string, T>>(&any)) {
-        auto obj = json();
+        auto obj = json::object();
         for(const auto& [k, a] : *h) {
             const auto o = GempyreUtils::toJsonString(a);
             if(!o.has_value()) {
@@ -59,25 +59,25 @@ std::optional<std::string> GempyreUtils::toJsonString(const std::any& any) {
     } else if(const auto* c = std::any_cast<const char*>(&any)) {
         return json(std::string(*c)).dump();
     } else {
-        const auto v1 = ContainertoString<std::any>(any);
+        const auto v1 = containertoString<std::any>(any);
         if(v1.has_value())
             return v1;
-        const auto v3 = ContainertoString<int>(any);
+        const auto v3 = containertoString<int>(any);
         if(v3.has_value())
             return v3;
-        const auto v4 = ContainertoString<double>(any);
+        const auto v4 = containertoString<double>(any);
         if(v4.has_value())
             return v4;
-        const auto v5 = ContainertoString<bool>(any);
+        const auto v5 = containertoString<bool>(any);
         if(v5.has_value())
             return v5;
-        const auto v2 = ContainertoString<std::string>(any);
+        const auto v2 = containertoString<std::string>(any);
         if(v2.has_value())
             return v2;
-        const auto v6 = ContainertoString<std::nullptr_t>(any);
+        const auto v6 = containertoString<std::nullptr_t>(any);
         if(v6.has_value())
             return v6;
-        const auto v7 = ContainertoString<const char*>(any);
+        const auto v7 = containertoString<const char*>(any);
         if(v7.has_value())
             return v7;
         GempyreUtils::log(GempyreUtils::LogLevel::Error, "Invalid value:", any.type().name());

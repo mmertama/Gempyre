@@ -1,7 +1,7 @@
 #ifndef GEMPYRECLIENT_H
 #define GEMPYRECLIENT_H
 
-#include <unordered_map>
+#include <map>
 #include <any>
 #include <tuple>
 #include <vector>
@@ -14,8 +14,9 @@ public:
      using Filter = std::vector<std::tuple<std::string, std::vector<std::string>>>;
 private:
     T& m_this;
-    using AnyMap = std::unordered_map<std::string, std::any>;
+    using AnyMap = std::map<std::string, std::any>;
     using AnyVec = std::vector<std::any>;
+
     static std::any makeFilters(const Filter& f) {
         AnyMap map;
         for(const auto& e : f) {
