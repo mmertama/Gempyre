@@ -276,7 +276,21 @@ void Server::serverThread(unsigned short port) {
                         m_uiready = true;
                     }
                     if(*f == "extensionready") {
-                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "exteansionready");
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "exteansionready");
+                        return;
+                    }
+                    if(*f == "extension") {
+                        const auto log = jsObj.find("level");
+                        const auto msg = jsObj.find("msg");
+                        if(*log == "log")
+                            GempyreUtils::log(GempyreUtils::LogLevel::Info, "Ext", *msg);
+                        else if(*log == "info")
+                            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", *msg);
+                        else if(*log == "warn")
+                            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Ext", *msg);
+                        else if(*log == "error" || log->empty())
+                            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ext", *msg);
+                        return;
                         return;
                     }
                     if(*f == "log") {
@@ -284,11 +298,11 @@ void Server::serverThread(unsigned short port) {
                         const auto msg = jsObj.find("msg");
                         if(*log == "log")
                             GempyreUtils::log(GempyreUtils::LogLevel::Info, "JS", *msg);
-                        if(*log == "info")
+                        else if(*log == "info")
                             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS", *msg);
-                        if(*log == "warn")
+                        else if(*log == "warn")
                             GempyreUtils::log(GempyreUtils::LogLevel::Warning, "JS", *msg);
-                        if(*log == "")
+                        else if(*log == "" || *log == "error")
                             GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS", *msg);
                         return;
                     }

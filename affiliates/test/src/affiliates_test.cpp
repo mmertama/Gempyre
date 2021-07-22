@@ -33,12 +33,8 @@ int main(int argc, char* argv[]) {
     openFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
         const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openFileDialog("", "", {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
-            std::string stuff;
-            std::ifstream f;
-            f.open (*out);
-            f >> stuff;
-            f.close();
-            content.setHTML(stuff + "</br>" + "size:" + std::to_string(GempyreUtils::fileSize(*out)));
+            const auto stuff = GempyreUtils::slurp(*out);
+            content.setHTML("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::fileSize(*out)));
         }
     });
 
@@ -72,7 +68,6 @@ int main(int argc, char* argv[]) {
                  content.setHTML("Do not pick existing file:" + *out);
                  return;
             }
-            std::string stuff;
             std::ofstream f;
             f.open (*out);
             f << *content.html();
