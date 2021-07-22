@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     gempyre_utils_assert_x(!std::get<GempyreUtils::ParamList>(std::get<GempyreUtils::Params>(plist)).empty(), "expected path to affiliates");
     const std::string py = std::get<GempyreUtils::ParamList>(std::get<GempyreUtils::Params>(plist))[0];
 
-    Gempyre::Ui ui({{"/affiliates_test.html", Affiliates_testhtml}},
+    Gempyre::Ui ui(Affiliates_test_resourceh,
                  "affiliates_test.html", py, "500 640 \"Test Affiliates\"");
 
     Gempyre::Element content(ui, "content");

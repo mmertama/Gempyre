@@ -12,6 +12,7 @@ using Byte = unsigned char;
 using Bytes = std::vector<Byte>;
 
 std::string encode(const Bytes& bytes);
+std::string encode(const Byte* bytes, size_t amount);
 Bytes decode(std::string_view const& data);
 }
 

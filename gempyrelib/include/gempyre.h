@@ -196,6 +196,8 @@ namespace Gempyre {
         ///Test function to measure round trip time
         std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> ping() const;
         ///Access an UI extension
+        void extensionApply(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        ///Access an UI extension
         std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
         ///Get a compiled in resource string.
         std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
@@ -211,6 +213,8 @@ namespace Gempyre {
         bool isHold() const {return m_hold;}
         ///Get an native UI device pixel ratio.
         std::optional<double> devicePixelRatio() const;
+        ///Set application icon
+        void setApplicationIcon(const uint8_t* data, size_t dataLen);
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);
