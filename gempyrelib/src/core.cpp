@@ -280,16 +280,14 @@ m_filemap(normalizeNames(filemap)) {
             m_status = State::RUNNING;
             const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
 
-            const std::string appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
+            const std::string appui = !browser.empty() ? browser : GempyreUtils::osBrowser();
 
 #ifndef ANDROID_OS
             gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
 
-            const auto on_path = GempyreUtils::which(appui);
-            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
-
-            const auto cmd_params =  SERVER_ADDRESS + ":"
+            const auto cmdLine =
+            + " " + SERVER_ADDRESS + ":"
             + std::to_string(port) + "/"
             + (appPage.empty() ? "index.html" : appPage)
             + " " + extraParams;
