@@ -128,7 +128,7 @@ Ui::Ui(const std::string& indexHtml, unsigned short port, const std::string& roo
             , "", port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root)
-    : Ui(filemap, indexHtml, GempyreUtils::osBrowser(), "", port, root) {}
+    : Ui(filemap, indexHtml, "", "", port, root) {}
 
 Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser, extraParams, port, root) {}
@@ -243,10 +243,14 @@ m_filemap(normalizeNames(filemap)) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
             m_status = State::RUNNING;
             const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
+
+            const std::string appui = !browser.empty() ? browser : GempyreUtils::osBrowser();
+
 #ifndef ANDROID_OS
-            gempyre_utils_assert_x(!browser.empty() || !GempyreUtils::osBrowser().empty(), "I have no idea what browser should be spawned, please use other constructor");
+            gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
-            const auto cmdLine = (browser.empty() ? GempyreUtils::osBrowser() : browser)
+
+            const auto cmdLine =
             + " " + SERVER_ADDRESS + ":"
             + std::to_string(port) + "/"
             + (appPage.empty() ? "index.html" : appPage)

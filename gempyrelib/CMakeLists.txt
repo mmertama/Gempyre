@@ -248,6 +248,7 @@ if(NOT ZLIB_H)
     set(ZLIB_H ${ZLIB_DIR}/src/zlib)
 endif()
 
+
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
 	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
