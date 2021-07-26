@@ -217,9 +217,11 @@ namespace Gempyre {
         ///Access an UI extension
         void extensionCall(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
         ///Access an UI extension
-        void extensionApply(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
-        ///Access an UI extension
-        std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        [[nodiscard]] std::optional<std::any> extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+
+        [[deprecated ("use extensionGet or extensionCall instead")]] std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+
+
         ///Get a compiled in resource string.
         [[nodiscard]] std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
         ///Add a file data into Gempyre to be accessed via url
@@ -235,7 +237,7 @@ namespace Gempyre {
         ///Tells if timers are on hold.
         [[nodiscard]] bool isHold() const {return m_hold;}
         ///Get an native UI device pixel ratio.
-        std::optional<double> devicePixelRatio() const;
+        [[nodiscard]] std::optional<double> devicePixelRatio() const;
         ///Set application icon
         void setApplicationIcon(const uint8_t* data, size_t dataLen);
     private:
