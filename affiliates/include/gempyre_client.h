@@ -47,7 +47,7 @@ public:
                                   const std::string& root = "",
                                   const Filter& filters = {}) {
         const auto f = makeFilters(filters);
-        const auto out = m_this.extension("openFile", {{"caption", caption}, {"dir", root}, {"filter", f}});
+        const auto out = m_this.extensionGet("openFile", {{"caption", caption}, {"dir", root}, {"filter", f}});
         if(out.has_value()) {
             const auto filename = std::any_cast<std::string>(*out);
             return filename;
@@ -67,7 +67,7 @@ public:
                                   const std::string& root = "",
                                   const Filter& filters = {}) {
         const auto f = makeFilters(filters);
-        const auto out = m_this.extension("openFiles", {{"caption", caption}, {"dir", root}, {"filter", f}});
+        const auto out = m_this.extensionGet("openFiles", {{"caption", caption}, {"dir", root}, {"filter", f}});
         if(out.has_value()) {
             const auto vec = std::any_cast<std::vector<std::any>>(*out);
             std::vector<std::string> files;
@@ -85,7 +85,7 @@ public:
      */
     std::optional<std::string> openDirDialog(const std::string& caption = "",
                                    const std::string& root = "") {
-      const auto out = m_this.extension("openDir", {{"caption", caption}, {"dir", root}});
+      const auto out = m_this.extensionGet("openDir", {{"caption", caption}, {"dir", root}});
       if(out.has_value()) {
           const auto filename = std::any_cast<std::string>(*out);
           return filename;
@@ -105,7 +105,7 @@ public:
                                       const std::string& root = "",
                                       const Filter& filters = {}) {
         const auto f = makeFilters(filters);
-        const auto out = m_this.extension("saveFile", {{"caption", caption}, {"dir", root}, {"filter", f}});
+        const auto out = m_this.extensionGet("saveFile", {{"caption", caption}, {"dir", root}, {"filter", f}});
         if(out.has_value()) {
             const auto filename = std::any_cast<std::string>(*out);
             return filename;

@@ -9,9 +9,9 @@ gempyre.h contains core functionality, everything that is needed for basic appli
 
 There are two classes: The Ui creates a Ui framework, and Element represents visual on screen. Basically flow is
 create Ui -&amp;gt; intialize elements -&amp;gt; start event loop. There are several type of constructor - Ui::Filemap are using
-compile time encoded files. File are added using `addResource` CMake function:
+compile time encoded files. File are added using `gempyre_add_resources` CMake function:
 ```
-addResource(  
+gempyre_add_resources(  
 PROJECT <PROJECT_NAME>  
 TARGET <GENERATED_HEADER>  
 SOURCES <LIST-OF-ENCODED_FILES>)  

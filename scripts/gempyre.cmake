@@ -1,4 +1,4 @@
-function (addResource)
+function (gempyre_add_resources)
     cmake_parse_arguments(
         ADD_RESOURCE
         "MINIFY" "TARGET;PROJECT" "SOURCES"

@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.16)
 set(NAME framerate)
 project (${NAME}test)
 
-include(../../scripts/addResource.cmake)
+include(../../scripts/gempyre.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -25,7 +25,7 @@ add_executable(${PROJECT_NAME}
 
 add_dependencies (${PROJECT_NAME} gempyre)
 
-addResource(PROJECT ${PROJECT_NAME}
+gempyre_add_resources(PROJECT ${PROJECT_NAME}
     TARGET include/${NAME}_resource.h
     SOURCES gui/${NAME}.html gui/flakes.png)
 

@@ -49,7 +49,7 @@ public:
     void put(int x, int y, dataT pixel) {
         data()[x + y * width] = pixel;
     }
-    dataT get(int x, int y) const {
+    [[nodiscard]] dataT get(int x, int y) const {
         return data()[x + y * width];
     }
     const int width;
@@ -93,7 +93,7 @@ public:
     CanvasElement& operator=(const CanvasElement& other) = default;
     CanvasElement& operator=(CanvasElement&& other) = default;
 
-    CanvasDataPtr makeCanvas(int width, int height);
+    [[nodiscard]] CanvasDataPtr makeCanvas(int width, int height);
     std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
     std::vector<std::string> addImages(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
     void paintImage(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
@@ -103,7 +103,7 @@ public:
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
     void drawCompleted(const DrawCallback& drawCompletedCallback);
     void erase(bool resized = false) const;
-    bool hasCanvas() const {
+    [[nodiscard]] bool hasCanvas() const {
         return !!m_tile;
     }
 private:
@@ -118,26 +118,26 @@ private:
 
 namespace  Color {
 using type = Gempyre::Data::dataT;
-static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {
+[[nodiscard]] static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {
     return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
 }
-static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
+[[nodiscard]] static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
     return r | (g << 8) | (b << 16) | (a << 24);
 }
-static constexpr inline type r(type pixel) {
+[[nodiscard]] static constexpr inline type r(type pixel) {
     return pixel & static_cast<type>(0xFF);
 }
-static constexpr inline type g(type pixel) {
+[[nodiscard]] static constexpr inline type g(type pixel) {
     return (pixel & static_cast<type>(0xFF00)) >> 8;
 }
-static constexpr inline type b(type pixel) {
+[[nodiscard]] static constexpr inline type b(type pixel) {
     return (pixel & static_cast<type>(0xFF0000)) >> 16;
 }
-static constexpr inline type alpha(type pixel) {
+[[nodiscard]] static constexpr inline type alpha(type pixel) {
     return (pixel & static_cast<type>(0xFF000000)) >> 24;
 }
 
-static inline std::string rgba(type pixel) {
+[[nodiscard]] static inline std::string rgba(type pixel) {
     constexpr auto c = "0123456789ABCDEF";
     std::string v("#RRGGBBAA");
     v[1] =  c[r(pixel) >> 4];
@@ -151,7 +151,7 @@ static inline std::string rgba(type pixel) {
     return v;
 }
 
-static inline std::string rgb(type pixel) {
+[[nodiscard]] static inline std::string rgb(type pixel) {
     constexpr auto c = "0123456789ABCDEF";
     std::string v("#RRGGBB");
     v[1] =  c[r(pixel) >> 4];
@@ -193,10 +193,10 @@ public:
         const auto c = m_canvas->get(x, y);
         m_canvas->put(x, y, pix(Color::r(c), Color::g(c), Color::b(c), alpha));
     }
-    int width() const {
+    [[nodiscard]] int width() const {
         return m_canvas->width;
     }
-    int height() const {
+    [[nodiscard]] int height() const {
         return m_canvas->height;
     }
     void drawRect(const Element::Rect& rect, Color::type color);
@@ -205,7 +205,7 @@ public:
         m_canvas.swap(other.m_canvas);
     }
     void update();
-    CanvasDataPtr ptr() {
+    [[nodiscard]] CanvasDataPtr ptr() {
         return m_canvas;
     }
 
@@ -257,7 +257,7 @@ public:
     FrameComposer drawImage(const std::string& id, const Gempyre::Element::Rect& rect)  {return push({"drawImageRect", id, rect.x, rect.y, rect.width, rect.height});}
     FrameComposer drawImage(const std::string& id, const Gempyre::Element::Rect& clip, const Gempyre::Element::Rect& rect) {return push({"drawImageClip", id, clip.x, clip.y, clip.width, clip.height, rect.x, rect.y, rect.width, rect.height});}
     FrameComposer textBaseline(const std::string& textBaseline) {return push({"textBaseline", textBaseline});}
-    const Gempyre::CanvasElement::CommandList& composed() const {return m_composition;}
+    [[nodiscard]] const Gempyre::CanvasElement::CommandList& composed() const {return m_composition;}
 private:
     FrameComposer push(const std::initializer_list<Gempyre::CanvasElement::Command>& list) {m_composition.insert(m_composition.end(), list); return *this;}
     Gempyre::CanvasElement::CommandList m_composition;
