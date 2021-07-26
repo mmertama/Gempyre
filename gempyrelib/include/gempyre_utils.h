@@ -416,8 +416,7 @@ template<class ...NAME>
 std::string pushPath(const std::string& path, const std::string& name, NAME...names) {
     return pushPath(pushPath(path, name), names...);
 }
-///execute a prog
-UTILS_EX int execute(const std::string& prog, const std::string& parameters);
+UTILS_EX int execute(const std::string& prog);
 
 template <class T>
 std::string writeToTemp(const T& data) {

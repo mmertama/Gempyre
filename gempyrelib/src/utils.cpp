@@ -496,17 +496,15 @@ bool GempyreUtils::fileExists(const std::string& filename) {
 
 
 std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
-    std::vector<std::string> entries;
-    if(dirname.empty())
-        return entries;
+
     const auto dname = dirname.back() != '/' ? dirname + '/' : dirname;
+    std::vector<std::string> entries;
 #ifndef WINDOWS_OS
     auto dir = ::opendir(dname.c_str());
     if(!dir)
         return entries;
     while(auto dirEntry = readdir(dir)) {
-        if(strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
-            entries.push_back({dirEntry->d_name});
+        entries.push_back({dirEntry->d_name});
     }
 #else
         const auto searchPath = dirname + "/*.*";
@@ -986,3 +984,19 @@ std::vector<unsigned char> GempyreUtils::base64Decode(const std::string_view& da
     return Base64::decode(data);
 }
 
+std::string GempyreUtils::pushPath(const std::string& path, const std::string& name) {
+#ifdef OS_WIN
+    return path + '\\' + name;
+ #else
+    return path + '/' + name;
+#endif
+}
+
+int GempyreUtils::execute(const std::string& exe) {
+    return
+#if defined(WINDOWS_OS)
+            std::system(exe.c_str());
+#else
+            std::system((exe + "&").c_str());
+#endif
+}

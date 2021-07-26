@@ -291,14 +291,11 @@ m_filemap(normalizeNames(filemap)) {
             + std::to_string(port) + "/"
             + (appPage.empty() ? "index.html" : appPage)
             + " " + extraParams;
-
+            const auto result =
 #if defined (ANDROID_OS)
-            const auto result = androidLoadUi(appui + " " + cmd_params);
+            androidLoadUi(cmdLine);
 #else
-
-            const auto result = is_exec ?
-                        GempyreUtils::execute(appui, cmd_params) : GempyreUtils::execute("", appui + " " +  cmd_params);
-
+            GempyreUtils::execute(cmdLine);
 #endif
             if(result != 0) {
                 //TODO: Change to Fatal
