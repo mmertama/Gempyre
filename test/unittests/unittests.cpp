@@ -125,7 +125,8 @@ TEST(Unittests, test_timermgr) {
     const auto id3 = mgr.append(1s, true, foo, bar);
     counts[id3] = 0;
 
-    int* to_stop;
+    int b;
+    int* to_stop = &b;
     const auto id4 = mgr.append(140ms, false, [&](int id) {
         foo(id);
         if(counts[id] == 12 && id == *to_stop) {
@@ -133,7 +134,7 @@ TEST(Unittests, test_timermgr) {
         }
     }, bar);
     counts[id4] = 0;
-    *to_stop = id4;
+    b = id4;
 
     std::this_thread::sleep_for(5s);
 
@@ -148,6 +149,34 @@ TEST(Unittests, test_timermgr) {
 
     EXPECT_EQ(counts[id3], 1);
     EXPECT_EQ(counts[id4], 12);
+}
+
+TEST(Unittests, test_pushpath) {
+    auto p = GempyreUtils::pushPath("cat", "dog");
+#ifdef WIN_OS
+     EXPECT_EQ(p, std::string("cat\\dog"));
+#else
+     EXPECT_EQ(p, std::string("cat/dog"));
+#endif
+      p = GempyreUtils::pushPath(p, "mouse");
+#ifdef WIN_OS
+     EXPECT_EQ(p, std::string("cat\\dog\\mouse"));
+#else
+     EXPECT_EQ(p, std::string("cat/dog/mouse"));
+#endif
+      p = GempyreUtils::pushPath(p, "");
+#ifdef WIN_OS
+     EXPECT_EQ(p, std::string("cat\\dog\\mouse\\"));
+#else
+     EXPECT_EQ(p, std::string("cat/dog/mouse/"));
+#endif
+
+    p = GempyreUtils::pushPath("cat", "dog", "mouse");
+ #ifdef WIN_OS
+      EXPECT_EQ(p, std::string("cat\\dog\\mouse"));
+ #else
+      EXPECT_EQ(p, std::string("cat/dog/mouse"));
+#endif
 }
 
 int main(int argc, char **argv) {
