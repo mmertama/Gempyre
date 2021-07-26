@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
             const auto dirlist = GempyreUtils::directory(*out);
             std::string line;
             for(const auto& d : dirlist) {
-                line += std::get<0>(d) +"</br>";
+                line += d +"</br>";
             }
             content.setHTML(line);
         }

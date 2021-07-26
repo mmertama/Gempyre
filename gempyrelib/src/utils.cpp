@@ -457,22 +457,16 @@ bool GempyreUtils::fileExists(const std::string& filename) {
 }
 
 
-std::vector<std::tuple<std::string, bool, std::string>> GempyreUtils::directory(const std::string& dirname) {
+std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
 
     const auto dname = dirname.back() != '/' ? dirname + '/' : dirname;
-    std::vector<std::tuple<std::string, bool, std::string>> entries;
+    std::vector<std::string> entries;
 #ifndef WINDOWS_OS
     auto dir = ::opendir(dname.c_str());
     if(!dir)
         return entries;
     while(auto dirEntry = readdir(dir)) {
-        if(dirEntry->d_type == DT_LNK) {
-            const auto fullname = dname + dirEntry->d_name;
-            const auto linked = GempyreUtils::getLink(fullname);
-            const auto fulllink = dname + linked;
-            entries.push_back({dirEntry->d_name, GempyreUtils::isDir(fulllink), fulllink});
-        } else
-            entries.push_back({dirEntry->d_name, dirEntry->d_type == DT_DIR, ""});
+        entries.push_back({dirEntry->d_name});
     }
 #else
         const auto searchPath = dirname + "/*.*";
@@ -480,8 +474,7 @@ std::vector<std::tuple<std::string, bool, std::string>> GempyreUtils::directory(
         HANDLE hFind = ::FindFirstFile(searchPath.c_str(), &fd);
         if(hFind != INVALID_HANDLE_VALUE) {
             do {
-                const auto isDir = fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
-                entries.push_back({fd.cFileName, isDir, ""});
+                entries.push_back({fd.cFileName});
             } while(::FindNextFile(hFind, &fd));
             ::FindClose(hFind);
         }
@@ -496,6 +489,10 @@ bool GempyreUtils::isDir(const std::string& path) {
    if (::stat(path.c_str(), &statbuf) != 0)
        return 0;
    return S_ISDIR(statbuf.st_mode);
+}
+#else
+bool GempyreUtils::isDir(const std::string& path) {
+    return PathIsDirectory(path.c_str());
 }
 #endif
 
@@ -701,9 +698,7 @@ std::string GempyreUtils::which(const std::string& filename) {
     ':');
 #endif
     for(const auto& d : path) {
-        for(const auto& [name, isdir, link] : directory(d)) {
-            (void) isdir;
-            (void) link;
+        for(const auto& name  : directory(d)) {
             const auto longName = d + "/" + name;
             if(!isExecutable(longName))
                 continue;
@@ -951,3 +946,19 @@ std::vector<unsigned char> GempyreUtils::base64Decode(const std::string_view& da
     return Base64::decode(data);
 }
 
+std::string GempyreUtils::pushPath(const std::string& path, const std::string& name) {
+#ifdef OS_WIN
+    return path + '\\' + name;
+ #else
+    return path + '/' + name;
+#endif
+}
+
+int GempyreUtils::execute(const std::string& exe) {
+    return
+#if defined(WINDOWS_OS)
+            std::system(exe.c_str());
+#else
+            std::system((exe + "&").c_str());
+#endif
+}
