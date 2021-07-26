@@ -24,15 +24,13 @@ Gempyre API has few headers
 * [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive and games.
 * gempyre_client.h, provides file dialogs when started using client application. 
 
-How to build on Linux
+How to build on Linux and MacOS
 * Run git clone https://github.com/mmertama/Gempyre.git.
-* cmake CMakeLists.txt
-* make 
-
-How to build on MacOS
-* Run git clone https://github.com/mmertama/Gempyre.git .
-* cmake CMakeLists.txt
-* make
+* md build
+* cd build
+* cmake ..
+* cmake --build .
+* sudo cmake --install .
 
 How to build on Windows 10
 * Install git bash from https://gitforwindows.org/

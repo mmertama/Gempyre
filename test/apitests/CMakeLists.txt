@@ -21,7 +21,7 @@ add_executable(${PROJECT_NAME}
 gtest_discover_tests(${PROJECT_NAME})
 
 # add HTML into resources
-addResource(PROJECT ${PROJECT_NAME}
+gempyre_add_resources(PROJECT ${PROJECT_NAME}
     TARGET include/${PROJECT_NAME}_resource.h
     SOURCES gui/${PROJECT_NAME}.html)
 

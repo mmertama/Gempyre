@@ -7,7 +7,7 @@ include(GNUInstallDirs)
 include(ExternalProject)
 include(FetchContent)
 include(GenerateExportHeader)
-include(../scripts/addResource.cmake)
+include(../scripts/gempyre.cmake)
 
 set(CMAKE_DEBUG_POSTFIX "d")
 
@@ -378,7 +378,7 @@ else()
     set(JSMIN "")
 endif()
 
-addResource(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js)
 
 add_dependencies(${PROJECT_NAME} libwebsockets)
 add_dependencies(${PROJECT_NAME} libjson)
@@ -516,7 +516,7 @@ else()
        ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
        ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
        ${CMAKE_SOURCE_DIR}/scripts/genStringResource.py
-       ${CMAKE_SOURCE_DIR}/scripts/addResource.cmake
+       ${CMAKE_SOURCE_DIR}/scripts/gempyre.cmake
        DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
        )
 

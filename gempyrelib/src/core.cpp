@@ -728,7 +728,7 @@ std::optional<Element::Elements> Ui::byName(const std::string& className) const 
     return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
-void Ui::extensionApply(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+void Ui::extensionCall(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
     const auto json = GempyreUtils::toJsonString(parameters);
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
     addRequest([this, callId, json]() {
@@ -741,8 +741,11 @@ void Ui::extensionApply(const std::string& callId, const std::unordered_map<std:
     });
 }
 
+std::optional<std::any> Ui::extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+    return extensionGet(callId, parameters);
+}
 
-std::optional<std::any> Ui::extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
+std::optional<std::any> Ui::extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
     if(m_status != State::RUNNING) {
         return std::nullopt;
     }
@@ -801,6 +804,6 @@ std::optional<double> Ui::devicePixelRatio() const {
 }
 
 void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen) {
-    extensionApply("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}});
+    extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}});
 }
 

@@ -19,7 +19,7 @@ add_executable(${PROJECT_NAME}
     )
 
 add_dependencies (${PROJECT_NAME} gempyre)
-addResource(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html gui/favicon.ico)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html gui/favicon.ico)
 
 target_link_libraries (${PROJECT_NAME} PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
 

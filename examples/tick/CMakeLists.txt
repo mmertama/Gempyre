@@ -18,7 +18,7 @@ add_executable(${PROJECT_NAME}
     gui/${NAME}.html
     )
 
-addResource(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html)
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 target_link_libraries (${PROJECT_NAME} PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
