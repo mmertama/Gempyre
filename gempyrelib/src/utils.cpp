@@ -232,7 +232,13 @@ GempyreUtils::LogLevel GempyreUtils::logLevel() {
     return g_serverLogLevel;
 }
 
-Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
+UTILS_EX std::variant<Params, int> GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
+    const char** a = (const char**) argv;
+    return parseArgs(argc, a, args);
+}
+
+
+Params GempyreUtils::parseArgs(int argc, const char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
 #ifndef WINDOWS_OS
     /*
      * The variable optind is the index of the next element to be processed in argv.
@@ -504,7 +510,8 @@ std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
     if(!dir)
         return entries;
     while(auto dirEntry = readdir(dir)) {
-        entries.push_back({dirEntry->d_name});
+        if(strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
+            entries.push_back({dirEntry->d_name});
     }
 #else
         const auto searchPath = dirname + "/*.*";
@@ -999,4 +1006,8 @@ int GempyreUtils::execute(const std::string& exe) {
 #else
             std::system((exe + "&").c_str());
 #endif
+}
+
+std::string GempyreUtils::trimmed(const std::string& s) {
+    return substitute(s, R"(\s+)", std::string{});
 }

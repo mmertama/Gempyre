@@ -16,10 +16,12 @@
 
 int main(int argc, char* argv[]) {
     Gempyre::setDebug();
-    const auto plist = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
+    const auto plist = GempyreUtils::parseArgs(argc, (const char**) argv, {});
+    gempyre_utils_assert_x(!std::get<GempyreUtils::ParamList>(plist).empty(), "expected path to affiliates");
+    const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
 
     Gempyre::Ui ui(Affiliates_test_resourceh,
-                 "affiliates_test.html", py, "500 640 \"Test Affiliates\"");
+                 "affiliates_test.html", py, Gempyre::Ui::stdParams(500, 640, "Test Affiliates"));
 
     Gempyre::Element content(ui, "content");
     Gempyre::Element openFile(ui, "open_file");

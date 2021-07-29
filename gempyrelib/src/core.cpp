@@ -61,17 +61,13 @@ std::tuple<int, int, int> Gempyre::version() {
     return {GempyreUtils::to<int>(c[0]), GempyreUtils::to<int>(c[1]), GempyreUtils::to<int>(c[2])};
 }
 
-
-static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, char** argv) {
+static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, const char** argv) {
     const auto& [params, opt] = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
     const auto it = opt.find("gempyre-app");
     if(it != opt.end()) {
         const auto& [_, app] = *it;
-        const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + argc, " ");
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gempyre-app", app, "params:", GempyreUtils::join(argv, argv + argc, ", "));
-        return std::make_optional(std::make_tuple(app, reconstructed_list)); 
-    } else {
-        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "No gempyre-app switch found", GempyreUtils::join(argv, argv + argc, ", "));
+        const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + 1, " ");
+        return std::make_optional(std::make_tuple(app, reconstructed_list));
     }
     return std::nullopt;
 }
@@ -135,28 +131,12 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port
 Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser, extraParams, port, root) {}
 
-Ui::Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser,
-       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams), port, root) {}
-
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, const char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml,
-       gempyreAppParams(argc, argv).has_value() ?
-           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
-       extraParams + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
+       std::get<0>(*gempyreAppParams(argc, argv)),
+       extraParams + ' ' + std::get<1>(*gempyreAppParams(argc, argv)),
        port, root) {}
 
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(filemap, indexHtml,
-       gempyreAppParams(argc, argv).has_value() ?
-           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
-       (stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams)) + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
-       port, root) {}
-
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(filemap, indexHtml, browser,
-       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams),
-       port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     m_eventqueue(std::make_unique<EventQueue<std::tuple<std::string, std::string, std::unordered_map<std::string, std::any>>>>()),
@@ -291,6 +271,7 @@ m_filemap(normalizeNames(filemap)) {
             + std::to_string(port) + "/"
             + (appPage.empty() ? "index.html" : appPage)
             + " " + extraParams;
+
             const auto result =
 #if defined (ANDROID_OS)
             androidLoadUi(cmdLine);
@@ -298,8 +279,7 @@ m_filemap(normalizeNames(filemap)) {
             GempyreUtils::execute(cmdLine);
 #endif
             if(result != 0) {
-                //TODO: Change to Fatal
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot open:", appui, cmd_params, "error:", result, GempyreUtils::lastError());
+                GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Cannot open:", cmdLine, result);
             } else {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening:", appui, cmd_params);
             }
@@ -839,5 +819,28 @@ std::optional<double> Ui::devicePixelRatio() const {
 
 void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen) {
     extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}});
+}
+
+std::string Ui::stdParams(int width, int height, const std::string& title) {
+    std::stringstream ss;
+    ss << " --gempyre-width=" << width << " --gempyre-height=" << height << " --gempyre-title=\"" << title << " \""; // circle with spaces
+    return ss.str();
+}
+
+std::optional<std::string> Ui::addFile(Gempyre::Ui::Filemap& map, const std::string& file) {
+    if(!GempyreUtils::fileExists(file)) {
+        return std::nullopt;
+    }
+    auto url = GempyreUtils::substitute(file, R"([\/\\])", "_");
+    if(map.find(url) != map.end()) {
+        return std::nullopt;
+    }
+
+    url.insert(url.begin(), '/');
+
+    const auto data = GempyreUtils::slurp<Base64::Byte>(file);
+    const auto string = Base64::encode(data);
+    map.insert_or_assign(url, std::move(string));
+    return url;
 }
 

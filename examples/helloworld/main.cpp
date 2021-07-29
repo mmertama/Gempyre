@@ -9,31 +9,20 @@ const unsigned short DefaultPort = 8080;
 
 int main(int argc, char** argv) {
     Gempyre::setDebug();
-    const auto p = GempyreUtils::parseArgs(argc, argv, {{"port", 'p', GempyreUtils::ArgType::REQ_ARG}});
-
-    std::function<std::unique_ptr<Gempyre::Ui> ()> makeUi = nullptr;
-
+    const auto p = GempyreUtils::parseArgs(argc, (const char**) argv, {{"port", 'p', GempyreUtils::ArgType::REQ_ARG}});
     if(std::get<GempyreUtils::ParamList>(p).size() < 1) {
-        makeUi = [&]() {
-            return std::make_unique<Gempyre::Ui>(Html_resourceh, "index.html", argc, argv);
-        };
-
-    } else {
-        makeUi = [&]() {
-            const auto indexPath = std::get<GempyreUtils::ParamList>(p)[0];
-            Gempyre::Ui::Filemap map;
-            const auto url = Gempyre::Ui::addFile(map, indexPath);
-            gempyre_utils_assert_x(url, "Not Found:" + indexPath);
-            return std::make_unique<Gempyre::Ui>(map, *url, argc, argv, "",
-                         GempyreUtils::to<unsigned short>(GempyreUtils::atOr(std::get<GempyreUtils::Options>(p), "port", std::to_string(DefaultPort))),
-                         GempyreUtils::pathPop(indexPath)); //root directory;
-        };
+        std::cerr << "[path to INDEX.HTML] <-p value>" << std::endl;
+        return -1;
     }
-
-    auto ui = makeUi();
-
-    Gempyre::Element text(*ui, "content");
-    Gempyre::Element button(*ui, "startbutton");
+    const auto indexPath = std::get<GempyreUtils::ParamList>(p)[0];
+    Gempyre::Ui::Filemap map;
+    const auto url = Gempyre::Ui::addFile(map, indexPath);
+    gempyre_utils_assert_x(url, "Not Found:" + indexPath);
+    Gempyre::Ui ui(map, *url,
+                 GempyreUtils::to<unsigned short>(GempyreUtils::atOr(std::get<GempyreUtils::Options>(p), "port", std::to_string(DefaultPort))),
+                 GempyreUtils::pathPop(indexPath)); //root directory;
+    Gempyre::Element text(ui, "content");
+    Gempyre::Element button(ui, "startbutton");
     button.setHTML("Hello?");
     button.subscribe("click", [&ui, &text](auto) {
         text.setHTML("Hello World!");

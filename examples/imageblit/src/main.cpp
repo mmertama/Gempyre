@@ -31,7 +31,7 @@ void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el
 
 int main(int argc, char** argv) {
    // Gempyre::setDebug();
-    const auto args = GempyreUtils::parseArgs(argc, argv, {{"resources", 'r', GempyreUtils::ArgType::REQ_ARG}});
+    const auto args = GempyreUtils::parseArgs(argc, (const char**) argv, {{"resources", 'r', GempyreUtils::ArgType::REQ_ARG}});
     const auto options = std::get<GempyreUtils::Options>(args);
     const auto it = options.find("resources");
     const auto root = (it != options.end()) ? (it->second + "/") : std::string("");

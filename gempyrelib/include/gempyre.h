@@ -131,26 +131,17 @@ namespace Gempyre {
         [[nodiscard]]
         static std::string stdParams(int width, int height, const std::string& title);
 
-        /// load a file
+        [[deprecated]]
         explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// load a file
-
-        explicit Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-
+        [[deprecated]]
         explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-
 
         /// use explicit app as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// use explicit app as UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /// use OS browser as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /// When explicit app  (Hiillos) iniates the UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// When explicit app  (Hiillos) iniates the UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-
+        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, const char** argv, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         ~Ui();
         Ui(const Ui& other) = delete;

@@ -276,7 +276,7 @@ void Server::serverThread(unsigned short port) {
                         m_uiready = true;
                     }
                     if(*f == "extensionready") {
-                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "extensioneady");
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "exteansionready");
                     }
                     if(*f == "extension") {
                         const auto log = jsObj.find("level");
