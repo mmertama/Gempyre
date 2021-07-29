@@ -83,10 +83,16 @@ class Waiter {
 #define TEST_FAIL (assert(false))
 
 TEST(UiTests, openPage_with_page_browser) {
-    const auto htmlPage = TEST_HTML;
+    constexpr auto htmlPage = TEST_HTML;
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
     const auto browser = defaultChrome();
-    Gempyre::Ui ui(htmlPage, defaultChrome(), headlessParams(), 50000);
+
+    Gempyre::Ui::Filemap map;
+    const auto url = Gempyre::Ui::addFile(map, htmlPage);
+
+    gempyre_utils_assert_x(url, std::string("Cannot load ") + htmlPage);
+
+    Gempyre::Ui ui(map, *url, defaultChrome(), headlessParams(), 50000);
     bool ok = false;
     ui.onOpen([&ui, &ok]() {
         ok = true;
@@ -103,9 +109,15 @@ TEST(UiTests, openPage_with_page_browser) {
 
 
 TEST(UiTests, openPage_with_page) {
-    const auto htmlPage = TEST_HTML;
+    constexpr auto htmlPage = TEST_HTML;
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
-    Gempyre::Ui ui(htmlPage, defaultChrome(), headlessParams());
+    const auto browser = defaultChrome();
+
+    Gempyre::Ui::Filemap map;
+    const auto url = Gempyre::Ui::addFile(map, htmlPage);
+
+    gempyre_utils_assert_x(url, std::string("Cannot load ") + htmlPage);
+    Gempyre::Ui ui(map, *url, defaultChrome(), headlessParams());
     bool ok = false;
     ui.onOpen([&ui, &ok]() {
         ok = true;

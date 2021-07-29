@@ -37,6 +37,7 @@
 
 #include <stdio.h>
 #include <variant>
+#include <cassert>
 
 
 
@@ -224,8 +225,22 @@ bool GempyreUtils::useSysLog() {
 #endif
 }
 
-std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std::string>>, int> GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
+UTILS_EX std::variant<Params, int> GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
+    const char** a = (const char**) argv;
+    return parseArgs(argc, a, args);
+}
+
+
+Params GempyreUtils::parseArgs(int argc, const char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
 #ifndef WINDOWS_OS
+    /*
+     * The variable optind is the index of the next element to be processed in argv.
+     * The system initializes this value to 1. The caller can reset it to 1 to restart scanning of the same argv,
+     *  or when scanning a new argument vector.
+    */
+    optind = 1;
+    optarg = nullptr;
+    opterr = 0;
     auto longOptionsPtr = std::make_unique<::option[]>(args.size() + 1);
     ::option* longOptions = longOptionsPtr.get();
     int argi = 0;
@@ -257,18 +272,25 @@ std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std
     std::multimap<std::string, std::string> options;
 
     for(;;) {
-        auto opt = getopt_long(argc, argv, plist.c_str(),
+        const char opt = getopt_long(argc, const_cast<char**>(argv), plist.c_str(),
                             longOptions, nullptr);
         if(opt < 0)
             break;
 
         if(opt == '?') {
-            return ParsedParameters(optind);
+            log(LogLevel::Warning, "Unknown argument");
+            continue; // this is unknow argument, we just ignore it
+        }
+
+        if(opt == ':') {
+            log(LogLevel::Error, "Argument value is missing");
+            continue;
         }
 
         const auto index = std::find_if(longOptions, longOptions + args.size(), [opt](const ::option& o){return o.val == opt;});
 
-        options.emplace(longOptions[std::distance(longOptions, index)].name, optarg ? optarg : "");
+        const std::string opt_value{optarg ? trimmed(optarg) : std::string{}};
+        options.emplace(longOptions[std::distance(longOptions, index)].name, opt_value);
     }
 
     std::vector<std::string> params;
@@ -348,7 +370,7 @@ std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std
 
     }
 #endif
-    return ParsedParameters(std::make_tuple(options, params));
+    return std::make_tuple(params, options);
 }
 
 std::string GempyreUtils::absPath(const std::string& rpath) {
@@ -466,7 +488,8 @@ std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
     if(!dir)
         return entries;
     while(auto dirEntry = readdir(dir)) {
-        entries.push_back({dirEntry->d_name});
+        if(strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
+            entries.push_back({dirEntry->d_name});
     }
 #else
         const auto searchPath = dirname + "/*.*";
@@ -961,4 +984,8 @@ int GempyreUtils::execute(const std::string& exe) {
 #else
             std::system((exe + "&").c_str());
 #endif
+}
+
+std::string GempyreUtils::trimmed(const std::string& s) {
+    return substitute(s, R"(\s+)", std::string{});
 }

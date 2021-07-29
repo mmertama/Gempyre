@@ -128,11 +128,21 @@ namespace Gempyre {
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr char UseDefaultRoot[] = "";   //zero means default root
+        [[nodiscard]]
+        static std::string stdParams(int width, int height, const std::string& title);
 
+        [[deprecated]]
         explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        [[deprecated]]
         explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
+        /// use explicit app as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /// use OS browser as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /// When explicit app  (Hiillos) iniates the UI
+        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, const char** argv, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
         ~Ui();
         Ui(const Ui& other) = delete;
         Ui(Ui&& other) = delete;
@@ -207,6 +217,8 @@ namespace Gempyre {
         [[nodiscard]] std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
         ///Add a file data into Gempyre to be accessed via url
         bool addFile(const std::string& url, const std::string& file);
+        ///Add file data into map to be added as a map
+        static std::optional<std::string> addFile(Filemap& map, const std::string& filename);
         ///Starts an UI write batch, no messages are sent to USER until endBatch
         void beginBatch();
         ///Ends an UI read batch, push all stored messages at once.
