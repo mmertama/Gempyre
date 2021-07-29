@@ -71,9 +71,13 @@ private:
 enum class ArgType{NO_ARG, REQ_ARG, OPT_ARG};
 using ParamList = std::vector<std::string>;
 using Options = std::multimap<std::string, std::string>;
-using Params = std::tuple<Options, ParamList>;
+using Params = std::tuple<ParamList, Options>;
+UTILS_EX Params parseArgs(int argc, const char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
+// deprecated
 using ParsedParameters = std::variant<Params, int>;
+[[deprecated]]
 UTILS_EX ParsedParameters parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
+
 
 /**
  * @brief The LogLevel enum
@@ -92,6 +96,8 @@ UTILS_EX std::string chop(const std::string& s);
 UTILS_EX std::string chop(const std::string& s, const std::string& chopped);
 
 UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
+
+UTILS_EX std::string trimmed(const std::string& s);
 
 template <typename T>
 T to(const std::string& source) {
@@ -204,6 +210,26 @@ std::string join(const T& t,
                  const std::string joinChar = "",
                  const std::function<Out (const In&)>& f = [](const In& v)->Out{return v;}) {
     return join(t.begin(), t.end(), joinChar, f);
+}
+
+template <class IT, typename In=typename std::remove_pointer<IT>::type,
+          typename Out=typename std::remove_pointer<IT>::type,
+          typename = std::enable_if_t<std::is_pointer<IT>::value>>
+std::string join(const IT begin,
+                 const IT end,
+                 const std::string joinChar = "",
+                 const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
+    std::string s;
+    std::ostringstream iss(s);
+    if(begin != end) {
+        for(auto it = begin;;) {
+            iss << f(*it);
+            if(!(++it != end)) break;
+            if(!joinChar.empty())
+                iss << joinChar;
+        }
+    }
+    return iss.str();
 }
 
 
@@ -376,6 +402,7 @@ template<class ...NAME>
 std::string pushPath(const std::string& path, const std::string& name, NAME...names) {
     return pushPath(pushPath(path, name), names...);
 }
+///execute a prog
 UTILS_EX int execute(const std::string& prog);
 
 template <class T>

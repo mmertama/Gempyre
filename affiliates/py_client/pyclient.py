@@ -160,3 +160,40 @@ def main():
     
 if __name__ == "__main__":
     main()
+
+'''
+someday to this:
+parser = argparse.ArgumentParser()
+parser.add_argument("--gempyre-url", type=str)
+parser.add_argument("--gempyre-width", type=int)
+parser.add_argument("--gempyre-height", type=int)
+parser.add_argument("--gempyre-title", type=str)
+parser.add_argument("--gempyre-extra", type=str)
+args = parser.parse_args()
+
+if not args.gempyre_url:
+    parser.error(-1)
+
+extra = {}
+uri = None
+
+try:
+    if args.gempyre_width:
+        width = int(args.gempyre_width)
+
+    if args.gempyre_height:
+        width = int(args.gempyre_height)
+
+    if args.gempyre_title:
+       title = args.gempyre_title
+
+    if sys.platform == 'win32':
+        extra['gui'] = 'cef'
+
+    if args.gempyre_extra:
+        print(args.gempyre_extra)
+        for e in args.gempyre_extra.split(';'):
+            m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
+            extra[m[1]] = m[2]
+
+'''

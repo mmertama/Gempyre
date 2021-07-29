@@ -179,6 +179,138 @@ TEST(Unittests, test_pushpath) {
 #endif
 }
 
+TEST(Unittests, test_parseArgs) {
+    const char* test1[] = {"bing", 0};
+    const auto& [p1, o1]  = GempyreUtils::parseArgs(1, test1, {});
+    EXPECT_TRUE(p1.empty());
+    EXPECT_TRUE(o1.empty());
+
+    const char* test2[] = {"bing", "bang", 0};
+    const auto& [p2, o2]  = GempyreUtils::parseArgs(2, test2, {});
+    ASSERT_EQ(p2.size(), 1);
+    EXPECT_EQ(p2[0] , std::string("bang"));
+    EXPECT_TRUE(o2.empty());
+
+    const char* test3[] = {"bing", "bang", "bong", 0};
+    const auto& [p3, o3]  = GempyreUtils::parseArgs(3, test3, {});
+    ASSERT_EQ(p3.size(), 2);
+    EXPECT_EQ(p3.at(0) , std::string("bang"));
+    EXPECT_EQ(p3.at(1) , std::string("bong"));
+    EXPECT_TRUE(o3.empty());
+
+    const char* test4[] = {"bing", "-a", 0};
+    const auto& [p4, o4]  = GempyreUtils::parseArgs(2, test4, {});
+    EXPECT_TRUE(p4.empty());
+    EXPECT_TRUE(o4.empty());
+
+    const char* test5[] = {"bing", "-a", 0};
+    const auto& [p5, o5]  = GempyreUtils::parseArgs(2, test5, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
+    EXPECT_TRUE(p5.empty());
+    ASSERT_FALSE(o5.empty());
+    EXPECT_TRUE(o5.find("aaa") != o5.end());
+
+    const char* test6[] = {"bing","-a", 0};
+    const auto& [p6, o6]  = GempyreUtils::parseArgs(2, test6, {{"aaa", 'a', GempyreUtils::ArgType::OPT_ARG}});
+    EXPECT_TRUE(p6.empty());
+    ASSERT_FALSE(o6.empty());
+    EXPECT_TRUE(o6.find("aaa") != o6.end());
+
+    const char* test7[] = {"bing", "-a", 0};
+    const auto& [p7, o7]  = GempyreUtils::parseArgs(2, test7, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_TRUE(p7.empty());
+    EXPECT_TRUE(o7.empty());
+    EXPECT_TRUE(o7.find("aaa") == o7.end());
+
+    const char* test8[] = {"bing", 0};
+    const auto& [p8, o8]  = GempyreUtils::parseArgs(1, test8, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
+    EXPECT_TRUE(p8.empty());
+    EXPECT_TRUE(o8.empty());
+    EXPECT_TRUE(o8.find("aaa") == o8.end());
+
+    const char* test9[] = {"bing", 0};
+    const auto& [p9, o9]  = GempyreUtils::parseArgs(1, test9, {{"aaa", 'a', GempyreUtils::ArgType::OPT_ARG}});
+    EXPECT_TRUE(p9.empty());
+    EXPECT_TRUE(o9.empty());
+    EXPECT_TRUE(o9.find("aaa") == o9.end());
+
+    const char* test10[] = {"bing", 0};
+    const auto& [p10, o10]  = GempyreUtils::parseArgs(1, test10, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
+    EXPECT_TRUE(p10.empty());
+    EXPECT_TRUE(o10.empty());
+    EXPECT_TRUE(o10.find("aaa") == o10.end());
+
+
+    const char* test11[] = {"bing", "--aaa", 0};
+    const auto& [p11, o11]  = GempyreUtils::parseArgs(2, test11, {{"aaa", 'a', GempyreUtils::ArgType::OPT_ARG}});
+    EXPECT_TRUE(p11.empty());
+    EXPECT_FALSE(o11.empty());
+    EXPECT_TRUE(o11.find("aaa") != o11.end());
+
+    const char* test12[] = {"bing", "--aaa", 0};
+    const auto& [p12, o12]  = GempyreUtils::parseArgs(2, test12, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_TRUE(p12.empty());
+    EXPECT_TRUE(o12.empty());
+    EXPECT_TRUE(o12.find("aaa") == o12.end());
+
+    const char* test13[] = {"bing", "--aaa", 0};
+    const auto& [p13, o13]  = GempyreUtils::parseArgs(2, test13, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
+    EXPECT_TRUE(p13.empty());
+    EXPECT_FALSE(o13.empty());
+    EXPECT_TRUE(o13.find("aaa") != o13.end());
+
+
+    const char* test14[] = {"bing", "-a", "fat", 0};
+    const auto& [p14, o14]  = GempyreUtils::parseArgs(3, test14, {{"aaa", 'a', GempyreUtils::ArgType::OPT_ARG}});
+    EXPECT_FALSE(p14.empty());
+    EXPECT_FALSE(o14.empty());
+    EXPECT_EQ(std::get<1>(*o14.find("aaa")), std::string(""));
+
+    const char* test15[] = {"bing", "-a", "fat", 0};
+    const auto& [p15, o15]  = GempyreUtils::parseArgs(3, test15, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_TRUE(p15.empty());
+    EXPECT_FALSE(o15.empty());
+    EXPECT_EQ(std::get<1>(*o15.find("aaa")), std::string("fat"));
+
+    const char* test16[] = {"bing", "--aaa", "fat", 0};
+    const auto& [p16, o16]  = GempyreUtils::parseArgs(3, test16, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
+    EXPECT_FALSE(p16.empty());
+    EXPECT_FALSE(o16.empty());
+     EXPECT_EQ(std::get<1>(*o16.find("aaa")), std::string(""));
+
+    const char* test17[] = {"bing", "--aaa=fat", 0};
+    const auto& [p17, o17]  = GempyreUtils::parseArgs(2, test17, {{"aaa", 'a', GempyreUtils::ArgType::OPT_ARG}});
+    EXPECT_TRUE(p17.empty());
+    EXPECT_FALSE(o17.empty());
+    EXPECT_EQ(std::get<1>(*o17.find("aaa")), std::string("fat"));
+
+    const char* test18[] = {"bing", "--aaa", "fat", 0};
+    const auto& [p18, o18]  = GempyreUtils::parseArgs(3, test18, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_TRUE(p18.empty());
+    EXPECT_FALSE(o18.empty());
+    EXPECT_EQ(std::get<1>(*o18.find("aaa")), std::string("fat"));
+
+    const char* test19[] = {"bing", "--aaa=fat", 0};
+    const auto& [p19, o19]  = GempyreUtils::parseArgs(2, test19, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_TRUE(p19.empty());
+    EXPECT_FALSE(o19.empty());
+    EXPECT_EQ(std::get<1>(*o19.find("aaa")), std::string("fat"));
+
+    const char* test20[] = {"bing", "--aaa", "fat", 0};
+    const auto& [p20, o20]  = GempyreUtils::parseArgs(3, test20, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
+    EXPECT_FALSE(p20.empty());
+    EXPECT_FALSE(o20.empty());
+    EXPECT_EQ(std::get<1>(*o16.find("aaa")), std::string(""));
+    EXPECT_EQ(p20.at(0), std::string("fat"));
+
+    const char* test21[] = {"bing", "bang", "--aaa=fat", "bong", 0};
+    const auto& [p21, o21]  = GempyreUtils::parseArgs(4, test21, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_FALSE(p21.empty());
+    EXPECT_FALSE(o21.empty());
+    EXPECT_EQ(std::get<1>(*o21.find("aaa")), std::string("fat"));
+    EXPECT_EQ(p21.at(0), std::string("bang"));
+    EXPECT_EQ(p21.at(1), std::string("bong"));
+}
+
 int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
    for(int i = 1 ; i < argc; ++i)
