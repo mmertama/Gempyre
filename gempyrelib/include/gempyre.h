@@ -141,7 +141,7 @@ namespace Gempyre {
         /// use OS browser as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /// When explicit app  (Hiillos) iniates the UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, const char** argv, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         ~Ui();
         Ui(const Ui& other) = delete;

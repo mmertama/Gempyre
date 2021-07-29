@@ -13,7 +13,7 @@
 
 int main(int argc, char* argv[]) {
     Gempyre::setDebug();
-    const auto plist = GempyreUtils::parseArgs(argc, (const char**) argv, {});
+    const auto plist = GempyreUtils::parseArgs(argc, argv, {});
     gempyre_utils_assert_x(!std::get<GempyreUtils::ParamList>(plist).empty(), "expected path to affiliates");
     const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
 

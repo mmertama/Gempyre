@@ -225,13 +225,8 @@ bool GempyreUtils::useSysLog() {
 #endif
 }
 
-UTILS_EX std::variant<Params, int> GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
-    const char** a = (const char**) argv;
-    return parseArgs(argc, a, args);
-}
 
-
-Params GempyreUtils::parseArgs(int argc, const char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
+Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
 #ifndef WINDOWS_OS
     /*
      * The variable optind is the index of the next element to be processed in argv.
@@ -989,3 +984,15 @@ int GempyreUtils::execute(const std::string& exe) {
 std::string GempyreUtils::trimmed(const std::string& s) {
     return substitute(s, R"(\s+)", std::string{});
 }
+
+// remove all --gempyre spesific ids from arguments
+void GempyreUtils::cleanArgs(int& argc, char** argv) {
+    const auto id = "--gempyre-";
+    for(int i = argc - 1; i > 0; --i) {
+        if(strncmp(argv[i], id, strlen(id)) == 0) {
+            argv[i] = argv[i + 1];
+            --argc;
+        }
+    }
+}
+

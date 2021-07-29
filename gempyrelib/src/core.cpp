@@ -63,12 +63,13 @@ std::tuple<int, int, int> Gempyre::version() {
     return {GempyreUtils::to<int>(c[0]), GempyreUtils::to<int>(c[1]), GempyreUtils::to<int>(c[2])};
 }
 
-static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, const char** argv) {
+
+static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, char** argv) {
     const auto& [params, opt] = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
     const auto it = opt.find("gempyre-app");
     if(it != opt.end()) {
         const auto& [_, app] = *it;
-        const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + 1, " ");
+        const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + argc, " ");
         return std::make_optional(std::make_tuple(app, reconstructed_list));
     }
     return std::nullopt;
@@ -144,7 +145,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port
 Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser, extraParams, port, root) {}
 
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, const char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml,
        std::get<0>(*gempyreAppParams(argc, argv)),
        extraParams + ' ' + std::get<1>(*gempyreAppParams(argc, argv)),
@@ -277,7 +278,7 @@ m_filemap(normalizeNames(filemap)) {
             gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
 
-            const auto cmdLine =
+            const auto cmdLine = appui
             + " " + SERVER_ADDRESS + ":"
             + std::to_string(port) + "/"
             + (appPage.empty() ? "index.html" : appPage)

@@ -7,7 +7,7 @@ const unsigned short DefaultPort = 8080;
 
 int main(int argc, char** argv) {
     Gempyre::setDebug();
-    const auto p = GempyreUtils::parseArgs(argc, (const char**) argv, {{"port", 'p', GempyreUtils::ArgType::REQ_ARG}});
+    const auto p = GempyreUtils::parseArgs(argc, argv, {{"port", 'p', GempyreUtils::ArgType::REQ_ARG}});
     if(std::get<GempyreUtils::ParamList>(p).size() < 1) {
         std::cerr << "[path to INDEX.HTML] <-p value>" << std::endl;
         return -1;
