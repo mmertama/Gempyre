@@ -72,12 +72,11 @@ enum class ArgType{NO_ARG, REQ_ARG, OPT_ARG};
 using ParamList = std::vector<std::string>;
 using Options = std::multimap<std::string, std::string>;
 using Params = std::tuple<ParamList, Options>;
-UTILS_EX Params parseArgs(int argc, const char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
-// deprecated
-using ParsedParameters = std::variant<Params, int>;
-[[deprecated]]
-UTILS_EX ParsedParameters parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
+/// parse arguments
+UTILS_EX Params parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
 
+/// just clean arguments from Gempyre spesific internal stuff
+UTILS_EX void cleanArgs(int& argc, char** argv);
 
 /**
  * @brief The LogLevel enum
