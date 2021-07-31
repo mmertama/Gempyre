@@ -2,6 +2,7 @@
 #define TIMEQUEUE_H
 
 #include "timer.h"
+#include <cassert>
 
 //Exposed for unittests, otherwise only used for timer.cpp
 

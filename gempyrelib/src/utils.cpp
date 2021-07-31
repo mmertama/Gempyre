@@ -18,6 +18,7 @@
 #include <Windows.h>                                
 #include <iphlpapi.h>
 #include <Ws2tcpip.h>
+#include <shlwapi.h>
 
 #endif
 
@@ -312,14 +313,18 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
     for(auto i = 0U; i < static_cast<unsigned>(numArgs); i++) {
         const auto arg = plist[i];
         if(arg[0] == '-') {
-            if(arg.length() < 2)
-                return ParsedParameters{static_cast<int>(i)};
+            if(arg.length() < 2) {
+                log(LogLevel::Error, "Invalid argument");
+                continue;
+            }
             decltype(args.end()) it;
             bool longOpt = false;
             auto assing = arg.end();
             if(arg[1] == '-') {
-                if(arg.length() < 3)
-                    return ParsedParameters{static_cast<int>(i)};
+                if(arg.length() < 3) {
+                log(LogLevel::Error, "Invalid argument");
+                continue;
+            }
                 longOpt = true;
                 const auto key = arg.substr(2);
                 assing = std::find(arg.begin(), arg.end(), '=');
@@ -342,7 +347,10 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
                     } else if(i + 1 < plist.size()) {
                         val = plist[i + 1];
                         ++i;
-                    } else return ParsedParameters{static_cast<int>(i)};
+                    } else  {
+                        log(LogLevel::Error, "Invalid argument");
+                        continue;
+                        }
                     options.emplace(std::get<std::string>(*it), val);
                     } break;
                 case ArgType::OPT_ARG: {
