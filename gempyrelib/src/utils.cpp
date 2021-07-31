@@ -320,37 +320,46 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
             auto assing = arg.end();
             if(arg[1] == '-') {
                 if(arg.length() < 3) {
-                    log(LogLevel::Error, "Invalid argument");
-                    continue;
+                log(LogLevel::Error, "Invalid argument");
+                continue;
             }
-            longOpt = true;
-            assing = std::find(arg.begin(), arg.end(), '=');
-            const auto key = assing == arg.end() ?
-                        arg.substr(2) : arg.substr(2, std::distance(arg.begin(), assing) - 2); // AA=BB -> get AA
-            it = std::find_if(args.begin(), args.end(), [&key](const auto& a) {
-                return std::get<0>(a) == key;}
-            );
-        } else {
-            const auto key = arg.substr(1, 1);
-            it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<1>(a) == key[0];});
-        }
-        if(it != args.end()) {
-            switch(std::get<ArgType>(*it)) {
-            case ArgType::NO_ARG:
-                options.emplace(std::get<std::string>(*it), "");
-                break;
-            case ArgType::REQ_ARG: {
-                std::string val;
-                if(!longOpt && !arg.substr(2).empty()) {
-                    val = arg.substr(2);
-                } else if(assing != arg.end()) {
-                    val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
-                } else if(i + 1 < plist.size()) {
-                    val = plist[i + 1];
-                    ++i;
-                } else  {
-                    log(LogLevel::Error, "Invalid argument");
-                    continue;
+                longOpt = true;
+                const auto key = arg.substr(2);
+                assing = std::find(arg.begin(), arg.end(), '=');
+                it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<0>(a) == key;});
+            } else {
+                const auto key = arg.substr(1, 1);
+                it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<1>(a) == key[0];});
+            }
+            if(it != args.end()) {
+                switch(std::get<ArgType>(*it)) {
+                case ArgType::NO_ARG:
+                    options.emplace(std::get<std::string>(*it), "true");
+                    break;
+                case ArgType::REQ_ARG: {
+                    std::string val;
+                    if(!longOpt && !arg.substr(2).empty()) {
+                        val = arg.substr(2);
+                    } else if(assing != arg.end()) {
+                        val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
+                    } else if(i + 1 < plist.size()) {
+                        val = plist[i + 1];
+                        ++i;
+                    } else  {
+                        log(LogLevel::Error, "Invalid argument");
+                        continue;
+                        }
+                    options.emplace(std::get<std::string>(*it), val);
+                    } break;
+                case ArgType::OPT_ARG: {
+                    std::string val;
+                    if(!longOpt && !arg.substr(2).empty()) {
+                        val = arg.substr(2);
+                    } else if(assing != arg.end()) {
+                        val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
+                    }
+                    else {
+                        val = "true";
                     }
                 options.emplace(std::get<std::string>(*it), val);
                 } break;
