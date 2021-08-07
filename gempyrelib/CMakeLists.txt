@@ -68,6 +68,15 @@ set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FL
 
 if(WIN32)
     set(CMAKE_CXX_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_CXX_FLAGS}")
+    if(MSVC)
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+        add_compile_options(
+            $<$<CONFIG:>:/MT> #---------|
+            $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+            $<$<CONFIG:Release>:/MT> #--|
+            )
+    endif()
     add_compile_options(-DWINDOWS_EXPORT)
     add_compile_options(-D_WIN32)
     if(NOT MSVC)
@@ -355,20 +364,12 @@ endif()
 if(DEFINED GEMPYRE_SHARED)
     set(LIB_TYPE SHARED)
     if(WIN32)
-        if(MSVC)
-            set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
-        else()
-             set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS}")
-        endif()
+        set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
     endif()
 else()
     set(LIB_TYPE STATIC)
     if(WIN32)
-        if(MSVC)
-            set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
-        else()
-            set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS}")
-        endif()
+        set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
     endif()
 endif()
 
@@ -524,6 +525,13 @@ else()
      NAMESPACE gempyre::
      )
 
+     #external 
+   #install(EXPORT GempyreTargets
+   #    NAMESPACE gempyre::
+   #    FILE ${PROJECT_TARGETS_FILE}
+   #    DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
+   #    )
+
     install(FILES ${CONNECTION_LIB_FULL}
             DESTINATION ${LIBRARY_DIR}
             )
@@ -557,5 +565,10 @@ else()
       # make Windows easier to find the Gempyre
       set(ENV{gempyre_ROOT} ${GEMPYRE_CONFIG_INSTALL_DIR})    
     endif()
+
+endif()
+
+
+
 
 endif()
