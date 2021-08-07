@@ -65,6 +65,15 @@ set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FL
 
 if(WIN32)
     set(CMAKE_CXX_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_CXX_FLAGS}")
+    if(MSVC)
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+        add_compile_options(
+            $<$<CONFIG:>:/MT> #---------|
+            $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+            $<$<CONFIG:Release>:/MT> #--|
+            )
+    endif()
     add_compile_options(-DWINDOWS_EXPORT)
     add_compile_options(-D_WIN32)
     if(NOT MSVC)
@@ -345,8 +354,14 @@ endif()
 
 if(DEFINED GEMPYRE_SHARED)
     set(LIB_TYPE SHARED)
+    if(WIN32)
+        set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
+    endif()
 else()
     set(LIB_TYPE STATIC)
+    if(WIN32)
+        set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
+    endif()
 endif()
 
 if(ANDROID)
@@ -396,16 +411,16 @@ endif()
 if(WIN32)
     message("uvlib is set as:'${UV_LIB_FULL}'")
     if(MSVC)
-        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib)
+        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib shlwapi.lib)
     else()
-        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib ws2_32.lib)
+        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib ws2_32.lib shlwapi.lib)
     endif()
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${UVA_LIB_NAME};${WIN_LIB}")
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${UV_LIB_DIR}")
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-        #PRIVATE ${UV_LIB}
-        PRIVATE ${WIN_LIB}
+        PRIVATE ${UV_LIB}
+        PUBLIC ${WIN_LIB}
         )
 elseif(ANDROID)
     message("uvdir ${UV_LIB}")
@@ -503,7 +518,7 @@ else()
    #    DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
    #    )
 
-       install(FILES ${CONNECTION_LIB_FULL}
+    install(FILES ${CONNECTION_LIB_FULL}
             DESTINATION ${LIBRARY_DIR}
             )
 
@@ -530,6 +545,11 @@ else()
             DESTINATION ${LIBRARY_DIR}
             OPTIONAL
             )
+    endif()
+
+    if(WIN32)
+      # make Windows easier to find the Gempyre
+      set(ENV{gempyre_ROOT} ${GEMPYRE_CONFIG_INSTALL_DIR})    
     endif()
 
 endif()

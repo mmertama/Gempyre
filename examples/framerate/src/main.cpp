@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <random>
 #include <list>
+#include <array>
 
 using namespace std::chrono_literals;
 
