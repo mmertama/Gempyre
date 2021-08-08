@@ -404,7 +404,12 @@ std::string GempyreUtils::pathPop(const std::string& filename, int steps) {
     if (steps <= 0)
         return filename;
     else {
-        const auto p = filename.find_last_of('/');
+         const auto p = filename.find_last_of(
+    #ifndef WINDOWS_OS
+       '/');
+    #else
+       '\\');
+    #endif
         return pathPop(p != std::string::npos ? filename.substr(0, p) : "", steps - 1);
     }
 }
