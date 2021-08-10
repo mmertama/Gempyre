@@ -300,7 +300,15 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
         params.push_back(argv[optind++]);
     }
 #else
-
+    std::vector<std::string> quoted;
+    std::transform(argv + 1, argv + argc, std::back_inserter(quoted), [](const auto cstr) {return qq(std::string(cstr));});
+    int numArgs;
+    const auto commandLine = join(quoted.begin(), quoted.end(), " ");
+    std::wstring argString(commandLine.begin(), commandLine.end());
+    if(argString.empty())
+        return {};
+    auto wlist = CommandLineToArgvW(argString.c_str(), &numArgs);
+    std::unique_ptr<LPWSTR, decltype(&LocalFree)> wlistPtr(wlist, LocalFree);
     std::vector<std::string> plist;
     for(auto ii = 1; ii < argc; ++ii) {
         plist.push_back(argv[ii]);
@@ -320,13 +328,16 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
             auto assing = arg.end();
             if(arg[1] == '-') {
                 if(arg.length() < 3) {
-                log(LogLevel::Error, "Invalid argument");
-                continue;
+                    log(LogLevel::Error, "Invalid argument");
+                    continue;
             }
                 longOpt = true;
-                const auto key = arg.substr(2);
                 assing = std::find(arg.begin(), arg.end(), '=');
-                it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<0>(a) == key;});
+                const auto key = assing == arg.end() ?
+                            arg.substr(2) : arg.substr(2, std::distance(arg.begin(), assing) - 2); // AA=BB -> get AA
+                it = std::find_if(args.begin(), args.end(), [&key](const auto& a) {
+                    return std::get<0>(a) == key;}
+                );
             } else {
                 const auto key = arg.substr(1, 1);
                 it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<1>(a) == key[0];});
@@ -334,7 +345,7 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
             if(it != args.end()) {
                 switch(std::get<ArgType>(*it)) {
                 case ArgType::NO_ARG:
-                    options.emplace(std::get<std::string>(*it), "true");
+                    options.emplace(std::get<std::string>(*it), "");
                     break;
                 case ArgType::REQ_ARG: {
                     std::string val;
@@ -359,7 +370,7 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
                         val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
                     }
                     else {
-                        val = "true";
+                        val = "";
                     }
                 options.emplace(std::get<std::string>(*it), val);
                 } break;

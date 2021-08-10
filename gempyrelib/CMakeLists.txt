@@ -68,15 +68,6 @@ set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FL
 
 if(WIN32)
     set(CMAKE_CXX_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_CXX_FLAGS}")
-    if(MSVC)
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-        add_compile_options(
-            $<$<CONFIG:>:/MT> #---------|
-            $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
-            $<$<CONFIG:Release>:/MT> #--|
-            )
-    endif()
     add_compile_options(-DWINDOWS_EXPORT)
     add_compile_options(-D_WIN32)
     if(NOT MSVC)
@@ -131,6 +122,43 @@ if (WIN32 OR ANDROID)
         get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
     endif()
 
+        set(UVA_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${UVA_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+        if (MSVC)
+            if (NOT ${IS_RELEASE})
+                    set(UV_LIB_FULL "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
+            else()
+                    set(UV_LIB_FULL "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
+            endif()
+            message("MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
+         else()
+             if(NOT ANDROID)
+                  find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
+             endif()
+             get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
+         endif()
+
+         # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
+         # maybe use Fetch command instead of Externalproject add and then override flags
+
+         externalproject_add(libuv
+            PREFIX ${UV_DIR}
+            GIT_REPOSITORY https://github.com/libuv/libuv.git
+            GIT_TAG ${LIB_UV_VER}
+            GIT_PROGRESS true
+            BUILD_BYPRODUCTS ${UV_LIB_FULL}
+            CMAKE_ARGS
+                -DLIBUV_BUILD_TESTS=OFF
+                -DLIBUV_BUILD_BENCH=OFF
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DCMAKE_INSTALL_PREFIX=${UV_LIB_DIR}
+                -DCMAKE_DEBUG_POSTFIX=${CMAKE_DEBUG_POSTFIX}
+            UPDATE_DISCONNECTED false
+            INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --target install
+            UPDATE_COMMAND ""
+            PATCH_COMMAND ""
+            TEST_COMMAND ""
+            )
 
     set(SYSTEM_INCLUDES "${UV_LIB_DIR}/include")
 
@@ -525,13 +553,6 @@ else()
      NAMESPACE gempyre::
      )
 
-     #external 
-   #install(EXPORT GempyreTargets
-   #    NAMESPACE gempyre::
-   #    FILE ${PROJECT_TARGETS_FILE}
-   #    DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
-   #    )
-
     install(FILES ${CONNECTION_LIB_FULL}
             DESTINATION ${LIBRARY_DIR}
             )
@@ -565,10 +586,5 @@ else()
       # make Windows easier to find the Gempyre
       set(ENV{gempyre_ROOT} ${GEMPYRE_CONFIG_INSTALL_DIR})    
     endif()
-
-endif()
-
-
-
 
 endif()

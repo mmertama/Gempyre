@@ -68,7 +68,10 @@ static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int 
     if(it != opt.end()) {
         const auto& [_, app] = *it;
         const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + argc, " ");
-        return std::make_optional(std::make_tuple(app, reconstructed_list));
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gempyre-app", app, "params:", GempyreUtils::join(argv, argv + argc, ", "));
+        return std::make_optional(std::make_tuple(app, reconstructed_list)); 
+    } else {
+        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "No gempyre-app switch found", GempyreUtils::join(argv, argv + argc, ", "));
     }
     return std::nullopt;
 }
