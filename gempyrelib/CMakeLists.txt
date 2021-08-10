@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.14)
+#cmake_minimum_required (VERSION 3.18)
 
 project (gempyre VERSION 0.6.0 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
@@ -65,15 +65,6 @@ set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FL
 
 if(WIN32)
     set(CMAKE_CXX_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_CXX_FLAGS}")
-    if(MSVC)
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-        add_compile_options(
-            $<$<CONFIG:>:/MT> #---------|
-            $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
-            $<$<CONFIG:Release>:/MT> #--|
-            )
-    endif()
     add_compile_options(-DWINDOWS_EXPORT)
     add_compile_options(-D_WIN32)
     if(NOT MSVC)
@@ -107,10 +98,13 @@ if (WIN32 OR ANDROID)
              if(NOT ANDROID)
                   find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
              endif()
-             set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
+             get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
          endif()
 
-        externalproject_add(libuv
+         # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
+         # maybe use Fetch command instead of Externalproject add and then override flags
+
+         externalproject_add(libuv
             PREFIX ${UV_DIR}
             GIT_REPOSITORY https://github.com/libuv/libuv.git
             GIT_TAG ${LIB_UV_VER}
@@ -264,9 +258,9 @@ if(NOT MSVC)
 else()
     if (MSVC_VERSION GREATER_EQUAL "1900")
         include(CheckCXXCompilerFlag)
-        CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
+        CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_latest_flag_supported)
         if (_cpp_latest_flag_supported)
-            add_compile_options("/std:c++latest")
+            add_compile_options("/std:c++17")
         endif()
     endif()
 endif()
@@ -416,6 +410,7 @@ if(WIN32)
         set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib ws2_32.lib shlwapi.lib)
     endif()
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${UVA_LIB_NAME};${WIN_LIB}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_obj "${UVA_LIB};${WIN_LIB}")
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${UV_LIB_DIR}")
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
@@ -436,16 +431,6 @@ else()
         PRIVATE ${SOCKETS_LIB}
         PRIVATE -lstdc++)
 endif()
-
-#if(WIN32)
-#    if(MSVC)
-#        set(PROJECT_TARGETS_FILE ${PROJECT_NAME}Targets_vc.cmake)
-#    else()
-#        set(PROJECT_TARGETS_FILE ${PROJECT_NAME}Targets_gw.cmake)
-#    endif()
-#else()
-#    set(PROJECT_TARGETS_FILE ${PROJECT_NAME}Targets.cmake)
-#endif()
 
 set(GEMPYRE_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(GEMPYRE_TARGETS_EXPORT_NAME       "${PROJECT_NAME}")
@@ -511,13 +496,6 @@ else()
      NAMESPACE gempyre::
      )
 
-     #external 
-   #install(EXPORT GempyreTargets
-   #    NAMESPACE gempyre::
-   #    FILE ${PROJECT_TARGETS_FILE}
-   #    DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
-   #    )
-
     install(FILES ${CONNECTION_LIB_FULL}
             DESTINATION ${LIBRARY_DIR}
             )
@@ -553,24 +531,3 @@ else()
     endif()
 
 endif()
-
-
-
-
-#if (LINUX)
-#    set(CMAKE_INSTALL_PREFIX "/usr")
-#endif()
-#
-#if (MACOS)
-#    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-#    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-#endif()
-#
-#if (NOT WIN32)
-#install(TARGETS ${PROJECT_NAME}
-#        LIBRARY DESTINATION lib
-#        FILES ${TELEX_HEADERS} DESTINATION include
-#)
-#else()
-#
-#endif()

@@ -275,7 +275,7 @@ TEST(Unittests, test_parseArgs) {
     const auto& [p16, o16]  = GempyreUtils::parseArgs(3, (char**) test16, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
     EXPECT_FALSE(p16.empty());
     EXPECT_FALSE(o16.empty());
-     EXPECT_EQ(std::get<1>(*o16.find("aaa")), std::string(""));
+    EXPECT_EQ(std::get<1>(*o16.find("aaa")), std::string(""));
 
     const char* test17[] = {"bing", "--aaa=fat", 0};
     const auto& [p17, o17]  = GempyreUtils::parseArgs(2, (char**) test17, {{"aaa", 'a', GempyreUtils::ArgType::OPT_ARG}});

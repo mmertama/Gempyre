@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.18)
 
 project (helloworld)
 
@@ -16,7 +16,7 @@ add_executable(helloworld main.cpp)
 add_dependencies (helloworld gempyre)
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
-target_link_libraries (helloworld  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
+target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
 
 
 
