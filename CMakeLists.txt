@@ -1,5 +1,4 @@
-cmake_minimum_required (VERSION 3.16)
-
+cmake_minimum_required (VERSION 3.18)
 project(gempyre LANGUAGES CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -13,7 +12,6 @@ else()
     set(IS_RELEASE TRUE)
 endif()
 
-
 if(NOT EXISTS ${GEMPYRE_DIR})
     if(EXISTS $ENV{GEMPYRE_DIR})
         set(GEMPYRE_DIR $ENV{GEMPYRE_DIR})
@@ -25,6 +23,9 @@ if(NOT EXISTS ${GEMPYRE_DIR})
         endif()
     endif()
 endif()
+
+# NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
+# maybe use Fetch command instead of Externalproject add and then override flags
 
 if(NOT WIN32)
     set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
@@ -51,7 +52,6 @@ add_subdirectory(gempyrelib)
 option(HAS_AFFILIATES "Affiliats are built" ON)
 option(HAS_TEST "Test are built" ON)
 option(HAS_EXAMPLES "Examples are built" ON)
-
 
 if(HAS_AFFILIATES)
     add_subdirectory(affiliates)

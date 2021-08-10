@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.18)
 
 set(NAME hello)
 project (${NAME})
@@ -24,4 +24,3 @@ gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}.html.h SOUR
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
-
