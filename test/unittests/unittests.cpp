@@ -309,6 +309,18 @@ TEST(Unittests, test_parseArgs) {
     EXPECT_EQ(std::get<1>(*o21.find("aaa")), std::string("fat"));
     EXPECT_EQ(p21.at(0), std::string("bang"));
     EXPECT_EQ(p21.at(1), std::string("bong"));
+
+    const char* test22[] = {"bing", R"(c:\last quack)", "--aaa=fat\\bat", R"(--bbb=dyne\gene)", R"(--ccc=geel/feel)", 0};
+    const auto& [p22, o22]  = GempyreUtils::parseArgs(5, (char**) test22, {
+        {"aaa", 'a', GempyreUtils::ArgType::REQ_ARG},
+        {"bbb", 'b', GempyreUtils::ArgType::REQ_ARG},
+        {"ccc", 'c', GempyreUtils::ArgType::REQ_ARG}});
+    ASSERT_EQ(p22.size(), 1);
+    EXPECT_EQ(p22.at(0) , std::string(R"(c:\last quack)"));
+    EXPECT_EQ(std::get<1>(*o22.find("aaa")), std::string(R"(fat\bat)"));
+    EXPECT_EQ(std::get<1>(*o22.find("bbb")), std::string(R"(dyne\gene)"));
+    EXPECT_EQ(std::get<1>(*o22.find("ccc")), std::string(R"(geel/feel)"));
+
 }
 
 int main(int argc, char **argv) {

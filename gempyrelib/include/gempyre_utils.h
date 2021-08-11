@@ -81,7 +81,7 @@ UTILS_EX void cleanArgs(int& argc, char** argv);
 /**
  * @brief The LogLevel enum
  */
-enum class LogLevel{None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
+enum class LogLevel : int {None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
 
 
 /**
@@ -305,6 +305,7 @@ UTILS_EX DebugStream logStream(LogLevel logLevel);
 UTILS_EX void init();
 UTILS_EX std::string currentTimeString();
 UTILS_EX std::string lastError();
+UTILS_EX void processAbort(int err);
 
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
@@ -326,7 +327,7 @@ inline void log(LogLevel level, const T& e) {
         if(level <= logLevel()) {
             logStream(level).print() << '[' << GempyreUtils::currentTimeString() << "] " << toStr(level) << " " << e << std::endl;
             if(level == LogLevel::Fatal)  {
-                std::exit(-999);
+                processAbort(-999);
             }
         }
     }
@@ -344,7 +345,7 @@ inline void log_t(LogLevel level, const T& e) {
     if(level <= logLevel()) {
         logStream(level).print() << e << std::endl;
         if(level == LogLevel::Fatal) {
-            std::exit(-999);
+            processAbort(-999);
         }
     }
 }

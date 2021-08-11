@@ -131,7 +131,7 @@ static std::unique_ptr<SysLogStream<1024>> gSysLogStream;
 
 static GempyreUtils::LogLevel g_serverLogLevel = GempyreUtils::LogLevel::
 #ifdef UTILS_LOGLEVEL
-UTILS_LOGLVEL
+UTILS_LOGLEVEL
 #else
 Error
 #endif
@@ -294,24 +294,15 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
         params.push_back(argv[optind++]);
     }
 #else
-    std::vector<std::string> quoted;
-    std::transform(argv + 1, argv + argc, std::back_inserter(quoted), [](const auto cstr) {return qq(std::string(cstr));});
-    int numArgs;
-    const auto commandLine = join(quoted.begin(), quoted.end(), " ");
-    std::wstring argString(commandLine.begin(), commandLine.end());
-    if(argString.empty())
-        return {};
-    auto wlist = CommandLineToArgvW(argString.c_str(), &numArgs);
-    std::unique_ptr<LPWSTR, decltype(&LocalFree)> wlistPtr(wlist, LocalFree);
+
     std::vector<std::string> plist;
-    for(auto ii = 0; ii < numArgs; ii++) {
-        const std::wstring w = wlist[ii];
-        plist.push_back(std::string(w.begin(), w.end()));
+    for(auto ii = 1; ii < argc; ++ii) {
+        plist.push_back(argv[ii]);
     }
 
     Options options;
     ParamList params;
-    for(auto i = 0U; i < static_cast<unsigned>(numArgs); i++) {
+    for(auto i = 0U; i < plist.size(); ++i) {
         const auto arg = plist[i];
         if(arg[0] == '-') {
             if(arg.length() < 2) {
@@ -326,54 +317,55 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
                     log(LogLevel::Error, "Invalid argument");
                     continue;
             }
-                longOpt = true;
-                assing = std::find(arg.begin(), arg.end(), '=');
-                const auto key = assing == arg.end() ?
-                            arg.substr(2) : arg.substr(2, std::distance(arg.begin(), assing) - 2); // AA=BB -> get AA
-                it = std::find_if(args.begin(), args.end(), [&key](const auto& a) {
-                    return std::get<0>(a) == key;}
-                );
-            } else {
-                const auto key = arg.substr(1, 1);
-                it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<1>(a) == key[0];});
-            }
-            if(it != args.end()) {
-                switch(std::get<ArgType>(*it)) {
-                case ArgType::NO_ARG:
-                    options.emplace(std::get<std::string>(*it), "");
-                    break;
-                case ArgType::REQ_ARG: {
-                    std::string val;
-                    if(!longOpt && !arg.substr(2).empty()) {
-                        val = arg.substr(2);
-                    } else if(assing != arg.end()) {
-                        val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
-                    } else if(i + 1 < plist.size()) {
-                        val = plist[i + 1];
-                        ++i;
-                    } else  {
-                        log(LogLevel::Error, "Invalid argument");
-                        continue;
-                        }
-                    options.emplace(std::get<std::string>(*it), val);
-                    } break;
-                case ArgType::OPT_ARG: {
-                    std::string val;
-                    if(!longOpt && !arg.substr(2).empty()) {
-                        val = arg.substr(2);
-                    } else if(assing != arg.end()) {
-                        val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
-                    }
-                    else {
-                        val = "";
-                    }
-                     options.emplace(std::get<std::string>(*it), val);
-                    } break;
-                }
-            }
+            longOpt = true;
+            assing = std::find(arg.begin(), arg.end(), '=');
+            const auto key = assing == arg.end() ?
+                        arg.substr(2) : arg.substr(2, std::distance(arg.begin(), assing) - 2); // AA=BB -> get AA
+            it = std::find_if(args.begin(), args.end(), [&key](const auto& a) {
+                return std::get<0>(a) == key;}
+            );
         } else {
-            params.push_back(arg);
+            const auto key = arg.substr(1, 1);
+            it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<1>(a) == key[0];});
         }
+        if(it != args.end()) {
+            switch(std::get<ArgType>(*it)) {
+            case ArgType::NO_ARG:
+                options.emplace(std::get<std::string>(*it), "");
+                break;
+            case ArgType::REQ_ARG: {
+                std::string val;
+                if(!longOpt && !arg.substr(2).empty()) {
+                    val = arg.substr(2);
+                } else if(assing != arg.end()) {
+                    val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
+                } else if(i + 1 < plist.size()) {
+                    val = plist[i + 1];
+                    ++i;
+                } else  {
+                    log(LogLevel::Error, "Invalid argument");
+                    continue;
+                    }
+                options.emplace(std::get<std::string>(*it), val);
+                } break;
+            case ArgType::OPT_ARG: {
+                std::string val;
+                if(!longOpt && !arg.substr(2).empty()) {
+                    val = arg.substr(2);
+                } else if(assing != arg.end()) {
+                    val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
+                }
+                else {
+                    val = "";
+                }
+                 options.emplace(std::get<std::string>(*it), val);
+                }
+                break;
+            }
+        }
+    } else {
+        params.push_back(arg);
+    }
 
     }
 #endif
@@ -1011,5 +1003,13 @@ void GempyreUtils::cleanArgs(int& argc, char** argv) {
             --argc;
         }
     }
+}
+
+void GempyreUtils::processAbort(int exitCode) {
+#ifdef WINDOWS_OS
+    PostQuitMessage(exitCode); // try to flush buffers
+    Sleep(20); //20ms
+#endif
+    std::exit(exitCode);
 }
 
