@@ -333,9 +333,6 @@ UTILS_EX void init();
 UTILS_EX std::string currentTimeString();
 UTILS_EX std::string lastError();
 UTILS_EX void processAbort(int err);
-/// Replace the default writer, set nullptr to apply original, not a thread safe.
-UTILS_EX void setLogWriter(LogWriter* writer);
-
 
 template <typename T, typename ...Args>
 inline void logLine(LogLevel level, std::ostream& os, const T& e, Args... args) {
@@ -344,18 +341,26 @@ inline void logLine(LogLevel level, std::ostream& os, const T& e, Args... args) 
 }
 
 template<typename T>
-inline void logLine(LogLevel level, std::ostream& os, const T& e) {
-    os << e << std::endl;
-    if(level == LogLevel::Fatal)  {
-        processAbort(-999);
+inline void log(LogLevel level, const T& e) {
+    if(useSysLog()) {
+        log_t(level, e);
+    } else {
+        if(level <= logLevel()) {
+            logStream(level).print() << '[' << GempyreUtils::currentTimeString() << "] " << toStr(level) << " " << e << std::endl;
+            if(level == LogLevel::Fatal)  {
+                processAbort(-999);
+            }
+        }
     }
 }
 
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
     if(level <= logLevel()) {
-        auto os = logStream(level);
-        logLine(level, os, e, args...);
+        logStream(level).print() << e << std::endl;
+        if(level == LogLevel::Fatal) {
+            processAbort(-999);
+        }
     }
 }
 
