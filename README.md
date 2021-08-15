@@ -66,7 +66,7 @@ How to build on Windows 10
 * Better Unit and moduletests coverage
 * CI pipelines
 * Cleaning code and refactoring (API behind PIMPL?, string_views instead of strings when possible, meaningless std::any for code encapsulation)
-* Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
+* Supress subsystem warnings.
 * Reconsider libwebsockets instead of uWebsockets.
 * POC of Gempyre-Android style architecture also in core.
 * camelStyle or snake_style? (Gempyre-Python already uses snake, and Im warmin up for that :-)
@@ -80,7 +80,7 @@ Late updates
 * Rewrote timers + other smaller fixes
 ### 2021 2
 * Lot of fixes and some new utils
-* Native application window for OSX, Linux and Windows are using [Hiillos] (https://github.com/mmertama/Hiillos)                        
+* Native application window for OSX, Linux and Windows using [Hiillos] (https://github.com/mmertama/Hiillos)                        
 
 Copyright
 Markus Mertama 2020, 2021
