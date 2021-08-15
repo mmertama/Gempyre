@@ -1013,3 +1013,27 @@ void GempyreUtils::processAbort(int exitCode) {
     std::exit(exitCode);
 }
 
+int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) {
+    const auto l1 = s1.length();
+    const auto l2 = s2.length();
+
+    auto dist = std::vector<std::vector<int>>(l2 + 1, std::vector<int>(l1 + 1));
+
+    for(auto i = 0; i <= l1 ; i++) {
+       dist[0][i] = i;
+    }
+
+    for(auto j = 0; j <= l2; j++) {
+       dist[j][0] = j;
+    }
+
+    for (auto j = 1; j <= l1; j++) {
+       for(auto i = 1; i <= l2 ;i++) {
+          const auto track = (s2[i-1] == s1[j-1]) ? 0 : 1;
+          const auto t = std::min((dist[i - 1][j] + 1), (dist[i][j - 1] + 1));
+          dist[i][j] = std::min(t, (dist[i - 1][j - 1] + track));
+       }
+    }
+    return dist[l2][l1];
+}
+

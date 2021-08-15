@@ -11,14 +11,28 @@
  for Qt "../qt_client/gempyreqtclient"
  */
 
+
+
+
 int main(int argc, char* argv[]) {
     Gempyre::setDebug();
-    const auto plist = GempyreUtils::parseArgs(argc, argv, {});
-    gempyre_utils_assert_x(!std::get<GempyreUtils::ParamList>(plist).empty(), "expected path to affiliates");
-    const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
+    const auto plist = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
 
-    Gempyre::Ui ui(Affiliates_test_resourceh,
-                 "affiliates_test.html", py, Gempyre::Ui::stdParams(500, 640, "Test Affiliates"));
+    const auto opt = std::get<GempyreUtils::Options>(plist);
+    const auto gempyre_app = GempyreUtils::getValue(opt, std::string("gempyre-app"));
+
+    auto ui = [&](){
+        if(!gempyre_app) {
+            gempyre_utils_assert_x(!std::get<GempyreUtils::ParamList>(plist).empty(), "expected path to affiliates");
+            const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
+
+            return Gempyre::Ui(Affiliates_test_resourceh,
+                         "affiliates_test.html", py, Gempyre::Ui::stdParams(500, 640, "Test Affiliates"));
+        } else {
+            return Gempyre::Ui(Affiliates_test_resourceh,
+                         "affiliates_test.html", argc, argv);
+        }
+    }();
 
     Gempyre::Element content(ui, "content");
     Gempyre::Element openFile(ui, "open_file");

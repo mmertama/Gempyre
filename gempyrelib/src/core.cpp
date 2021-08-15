@@ -294,7 +294,7 @@ m_filemap(normalizeNames(filemap)) {
             GempyreUtils::execute(cmdLine);
 #endif
             if(result != 0) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Cannot open:", cmdLine, result);
+                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot open:", cmdLine, result);
             } else {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening:", cmdLine);
             }

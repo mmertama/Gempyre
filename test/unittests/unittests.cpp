@@ -323,6 +323,21 @@ TEST(Unittests, test_parseArgs) {
 
 }
 
+TEST(Unittests, test_levenshtein) {
+    const auto words {"aisle dignity wild deck nun discovery sniff comment glasses notice break separation performer battlefield ice menu meal snow vision circle"};
+    const auto list = GempyreUtils::split<std::vector<std::string>>(words, ' ');
+    auto pos = list.end();
+    auto min = std::numeric_limits<int>::max();
+    for(auto it = list.begin(); it != list.end(); ++it) {
+        const auto d = GempyreUtils::levenshteinDistance(*it, "suparation"); // incorrecly spelled separation
+        if(d < min) {
+            pos = it;
+            min = d;
+        }
+    }
+    EXPECT_EQ(std::find(list.begin(), list.end(), "separation"), pos);
+}
+
 int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
    for(int i = 1 ; i < argc; ++i)

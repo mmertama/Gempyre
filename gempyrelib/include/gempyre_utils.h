@@ -137,6 +137,9 @@ template <class T>
    return stream.str();
  }
 
+/// Get a levenshtein distance of strings
+int levenshteinDistance(std::string_view s1, std::string_view s2);
+
 /**
  * Container Utils
  */
@@ -251,6 +254,21 @@ T merge(const T& b1, const T& b2, Arg ...args) {
     std::advance(begin, std::distance(b1.begin(), b1.end()));
     std::copy(b2.begin(), b2.end(), begin);
     return merge(bytes, args...);
+}
+
+/// Const version of std::advance
+template <typename IT> IT advanced(IT it, int distance) {
+    std::advance(it, distance);
+    return it;
+}
+
+template <typename K, typename V >
+/// Get a value from a multimap, especially helper for Parameter Options
+std::optional<V> getValue(const std::multimap<K, V>& map, const K& key, int index = 0)
+{
+     const auto range = map.equal_range(key);
+     return std::distance(range.first, range.second) > index ?
+                 std::make_optional((advanced(range.first, index))->second) : std::nullopt;
 }
 
  /*
