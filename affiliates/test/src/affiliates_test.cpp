@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     });
 
     openFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openFileDialog("", "", {{"Text", {"*.txt"}}});
+        const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openFileDialog("foo", "bar", {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
             const auto stuff = GempyreUtils::slurp(*out);
             content.setHTML("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::fileSize(*out)));
