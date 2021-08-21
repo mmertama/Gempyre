@@ -295,13 +295,13 @@ UTILS_EX bool setPriority(int priority);
 UTILS_EX std::pair<int, int> getPriorityLevels();
 #endif
 
-UTILS_EX std::string htmlFileLaunchCmd();
+UTILS_EX std::string osBrowser();
 
 /// Parent class for LogWriters
 class LogWriter {
 public:
     /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
-    virtual std::string header(LogLevel logLevel);
+    virtual std::string initLine(LogLevel logLevel);
     /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
     virtual bool doWrite(const char* buffer, size_t count) = 0;
 };
@@ -316,15 +316,6 @@ protected:
     std::ofstream m_file;
 };
 
-class UTILS_EX StreamLogWriter : public LogWriter {
-public:
-    StreamLogWriter(std::ostream& os);
-protected:
-    bool doWrite(const char* buffer, size_t count) override;
-protected:
-    std::ostream& m_os;
-};
-
 UTILS_EX void setLogLevel(LogLevel level);
 UTILS_EX LogLevel logLevel();
 UTILS_EX std::string toStr(LogLevel l);
@@ -333,48 +324,27 @@ UTILS_EX void init();
 UTILS_EX std::string currentTimeString();
 UTILS_EX std::string lastError();
 UTILS_EX void processAbort(int err);
-
-template <typename T, typename ...Args>
-inline void logLine(LogLevel level, std::ostream& os, const T& e, Args... args) {
-    os << e << " ";
-    logLine(level, os, args...);
-}
-
-template<typename T>
-inline void log(LogLevel level, const T& e) {
-    if(useSysLog()) {
-        log_t(level, e);
-    } else {
-        if(level <= logLevel()) {
-            logStream(level).print() << '[' << GempyreUtils::currentTimeString() << "] " << toStr(level) << " " << e << std::endl;
-            if(level == LogLevel::Fatal)  {
-                processAbort(-999);
-            }
-        }
-    }
-}
+/// Replace the default writer, set nullptr to apply original, not a thread safe.
+UTILS_EX void setLogWriter(LogWriter* writer);
 
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
     if(level <= logLevel()) {
-        logStream(level).print() << e << std::endl;
-        if(level == LogLevel::Fatal) {
+        logStream(level) << e << " ";
+        log(level, args...);
+    }
+}
+
+template<typename T>
+inline void log(LogLevel level, const T& e) {
+    if(level <= logLevel()) {
+        logStream(level) << e << std::endl;
+        if(level == LogLevel::Fatal)  {
             processAbort(-999);
         }
     }
 }
 
-
-// Plan is to make loglevel static in coming versions so there is no extra if for each log and ref to global data
-template <LogLevel level, typename T, typename ...Args>
-inline void writeLog(const T& e, Args... args) {
-    log(level, e, args...);
-}
-
-template <typename T, typename ...Args>
-inline void logDebug(const T& e, Args... args) {
-    writeLog<LogLevel::Debug, T, Args...>(e, args...);
-}
 
 inline bool doFatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
     if(f) f();

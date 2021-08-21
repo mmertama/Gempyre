@@ -133,7 +133,7 @@ void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level) {
 }
 
 
-std::string LogWriter::header(LogLevel logLevel) {
+std::string LogWriter::initLine(LogLevel logLevel) {
     std::stringstream buf;
     buf << '[' << currentTimeString() << "] " << toStr(logLevel) << " ";
     return buf.str();
@@ -150,7 +150,7 @@ class ErrStream : public LogWriter {
 #else
 class ErrStream : public LogWriter {
     bool doWrite(const char* bytes, size_t count) override {
-       (void) count;
+       (void*) count;
        std::cerr << bytes;
        return true;
     }
@@ -199,18 +199,10 @@ bool FileLogWriter::doWrite(const char* bytes, size_t count) {
         (void) count;
         if(!m_file.is_open())
             return false;
-        m_file << bytes << std::flush; // flush to catch crashes
+        m_file << bytes;
         return true;
     }
 
-StreamLogWriter::StreamLogWriter(std::ostream& os) : m_os(os)  {}
-bool StreamLogWriter::doWrite(const char* bytes, size_t count) {
-        (void) count;
-        if(!m_os.good())
-            return false;
-        m_os << bytes << std::flush; // flush to catch crashes
-        return true;
-    }
 
 static std::atomic<GempyreUtils::LogWriter*> g_logWriter{nullptr};
 
@@ -222,16 +214,15 @@ static ErrStream defaultErrorStream;
 
 std::ostream GempyreUtils::logStream(LogLevel logLevel) {
     auto strm  = (g_logWriter) ? g_logWriter.load() : &defaultErrorStream;
-    static thread_local LogStream<1024> logStreamer;
-    logStreamer.setWriter(strm);
-    std::ostream(&logStreamer) << strm->header(logLevel);
-    return std::ostream(&logStreamer);
+    static thread_local LogStream<1024> logStream;
+    logStream.setWriter(strm);
+    std::ostream(&logStream) << strm->initLine(logLevel);
+    return std::ostream(&logStream);
 }
 
 GempyreUtils::LogLevel GempyreUtils::logLevel() {
     return g_serverLogLevel;
 }
-
 
 Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
 #ifndef WINDOWS_OS
