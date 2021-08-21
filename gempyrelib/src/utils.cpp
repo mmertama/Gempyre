@@ -66,76 +66,13 @@ static std::string lastError(T err) {
 using namespace std::chrono_literals;
 using namespace GempyreUtils;
 
-#ifndef WINDOWS_OS
-template <size_t SZ>
-class SysLogStream : public std::streambuf {
-public:
-    SysLogStream() : m_os(this) {
-        setp(m_buffer, m_buffer + SZ - 1);
-    }
-    ~SysLogStream() override {
-        ::closelog();
-    }
-    std::ostream& stream(GempyreUtils::LogLevel logLevel) {
-        static int priorities[] = {LOG_EMERG, LOG_ERR, LOG_INFO, LOG_DEBUG};
-        m_prio = priorities[static_cast<int>(logLevel)];
-        return m_os;
-    }
-private:
-    int_type overflow(int_type ch) override {
-        if(ch != traits_type::eof()){
-            *pptr() = static_cast<char>(ch);
-            pbump(1);
-            write();
-        }
-        return ch;
-    }
-    int sync() override {
-        write();
-        return 1;
-    }
-    void write() {
-        std::ptrdiff_t n = pptr() - pbase();
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wformat-nonliteral"
-    #pragma clang diagnostic ignored "-Wformat-security"
-#endif
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#pragma GCC diagnostic ignored "-Wformat-security"
-#endif
-        char ntBuf[SZ];
-        std::memcpy(ntBuf, m_buffer, static_cast<size_t>(n));
-        ntBuf[n] = '\0';
-        ::syslog(m_prio, ntBuf);
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic pop
-#endif
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic pop
-#endif
-        pbump(static_cast<int>(-n));
-    }
-private:
-    char m_buffer[SZ];
-    int m_prio = LOG_DEBUG;
-    int PADDING;
-    std::ostream m_os;
-};
-
-
-static std::unique_ptr<SysLogStream<1024>> gSysLogStream;
-#endif
-
-static GempyreUtils::LogLevel g_serverLogLevel = GempyreUtils::LogLevel::
+static GempyreUtils::LogLevel g_serverLogLevel{GempyreUtils::LogLevel::
 #ifdef UTILS_LOGLEVEL
 UTILS_LOGLEVEL
 #else
 Error
 #endif
-;
+};
 
 
 void GempyreUtils::init() {
@@ -189,43 +126,102 @@ std::string GempyreUtils::chop(const std::string& s, const std::string& chopped)
     return str;
 }
 
-void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level, bool useSysLog) {
+void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level) {
 
     g_serverLogLevel = level;
-
-#ifndef  WINDOWS_OS
-    if(useSysLog)
-        gSysLogStream.reset(new SysLogStream<1024>);
-#else
-     (void) useSysLog;
-#endif // ! WINDOWS_OS
 }
 
-static std::mutex global_stream_mutex;
-DebugStream GempyreUtils::logStream(LogLevel logLevel) {
+
+std::string LogWriter::initLine(LogLevel logLevel) {
+    std::stringstream buf;
+    buf << '[' << currentTimeString() << "] " << toStr(logLevel) << " ";
+    return buf.str();
+}
+
 #ifdef WINDOWS_OS
-    (void) logLevel;
+class ErrStream : public LogWriter {
+    bool doWrite(const char* bytes, size_t count) override {
+        (void) count;
+        OutputDebugStringA(bytes);
+        return true;
+    }
+};
+#else
+class ErrStream : public LogWriter {
+    bool doWrite(const char* bytes, size_t count) override {
+       (void*) count;
+       std::cerr << bytes;
+       return true;
+    }
+};
 #endif
-    auto& strm =
-#ifndef WINDOWS_OS
-		gSysLogStream ? gSysLogStream->stream(logLevel) :
-#endif
-        std::cerr;
-    return DebugStream(&global_stream_mutex,&strm);
+
+template <size_t SZ>
+class LogStream : public std::streambuf {
+public:
+    LogStream() {
+        setp(m_buffer, m_buffer + SZ - 1);
+    }
+    ~LogStream() = default;
+    void setWriter(LogWriter* writer) {
+        m_logWriter = writer;
+    }
+private:
+    int_type overflow(int_type ch) override {
+        if(ch != traits_type::eof()){
+            *pptr() = static_cast<char>(ch);
+            pbump(1);
+            write();
+        }
+        return ch;
+    }
+    int sync() override {
+        write();
+        return 1;
+    }
+    void write() {
+        std::ptrdiff_t n = pptr() - pbase();
+        m_buffer[n] = '\0';
+        if(!m_logWriter->doWrite(m_buffer, n)) {
+            std::cerr << "Log cannot write " << m_buffer << std::endl;
+        }
+        pbump(static_cast<int>(-n));
+    }
+private:
+    char m_buffer[SZ + 1];
+    LogWriter* m_logWriter;
+};
+
+
+FileLogWriter::FileLogWriter(const std::string& path) : m_file(path, std::ios::out | std::ios::app )  {}
+bool FileLogWriter::doWrite(const char* bytes, size_t count) {
+        (void) count;
+        if(!m_file.is_open())
+            return false;
+        m_file << bytes;
+        return true;
+    }
+
+
+static std::atomic<GempyreUtils::LogWriter*> g_logWriter{nullptr};
+
+void GempyreUtils::setLogWriter(LogWriter* writer) {
+    g_logWriter = writer;
+}
+
+static ErrStream defaultErrorStream;
+
+std::ostream GempyreUtils::logStream(LogLevel logLevel) {
+    auto strm  = (g_logWriter) ? g_logWriter.load() : &defaultErrorStream;
+    static thread_local LogStream<1024> logStream;
+    logStream.setWriter(strm);
+    std::ostream(&logStream) << strm->initLine(logLevel);
+    return std::ostream(&logStream);
 }
 
 GempyreUtils::LogLevel GempyreUtils::logLevel() {
     return g_serverLogLevel;
 }
-
-bool GempyreUtils::useSysLog() {
-#ifndef WINDOWS_OS
-    return static_cast<bool>(gSysLogStream);
-#else
-	return false;
-#endif
-}
-
 
 Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
 #ifndef WINDOWS_OS
