@@ -48,7 +48,7 @@ namespace Gempyre {
     enum class DebugLevel{Quiet, Fatal, Error, Warning, Info, Debug, Debug_Trace};
 
     /// set debuging level and target, defauls to std::cout
-    GEMPYRE_EX void setDebug(DebugLevel level = DebugLevel::Debug, bool useLog = false);
+    GEMPYRE_EX void setDebug(DebugLevel level = DebugLevel::Debug);
     /// Internal for Android
     GEMPYRE_EX void setJNIENV(void* env, void* obj);
     /// Return current version

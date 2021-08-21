@@ -300,79 +300,54 @@ UTILS_EX bool setPriority(int priority);
 UTILS_EX std::pair<int, int> getPriorityLevels();
 #endif
 
-
 UTILS_EX std::string osBrowser();
 
-
-
-class DebugStream {
+/// Parent class for LogWriters
+class LogWriter {
 public:
-    DebugStream(std::mutex* mutex, std::ostream* str) : m_mutex(mutex), m_str(str){m_mutex->lock();}
-    ~DebugStream() {m_mutex->unlock();}
-    std::ostream& print() {return *m_str;}
-private:
-    std::mutex* m_mutex;
-    std::ostream* m_str;
+    /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
+    virtual std::string initLine(LogLevel logLevel);
+    /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
+    virtual bool doWrite(const char* buffer, size_t count) = 0;
 };
 
-UTILS_EX void setLogLevel(LogLevel level, bool useSyslog);
+/// Courtesy class to write log into files, see  setLogWriter
+class UTILS_EX FileLogWriter : public LogWriter {
+public:
+    FileLogWriter(const std::string& path);
+protected:
+    bool doWrite(const char* buffer, size_t count) override;
+protected:
+    std::ofstream m_file;
+};
+
+UTILS_EX void setLogLevel(LogLevel level);
 UTILS_EX LogLevel logLevel();
-UTILS_EX bool useSysLog();
 UTILS_EX std::string toStr(LogLevel l);
-UTILS_EX DebugStream logStream(LogLevel logLevel);
+UTILS_EX std::ostream logStream(LogLevel logLevel);
 UTILS_EX void init();
 UTILS_EX std::string currentTimeString();
 UTILS_EX std::string lastError();
 UTILS_EX void processAbort(int err);
+/// Replace the default writer, set nullptr to apply original, not a thread safe.
+UTILS_EX void setLogWriter(LogWriter* writer);
 
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
-    if(useSysLog()) {
-        log_t(level, e, args...);
-    } else {
-        if(level <= logLevel()) {
-            logStream(level).print() << '[' << currentTimeString() << "] " << toStr(level) << " " << e << " ";
-        }
-        log_t(level, args...);
+    if(level <= logLevel()) {
+        logStream(level) << e << " ";
+        log(level, args...);
     }
 }
 
 template<typename T>
 inline void log(LogLevel level, const T& e) {
-    if(useSysLog()) {
-        log_t(level, e);
-    } else {
-        if(level <= logLevel()) {
-            logStream(level).print() << '[' << GempyreUtils::currentTimeString() << "] " << toStr(level) << " " << e << std::endl;
-            if(level == LogLevel::Fatal)  {
-                processAbort(-999);
-            }
-        }
-    }
-}
-
-template <typename T, typename ...Args>
-inline void log_t(LogLevel level, const T& e, Args... args) {
-    if(level <= logLevel())
-        logStream(level).print() << e << " ";
-    log_t(level, args...);
-}
-
-template<typename T>
-inline void log_t(LogLevel level, const T& e) {
     if(level <= logLevel()) {
-        logStream(level).print() << e << std::endl;
-        if(level == LogLevel::Fatal) {
+        logStream(level) << e << std::endl;
+        if(level == LogLevel::Fatal)  {
             processAbort(-999);
         }
     }
-}
-
-template <typename ...Args>
-inline void log_t(LogLevel level, const std::nullptr_t&, Args... args) {
-    if(level <= logLevel())
-        logStream(level).print() << "NULL" << " ";
-    log_t(level, args...);
 }
 
 

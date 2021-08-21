@@ -34,7 +34,7 @@ extern int androidLoadUi(const std::string&);
 
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 
-void Gempyre::setDebug(Gempyre::DebugLevel level, bool useLog) {
+void Gempyre::setDebug(Gempyre::DebugLevel level) {
     const std::unordered_map<Gempyre::DebugLevel, GempyreUtils::LogLevel> lvl =  {
         {Gempyre::DebugLevel::Quiet, GempyreUtils::LogLevel::None},
         {Gempyre::DebugLevel::Fatal, GempyreUtils::LogLevel::Fatal},
@@ -44,7 +44,7 @@ void Gempyre::setDebug(Gempyre::DebugLevel level, bool useLog) {
         {Gempyre::DebugLevel::Debug, GempyreUtils::LogLevel::Debug},
         {Gempyre::DebugLevel::Debug_Trace, GempyreUtils::LogLevel::Debug_Trace}
     };
-    GempyreUtils::setLogLevel(lvl.at(level), useLog);
+    GempyreUtils::setLogLevel(lvl.at(level));
 }
 
 
