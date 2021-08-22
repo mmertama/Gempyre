@@ -24,9 +24,7 @@
 using namespace std::chrono_literals;
 using namespace Gempyre;
 
-const std::string SERVER_ADDRESS = "http://localhost";
-
-
+static const std::string SERVER_ADDRESS = "http://localhost";
 
 #ifdef ANDROID_OS
 extern int androidLoadUi(const std::string&);
@@ -131,16 +129,7 @@ std::string Ui::toStr(const std::atomic<Gempyre::Ui::State>& s) {
 }
 
 Ui::Ui(const std::string& indexHtml, unsigned short port, const std::string& root) : Ui(indexHtml,
-#if defined(UNIX_OS) //maybe works only on Debian derivatives
-            "x-www-browser"
-#elif defined(MAC_OS)
-            "open"
-#elif defined(WINDOWS_OS)
-            "start /max"
-#else
-            ""
-#endif
-            , "", port, root) {}
+GempyreUtils::htmlFileLaunchCmd(), "", port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root)
     : Ui(filemap, indexHtml, "", "", port, root) {}
@@ -275,29 +264,33 @@ m_filemap(normalizeNames(filemap)) {
             m_status = State::RUNNING;
             const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
 
-            const std::string appui = !browser.empty() ? browser : GempyreUtils::osBrowser();
+            const std::string appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
 
 #ifndef ANDROID_OS
             gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
 
-            const auto cmdLine = appui
-            + " " + SERVER_ADDRESS + ":"
+            const auto on_path = GempyreUtils::which(appui);
+            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
+
+            const auto cmd_params =  SERVER_ADDRESS + ":"
             + std::to_string(port) + "/"
             + (appPage.empty() ? "index.html" : appPage)
             + " " + extraParams;
 
-            const auto result =
 #if defined (ANDROID_OS)
-            androidLoadUi(cmdLine);
+            const auto result = androidLoadUi(appui + " " + cmd_params);
 #else
-            GempyreUtils::execute(cmdLine);
+
+            const auto result = is_exec ?
+                        GempyreUtils::execute(appui, cmd_params) : GempyreUtils::execute("", appui + " " +  cmd_params);
+
 #endif
             if(result != 0) {
                 //TODO: Change to Fatal
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot open:", cmdLine, result);
+                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot open:", appui, cmd_params, "error:", result, GempyreUtils::lastError());
             } else {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening:", cmdLine);
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening:", appui, cmd_params);
             }
             return true;
         };

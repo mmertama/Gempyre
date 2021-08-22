@@ -116,6 +116,7 @@ std::string GempyreUtils::qq(const std::string& s) {
 
 std::string GempyreUtils::chop(const std::string& s) {
     auto str = s;
+    str.erase(str.find_last_not_of('\0') + 1);
     str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
     return str;
 }
@@ -132,7 +133,7 @@ void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level) {
 }
 
 
-std::string LogWriter::initLine(LogLevel logLevel) {
+std::string LogWriter::header(LogLevel logLevel) {
     std::stringstream buf;
     buf << '[' << currentTimeString() << "] " << toStr(logLevel) << " ";
     return buf.str();
@@ -198,7 +199,7 @@ bool FileLogWriter::doWrite(const char* bytes, size_t count) {
         (void) count;
         if(!m_file.is_open())
             return false;
-        m_file << bytes;
+        m_file << bytes << std::flush; // flush to catch crashes
         return true;
     }
 
@@ -213,10 +214,10 @@ static ErrStream defaultErrorStream;
 
 std::ostream GempyreUtils::logStream(LogLevel logLevel) {
     auto strm  = (g_logWriter) ? g_logWriter.load() : &defaultErrorStream;
-    static thread_local LogStream<1024> logStream;
-    logStream.setWriter(strm);
-    std::ostream(&logStream) << strm->initLine(logLevel);
-    return std::ostream(&logStream);
+    static thread_local LogStream<1024> logStreamer;
+    logStreamer.setWriter(strm);
+    std::ostream(&logStreamer) << strm->header(logLevel);
+    return std::ostream(&logStreamer);
 }
 
 GempyreUtils::LogLevel GempyreUtils::logLevel() {
@@ -480,9 +481,10 @@ bool GempyreUtils::fileExists(const std::string& filename) {
 
 
 std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
-
-    const auto dname = dirname.back() != '/' ? dirname + '/' : dirname;
     std::vector<std::string> entries;
+    if(dirname.empty())
+        return entries;
+    const auto dname = dirname.back() != '/' ? dirname + '/' : dirname;
 #ifndef WINDOWS_OS
     auto dir = ::opendir(dname.c_str());
     if(!dir)
@@ -778,7 +780,7 @@ GempyreUtils::OS GempyreUtils::currentOS() {
 #endif
 }
 
-std::string GempyreUtils::osBrowser() {
+std::string GempyreUtils::htmlFileLaunchCmd() {
     return
     #if defined(UNIX_OS) //maybe works only on Debian derivatives
         "x-www-browser"
@@ -977,12 +979,16 @@ std::string GempyreUtils::pushPath(const std::string& path, const std::string& n
 #endif
 }
 
-int GempyreUtils::execute(const std::string& exe) {
-    return
+int GempyreUtils::execute(const std::string& executable, const std::string& parameters) {
 #if defined(WINDOWS_OS)
-            std::system(exe.c_str());
+    if(executable.empty())
+        return system(parameters.c_str()); // for compatibility with osbrowser
+    else {
+        const auto hi = (INT_PTR) ::ShellExecuteA(NULL, NULL, executable.c_str(), parameters.c_str(), NULL, SW_SHOWNORMAL);
+        return (hi > 32 || hi < 0) ? 0 : hi ; //If the function succeeds, it returns a value greater than 32. If the function fails, it returns an error value that indicates the cause of the failure.
+    }
 #else
-            std::system((exe + "&").c_str());
+    std::system((executable + " " + parameters + " &").c_str());
 #endif
 }
 

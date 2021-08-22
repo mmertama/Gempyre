@@ -144,11 +144,6 @@ int levenshteinDistance(std::string_view s1, std::string_view s2);
  * Container Utils
  */
 
-template<typename T>
-bool contains(const T& container, const std::string& s) {
-    return container.find(s) != container.end();
-}
-
 template<typename C, typename T>
 std::optional<T> at(const C& container, const std::string& s, unsigned index = 0) {
     const auto range = container.equal_range(s);
@@ -300,13 +295,13 @@ UTILS_EX bool setPriority(int priority);
 UTILS_EX std::pair<int, int> getPriorityLevels();
 #endif
 
-UTILS_EX std::string osBrowser();
+UTILS_EX std::string htmlFileLaunchCmd();
 
 /// Parent class for LogWriters
 class LogWriter {
 public:
     /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
-    virtual std::string initLine(LogLevel logLevel);
+    virtual std::string header(LogLevel logLevel);
     /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
     virtual bool doWrite(const char* buffer, size_t count) = 0;
 };
@@ -332,24 +327,40 @@ UTILS_EX void processAbort(int err);
 /// Replace the default writer, set nullptr to apply original, not a thread safe.
 UTILS_EX void setLogWriter(LogWriter* writer);
 
+
 template <typename T, typename ...Args>
-inline void log(LogLevel level, const T& e, Args... args) {
-    if(level <= logLevel()) {
-        logStream(level) << e << " ";
-        log(level, args...);
-    }
+inline void logLine(LogLevel level, std::ostream& os, const T& e, Args... args) {
+    os << e << " ";
+    logLine(level, os, args...);
 }
 
 template<typename T>
-inline void log(LogLevel level, const T& e) {
-    if(level <= logLevel()) {
-        logStream(level) << e << std::endl;
-        if(level == LogLevel::Fatal)  {
-            processAbort(-999);
-        }
+inline void logLine(LogLevel level, std::ostream& os, const T& e) {
+    os << e << std::endl;
+    if(level == LogLevel::Fatal)  {
+        processAbort(-999);
     }
 }
 
+template <typename T, typename ...Args>
+inline void log(LogLevel level, const T& e, Args... args) {
+    if(level <= logLevel()) {
+        auto os = logStream(level);
+        logLine(level, os, e, args...);
+    }
+}
+
+
+// Plan is to make loglevel static in coming versions so there is no extra if for each log and ref to global data
+template <LogLevel level, typename T, typename ...Args>
+inline void writeLog(const T& e, Args... args) {
+    log(level, e, args...);
+}
+
+template <typename T, typename ...Args>
+inline void logDebug(const T& e, Args... args) {
+    writeLog<LogLevel::Debug, T, Args...>(e, args...);
+}
 
 inline bool doFatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
     if(f) f();
@@ -396,7 +407,7 @@ std::string pushPath(const std::string& path, const std::string& name, NAME...na
     return pushPath(pushPath(path, name), names...);
 }
 ///execute a prog
-UTILS_EX int execute(const std::string& prog);
+UTILS_EX int execute(const std::string& prog, const std::string& parameters);
 
 template <class T>
 std::string writeToTemp(const T& data) {
