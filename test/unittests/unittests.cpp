@@ -338,6 +338,21 @@ TEST(Unittests, test_levenshtein) {
     EXPECT_EQ(std::find(list.begin(), list.end(), "separation"), pos);
 }
 
+TEST(Unittests, test_log) {
+    const auto temp = GempyreUtils::tempName();
+    do {
+    GempyreUtils::FileLogWriter flw(temp);
+    GempyreUtils::setLogWriter(&flw);
+    GempyreUtils::setLogLevel(GempyreUtils::LogLevel::Debug);
+    GempyreUtils::logDebug("foo");
+    } while(false);
+    const auto content = GempyreUtils::chop(GempyreUtils::slurp(temp));
+    EXPECT_TRUE(!content.empty());
+    const auto list = GempyreUtils::split<std::vector<std::string>>(content);
+    EXPECT_TRUE(std::find(list.begin(), list.end(), "foo") != list.end());
+    GempyreUtils::removeFile(temp);
+}
+
 int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
    for(int i = 1 ; i < argc; ++i)
