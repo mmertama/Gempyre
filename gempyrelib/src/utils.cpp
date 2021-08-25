@@ -203,6 +203,14 @@ bool FileLogWriter::doWrite(const char* bytes, size_t count) {
         return true;
     }
 
+StreamLogWriter::StreamLogWriter(std::ostream& os) : m_os(os)  {}
+bool StreamLogWriter::doWrite(const char* bytes, size_t count) {
+        (void) count;
+        if(!m_os.good())
+            return false;
+        m_os << bytes << std::flush; // flush to catch crashes
+        return true;
+    }
 
 static std::atomic<GempyreUtils::LogWriter*> g_logWriter{nullptr};
 

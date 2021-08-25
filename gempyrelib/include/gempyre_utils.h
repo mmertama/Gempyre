@@ -316,6 +316,15 @@ protected:
     std::ofstream m_file;
 };
 
+class UTILS_EX StreamLogWriter : public LogWriter {
+public:
+    StreamLogWriter(std::ostream& os);
+protected:
+    bool doWrite(const char* buffer, size_t count) override;
+protected:
+    std::ostream& m_os;
+};
+
 UTILS_EX void setLogLevel(LogLevel level);
 UTILS_EX LogLevel logLevel();
 UTILS_EX std::string toStr(LogLevel l);
