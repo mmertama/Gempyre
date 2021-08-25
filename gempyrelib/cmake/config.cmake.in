@@ -50,7 +50,7 @@ if(WIN32)
         )
     else()
         set_target_properties(gempyre::gempyre_lib PROPERTIES
-            INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:ws2_32.lib>"
+            INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:ws2_32.lib>;\$<LINK_ONLY:Shlwapi.lib>"
             )
         set_target_properties(gempyre::gempyre_uv PROPERTIES
             INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:ws2_32.lib>"
