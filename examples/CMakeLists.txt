@@ -11,4 +11,5 @@ add_subdirectory(drawcanvas)
 add_subdirectory(audio)
 add_subdirectory(snowflakes)
 add_subdirectory(framerate)
+add_subdirectory(dialogs)
 
