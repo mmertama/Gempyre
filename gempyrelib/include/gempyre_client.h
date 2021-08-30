@@ -4,6 +4,7 @@
 #include <map>
 #include <tuple>
 #include <vector>
+#include <string>
 
 namespace Gempyre {
     class Ui;
