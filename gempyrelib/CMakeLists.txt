@@ -51,14 +51,17 @@ if(BLEEDING_EDGE)
     set(LIB_SOCKETS_VER master)
     set(LIB_WS_VER master)
     set(LIB_ZLIB_VER master)
+    set(LIB_PFD_VER master)
 else()
     set(LIB_UV_VER  v1.41.0)
     set(LIB_JSON_VER v3.9.0)
     set(LIB_SOCKETS_VER v0.7.1)
     set(LIB_WS_VER 0b97cc7)
     set(LIB_ZLIB_VER v1.2.11)
+    set(LIB_PFD_VER master v0.1.0)
 endif()
 
+# todo: use expternalproject_getproperty SOURCE DIR instead to simplify
 set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
 
 set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
@@ -251,6 +254,28 @@ if(NOT ZLIB_H)
     set(ZLIB_H ${ZLIB_DIR}/src/zlib)
 endif()
 
+if(CLIENT_DIALOGS)
+    set(DIALOG_SRC src/ui_client.cpp)
+else()
+    set(DIALOG_SRC src/ui_pfd.cpp)
+    set(PFD_NAME "pfd")
+    set(PFD_DIR "${EXTRA_DIR}/${PFD_NAME}")
+    externalproject_add(libpfd
+        PREFIX ${PFD_DIR}
+        GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
+        #GIT_TAG ${LIB_PFD_VER}
+        GIT_PROGRESS true
+        UPDATE_DISCONNECTED false
+        BUILD_COMMAND ""
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND ""
+        UPDATE_COMMAND ""
+        PATCH_COMMAND ""
+        TEST_COMMAND ""
+        )
+    ExternalProject_Get_Property(libpfd SOURCE_DIR)
+    set(INCLUDES "${INCLUDES} ${SOURCE_DIR}")
+endif()
 
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -284,6 +309,8 @@ if(NOT (MSVC OR ANDROID))
     find_package (Threads REQUIRED)
 endif()
 
+message("INCLUDES ${INCLUDES}")
+
 set(INCLUDES
     ${INCLUDES}
     include
@@ -315,6 +342,7 @@ set(GEMPYRE_SRC
     src/element.cpp
     src/core.h
     src/timequeue.h
+    ${DIALOG_SRC}
     )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -399,6 +427,10 @@ gempyre_add_resources(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gemp
 
 add_dependencies(${PROJECT_NAME} libwebsockets)
 add_dependencies(${PROJECT_NAME} libjson)
+
+if(NOT CLIENT_DIALOGS)
+    add_dependencies(${PROJECT_NAME} libpfd)
+endif()
 
 if (WIN32 OR ANDROID)
     #add_dependencies(libsockets libuv)
