@@ -1,4 +1,4 @@
-set(NAME affiliates_test)
+set(NAME dialogs_test)
 project (${NAME})
 
 set(CMAKE_CXX_STANDARD 17)

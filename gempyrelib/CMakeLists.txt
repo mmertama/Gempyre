@@ -61,8 +61,8 @@ else()
     set(LIB_PFD_VER master v0.1.0)
 endif()
 
-set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/third-party")
-set_directory_properties(PROPERTIES EP_BASE ${EXTRA_DIR})
+# todo: use expternalproject_getproperty SOURCE DIR instead to simplify
+set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
 
 set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
 
@@ -304,6 +304,28 @@ else()
     set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")
 endif()
 
+if(CLIENT_DIALOGS)
+    set(DIALOG_SRC src/ui_client.cpp)
+else()
+    set(DIALOG_SRC src/ui_pfd.cpp)
+    set(PFD_NAME "pfd")
+    set(PFD_DIR "${EXTRA_DIR}/${PFD_NAME}")
+    externalproject_add(libpfd
+        PREFIX ${PFD_DIR}
+        GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
+        #GIT_TAG ${LIB_PFD_VER}
+        GIT_PROGRESS true
+        UPDATE_DISCONNECTED false
+        BUILD_COMMAND ""
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND ""
+        UPDATE_COMMAND ""
+        PATCH_COMMAND ""
+        TEST_COMMAND ""
+        )
+    ExternalProject_Get_Property(libpfd SOURCE_DIR)
+    set(INCLUDES "${INCLUDES} ${SOURCE_DIR}")
+endif()
 
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -337,6 +359,17 @@ if(NOT (MSVC OR ANDROID))
     find_package (Threads REQUIRED)
 endif()
 
+message("INCLUDES ${INCLUDES}")
+
+set(INCLUDES
+    ${INCLUDES}
+    include
+    ${WEBSOCKETS_SOURCES}/src
+    ${SOCKETS_SOURCES}/src
+    include/generated
+    ${JSON_DIR}/src/libjson/include
+    ${ZLIB_H}
+    )
 
 set(GEMPYRE_SRC
     src/core.cpp

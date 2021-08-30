@@ -23,14 +23,17 @@ int main(int argc, char* argv[]) {
 
     auto ui = [&](){
         if(!gempyre_app) {
-            gempyre_utils_assert_x(!std::get<GempyreUtils::ParamList>(plist).empty(), "expected path to affiliates");
-            const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
-
-            return Gempyre::Ui(Affiliates_test_resourceh,
-                         "affiliates_test.html", py, Gempyre::Ui::stdParams(500, 640, "Test Affiliates"));
-        } else {
-            return Gempyre::Ui(Affiliates_test_resourceh,
-                         "affiliates_test.html", argc, argv);
+            if(!std::get<GempyreUtils::ParamList>(plist).empty()) { // python
+                const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
+                return Gempyre::Ui(Dialogs_test_resourceh,
+                             "dialogs_test.html", py, Gempyre::Ui::stdParams(500, 640, "Test Dialogs"));
+            } else { // plain
+                return Gempyre::Ui(Dialogs_test_resourceh,
+                             "dialogs_test.html");
+            }
+        } else { //Hiillos
+            return Gempyre::Ui(Dialogs_test_resourceh,
+                         "dialogs_test.html", argc, argv);
         }
     }();
 
@@ -45,7 +48,7 @@ int main(int argc, char* argv[]) {
     });
 
     openFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openFileDialog("foo", "bar", {{"Text", {"*.txt"}}});
+        const auto out = Gempyre::Dialog::openFileDialog(ui, "foo", "bar", {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
             const auto stuff = GempyreUtils::slurp(*out);
             content.setHTML("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::fileSize(*out)));

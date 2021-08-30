@@ -150,7 +150,7 @@ class ErrStream : public LogWriter {
 #else
 class ErrStream : public LogWriter {
     bool doWrite(const char* bytes, size_t count) override {
-       (void*) count;
+       (void) count;
        std::cerr << bytes;
        return true;
     }
@@ -1003,7 +1003,7 @@ int GempyreUtils::execute(const std::string& executable, const std::string& para
         return (hi > 32 || hi < 0) ? 0 : hi ; //If the function succeeds, it returns a value greater than 32. If the function fails, it returns an error value that indicates the cause of the failure.
     }
 #else
-    std::system((executable + " " + parameters + " &").c_str());
+    return std::system((executable + " " + parameters + " &").c_str());
 #endif
 }
 
@@ -1036,16 +1036,16 @@ int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) 
 
     auto dist = std::vector<std::vector<int>>(l2 + 1, std::vector<int>(l1 + 1));
 
-    for(auto i = 0; i <= l1 ; i++) {
+    for(auto i = 0U; i <= l1 ; i++) {
        dist[0][i] = i;
     }
 
-    for(auto j = 0; j <= l2; j++) {
+    for(auto j = 0U; j <= l2; j++) {
        dist[j][0] = j;
     }
 
-    for (auto j = 1; j <= l1; j++) {
-       for(auto i = 1; i <= l2 ;i++) {
+    for (auto j = 1U; j <= l1; j++) {
+       for(auto i = 1U; i <= l2 ;i++) {
           const auto track = (s2[i-1] == s1[j-1]) ? 0 : 1;
           const auto t = std::min((dist[i - 1][j] + 1), (dist[i][j - 1] + 1));
           dist[i][j] = std::min(t, (dist[i - 1][j - 1] + track));

@@ -131,9 +131,9 @@ namespace Gempyre {
         [[nodiscard]]
         static std::string stdParams(int width, int height, const std::string& title);
 
-        [[deprecated]]
+        /// load a file
         explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        [[deprecated]]
+        /// load a file
         explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         /// use explicit app as UI
