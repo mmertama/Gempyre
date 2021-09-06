@@ -139,8 +139,9 @@ Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::stri
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml,
-       std::get<0>(*gempyreAppParams(argc, argv)),
-       extraParams + ' ' + std::get<1>(*gempyreAppParams(argc, argv)),
+       gempyreAppParams(argc, argv).has_value() ?
+           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
+       extraParams + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
        port, root) {}
 
 
@@ -830,6 +831,14 @@ std::optional<double> Ui::devicePixelRatio() const {
 
 void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen) {
     extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}});
+}
+
+void Ui::resize(int width, int height) {
+    extensionCall("resize", {{"width", width}, {"height", height}});
+}
+
+void Ui::setTitle(const std::string& name) {
+    extensionCall("setTitle", {{"title", name}});
 }
 
 std::string Ui::stdParams(int width, int height, const std::string& title) {

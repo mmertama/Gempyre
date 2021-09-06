@@ -229,8 +229,12 @@ namespace Gempyre {
         [[nodiscard]] bool isHold() const {return m_hold;}
         ///Get an native UI device pixel ratio.
         [[nodiscard]] std::optional<double> devicePixelRatio() const;
-        ///Set application icon
+        ///Set application icon, fail silently if backend wont support
         void setApplicationIcon(const uint8_t* data, size_t dataLen);
+        /// resize, fail silently if backend wont support
+        void resize(int width, int height);
+        /// set title, fail silently if backend wont support
+        void setTitle(const std::string& name);
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);
