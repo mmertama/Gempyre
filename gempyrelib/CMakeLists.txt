@@ -330,6 +330,7 @@ set(GEMPYRE_SRC
     include/gempyre.h
     include/gempyre_utils.h
     include/gempyre_graphics.h
+    include/gempyre_client.h
     src/server.h
     src/base64.h
     src/timer.h

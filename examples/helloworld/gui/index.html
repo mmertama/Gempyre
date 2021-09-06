@@ -9,7 +9,19 @@
 </head>
 <body>
     <script type="text/javascript" src="gempyre.js"></script>
+    <label for="title">Page title:</label>
+    <input type="text" id="title" name="title" required
+           minlength="0" maxlength="256" size="10">
+    <br/>
+    <label for="width">Width:</label>
+    <input type="number" id="width" name="width" required
+          min="20" max="1024" size="10">
+    <label for="height">Height:</label>
+    <input type="number" id="height" name="height" required
+         min="20" max="1024" size="10">
+    <br/>
     <button id="startbutton" onclick="onEvent('startbutton', 'onclick')">Calc!</button>
+    <br/>
     <div id="content"></div>
 </body>
 </html>
