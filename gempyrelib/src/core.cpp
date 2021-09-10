@@ -843,7 +843,7 @@ void Ui::setTitle(const std::string& name) {
 
 std::string Ui::stdParams(int width, int height, const std::string& title) {
     std::stringstream ss;
-    ss << " --gempyre-width=" << width << " --gempyre-height=" << height << " --gempyre-title=\\\"" << title << "\\\""; // circle with spaces
+    ss << " --gempyre-width=" << width << " --gempyre-height=" << height << " --gempyre-title=\"" << title << "\""; // circle with spaces
     return ss.str();
 }
 
