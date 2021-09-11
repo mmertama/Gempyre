@@ -395,6 +395,13 @@ std::string GempyreUtils::absPath(const std::string& rpath) {
 #endif
 }
 
+std::tuple<std::string, std::string> GempyreUtils::splitName(const std::string& filename) {
+    const auto name = baseName(filename);
+    const auto index = name.find_last_of('.');
+    return std::make_tuple(name.substr(0, index), name.substr(index + 1));
+}
+
+
 std::string GempyreUtils::baseName(const std::string& filename) {
     const auto dname = pathPop(filename);
     return dname.empty() ? filename :

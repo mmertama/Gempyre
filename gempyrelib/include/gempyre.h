@@ -230,7 +230,7 @@ namespace Gempyre {
         ///Get an native UI device pixel ratio.
         [[nodiscard]] std::optional<double> devicePixelRatio() const;
         ///Set application icon, fail silently if backend wont support
-        void setApplicationIcon(const uint8_t* data, size_t dataLen);
+        void setApplicationIcon(const uint8_t* data, size_t dataLen, const std::string& type);
         /// resize, fail silently if backend wont support
         void resize(int width, int height);
         /// set title, fail silently if backend wont support

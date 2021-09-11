@@ -1,5 +1,6 @@
 #include "gempyre.h"
 #include "gempyre_utils.h"
+#include "gempyre_client.h"
 #include <iostream>
 #include <cassert>
 
@@ -49,13 +50,25 @@ int main(int argc, char** argv) {
         ui->setTitle(title_name);
     }, {"value"});
 
-            ui->onOpen([&ui] {
-               const auto r = ui->root().rect();
-               if(r) {
-                   Gempyre::Element(*ui, "width").setAttribute("value", std::to_string(r->width));
-                   Gempyre::Element(*ui, "height").setAttribute("value", std::to_string(r->height));
-               }
-            });
+    Gempyre::Element(*ui, "open_icon").subscribe("click", [&ui](const auto&)  {
+        const auto icon_name = Gempyre::Dialog::openFileDialog(*ui, "Open Image");
+        if(!icon_name)
+            return;
+        Gempyre::Element(*ui, "icon_label").setHTML(*icon_name);
+        const auto icon_data = GempyreUtils::slurp<uint8_t>(*icon_name);
+        if(icon_data.empty())
+            return;
+        const auto& [_, ext] = GempyreUtils::splitName(*icon_name);
+        ui->setApplicationIcon(icon_data.data(), icon_data.size(), ext);
+    });
+
+    ui->onOpen([&ui] {
+       const auto r = ui->root().rect();
+       if(r) {
+           Gempyre::Element(*ui, "width").setAttribute("value", std::to_string(r->width));
+           Gempyre::Element(*ui, "height").setAttribute("value", std::to_string(r->height));
+       }
+    });
 
     Gempyre::Element(*ui, "width").subscribe("change", [&ui](const auto& event)  {
         const auto w = GempyreUtils::to<int>(event.properties.at("value"));
