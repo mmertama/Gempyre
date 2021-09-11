@@ -312,7 +312,7 @@ m_filemap(normalizeNames(filemap)) {
     // automatically try to set app icon if favicon is available
     const auto icon = resource("/favicon.ico");
     if(icon)
-        setApplicationIcon(icon->data(), icon->size());
+        setApplicationIcon(icon->data(), icon->size(), "ico");
 }
 
 Ui::~Ui() {
@@ -829,8 +829,8 @@ std::optional<double> Ui::devicePixelRatio() const {
     return value.has_value() && m_status == Ui::State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
 }
 
-void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen) {
-    extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}});
+void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen, const std::string& type) {
+    extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}, {"type", type}});
 }
 
 void Ui::resize(int width, int height) {
