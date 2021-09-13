@@ -128,14 +128,16 @@ std::string Ui::toStr(const std::atomic<Gempyre::Ui::State>& s) {
     return m.at(s.load());
 }
 
-Ui::Ui(const std::string& indexHtml, unsigned short port, const std::string& root) : Ui(indexHtml,
-GempyreUtils::htmlFileLaunchCmd(), "", port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root)
     : Ui(filemap, indexHtml, "", "", port, root) {}
 
 Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser, extraParams, port, root) {}
+
+Ui::Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
+    Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser,
+       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams), port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml,
@@ -144,6 +146,17 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** ar
        extraParams + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
        port, root) {}
 
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
+    Ui(filemap, indexHtml,
+       gempyreAppParams(argc, argv).has_value() ?
+           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
+       (stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams)) + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
+       port, root) {}
+
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
+    Ui(filemap, indexHtml, browser,
+       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams),
+       port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     m_eventqueue(std::make_unique<EventQueue<std::tuple<std::string, std::string, std::unordered_map<std::string, std::any>>>>()),
