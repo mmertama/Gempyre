@@ -1,7 +1,7 @@
 #include <gempyre.h>
 #include <gempyre_utils.h>
 #include <gempyre_client.h>
-#include "affiliates_test_resource.h"
+#include "dialogs_test_resource.h"
 #include <iostream>
 
 
@@ -11,14 +11,31 @@
  for Qt "../qt_client/gempyreqtclient"
  */
 
+
+
+
 int main(int argc, char* argv[]) {
     Gempyre::setDebug();
-    const auto plist = GempyreUtils::parseArgs(argc, argv, {});
-    gempyre_utils_assert_x(!std::get<GempyreUtils::ParamList>(std::get<GempyreUtils::Params>(plist)).empty(), "expected path to affiliates");
-    const std::string py = std::get<GempyreUtils::ParamList>(std::get<GempyreUtils::Params>(plist))[0];
+    const auto plist = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
 
-    Gempyre::Ui ui({{"/affiliates_test.html", Affiliates_testhtml}},
-                 "affiliates_test.html", py, "500 640 \"Test Affiliates\"");
+    const auto opt = std::get<GempyreUtils::Options>(plist);
+    const auto gempyre_app = GempyreUtils::getValue(opt, std::string("gempyre-app"));
+
+    auto ui = [&](){
+        if(!gempyre_app) {
+            if(!std::get<GempyreUtils::ParamList>(plist).empty()) { // python
+                const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
+                return Gempyre::Ui(Dialogs_test_resourceh,
+                             "dialogs_test.html", py, Gempyre::Ui::stdParams(500, 640, "Test Dialogs"));
+            } else { // plain
+                return Gempyre::Ui(Dialogs_test_resourceh,
+                             "dialogs_test.html");
+            }
+        } else { //Hiillos
+            return Gempyre::Ui(Dialogs_test_resourceh,
+                         "dialogs_test.html", argc, argv);
+        }
+    }();
 
     Gempyre::Element content(ui, "content");
     Gempyre::Element openFile(ui, "open_file");
@@ -31,7 +48,7 @@ int main(int argc, char* argv[]) {
     });
 
     openFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openFileDialog("", "", {{"Text", {"*.txt"}}});
+        const auto out = Gempyre::Dialog::openFileDialog(ui, "foo", "bar", {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
             const auto stuff = GempyreUtils::slurp(*out);
             content.setHTML("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::fileSize(*out)));
@@ -39,7 +56,7 @@ int main(int argc, char* argv[]) {
     });
 
     openFiles.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openFilesDialog();
+        const auto out = Gempyre::Dialog::openFilesDialog(ui);
         if(out && !out->empty()) {
             std::string line;
             for(const auto& o : *out) {
@@ -50,19 +67,19 @@ int main(int argc, char* argv[]) {
     });
 
     openDir.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).openDirDialog("dir");
+        const auto out = Gempyre::Dialog::openDirDialog(ui, "dir");
         if(out && !out->empty()) {
             const auto dirlist = GempyreUtils::directory(*out);
             std::string line;
             for(const auto& d : dirlist) {
-                line += std::get<0>(d) +"</br>";
+                line += d +"</br>";
             }
             content.setHTML(line);
         }
     });
 
     saveFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = GempyreClient::Dialog<Gempyre::Ui>(ui).saveFileDialog("", "", {{"Text", {"*.txt", "*.text"}}, {"Log", {"*.log"}}});
+        const auto out = Gempyre::Dialog::saveFileDialog(ui, "", "", {{"Text", {"*.txt", "*.text"}}, {"Log", {"*.log"}}});
         if(out && !out->empty()) {
             if(GempyreUtils::fileExists(*out)) {
                  content.setHTML("Do not pick existing file:" + *out);

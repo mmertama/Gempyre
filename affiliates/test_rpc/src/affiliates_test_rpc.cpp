@@ -5,6 +5,8 @@
 
 #include "affiliates_test_rpc_resource.h"
 
+
+
 int main(int argc, char* argv[]) {
     const auto hostName = std::string(argc > 1 ? argv[1] : "127.0.0.1");
     const auto localAddr = GempyreUtils::ipAddresses(GempyreUtils::AddressType::Ipv4);
@@ -25,4 +27,15 @@ int main(int argc, char* argv[]) {
     ui.run();
 }
 
+/*
+
+                std::vector<std::string>({
+                                             std::string(
+                                             "--host=") + hostName,
+                                             "--port=43102",
+                                             "--address=" + std::string(localAddr[0]),
+                                             "--gempyre-width=400",
+                                             "--gempyre-height=400",
+                                             "--gempyre-title=\"Remote, but near\""}), " ");
+*/
 

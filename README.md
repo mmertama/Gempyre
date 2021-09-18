@@ -24,15 +24,13 @@ Gempyre API has few headers
 * [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive and games.
 * gempyre_client.h, provides file dialogs when started using client application. 
 
-How to build on Linux
+How to build on Linux and MacOS
 * Run git clone https://github.com/mmertama/Gempyre.git.
-* cmake CMakeLists.txt
-* make 
-
-How to build on MacOS
-* Run git clone https://github.com/mmertama/Gempyre.git .
-* cmake CMakeLists.txt
-* make
+* md build
+* cd build
+* cmake ..
+* cmake --build .
+* sudo cmake --install .
 
 How to build on Windows 10
 * Install git bash from https://gitforwindows.org/
@@ -56,21 +54,33 @@ How to build on Windows 10
  * [calc-Gempyre](https://github.com/mmertama/calc-Gempyre)
  
  
- Things in pipeline
+ Things to do and in pipeline
 ---------------------
 * Update / improve documentation (C++ and Python)  
 * Binary releases (Maybe installer / some packet manager support / pip)
 * Raspberry build (remote and local UI)
 * Native application window for OSX, Linux and Windows as default
 * Support for secure web socket (nice for remote UIs)
-* Flatbuffer/protobuf instead of JSON 
-* Compile time resources (static map) 
+* Flatbuffer/protobuf instead of JSON (perf up)
+* Using WASM instean of JS (perf up)
+* Better Unit and moduletests coverage
+* CI pipelines
+* Cleaning code and refactoring (API behind PIMPL?, string_views instead of strings when possible, meaningless std::any for code encapsulation)
+* Supress subsystem warnings.
+* Reconsider libwebsockets instead of uWebsockets.
+* POC of Gempyre-Android style architecture also in core.
+* camelStyle or snake_style? (Gempyre-Python already uses snake, and Im warmin up for that :-)
+
 
 Late updates
 ----------------
+### 2021 1
 * Proper build and install with cmake
 * Use GTest for API testing
 * Rewrote timers + other smaller fixes
+### 2021 2
+* Lot of fixes and some new utils
+* Native application window for OSX, Linux and Windows using [Hiillos] (https://github.com/mmertama/Hiillos)                        
 
 Copyright
 Markus Mertama 2020, 2021

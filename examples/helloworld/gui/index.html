@@ -1,15 +1,35 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Application</title>
-  <meta name="description" content="Application">
-  <link href="graphics/favicon.ico" rel="icon" type="image/x-icon" />
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta charset="utf-8">
+    <title>Application</title>
+    <meta name="description" content="Application">
+    <link href="favicon.ico" rel="icon" type="image/x-icon" />
+    <link rel="stylesheet" href="styles.css?v=1.0">
 </head>
 <body>
+    <h1>Hello World!</h1>
+    <h2>Again!</h2>
     <script type="text/javascript" src="gempyre.js"></script>
+    <label for="title">Page title:</label>
+    <input type="text" id="title" name="title" required
+           minlength="0" maxlength="256" size="10">
+    <br/>
+    <label for="width">Width:</label>
+    <input type="number" id="width" name="width" required
+          min="20" max="1024" size="10">
+    <label for="height">Height:</label>
+    <input type="number" id="height" name="height" required
+         min="20" max="1024" size="10">
+    <br/>
+    <label id='icon_label' for="icon"></label>
+    <button id='open_icon'>Open icon</button>
+    <br/>
     <button id="startbutton" onclick="onEvent('startbutton', 'onclick')">Calc!</button>
+    <br/>
     <div id="content"></div>
 </body>
 </html>

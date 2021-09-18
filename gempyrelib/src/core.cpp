@@ -24,9 +24,7 @@
 using namespace std::chrono_literals;
 using namespace Gempyre;
 
-const std::string SERVER_ADDRESS = "http://localhost";
-
-
+static const std::string SERVER_ADDRESS = "http://localhost";
 
 #ifdef ANDROID_OS
 extern int androidLoadUi(const std::string&);
@@ -34,7 +32,7 @@ extern int androidLoadUi(const std::string&);
 
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 
-void Gempyre::setDebug(Gempyre::DebugLevel level, bool useLog) {
+void Gempyre::setDebug(Gempyre::DebugLevel level) {
     const std::unordered_map<Gempyre::DebugLevel, GempyreUtils::LogLevel> lvl =  {
         {Gempyre::DebugLevel::Quiet, GempyreUtils::LogLevel::None},
         {Gempyre::DebugLevel::Fatal, GempyreUtils::LogLevel::Fatal},
@@ -44,7 +42,7 @@ void Gempyre::setDebug(Gempyre::DebugLevel level, bool useLog) {
         {Gempyre::DebugLevel::Debug, GempyreUtils::LogLevel::Debug},
         {Gempyre::DebugLevel::Debug_Trace, GempyreUtils::LogLevel::Debug_Trace}
     };
-    GempyreUtils::setLogLevel(lvl.at(level), useLog);
+    GempyreUtils::setLogLevel(lvl.at(level));
 }
 
 
@@ -61,6 +59,21 @@ std::tuple<int, int, int> Gempyre::version() {
     static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
     const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
     return {GempyreUtils::to<int>(c[0]), GempyreUtils::to<int>(c[1]), GempyreUtils::to<int>(c[2])};
+}
+
+
+static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, char** argv) {
+    const auto& [params, opt] = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
+    const auto it = opt.find("gempyre-app");
+    if(it != opt.end()) {
+        const auto& [_, app] = *it;
+        const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + argc, " ");
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gempyre-app", app, "params:", GempyreUtils::join(argv, argv + argc, ", "));
+        return std::make_optional(std::make_tuple(app, reconstructed_list)); 
+    } else {
+        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "No gempyre-app switch found", GempyreUtils::join(argv, argv + argc, ", "));
+    }
+    return std::nullopt;
 }
 
 /**
@@ -115,30 +128,44 @@ std::string Ui::toStr(const std::atomic<Gempyre::Ui::State>& s) {
     return m.at(s.load());
 }
 
-Ui::Ui(const std::string& indexHtml, unsigned short port, const std::string& root) : Ui(indexHtml,
-#if defined(UNIX_OS) //maybe works only on Debian derivatives
-            "x-www-browser"
-#elif defined(MAC_OS)
-            "open"
-#elif defined(WINDOWS_OS)
-            "start /max"
-#else
-            ""
-#endif
-            , "", port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root)
-    : Ui(filemap, indexHtml, GempyreUtils::osBrowser(), "", port, root) {}
+    : Ui(filemap, indexHtml, "", "", port, root) {}
 
 Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser, extraParams, port, root) {}
+
+Ui::Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
+    Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser,
+       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams), port, root) {}
+
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
+    Ui(filemap, indexHtml,
+       gempyreAppParams(argc, argv).has_value() ?
+           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
+       extraParams + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
+       port, root) {}
+
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
+    Ui(filemap, indexHtml,
+       gempyreAppParams(argc, argv).has_value() ?
+           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
+       (stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams)) + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
+       port, root) {}
+
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
+    Ui(filemap, indexHtml, browser,
+       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams),
+       port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     m_eventqueue(std::make_unique<EventQueue<std::tuple<std::string, std::string, std::unordered_map<std::string, std::any>>>>()),
     m_responsemap(std::make_unique<EventMap<std::string, std::any>>()),
     m_sema(std::make_unique<Semaphore>()),
     m_timers(std::make_unique<TimerMgr>()),
-    m_onUiExit([this]() {exit();}),
+    m_onUiExit([this]() {
+        exit();
+    }),
 m_filemap(normalizeNames(filemap)) {
     GempyreUtils::init();
 
@@ -155,7 +182,7 @@ m_filemap(normalizeNames(filemap)) {
             }
         };
 
-        auto messageHandler = [this](const std::unordered_map<std::string, std::any>& params) { //message
+        auto messageHandler = [this, indexHtml, extraParams](const std::unordered_map<std::string, std::any>& params) { //message
             const auto kit = params.find("type");
             if(kit != params.end())  {
                 const auto type = std::any_cast<std::string>(kit->second);
@@ -185,6 +212,15 @@ m_filemap(normalizeNames(filemap)) {
                 } else if(type == "exit_request") {
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "client kindly asks exit --> Status change Exit");
                     m_status = State::EXIT;
+                } else if(type == "extensionready") {
+                     const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
+                     const auto address =
+                     + " " + SERVER_ADDRESS + "/"
+                     + (appPage.empty() ? "index.html" : appPage);
+
+                     extensionCall("ui_info", {
+                                      {"url", address},
+                                      {"params", extraParams}});
                 }
                 m_sema->signal();
             }
@@ -243,27 +279,34 @@ m_filemap(normalizeNames(filemap)) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
             m_status = State::RUNNING;
             const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
+
+            const std::string appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
+
 #ifndef ANDROID_OS
-            gempyre_utils_assert_x(!browser.empty() || !GempyreUtils::osBrowser().empty(), "I have no idea what browser should be spawned, please use other constructor");
+            gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
-            const auto cmdLine = (browser.empty() ? GempyreUtils::osBrowser() : browser)
-            + " " + SERVER_ADDRESS + ":"
+
+            const auto on_path = GempyreUtils::which(appui);
+            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
+
+            const auto cmd_params =  SERVER_ADDRESS + ":"
             + std::to_string(port) + "/"
             + (appPage.empty() ? "index.html" : appPage)
             + " " + extraParams;
-            const auto result =
-#if defined(WINDOWS_OS)
-            std::system(cmdLine.c_str());
-#elif defined (ANDROID_OS)
-            androidLoadUi(cmdLine);
 
+#if defined (ANDROID_OS)
+            const auto result = androidLoadUi(appui + " " + cmd_params);
 #else
-            std::system((cmdLine + "&").c_str());
+
+            const auto result = is_exec ?
+                        GempyreUtils::execute(appui, cmd_params) : GempyreUtils::execute("", appui + " " +  cmd_params);
+
 #endif
             if(result != 0) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Cannot open:", cmdLine);
+                //TODO: Change to Fatal
+                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot open:", appui, cmd_params, "error:", result, GempyreUtils::lastError());
             } else {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening:", cmdLine);
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening:", appui, cmd_params);
             }
             return true;
         };
@@ -278,6 +321,11 @@ m_filemap(normalizeNames(filemap)) {
                        listener
                    );
     };
+
+    // automatically try to set app icon if favicon is available
+    const auto icon = resource("/favicon.ico");
+    if(icon)
+        setApplicationIcon(icon->data(), icon->size(), "ico");
 }
 
 Ui::~Ui() {
@@ -719,7 +767,24 @@ std::optional<Element::Elements> Ui::byName(const std::string& className) const 
     return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
-std::optional<std::any> Ui::extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
+void Ui::extensionCall(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+    const auto json = GempyreUtils::toJsonString(parameters);
+    gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
+    addRequest([this, callId, json]() {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension:", json.value());
+        return m_server->send({
+                                  {"type", "extension"},
+                                  {"extension_call", callId},
+                                  {"extension_id", ""},
+                                  {"extension_parameters", json.value()}});
+    });
+}
+
+std::optional<std::any> Ui::extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+    return extensionGet(callId, parameters);
+}
+
+std::optional<std::any> Ui::extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
     if(m_status != State::RUNNING) {
         return std::nullopt;
     }
@@ -777,4 +842,38 @@ std::optional<double> Ui::devicePixelRatio() const {
     return value.has_value() && m_status == Ui::State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
 }
 
+void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen, const std::string& type) {
+    extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}, {"type", type}});
+}
+
+void Ui::resize(int width, int height) {
+    extensionCall("resize", {{"width", width}, {"height", height}});
+}
+
+void Ui::setTitle(const std::string& name) {
+    extensionCall("setTitle", {{"title", name}});
+}
+
+std::string Ui::stdParams(int width, int height, const std::string& title) {
+    std::stringstream ss;
+    ss << " --gempyre-width=" << width << " --gempyre-height=" << height << " --gempyre-title=\"" << title << "\""; // circle with spaces
+    return ss.str();
+}
+
+std::optional<std::string> Ui::addFile(Gempyre::Ui::Filemap& map, const std::string& file) {
+    if(!GempyreUtils::fileExists(file)) {
+        return std::nullopt;
+    }
+    auto url = GempyreUtils::substitute(file, R"([\/\\])", "_");
+    if(map.find(url) != map.end()) {
+        return std::nullopt;
+    }
+
+    url.insert(url.begin(), '/');
+
+    const auto data = GempyreUtils::slurp<Base64::Byte>(file);
+    const auto string = Base64::encode(data);
+    map.insert_or_assign(url, std::move(string));
+    return url;
+}
 

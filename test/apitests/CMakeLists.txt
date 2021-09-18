@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.16)
+cmake_minimum_required (VERSION 3.18)
 
 include(GoogleTest)
 
@@ -21,10 +21,9 @@ add_executable(${PROJECT_NAME}
 gtest_discover_tests(${PROJECT_NAME})
 
 # add HTML into resources
-addResource(PROJECT ${PROJECT_NAME}
+gempyre_add_resources(PROJECT ${PROJECT_NAME}
     TARGET include/${PROJECT_NAME}_resource.h
     SOURCES gui/${PROJECT_NAME}.html)
-
 
 # copy HTML to binary for tests
 add_compile_definitions(TEST_HTML="${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html")
@@ -33,5 +32,7 @@ configure_file(gui/${PROJECT_NAME}.html ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NA
 add_dependencies (${PROJECT_NAME} gempyre)
 find_library(gtest PATHS ${TEST_LIBRARY_DIR})
 
-target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>" gtest)
+target_link_libraries (${PROJECT_NAME}
+    PRIVATE gtest)
+target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
 

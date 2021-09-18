@@ -276,8 +276,7 @@ void Server::serverThread(unsigned short port) {
                         m_uiready = true;
                     }
                     if(*f == "extensionready") {
-                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "exteansionready");
-                        return;
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "extensioneady");
                     }
                     if(*f == "extension") {
                         const auto log = jsObj.find("level");
@@ -290,7 +289,6 @@ void Server::serverThread(unsigned short port) {
                             GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Ext", *msg);
                         else if(*log == "error" || log->empty())
                             GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ext", *msg);
-                        return;
                         return;
                     }
                     if(*f == "log") {

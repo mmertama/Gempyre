@@ -1,13 +1,13 @@
-cmake_minimum_required (VERSION 3.14)
+#cmake_minimum_required (VERSION 3.18)
 
-project (gempyre VERSION 0.5.0 LANGUAGES CXX C)
+project (gempyre VERSION 0.6.0 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
 include(ExternalProject)
 include(FetchContent)
 include(GenerateExportHeader)
-include(../scripts/addResource.cmake)
+include(../scripts/gempyre.cmake)
 
 set(CMAKE_DEBUG_POSTFIX "d")
 
@@ -51,14 +51,17 @@ if(BLEEDING_EDGE)
     set(LIB_SOCKETS_VER master)
     set(LIB_WS_VER master)
     set(LIB_ZLIB_VER master)
+    set(LIB_PFD_VER master)
 else()
     set(LIB_UV_VER  v1.41.0)
     set(LIB_JSON_VER v3.9.0)
     set(LIB_SOCKETS_VER v0.7.1)
     set(LIB_WS_VER 0b97cc7)
     set(LIB_ZLIB_VER v1.2.11)
+    set(LIB_PFD_VER master v0.1.0)
 endif()
 
+# todo: use expternalproject_getproperty SOURCE DIR instead to simplify
 set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
 
 set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
@@ -98,10 +101,13 @@ if (WIN32 OR ANDROID)
              if(NOT ANDROID)
                   find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
              endif()
-             set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
+             get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
          endif()
 
-        externalproject_add(libuv
+         # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
+         # maybe use Fetch command instead of Externalproject add and then override flags
+
+         externalproject_add(libuv
             PREFIX ${UV_DIR}
             GIT_REPOSITORY https://github.com/libuv/libuv.git
             GIT_TAG ${LIB_UV_VER}
@@ -248,15 +254,38 @@ if(NOT ZLIB_H)
     set(ZLIB_H ${ZLIB_DIR}/src/zlib)
 endif()
 
+if(CLIENT_DIALOGS)
+    set(DIALOG_SRC src/ui_client.cpp)
+else()
+    set(DIALOG_SRC src/ui_pfd.cpp)
+    set(PFD_NAME "pfd")
+    set(PFD_DIR "${EXTRA_DIR}/${PFD_NAME}")
+    externalproject_add(libpfd
+        PREFIX ${PFD_DIR}
+        GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
+        #GIT_TAG ${LIB_PFD_VER}
+        GIT_PROGRESS true
+        UPDATE_DISCONNECTED false
+        BUILD_COMMAND ""
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND ""
+        UPDATE_COMMAND ""
+        PATCH_COMMAND ""
+        TEST_COMMAND ""
+        )
+    ExternalProject_Get_Property(libpfd SOURCE_DIR)
+    set(INCLUDES "${INCLUDES} ${SOURCE_DIR}")
+endif()
+
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
 	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 else()
     if (MSVC_VERSION GREATER_EQUAL "1900")
         include(CheckCXXCompilerFlag)
-        CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
+        CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_latest_flag_supported)
         if (_cpp_latest_flag_supported)
-            add_compile_options("/std:c++latest")
+            add_compile_options("/std:c++17")
         endif()
     endif()
 endif()
@@ -280,6 +309,8 @@ if(NOT (MSVC OR ANDROID))
     find_package (Threads REQUIRED)
 endif()
 
+message("INCLUDES ${INCLUDES}")
+
 set(INCLUDES
     ${INCLUDES}
     include
@@ -299,6 +330,7 @@ set(GEMPYRE_SRC
     include/gempyre.h
     include/gempyre_utils.h
     include/gempyre_graphics.h
+    include/gempyre_client.h
     src/server.h
     src/base64.h
     src/timer.h
@@ -311,6 +343,7 @@ set(GEMPYRE_SRC
     src/element.cpp
     src/core.h
     src/timequeue.h
+    ${DIALOG_SRC}
     )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -344,8 +377,22 @@ endif()
 
 if(DEFINED GEMPYRE_SHARED)
     set(LIB_TYPE SHARED)
+    if(WIN32)
+        if(MSVC)
+            set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
+        else()
+             set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS}")
+        endif()
+    endif()
 else()
     set(LIB_TYPE STATIC)
+    if(WIN32)
+        if(MSVC)
+            set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
+        else()
+            set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS}")
+        endif()
+    endif()
 endif()
 
 if(ANDROID)
@@ -377,10 +424,14 @@ else()
     set(JSMIN "")
 endif()
 
-addResource(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js)
 
 add_dependencies(${PROJECT_NAME} libwebsockets)
 add_dependencies(${PROJECT_NAME} libjson)
+
+if(NOT CLIENT_DIALOGS)
+    add_dependencies(${PROJECT_NAME} libpfd)
+endif()
 
 if (WIN32 OR ANDROID)
     #add_dependencies(libsockets libuv)
@@ -395,16 +446,17 @@ endif()
 if(WIN32)
     message("uvlib is set as:'${UV_LIB_FULL}'")
     if(MSVC)
-        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib)
+        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib shlwapi.lib)
     else()
-        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib ws2_32.lib)
+        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib ws2_32.lib shlwapi.lib)
     endif()
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${UVA_LIB_NAME};${WIN_LIB}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_obj "${UVA_LIB};${WIN_LIB}")
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${UV_LIB_DIR}")
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-        #PRIVATE ${UV_LIB}
-        PRIVATE ${WIN_LIB}
+        PRIVATE ${UV_LIB}
+        PUBLIC ${WIN_LIB}
         )
 elseif(ANDROID)
     message("uvdir ${UV_LIB}")
@@ -420,16 +472,6 @@ else()
         PRIVATE ${SOCKETS_LIB}
         PRIVATE -lstdc++)
 endif()
-
-#if(WIN32)
-#    if(MSVC)
-#        set(PROJECT_TARGETS_FILE ${PROJECT_NAME}Targets_vc.cmake)
-#    else()
-#        set(PROJECT_TARGETS_FILE ${PROJECT_NAME}Targets_gw.cmake)
-#    endif()
-#else()
-#    set(PROJECT_TARGETS_FILE ${PROJECT_NAME}Targets.cmake)
-#endif()
 
 set(GEMPYRE_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(GEMPYRE_TARGETS_EXPORT_NAME       "${PROJECT_NAME}")
@@ -495,14 +537,7 @@ else()
      NAMESPACE gempyre::
      )
 
-     #external 
-   #install(EXPORT GempyreTargets
-   #    NAMESPACE gempyre::
-   #    FILE ${PROJECT_TARGETS_FILE}
-   #    DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
-   #    )
-
-       install(FILES ${CONNECTION_LIB_FULL}
+    install(FILES ${CONNECTION_LIB_FULL}
             DESTINATION ${LIBRARY_DIR}
             )
 
@@ -515,7 +550,7 @@ else()
        ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
        ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
        ${CMAKE_SOURCE_DIR}/scripts/genStringResource.py
-       ${CMAKE_SOURCE_DIR}/scripts/addResource.cmake
+       ${CMAKE_SOURCE_DIR}/scripts/gempyre.cmake
        DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
        )
 
@@ -531,25 +566,9 @@ else()
             )
     endif()
 
+    if(WIN32)
+      # make Windows easier to find the Gempyre
+      set(ENV{gempyre_ROOT} ${GEMPYRE_CONFIG_INSTALL_DIR})    
+    endif()
+
 endif()
-
-
-
-
-#if (LINUX)
-#    set(CMAKE_INSTALL_PREFIX "/usr")
-#endif()
-#
-#if (MACOS)
-#    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-#    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-#endif()
-#
-#if (NOT WIN32)
-#install(TARGETS ${PROJECT_NAME}
-#        LIBRARY DESTINATION lib
-#        FILES ${TELEX_HEADERS} DESTINATION include
-#)
-#else()
-#
-#endif()

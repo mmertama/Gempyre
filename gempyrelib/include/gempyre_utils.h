@@ -71,14 +71,17 @@ private:
 enum class ArgType{NO_ARG, REQ_ARG, OPT_ARG};
 using ParamList = std::vector<std::string>;
 using Options = std::multimap<std::string, std::string>;
-using Params = std::tuple<Options, ParamList>;
-using ParsedParameters = std::variant<Params, int>;
-UTILS_EX ParsedParameters parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
+using Params = std::tuple<ParamList, Options>;
+/// parse arguments
+UTILS_EX Params parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
+
+/// just clean arguments from Gempyre spesific internal stuff
+UTILS_EX void cleanArgs(int& argc, char** argv);
 
 /**
  * @brief The LogLevel enum
  */
-enum class LogLevel{None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
+enum class LogLevel : int {None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
 
 
 /**
@@ -92,6 +95,8 @@ UTILS_EX std::string chop(const std::string& s);
 UTILS_EX std::string chop(const std::string& s, const std::string& chopped);
 
 UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
+
+UTILS_EX std::string trimmed(const std::string& s);
 
 template <typename T>
 T to(const std::string& source) {
@@ -132,14 +137,12 @@ template <class T>
    return stream.str();
  }
 
+/// Get a levenshtein distance of strings
+int levenshteinDistance(std::string_view s1, std::string_view s2);
+
 /**
  * Container Utils
  */
-
-template<typename T>
-bool contains(const T& container, const std::string& s) {
-    return container.find(s) != container.end();
-}
 
 template<typename C, typename T>
 std::optional<T> at(const C& container, const std::string& s, unsigned index = 0) {
@@ -206,6 +209,26 @@ std::string join(const T& t,
     return join(t.begin(), t.end(), joinChar, f);
 }
 
+template <class IT, typename In=typename std::remove_pointer<IT>::type,
+          typename Out=typename std::remove_pointer<IT>::type,
+          typename = std::enable_if_t<std::is_pointer<IT>::value>>
+std::string join(const IT begin,
+                 const IT end,
+                 const std::string joinChar = "",
+                 const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
+    std::string s;
+    std::ostringstream iss(s);
+    if(begin != end) {
+        for(auto it = begin;;) {
+            iss << f(*it);
+            if(!(++it != end)) break;
+            if(!joinChar.empty())
+                iss << joinChar;
+        }
+    }
+    return iss.str();
+}
+
 
 template <class T>
 T merge(const T& b1, const T& b2) {
@@ -226,6 +249,21 @@ T merge(const T& b1, const T& b2, Arg ...args) {
     std::advance(begin, std::distance(b1.begin(), b1.end()));
     std::copy(b2.begin(), b2.end(), begin);
     return merge(bytes, args...);
+}
+
+/// Const version of std::advance
+template <typename IT> IT advanced(IT it, int distance) {
+    std::advance(it, distance);
+    return it;
+}
+
+template <typename K, typename V >
+/// Get a value from a multimap, especially helper for Parameter Options
+std::optional<V> getValue(const std::multimap<K, V>& map, const K& key, int index = 0)
+{
+     const auto range = map.equal_range(key);
+     return std::distance(range.first, range.second) > index ?
+                 std::make_optional((advanced(range.first, index))->second) : std::nullopt;
 }
 
  /*
@@ -257,80 +295,81 @@ UTILS_EX bool setPriority(int priority);
 UTILS_EX std::pair<int, int> getPriorityLevels();
 #endif
 
+UTILS_EX std::string htmlFileLaunchCmd();
 
-UTILS_EX std::string osBrowser();
-
-
-
-class DebugStream {
+/// Parent class for LogWriters
+class LogWriter {
 public:
-    DebugStream(std::mutex* mutex, std::ostream* str) : m_mutex(mutex), m_str(str){m_mutex->lock();}
-    ~DebugStream() {m_mutex->unlock();}
-    std::ostream& print() {return *m_str;}
-private:
-    std::mutex* m_mutex;
-    std::ostream* m_str;
+    /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
+    virtual std::string header(LogLevel logLevel);
+    /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
+    virtual bool doWrite(const char* buffer, size_t count) = 0;
 };
 
-UTILS_EX void setLogLevel(LogLevel level, bool useSyslog);
+/// Courtesy class to write log into files, see  setLogWriter
+class UTILS_EX FileLogWriter : public LogWriter {
+public:
+    FileLogWriter(const std::string& path);
+protected:
+    bool doWrite(const char* buffer, size_t count) override;
+protected:
+    std::ofstream m_file;
+};
+
+class UTILS_EX StreamLogWriter : public LogWriter {
+public:
+    StreamLogWriter(std::ostream& os);
+protected:
+    bool doWrite(const char* buffer, size_t count) override;
+protected:
+    std::ostream& m_os;
+};
+
+UTILS_EX void setLogLevel(LogLevel level);
 UTILS_EX LogLevel logLevel();
-UTILS_EX bool useSysLog();
 UTILS_EX std::string toStr(LogLevel l);
-UTILS_EX DebugStream logStream(LogLevel logLevel);
+UTILS_EX std::ostream logStream(LogLevel logLevel);
 UTILS_EX void init();
 UTILS_EX std::string currentTimeString();
 UTILS_EX std::string lastError();
+UTILS_EX void processAbort(int err);
+/// Replace the default writer, set nullptr to apply original, not a thread safe.
+UTILS_EX void setLogWriter(LogWriter* writer);
+
+
+template <typename T, typename ...Args>
+inline void logLine(LogLevel level, std::ostream& os, const T& e, Args... args) {
+    os << e << " ";
+    logLine(level, os, args...);
+}
+
+template<typename T>
+inline void logLine(LogLevel level, std::ostream& os, const T& e) {
+    os << e << std::endl;
+    if(level == LogLevel::Fatal)  {
+        processAbort(-999);
+    }
+}
 
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
-    if(useSysLog()) {
-        log_t(level, e, args...);
-    } else {
-        if(level <= logLevel()) {
-            logStream(level).print() << '[' << currentTimeString() << "] " << toStr(level) << " " << e << " ";
-        }
-        log_t(level, args...);
-    }
-}
-
-template<typename T>
-inline void log(LogLevel level, const T& e) {
-    if(useSysLog()) {
-        log_t(level, e);
-    } else {
-        if(level <= logLevel()) {
-            logStream(level).print() << '[' << GempyreUtils::currentTimeString() << "] " << toStr(level) << " " << e << std::endl;
-            if(level == LogLevel::Fatal)  {
-                std::exit(-999);
-            }
-        }
-    }
-}
-
-template <typename T, typename ...Args>
-inline void log_t(LogLevel level, const T& e, Args... args) {
-    if(level <= logLevel())
-        logStream(level).print() << e << " ";
-    log_t(level, args...);
-}
-
-template<typename T>
-inline void log_t(LogLevel level, const T& e) {
     if(level <= logLevel()) {
-        logStream(level).print() << e << std::endl;
-        if(level == LogLevel::Fatal) {
-            std::exit(-999);
-        }
+        auto os = logStream(level);
+        logLine(level, os, e, args...);
     }
 }
 
-template <typename ...Args>
-inline void log_t(LogLevel level, const std::nullptr_t&, Args... args) {
-    if(level <= logLevel())
-        logStream(level).print() << "NULL" << " ";
-    log_t(level, args...);
+
+// Plan is to make loglevel static in coming versions so there is no extra if for each log and ref to global data
+template <LogLevel level, typename T, typename ...Args>
+inline void writeLog(const T& e, Args... args) {
+    log(level, e, args...);
 }
 
+template <typename T, typename ...Args>
+inline void logDebug(const T& e, Args... args) {
+    writeLog<LogLevel::Debug, T, Args...>(e, args...);
+}
 
 inline bool doFatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
     if(f) f();
@@ -356,9 +395,10 @@ UTILS_EX bool isDir(const std::string& fname);
 UTILS_EX std::string workingDir();
 UTILS_EX std::string absPath(const std::string& rpath);
 UTILS_EX std::string pathPop(const std::string& filename, int steps = 1);
-UTILS_EX std::vector<std::tuple<std::string, bool, std::string>> directory(const std::string& dirname);
+UTILS_EX std::vector<std::string> directory(const std::string& dirname);
 UTILS_EX std::string readProcess(const std::string& processName);
 UTILS_EX std::string baseName(const std::string& filename);
+UTILS_EX std::tuple<std::string, std::string> splitName(const std::string& filename);
 /// Generate unique name (prefer <filesystem> if available)
 UTILS_EX std::string tempName();
 UTILS_EX std::string hostName();
@@ -370,6 +410,14 @@ UTILS_EX bool rename(const std::string& of, const std::string& nf);
 UTILS_EX void removeFile(const std::string& filename);
 UTILS_EX bool fileExists(const std::string& filename);
 UTILS_EX std::string which(const std::string& filename);
+/// push name to path
+UTILS_EX std::string pushPath(const std::string& path, const std::string& name);
+template<class ...NAME>
+std::string pushPath(const std::string& path, const std::string& name, NAME...names) {
+    return pushPath(pushPath(path, name), names...);
+}
+///execute a prog
+UTILS_EX int execute(const std::string& prog, const std::string& parameters);
 
 template <class T>
 std::string writeToTemp(const T& data) {
@@ -406,6 +454,9 @@ UTILS_EX std::optional<std::string> toJsonString(const std::any& any);
 UTILS_EX std::optional<std::any> jsonToAny(const std::string& str);
 
 UTILS_EX bool isAvailable(int port);
+
+UTILS_EX std::string base64Encode(const unsigned char* bytes, size_t sz);
+UTILS_EX std::vector<unsigned char> base64Decode(const std::string_view& data);
 
 }
 

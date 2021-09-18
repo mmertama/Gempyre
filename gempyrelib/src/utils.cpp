@@ -18,6 +18,7 @@
 #include <Windows.h>                                
 #include <iphlpapi.h>
 #include <Ws2tcpip.h>
+#include <shlwapi.h>
 
 #endif
 
@@ -37,10 +38,12 @@
 
 #include <stdio.h>
 #include <variant>
+#include <cassert>
 
 
 
 #include "gempyre_utils.h"
+#include "base64.h"
 
 //without <filesystem> support
 #include <stdlib.h>
@@ -63,76 +66,13 @@ static std::string lastError(T err) {
 using namespace std::chrono_literals;
 using namespace GempyreUtils;
 
-#ifndef WINDOWS_OS
-template <size_t SZ>
-class SysLogStream : public std::streambuf {
-public:
-    SysLogStream() : m_os(this) {
-        setp(m_buffer, m_buffer + SZ - 1);
-    }
-    ~SysLogStream() override {
-        ::closelog();
-    }
-    std::ostream& stream(GempyreUtils::LogLevel logLevel) {
-        static int priorities[] = {LOG_EMERG, LOG_ERR, LOG_INFO, LOG_DEBUG};
-        m_prio = priorities[static_cast<int>(logLevel)];
-        return m_os;
-    }
-private:
-    int_type overflow(int_type ch) override {
-        if(ch != traits_type::eof()){
-            *pptr() = static_cast<char>(ch);
-            pbump(1);
-            write();
-        }
-        return ch;
-    }
-    int sync() override {
-        write();
-        return 1;
-    }
-    void write() {
-        std::ptrdiff_t n = pptr() - pbase();
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wformat-nonliteral"
-    #pragma clang diagnostic ignored "-Wformat-security"
-#endif
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#pragma GCC diagnostic ignored "-Wformat-security"
-#endif
-        char ntBuf[SZ];
-        std::memcpy(ntBuf, m_buffer, static_cast<size_t>(n));
-        ntBuf[n] = '\0';
-        ::syslog(m_prio, ntBuf);
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic pop
-#endif
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic pop
-#endif
-        pbump(static_cast<int>(-n));
-    }
-private:
-    char m_buffer[SZ];
-    int m_prio = LOG_DEBUG;
-    int PADDING;
-    std::ostream m_os;
-};
-
-
-static std::unique_ptr<SysLogStream<1024>> gSysLogStream;
-#endif
-
-static GempyreUtils::LogLevel g_serverLogLevel = GempyreUtils::LogLevel::
+static GempyreUtils::LogLevel g_serverLogLevel{GempyreUtils::LogLevel::
 #ifdef UTILS_LOGLEVEL
-UTILS_LOGLVEL
+UTILS_LOGLEVEL
 #else
 Error
 #endif
-;
+};
 
 
 void GempyreUtils::init() {
@@ -176,6 +116,7 @@ std::string GempyreUtils::qq(const std::string& s) {
 
 std::string GempyreUtils::chop(const std::string& s) {
     auto str = s;
+    str.erase(str.find_last_not_of('\0') + 1);
     str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
     return str;
 }
@@ -186,45 +127,121 @@ std::string GempyreUtils::chop(const std::string& s, const std::string& chopped)
     return str;
 }
 
-void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level, bool useSysLog) {
+void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level) {
 
     g_serverLogLevel = level;
-
-#ifndef  WINDOWS_OS
-    if(useSysLog)
-        gSysLogStream.reset(new SysLogStream<1024>);
-#else
-     (void) useSysLog;
-#endif // ! WINDOWS_OS
 }
 
-static std::mutex global_stream_mutex;
-DebugStream GempyreUtils::logStream(LogLevel logLevel) {
+
+std::string LogWriter::header(LogLevel logLevel) {
+    std::stringstream buf;
+    buf << '[' << currentTimeString() << "] " << toStr(logLevel) << " ";
+    return buf.str();
+}
+
 #ifdef WINDOWS_OS
-    (void) logLevel;
+class ErrStream : public LogWriter {
+    bool doWrite(const char* bytes, size_t count) override {
+        (void) count;
+        OutputDebugStringA(bytes);
+        return true;
+    }
+};
+#else
+class ErrStream : public LogWriter {
+    bool doWrite(const char* bytes, size_t count) override {
+       (void) count;
+       std::cerr << bytes;
+       return true;
+    }
+};
 #endif
-    auto& strm =
-#ifndef WINDOWS_OS
-		gSysLogStream ? gSysLogStream->stream(logLevel) :
-#endif
-        std::cerr;
-    return DebugStream(&global_stream_mutex,&strm);
+
+template <size_t SZ>
+class LogStream : public std::streambuf {
+public:
+    LogStream() {
+        setp(m_buffer, m_buffer + SZ - 1);
+    }
+    ~LogStream() = default;
+    void setWriter(LogWriter* writer) {
+        m_logWriter = writer;
+    }
+private:
+    int_type overflow(int_type ch) override {
+        if(ch != traits_type::eof()){
+            *pptr() = static_cast<char>(ch);
+            pbump(1);
+            write();
+        }
+        return ch;
+    }
+    int sync() override {
+        write();
+        return 1;
+    }
+    void write() {
+        std::ptrdiff_t n = pptr() - pbase();
+        m_buffer[n] = '\0';
+        if(!m_logWriter->doWrite(m_buffer, n)) {
+            std::cerr << "Log cannot write " << m_buffer << std::endl;
+        }
+        pbump(static_cast<int>(-n));
+    }
+private:
+    char m_buffer[SZ + 1];
+    LogWriter* m_logWriter;
+};
+
+
+FileLogWriter::FileLogWriter(const std::string& path) : m_file(path, std::ios::out | std::ios::app )  {}
+bool FileLogWriter::doWrite(const char* bytes, size_t count) {
+        (void) count;
+        if(!m_file.is_open())
+            return false;
+        m_file << bytes << std::flush; // flush to catch crashes
+        return true;
+    }
+
+StreamLogWriter::StreamLogWriter(std::ostream& os) : m_os(os)  {}
+bool StreamLogWriter::doWrite(const char* bytes, size_t count) {
+        (void) count;
+        if(!m_os.good())
+            return false;
+        m_os << bytes << std::flush; // flush to catch crashes
+        return true;
+    }
+
+static std::atomic<GempyreUtils::LogWriter*> g_logWriter{nullptr};
+
+void GempyreUtils::setLogWriter(LogWriter* writer) {
+    g_logWriter = writer;
+}
+
+static ErrStream defaultErrorStream;
+
+std::ostream GempyreUtils::logStream(LogLevel logLevel) {
+    auto strm  = (g_logWriter) ? g_logWriter.load() : &defaultErrorStream;
+    static thread_local LogStream<1024> logStreamer;
+    logStreamer.setWriter(strm);
+    std::ostream(&logStreamer) << strm->header(logLevel);
+    return std::ostream(&logStreamer);
 }
 
 GempyreUtils::LogLevel GempyreUtils::logLevel() {
     return g_serverLogLevel;
 }
 
-bool GempyreUtils::useSysLog() {
+Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
 #ifndef WINDOWS_OS
-    return static_cast<bool>(gSysLogStream);
-#else
-	return false;
-#endif
-}
-
-std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std::string>>, int> GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
-#ifndef WINDOWS_OS
+    /*
+     * The variable optind is the index of the next element to be processed in argv.
+     * The system initializes this value to 1. The caller can reset it to 1 to restart scanning of the same argv,
+     *  or when scanning a new argument vector.
+    */
+    optind = 1;
+    optarg = nullptr;
+    opterr = 0;
     auto longOptionsPtr = std::make_unique<::option[]>(args.size() + 1);
     ::option* longOptions = longOptionsPtr.get();
     int argi = 0;
@@ -256,18 +273,25 @@ std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std
     std::multimap<std::string, std::string> options;
 
     for(;;) {
-        auto opt = getopt_long(argc, argv, plist.c_str(),
+        const char opt = getopt_long(argc, const_cast<char**>(argv), plist.c_str(),
                             longOptions, nullptr);
         if(opt < 0)
             break;
 
         if(opt == '?') {
-            return ParsedParameters(optind);
+            log(LogLevel::Warning, "Unknown argument");
+            continue; // this is unknow argument, we just ignore it
+        }
+
+        if(opt == ':') {
+            log(LogLevel::Error, "Argument value is missing");
+            continue;
         }
 
         const auto index = std::find_if(longOptions, longOptions + args.size(), [opt](const ::option& o){return o.val == opt;});
 
-        options.emplace(longOptions[std::distance(longOptions, index)].name, optarg ? optarg : "");
+        const std::string opt_value{optarg ? trimmed(optarg) : std::string{}};
+        options.emplace(longOptions[std::distance(longOptions, index)].name, opt_value);
     }
 
     std::vector<std::string> params;
@@ -275,79 +299,82 @@ std::variant<std::tuple<std::multimap<std::string, std::string>, std::vector<std
         params.push_back(argv[optind++]);
     }
 #else
-    std::vector<std::string> quoted;
-    std::transform(argv + 1, argv + argc, std::back_inserter(quoted), [](const auto cstr) {return qq(std::string(cstr));});
-    int numArgs;
-    const auto commandLine = join(quoted.begin(), quoted.end(), " ");
-    std::wstring argString(commandLine.begin(), commandLine.end());
 
-    auto wlist = CommandLineToArgvW(argString.c_str(), &numArgs);
-    std::unique_ptr<LPWSTR, decltype(&LocalFree)> wlistPtr(wlist, LocalFree);
     std::vector<std::string> plist;
-    for(auto ii = 0; ii < numArgs; ii++) {
-        const std::wstring w = wlist[ii];
-        plist.push_back(std::string(w.begin(), w.end()));
+    for(auto ii = 1; ii < argc; ++ii) {
+        plist.push_back(argv[ii]);
     }
 
     Options options;
     ParamList params;
-    for(auto i = 0U; i < static_cast<unsigned>(numArgs); i++) {
+    for(auto i = 0U; i < plist.size(); ++i) {
         const auto arg = plist[i];
         if(arg[0] == '-') {
-            if(arg.length() < 2)
-                return ParsedParameters{static_cast<int>(i)};
+            if(arg.length() < 2) {
+                log(LogLevel::Error, "Invalid argument");
+                continue;
+            }
             decltype(args.end()) it;
             bool longOpt = false;
             auto assing = arg.end();
             if(arg[1] == '-') {
-                if(arg.length() < 3)
-                    return ParsedParameters{static_cast<int>(i)};
-                longOpt = true;
-                const auto key = arg.substr(2);
-                assing = std::find(arg.begin(), arg.end(), '=');
-                it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<0>(a) == key;});
-            } else {
-                const auto key = arg.substr(1, 1);
-                it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<1>(a) == key[0];});
+                if(arg.length() < 3) {
+                    log(LogLevel::Error, "Invalid argument");
+                    continue;
             }
-            if(it != args.end()) {
-                switch(std::get<ArgType>(*it)) {
-                case ArgType::NO_ARG:
-                    options.emplace(std::get<std::string>(*it), "true");
-                    break;
-                case ArgType::REQ_ARG: {
-                    std::string val;
-                    if(!longOpt && !arg.substr(2).empty()) {
-                        val = arg.substr(2);
-                    } else if(assing != arg.end()) {
-                        val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
-                    } else if(i + 1 < plist.size()) {
-                        val = plist[i + 1];
-                        ++i;
-                    } else return ParsedParameters{static_cast<int>(i)};
-                    options.emplace(std::get<std::string>(*it), val);
-                    } break;
-                case ArgType::OPT_ARG: {
-                    std::string val;
-                    if(!longOpt && !arg.substr(2).empty()) {
-                        val = arg.substr(2);
-                    } else if(assing != arg.end()) {
-                        val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
-                    }
-                    else {
-                        val = "true";
-                    }
-                     options.emplace(std::get<std::string>(*it), val);
-                    } break;
-                }
-            }
+            longOpt = true;
+            assing = std::find(arg.begin(), arg.end(), '=');
+            const auto key = assing == arg.end() ?
+                        arg.substr(2) : arg.substr(2, std::distance(arg.begin(), assing) - 2); // AA=BB -> get AA
+            it = std::find_if(args.begin(), args.end(), [&key](const auto& a) {
+                return std::get<0>(a) == key;}
+            );
         } else {
-            params.push_back(arg);
+            const auto key = arg.substr(1, 1);
+            it = std::find_if(args.begin(), args.end(), [&key](const auto& a){return std::get<1>(a) == key[0];});
         }
+        if(it != args.end()) {
+            switch(std::get<ArgType>(*it)) {
+            case ArgType::NO_ARG:
+                options.emplace(std::get<std::string>(*it), "");
+                break;
+            case ArgType::REQ_ARG: {
+                std::string val;
+                if(!longOpt && !arg.substr(2).empty()) {
+                    val = arg.substr(2);
+                } else if(assing != arg.end()) {
+                    val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
+                } else if(i + 1 < plist.size()) {
+                    val = plist[i + 1];
+                    ++i;
+                } else  {
+                    log(LogLevel::Error, "Invalid argument");
+                    continue;
+                    }
+                options.emplace(std::get<std::string>(*it), val);
+                } break;
+            case ArgType::OPT_ARG: {
+                std::string val;
+                if(!longOpt && !arg.substr(2).empty()) {
+                    val = arg.substr(2);
+                } else if(assing != arg.end()) {
+                    val = arg.substr(static_cast<unsigned>(std::distance(arg.begin(), assing) + 1));
+                }
+                else {
+                    val = "";
+                }
+                 options.emplace(std::get<std::string>(*it), val);
+                }
+                break;
+            }
+        }
+    } else {
+        params.push_back(arg);
+    }
 
     }
 #endif
-    return ParsedParameters(std::make_tuple(options, params));
+    return std::make_tuple(params, options);
 }
 
 std::string GempyreUtils::absPath(const std::string& rpath) {
@@ -368,6 +395,13 @@ std::string GempyreUtils::absPath(const std::string& rpath) {
 #endif
 }
 
+std::tuple<std::string, std::string> GempyreUtils::splitName(const std::string& filename) {
+    const auto name = baseName(filename);
+    const auto index = name.find_last_of('.');
+    return std::make_tuple(name.substr(0, index), name.substr(index + 1));
+}
+
+
 std::string GempyreUtils::baseName(const std::string& filename) {
     const auto dname = pathPop(filename);
     return dname.empty() ? filename :
@@ -378,7 +412,12 @@ std::string GempyreUtils::pathPop(const std::string& filename, int steps) {
     if (steps <= 0)
         return filename;
     else {
-        const auto p = filename.find_last_of('/');
+         const auto p = filename.find_last_of(
+    #ifndef WINDOWS_OS
+       '/');
+    #else
+       '\\');
+    #endif
         return pathPop(p != std::string::npos ? filename.substr(0, p) : "", steps - 1);
     }
 }
@@ -456,22 +495,18 @@ bool GempyreUtils::fileExists(const std::string& filename) {
 }
 
 
-std::vector<std::tuple<std::string, bool, std::string>> GempyreUtils::directory(const std::string& dirname) {
-
+std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
+    std::vector<std::string> entries;
+    if(dirname.empty())
+        return entries;
     const auto dname = dirname.back() != '/' ? dirname + '/' : dirname;
-    std::vector<std::tuple<std::string, bool, std::string>> entries;
 #ifndef WINDOWS_OS
     auto dir = ::opendir(dname.c_str());
     if(!dir)
         return entries;
     while(auto dirEntry = readdir(dir)) {
-        if(dirEntry->d_type == DT_LNK) {
-            const auto fullname = dname + dirEntry->d_name;
-            const auto linked = GempyreUtils::getLink(fullname);
-            const auto fulllink = dname + linked;
-            entries.push_back({dirEntry->d_name, GempyreUtils::isDir(fulllink), fulllink});
-        } else
-            entries.push_back({dirEntry->d_name, dirEntry->d_type == DT_DIR, ""});
+        if(strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
+            entries.push_back({dirEntry->d_name});
     }
 #else
         const auto searchPath = dirname + "/*.*";
@@ -479,8 +514,7 @@ std::vector<std::tuple<std::string, bool, std::string>> GempyreUtils::directory(
         HANDLE hFind = ::FindFirstFile(searchPath.c_str(), &fd);
         if(hFind != INVALID_HANDLE_VALUE) {
             do {
-                const auto isDir = fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
-                entries.push_back({fd.cFileName, isDir, ""});
+                entries.push_back({fd.cFileName});
             } while(::FindNextFile(hFind, &fd));
             ::FindClose(hFind);
         }
@@ -495,6 +529,10 @@ bool GempyreUtils::isDir(const std::string& path) {
    if (::stat(path.c_str(), &statbuf) != 0)
        return 0;
    return S_ISDIR(statbuf.st_mode);
+}
+#else
+bool GempyreUtils::isDir(const std::string& path) {
+    return PathIsDirectory(path.c_str());
 }
 #endif
 
@@ -700,9 +738,7 @@ std::string GempyreUtils::which(const std::string& filename) {
     ':');
 #endif
     for(const auto& d : path) {
-        for(const auto& [name, isdir, link] : directory(d)) {
-            (void) isdir;
-            (void) link;
+        for(const auto& name  : directory(d)) {
             const auto longName = d + "/" + name;
             if(!isExecutable(longName))
                 continue;
@@ -759,7 +795,7 @@ GempyreUtils::OS GempyreUtils::currentOS() {
 #endif
 }
 
-std::string GempyreUtils::osBrowser() {
+std::string GempyreUtils::htmlFileLaunchCmd() {
     return
     #if defined(UNIX_OS) //maybe works only on Debian derivatives
         "x-www-browser"
@@ -940,5 +976,81 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     }           
     return addresses;
 #endif
+}
+
+std::string GempyreUtils::base64Encode(const unsigned char* bytes, size_t sz) {
+    return Base64::encode(bytes, sz);
+}
+
+std::vector<unsigned char> GempyreUtils::base64Decode(const std::string_view& data) {
+    return Base64::decode(data);
+}
+
+std::string GempyreUtils::pushPath(const std::string& path, const std::string& name) {
+#ifdef OS_WIN
+    return path + '\\' + name;
+ #else
+    return path + '/' + name;
+#endif
+}
+
+int GempyreUtils::execute(const std::string& executable, const std::string& parameters) {
+#if defined(WINDOWS_OS)
+    if(executable.empty())
+        return system(parameters.c_str()); // for compatibility with osbrowser
+    else {
+        const auto hi = (INT_PTR) ::ShellExecuteA(NULL, NULL, executable.c_str(), parameters.c_str(), NULL, SW_SHOWNORMAL);
+        return (hi > 32 || hi < 0) ? 0 : hi ; //If the function succeeds, it returns a value greater than 32. If the function fails, it returns an error value that indicates the cause of the failure.
+    }
+#else
+    return std::system((executable + " " + parameters + " &").c_str());
+#endif
+}
+
+std::string GempyreUtils::trimmed(const std::string& s) {
+    return substitute(s, R"(\s+)", std::string{});
+}
+
+// remove all --gempyre spesific ids from arguments
+void GempyreUtils::cleanArgs(int& argc, char** argv) {
+    const auto id = "--gempyre-";
+    for(int i = argc - 1; i > 0; --i) {
+        if(strncmp(argv[i], id, strlen(id)) == 0) {
+            argv[i] = argv[i + 1];
+            --argc;
+        }
+    }
+}
+
+void GempyreUtils::processAbort(int exitCode) {
+#ifdef WINDOWS_OS
+    PostQuitMessage(exitCode); // try to flush buffers
+    Sleep(20); //20ms
+#endif
+    std::exit(exitCode);
+}
+
+int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) {
+    const auto l1 = s1.length();
+    const auto l2 = s2.length();
+
+    auto dist = std::vector<std::vector<int>>(l2 + 1, std::vector<int>(l1 + 1));
+
+    for(auto i = 0U; i <= l1 ; i++) {
+       dist[0][i] = i;
+    }
+
+    for(auto j = 0U; j <= l2; j++) {
+       dist[j][0] = j;
+    }
+
+    for (auto j = 1U; j <= l1; j++) {
+       for(auto i = 1U; i <= l2 ;i++) {
+          const auto track = (s2[i-1] == s1[j-1]) ? 0 : 1;
+          const auto t = std::min((dist[i - 1][j] + 1), (dist[i][j - 1] + 1));
+          dist[i][j] = std::min(t, (dist[i - 1][j - 1] + track));
+       }
+    }
+    return dist[l2][l1];
 }
 

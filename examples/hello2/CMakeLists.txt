@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.18)
 
 set(NAME hello2)
 project (${NAME})
@@ -19,10 +19,7 @@ add_executable(${PROJECT_NAME}
     )
 
 add_dependencies (${PROJECT_NAME} gempyre)
-addResource(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/main.html)
-
+gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/main.html)
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
-
-
 

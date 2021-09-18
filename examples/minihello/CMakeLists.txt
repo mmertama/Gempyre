@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.18)
 
 set(NAME minihello)
 project (${NAME})
@@ -22,9 +22,7 @@ add_dependencies (${PROJECT_NAME} gempyre)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/gui/minihello.html
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
     )
-
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
-
 
 

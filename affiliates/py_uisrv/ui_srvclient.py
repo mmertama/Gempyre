@@ -34,3 +34,32 @@ def main(params):
 if __name__ == "__main__":
     main(sys.argv)
 
+
+'''
+
+someday do this
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--host", type=str)
+parser.add_argument("--port", type=int)
+parser.add_argument("--address", type=str)
+parser.add_argument("--gempyre-url", type=str)
+parser.add_argument("--gempyre-width", type=int)
+parser.add_argument("--gempyre-height", type=int)
+parser.add_argument("--gempyre-title", type=str)
+args = parser.parse_args()
+
+host = args.host
+port = args.port
+commands = [x for x in params if not re.match(r'(port|host)=', x) and params.index(x) > 0]
+url = args.gempyre_url
+addr = args.address
+remote_url = re.sub(r'localhost', addr, url)
+commands = [
+"--gempyre-url=" + remote_url,
+"--gempyre-width=" + args.gempyre_width,
+"--gempyre-height=" + args.gempyre_height,
+"--gempyre-title=" + args.gempyre_title]
+
+
+'''

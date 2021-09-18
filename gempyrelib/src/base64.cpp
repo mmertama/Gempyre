@@ -13,15 +13,16 @@ static inline bool is_base64(Byte c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-std::string Base64::encode(const Bytes& data) {
+std::string Base64::encode(const Bytes& bytes) {
+    return encode(bytes.data(), bytes.size());
+}
+
+std::string Base64::encode(const Byte* buf, size_t bufLen) {
   std::string ret;
   int i = 0;
   int j = 0;
   Byte char_array_3[3];
   Byte char_array_4[4];
-
-  auto bufLen = data.size();
-  auto buf = data.data();
 
   while (bufLen--) {
     char_array_3[i++] = *(buf++);

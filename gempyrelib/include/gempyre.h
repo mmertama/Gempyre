@@ -48,7 +48,7 @@ namespace Gempyre {
     enum class DebugLevel{Quiet, Fatal, Error, Warning, Info, Debug, Debug_Trace};
 
     /// set debuging level and target, defauls to std::cout
-    GEMPYRE_EX void setDebug(DebugLevel level = DebugLevel::Debug, bool useLog = false);
+    GEMPYRE_EX void setDebug(DebugLevel level = DebugLevel::Debug);
     /// Internal for Android
     GEMPYRE_EX void setJNIENV(void* env, void* obj);
     /// Return current version
@@ -83,10 +83,10 @@ namespace Gempyre {
         Element(Ui& ui, const std::string& htmlElement, const Element& parent);
 
         virtual ~Element() = default;
-        const Ui& ui() const { return *m_ui; }
-        Ui& ui() { return *m_ui;}
+        [[nodiscard]] const Ui& ui() const { return *m_ui; }
+        [[nodiscard]] Ui& ui() { return *m_ui;}
 
-        std::string id() const {return m_id;}
+        [[nodiscard]] std::string id() const {return m_id;}
         Element& subscribe(const std::string& name, std::function<void(const Event& ev)> handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
         Element& setHTML(const std::string& htmlText);
         Element& setAttribute(const std::string& attr, const std::string& value = "");
@@ -94,18 +94,18 @@ namespace Gempyre {
         Element& setStyle(const std::string& style, const std::string& value);
         Element& removeStyle(const std::string& style);
         Element& removeAttribute(const std::string& attr);
-        std::optional<Values> styles(const std::vector<std::string>& keys) const;
-        std::optional<Elements> children() const;
-        std::optional<Values> values() const;
-        std::optional<std::string> html() const;
+        [[nodiscard]] std::optional<Values> styles(const std::vector<std::string>& keys) const;
+        [[nodiscard]] std::optional<Elements> children() const;
+        [[nodiscard]] std::optional<Values> values() const;
+        [[nodiscard]] std::optional<std::string> html() const;
         void remove();
-        std::optional<std::string> type() const;
-        std::optional<Rect> rect() const;
+        [[nodiscard]] std::optional<std::string> type() const;
+        [[nodiscard]] std::optional<Rect> rect() const;
     protected:
         void send(const DataPtr& data);
         void send(const std::string& type, const std::any& data, bool unique = false);
-        static const std::string generateId(const std::string& prefix);
-        size_t payloadSize() const;
+        [[nodiscard]] static const std::string generateId(const std::string& prefix);
+        [[nodiscard]] size_t payloadSize() const;
     protected:
         Ui* m_ui;
         std::string m_id;
@@ -128,11 +128,30 @@ namespace Gempyre {
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr char UseDefaultRoot[] = "";   //zero means default root
+        [[nodiscard]]
+        static std::string stdParams(int width, int height, const std::string& title);
 
+        /// load a file
         explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /// load a file
+
+        explicit Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
         explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
+
+        /// use explicit app as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /// use explicit app as UI
+        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /// use OS browser as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /// When explicit app  (Hiillos) iniates the UI
+        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        /// When explicit app  (Hiillos) iniates the UI
+        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
+
         ~Ui();
         Ui(const Ui& other) = delete;
         Ui(Ui&& other) = delete;
@@ -185,22 +204,30 @@ namespace Gempyre {
         bool cancel(TimerId timerId);
 
         ///Get a (virtual) root element.
-        Element root() const;
+        [[nodiscard]] Element root() const;
         ///Get a local file path an URL, can be used with open.
-        std::string addressOf(const std::string& filepath) const;
+        [[nodiscard]] std::string addressOf(const std::string& filepath) const;
         ///Get elements by class name
-        std::optional<Element::Elements> byClass(const std::string& className) const;
+        [[nodiscard]] std::optional<Element::Elements> byClass(const std::string& className) const;
         ///Get elements by name
-        std::optional<Element::Elements> byName(const std::string& className) const;
+        [[nodiscard]] std::optional<Element::Elements> byName(const std::string& className) const;
 
         ///Test function to measure round trip time
-        std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> ping() const;
+        [[nodiscard]] std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> ping() const;
         ///Access an UI extension
-        std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        void extensionCall(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        ///Access an UI extension
+        [[nodiscard]] std::optional<std::any> extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+
+        [[deprecated ("use extensionGet or extensionCall instead")]] std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+
+
         ///Get a compiled in resource string.
-        std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
+        [[nodiscard]] std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
         ///Add a file data into Gempyre to be accessed via url
         bool addFile(const std::string& url, const std::string& file);
+        ///Add file data into map to be added as a map
+        static std::optional<std::string> addFile(Filemap& map, const std::string& filename);
         ///Starts an UI write batch, no messages are sent to USER until endBatch
         void beginBatch();
         ///Ends an UI read batch, push all stored messages at once.
@@ -208,9 +235,15 @@ namespace Gempyre {
         ///Set all timers to hold. Can be used to pause UI actions.
         void holdTimers(bool hold) {m_hold = hold;}
         ///Tells if timers are on hold.
-        bool isHold() const {return m_hold;}
+        [[nodiscard]] bool isHold() const {return m_hold;}
         ///Get an native UI device pixel ratio.
-        std::optional<double> devicePixelRatio() const;
+        [[nodiscard]] std::optional<double> devicePixelRatio() const;
+        ///Set application icon, fail silently if backend wont support
+        void setApplicationIcon(const uint8_t* data, size_t dataLen, const std::string& type);
+        /// resize, fail silently if backend wont support
+        void resize(int width, int height);
+        /// set title, fail silently if backend wont support
+        void setTitle(const std::string& name);
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         void send(const DataPtr& data);
@@ -270,21 +303,21 @@ namespace Gempyre {
         using iterator = iteratorT<dataT>;
         using const_iterator = iteratorT<const dataT>;
     public:
-        dataT* data();
-        const dataT* data() const;
-        size_t size() const;
-        Data::iterator begin() {return data();}
-        Data::iterator end() {return data() + size();}
-        const Data::const_iterator begin() const {return data();}
-        const Data::const_iterator end() const {return data() + size();}
-        dataT& operator[](int index) {return (data()[index]);}
-        dataT operator[](int index) const {return (data()[index]);}
-        dataT* endPtr() {return data() + size();}
-        const dataT* endPtr() const {return data() + size();}
+        [[nodiscard]] dataT* data();
+        [[nodiscard]] const dataT* data() const;
+        [[nodiscard]] size_t size() const;
+        [[nodiscard]] Data::iterator begin() {return data();}
+        [[nodiscard]] Data::iterator end() {return data() + size();}
+        [[nodiscard]] const Data::const_iterator begin() const {return data();}
+        [[nodiscard]] const Data::const_iterator end() const {return data() + size();}
+        [[nodiscard]] dataT& operator[](int index) {return (data()[index]);}
+        [[nodiscard]] dataT operator[](int index) const {return (data()[index]);}
+        [[nodiscard]] dataT* endPtr() {return data() + size();}
+        [[nodiscard]] const dataT* endPtr() const {return data() + size();}
         void writeHeader(const std::vector<dataT>& header);
-        std::vector<dataT> header() const;
-        std::string owner() const;
-        DataPtr clone() const;
+        [[nodiscard]] std::vector<dataT> header() const;
+        [[nodiscard]] std::string owner() const;
+        [[nodiscard]] DataPtr clone() const;
         virtual ~Data() = default;
     protected:
         Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header);
