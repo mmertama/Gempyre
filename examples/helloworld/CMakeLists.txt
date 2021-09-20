@@ -22,9 +22,3 @@ gempyre_add_resources(PROJECT helloworld TARGET html_resource.h SOURCES gui/inde
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
-
-
-gempyre_add_resources(PROJECT helloworld TARGET html_resource.h SOURCES gui/index.html gui/graphics/favicon.ico gui/css/styles.css)
-
-# This is not a an example! This is just enabler to link without install, internal to Gempyre
-target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")
