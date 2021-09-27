@@ -155,7 +155,7 @@ std::optional<T> at(const C& container, const std::string& s, unsigned index = 0
 template<typename C, typename T>
 T atOr(const C& container, const std::string& s, const T& defaultValue, unsigned index = 0) {
     const auto v = at<C, T>(container, s, index);
-    return v.has_value() ? v.value() : defaultValue;
+    return v.has_value() ? *v : defaultValue;
 }
 
 
