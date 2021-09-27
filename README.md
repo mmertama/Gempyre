@@ -15,7 +15,8 @@ The application engine is implemented using C++, the UI is constructed using  Ja
 
 Gempyre is multiplatform, its core is written using C++17  (tested OSX (CLang), Ubuntu (gcc) and Windows 10 (MSVC) ). The Gempyre framework can be downloaded at Github under MIT license.
 
-By default a Gempyre application is excecuted on system browser window. For native application outlook it possible to use __client application__ Client  application is given to Gempyre::Ui constructor as an alternative browser. Affiliates folder have Python and Qt clients. For Qt, [Qt](https://www.qt.io/) SDK must be installed and pointed with *QT_DIR*. When that is used, the Gempyre application looks like any other application window. 
+Gempyre itself does not contain application window and bare Gempyre applications are excecuted on system browser window. However for native application a __client application__ is used. Native application window for OSX, Linux and Windows are using [Hiillos] (https://github.com/mmertama/Hiillos). However Gempyre::Ui constructor can support other client applications as well - for example [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) uses a Python client and [Gempyre-Android](https://github.com/mmertama/Gempyre-Android) is a special native application. 
+
 
 Gempyre API has few headers
 
@@ -59,14 +60,13 @@ How to build on Windows 10
 * Update / improve documentation (C++ and Python)  
 * Binary releases (Maybe installer / some packet manager support / pip)
 * Raspberry build (remote and local UI)
-* Native application window for OSX, Linux and Windows as default
 * Support for secure web socket (nice for remote UIs)
 * Flatbuffer/protobuf instead of JSON (perf up)
 * Using WASM instean of JS (perf up)
 * Better Unit and moduletests coverage
 * CI pipelines
 * Cleaning code and refactoring (API behind PIMPL?, string_views instead of strings when possible, meaningless std::any for code encapsulation)
-* Supress subsystem warnings.
+* Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
 * Reconsider libwebsockets instead of uWebsockets.
 * POC of Gempyre-Android style architecture also in core.
 * camelStyle or snake_style? (Gempyre-Python already uses snake, and Im warmin up for that :-)
@@ -80,7 +80,7 @@ Late updates
 * Rewrote timers + other smaller fixes
 ### 2021 2
 * Lot of fixes and some new utils
-* Native application window for OSX, Linux and Windows using [Hiillos] (https://github.com/mmertama/Hiillos)                        
+* Native application window for OSX, Linux and Windows are using [Hiillos] (https://github.com/mmertama/Hiillos)                        
 
 Copyright
 Markus Mertama 2020, 2021
