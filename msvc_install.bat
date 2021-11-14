@@ -14,7 +14,9 @@ if not exist "msvc_build" mkdir msvc_build
 pushd msvc_build
 if exist "install.log" del install.log
 cmake .. -DCMAKE_BUILD_TYPE=Debug -DHAS_AFFILIATES=OFF -DHAS_TEST=OFF -DHAS_EXAMPLES=OFF %PREFIX%
+if %ERRORLEVEL% NEQ 0 popd && exit /b %ERRORLEVEL%
 cmake --build . --config Debug
+if %ERRORLEVEL% NEQ 0 popd && exit /b %ERRORLEVEL%
 set BUILD_PATH=%CD%
 popd
 echo Start an elevated prompt for an install.

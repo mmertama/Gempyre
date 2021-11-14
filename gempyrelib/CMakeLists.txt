@@ -61,8 +61,8 @@ else()
     set(LIB_PFD_VER master v0.1.0)
 endif()
 
-# todo: use expternalproject_getproperty SOURCE DIR instead to simplify
-set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
+set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/third-party")
+set_directory_properties(PROPERTIES EP_BASE ${EXTRA_DIR})
 
 set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
 
@@ -77,56 +77,53 @@ endif()
 
 
 if (WIN32 OR ANDROID)
-        set(UV_DIR "${EXTRA_DIR}/libuv")
-        set(UV_LIB_DIR "${UV_DIR}/src/libuv-build")
+   
+    # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
+    # maybe use Fetch command instead of Externalproject add and then override flags
 
-        message("Need Libuv at ${UV_DIR} ")
+    externalproject_add(libuv
+    GIT_REPOSITORY https://github.com/libuv/libuv.git
+    GIT_TAG ${LIB_UV_VER}
+    GIT_PROGRESS true
+    CMAKE_ARGS
+        -DLIBUV_BUILD_TESTS=OFF
+        -DLIBUV_BUILD_BENCH=OFF
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_DEBUG_POSTFIX=${CMAKE_DEBUG_POSTFIX}
+    UPDATE_DISCONNECTED false
+    INSTALL_COMMAND "" # libuv wont always respect install prefix :-(
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+    TEST_COMMAND ""
+    )
 
-        if(NOT ${IS_RELEASE})
-            set(UVA_LIB_NAME_CORE uv_ad)
+    ExternalProject_Get_Property(libuv SOURCE_DIR)
+    set(UV_LIB_DIR ${SOURCE_DIR})  
+                                       
+    if(NOT ${IS_RELEASE})
+        set(UVA_LIB_NAME_CORE uv_ad)
+    else()
+        set(UVA_LIB_NAME_CORE uv_a)
+    endif()
+
+    set(UVA_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${UVA_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+    if (MSVC)
+        if (NOT ${IS_RELEASE})
+                set(UV_LIB_FULL "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
         else()
-            set(UVA_LIB_NAME_CORE uv_a)
+                set(UV_LIB_FULL "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
         endif()
+        message("MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
+    else()
+        if(NOT ANDROID)
+            find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
+        endif()
+        get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
+    endif()
 
-        set(UVA_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${UVA_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-        if (MSVC)
-            if (NOT ${IS_RELEASE})
-                    set(UV_LIB_FULL "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
-            else()
-                    set(UV_LIB_FULL "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
-            endif()
-            message("MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
-         else()
-             if(NOT ANDROID)
-                  find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
-             endif()
-             get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
-         endif()
-
-         # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
-         # maybe use Fetch command instead of Externalproject add and then override flags
-
-         externalproject_add(libuv
-            PREFIX ${UV_DIR}
-            GIT_REPOSITORY https://github.com/libuv/libuv.git
-            GIT_TAG ${LIB_UV_VER}
-            GIT_PROGRESS true
-            BUILD_BYPRODUCTS ${UV_LIB_FULL}
-            CMAKE_ARGS
-                -DLIBUV_BUILD_TESTS=OFF
-                -DLIBUV_BUILD_BENCH=OFF
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                -DCMAKE_INSTALL_PREFIX=${UV_LIB_DIR}
-                -DCMAKE_DEBUG_POSTFIX=${CMAKE_DEBUG_POSTFIX}
-            UPDATE_DISCONNECTED false
-            INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --target install
-            UPDATE_COMMAND ""
-            PATCH_COMMAND ""
-            TEST_COMMAND ""
-            )
-
-        set(INCLUDES "${UV_DIR}/src/libuv/include")
+    set(SYSTEM_INCLUDES "${UV_LIB_DIR}/include")
 
 #TODO: Same shit with usockets
 #        add_library(uv_lib_interface STATIC IMPORTED)
@@ -137,48 +134,40 @@ if (WIN32 OR ANDROID)
 #        set(UV_LIB uv_lib_interface)
 endif()
 
-
-set(JSON_NAME "nlohmann_json")
-set(JSON_DIR "${EXTRA_DIR}/${JSON_NAME}")
 externalproject_add(libjson
-    PREFIX ${JSON_DIR}
     GIT_REPOSITORY https://github.com/nlohmann/json.git
     GIT_TAG ${LIB_JSON_VER}
     GIT_PROGRESS true
     UPDATE_DISCONNECTED false
-    INSTALL_COMMAND ""
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
     TEST_COMMAND ""
+    INSTALL_COMMAND ""
     CMAKE_ARGS -DJSON_BuildTests:STRING=OFF
     )
 
-
-set(SOCKETS_NAME "uSockets")
-set(SOCKETS_DIR "${EXTRA_DIR}/uNetworking/${SOCKETS_NAME}")
+ExternalProject_Get_Property(libjson SOURCE_DIR)
+set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
 
 if(WIN32 OR ANDROID)
     # Sources are just globbed in the project, see later
+
     FetchContent_Declare(
       libsockets
       GIT_REPOSITORY https://github.com/uNetworking/uSockets.git
       GIT_TAG ${LIB_SOCKETS_VER}
     )
     
-    FetchContent_GetProperties(libsockets)
-    if(NOT libsockets_POPULATED)
-        FetchContent_Populate(libsockets)
-    endif()
-    set(SOCKETS_SOURCES "${libsockets_SOURCE_DIR}")
+    FetchContent_MakeAvailable(libsockets)
+
+    FetchContent_GetProperties(libsockets SOURCE_DIR srcDirVar)
+
+    set(SOCKETS_SOURCES ${srcDirVar})
+    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}/src")
+
 
 else()
-
-    set(SOCKETS_SOURCES "${SOCKETS_DIR}/src/libsockets")
-    set(SOCKETS_INCLUDE_PATH "${CMAKE_PREFIX_PATH}/${SOCKETS_SOURCES}/src")
-    set(SOCKETS_LIBRARY_PATH "${CMAKE_PREFIX_PATH}/${SOCKETS_DIR}/src")
-
     externalproject_add(libsockets
-        PREFIX ${SOCKETS_DIR}
         GIT_REPOSITORY https://github.com/uNetworking/uSockets.git
         GIT_TAG ${LIB_SOCKETS_VER}
         GIT_PROGRESS true
@@ -190,6 +179,9 @@ else()
         PATCH_COMMAND ""
         TEST_COMMAND ""
         )
+
+    ExternalProject_Get_Property(libsockets SOURCE_DIR)
+    set(SOCKETS_SOURCES ${SOURCE_DIR})     
 
     set(SOCKETS_LIB_NAME uSockets${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(SOCKETS_LIB_FULL ${SOCKETS_DIR}/${SOCKETS_LIB_NAME})
@@ -204,13 +196,13 @@ else()
         DEPENDS libsockets
     )
     add_custom_target(makecmd DEPENDS ${SOCKETS_LIB})
+
+    ExternalProject_Get_Property(libsockets SOURCE_DIR)
+    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/src")
+  
 endif()
 
-
-set(WEBSOCKETS_NAME "uWebSockets")
-set(WEBSOCKETS_DIR "${EXTRA_DIR}/uNetworking/${WEBSOCKETS_NAME}")
 externalproject_add(libwebsockets
-    PREFIX ${WEBSOCKETS_DIR}
     GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
     GIT_TAG ${LIB_WS_VER}
     GIT_PROGRESS true
@@ -222,8 +214,10 @@ externalproject_add(libwebsockets
     PATCH_COMMAND ""
     TEST_COMMAND ""
     )
-set(WEBSOCKETS_SOURCES "${WEBSOCKETS_DIR}/src/libwebsockets")
 
+ExternalProject_Get_Property(libwebsockets SOURCE_DIR)
+set(WEBSOCKETS_SOURCES ${SOURCE_DIR})
+set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/src")    
 
 find_path(ZLIB_H zlib.h PATHS
     ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}
@@ -234,10 +228,7 @@ find_path(ZLIB_H zlib.h PATHS
 
 if(NOT ZLIB_H)
     message("Retrieve zlib")
-    set(ZLIB_NAME "zlib")
-    set(ZLIB_DIR "${EXTRA_DIR}/${ZLIB_NAME}")
     externalproject_add(zlib
-        PREFIX ${ZLIB_DIR}
         GIT_REPOSITORY https://github.com/madler/zlib.git
         GIT_TAG ${LIB_ZLIB_VER}
         GIT_PROGRESS true
@@ -251,17 +242,16 @@ if(NOT ZLIB_H)
         )
 
     add_dependencies(libwebsockets zlib)
-    set(ZLIB_H ${ZLIB_DIR}/src/zlib)
+    ExternalProject_Get_Property(zlib SOURCE_DIR)
+    set(ZLIB_SOURCES ${SOURCE_DIR})  
+    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${ZLIB_SOURCES}/src/zlib")
 endif()
 
 if(CLIENT_DIALOGS)
     set(DIALOG_SRC src/ui_client.cpp)
 else()
     set(DIALOG_SRC src/ui_pfd.cpp)
-    set(PFD_NAME "pfd")
-    set(PFD_DIR "${EXTRA_DIR}/${PFD_NAME}")
     externalproject_add(libpfd
-        PREFIX ${PFD_DIR}
         GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
         #GIT_TAG ${LIB_PFD_VER}
         GIT_PROGRESS true
@@ -273,8 +263,8 @@ else()
         PATCH_COMMAND ""
         TEST_COMMAND ""
         )
-    ExternalProject_Get_Property(libpfd SOURCE_DIR)
-    set(INCLUDES "${INCLUDES} ${SOURCE_DIR}")
+    ExternalProject_Get_Property(libpfd SOURCE_DIR) 
+    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")
 endif()
 
 if(NOT MSVC)
@@ -309,17 +299,6 @@ if(NOT (MSVC OR ANDROID))
     find_package (Threads REQUIRED)
 endif()
 
-message("INCLUDES ${INCLUDES}")
-
-set(INCLUDES
-    ${INCLUDES}
-    include
-    ${WEBSOCKETS_SOURCES}/src
-    ${SOCKETS_SOURCES}/src
-    include/generated
-    ${JSON_DIR}/src/libjson/include
-    ${ZLIB_H}
-    )
 
 set(GEMPYRE_SRC
     src/core.cpp
@@ -366,9 +345,6 @@ if(ANDROID)
     set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android.cpp)
 endif()
 
-include_directories(
-        ${INCLUDES}
-        )
         
 if(WIN32 OR ANDROID)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
@@ -415,6 +391,16 @@ else()
         ${GEMPYRE_SRC}
     )
 endif()
+
+string(REPLACE " " ";" SYSTEM_INCLUDES_LIST ${SYSTEM_INCLUDES})
+
+target_include_directories( ${PROJECT_NAME}
+    PUBLIC include
+    PUBLIC include/generated
+    PRIVATE SYSTEM "$<BUILD_INTERFACE:${SYSTEM_INCLUDES_LIST}>"
+    )
+
+ message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES_LIST}")   
 
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
