@@ -83,21 +83,6 @@ jobs:
           endforeach()
         endif()
 
-        #if (NOT "${{ runner.os }}" STREQUAL "Windows")
-        #    find_program(ninja_program
-        #        NAMES ninja ninja.exe
-        #        PATHS $ENV{GITHUB_WORKSPACE} ${CMAKE_CURRENT_SOURCE_DIR})
-        #else()
-        #    file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
-        #endif()
-        
-        #if(NOT DEFINED CMAKE_MAKE_PROGRAM)
-        #    set(CMAKE_MAKE_PROGRAM ${ninja_program})
-        #endif()
-        
-         #   -D CMAKE_MAKE_PROGRAM=${ninja_program}
-         #  COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
-
         execute_process(
           COMMAND cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -G Ninja
           RESULT_VARIABLE result

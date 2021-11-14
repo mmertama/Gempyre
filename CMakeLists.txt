@@ -50,7 +50,12 @@ endif()
 add_subdirectory(gempyrelib)
 
 option(HAS_AFFILIATES "Affiliats are built" ON)
-option(HAS_TEST "Test are built" ON)
+if(MINGW)
+    message(WARNING "Tests not working ok with MINGW")
+    option(HAS_TEST "Test are built" OFF)
+else()
+    option(HAS_TEST "Test are built" ON)
+endif()
 option(HAS_EXAMPLES "Examples are built" ON)
 
 if(HAS_AFFILIATES)
