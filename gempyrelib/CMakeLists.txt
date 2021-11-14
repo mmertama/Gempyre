@@ -72,6 +72,8 @@ if(WIN32)
     add_compile_options(-D_WIN32)
     if(NOT MSVC)
         add_compile_definitions(_WIN32_WINNT=0x0A00)  #win10, needed for mingw
+    else()
+        option(CMAKE_USE_WIN32_THREADS_INIT "using WIN32 threads" ON)
     endif()
 endif()
 
@@ -98,7 +100,10 @@ if (WIN32 OR ANDROID)
     )
 
     ExternalProject_Get_Property(libuv SOURCE_DIR)
-    set(UV_LIB_DIR ${SOURCE_DIR})  
+    set(UV_SRC_DIR ${SOURCE_DIR})
+
+    ExternalProject_Get_Property(libuv BINARY_DIR)
+    set(UV_LIB_DIR ${BINARY_DIR})
                                        
     if(NOT ${IS_RELEASE})
         set(UVA_LIB_NAME_CORE uv_ad)
@@ -109,12 +114,13 @@ if (WIN32 OR ANDROID)
     set(UVA_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${UVA_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
     if (MSVC)
-        if (NOT ${IS_RELEASE})
-                set(UV_LIB_FULL "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
-        else()
-                set(UV_LIB_FULL "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
-        endif()
-        message("MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
+        set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
+        #if (NOT ${IS_RELEASE})
+        #        set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
+        #else()
+        #        set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
+        #endif()
+        message("gempyre-libuv: MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
     else()
         if(NOT ANDROID)
             find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
@@ -122,45 +128,9 @@ if (WIN32 OR ANDROID)
         get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
     endif()
 
-        set(UVA_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${UVA_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(SYSTEM_INCLUDES "${UV_SRC_DIR}/include")
 
-        if (MSVC)
-            if (NOT ${IS_RELEASE})
-                    set(UV_LIB_FULL "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
-            else()
-                    set(UV_LIB_FULL "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
-            endif()
-            message("MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
-         else()
-             if(NOT ANDROID)
-                  find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
-             endif()
-             get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
-         endif()
-
-         # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
-         # maybe use Fetch command instead of Externalproject add and then override flags
-
-         externalproject_add(libuv
-            PREFIX ${UV_DIR}
-            GIT_REPOSITORY https://github.com/libuv/libuv.git
-            GIT_TAG ${LIB_UV_VER}
-            GIT_PROGRESS true
-            BUILD_BYPRODUCTS ${UV_LIB_FULL}
-            CMAKE_ARGS
-                -DLIBUV_BUILD_TESTS=OFF
-                -DLIBUV_BUILD_BENCH=OFF
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                -DCMAKE_INSTALL_PREFIX=${UV_LIB_DIR}
-                -DCMAKE_DEBUG_POSTFIX=${CMAKE_DEBUG_POSTFIX}
-            UPDATE_DISCONNECTED false
-            INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --target install
-            UPDATE_COMMAND ""
-            PATCH_COMMAND ""
-            TEST_COMMAND ""
-            )
-
-    set(SYSTEM_INCLUDES "${UV_LIB_DIR}/include")
+    message(STATUS "gempyre-libuv lib: ${UV_LIB_FULL} inc: ${SYSTEM_INCLUDES}")
 
 #TODO: Same shit with usockets
 #        add_library(uv_lib_interface STATIC IMPORTED)
@@ -199,6 +169,7 @@ if(WIN32 OR ANDROID)
 
     FetchContent_GetProperties(libsockets SOURCE_DIR srcDirVar)
 
+
     set(SOCKETS_SOURCES ${srcDirVar})
     set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}/src")
 
@@ -218,11 +189,14 @@ else()
         )
 
     ExternalProject_Get_Property(libsockets SOURCE_DIR)
-    set(SOCKETS_SOURCES ${SOURCE_DIR})     
+    set(SOCKETS_SOURCES ${SOURCE_DIR})
+
+    ExternalProject_Get_Property(libsockets BINARY_DIR)
+    set(SOCKETS_LIB_DIR ${BINARY_DIR})
 
     set(SOCKETS_LIB_NAME uSockets${CMAKE_STATIC_LIBRARY_SUFFIX})
-    set(SOCKETS_LIB_FULL ${SOCKETS_DIR}/${SOCKETS_LIB_NAME})
-    set(SOCKETS_LIB ${SOCKETS_DIR}/${SOCKETS_LIB_NAME})
+    set(SOCKETS_LIB_FULL ${SOCKETS_LIB_DIR}/${SOCKETS_LIB_NAME})
+    set(SOCKETS_LIB ${SOCKETS_LIB_DIR}/${SOCKETS_LIB_NAME})
 
     #file(GLOB SOCKETS_OBJ "${SOCKETS_SOURCES}/*.o") # get bored with depencies, maybe fix later
 
@@ -302,29 +276,6 @@ else()
         )
     ExternalProject_Get_Property(libpfd SOURCE_DIR) 
     set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")
-endif()
-
-if(CLIENT_DIALOGS)
-    set(DIALOG_SRC src/ui_client.cpp)
-else()
-    set(DIALOG_SRC src/ui_pfd.cpp)
-    set(PFD_NAME "pfd")
-    set(PFD_DIR "${EXTRA_DIR}/${PFD_NAME}")
-    externalproject_add(libpfd
-        PREFIX ${PFD_DIR}
-        GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
-        #GIT_TAG ${LIB_PFD_VER}
-        GIT_PROGRESS true
-        UPDATE_DISCONNECTED false
-        BUILD_COMMAND ""
-        CONFIGURE_COMMAND ""
-        INSTALL_COMMAND ""
-        UPDATE_COMMAND ""
-        PATCH_COMMAND ""
-        TEST_COMMAND ""
-        )
-    ExternalProject_Get_Property(libpfd SOURCE_DIR)
-    set(INCLUDES "${INCLUDES} ${SOURCE_DIR}")
 endif()
 
 if(NOT MSVC)

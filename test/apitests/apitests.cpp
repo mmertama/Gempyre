@@ -5,7 +5,9 @@
 #include <tuple>
 #include <functional>
 #include <set>
+#ifdef HAS_FS
 #include <filesystem>
+#endif
 #include "apitests_resource.h"
 #include <cassert>
 
@@ -15,7 +17,11 @@
 using namespace std::chrono_literals;
 
 std::string headlessParams(bool log = false) {
+#ifdef HAS_FS
     const auto temp = std::filesystem::temp_directory_path().string();
+#else
+    const auto temp = GempyreUtils::pathPop(GempyreUtils::tempName());
+#endif
     return R"( --headless --disable-gpu --remote-debugging-port=9222 --user-data-dir=)" +
 #ifdef WINDOWS_OS
             GempyreUtils::substitute(temp, "/", "\\") + " --no-sandbox "
@@ -84,7 +90,11 @@ class Waiter {
 
 TEST(UiTests, openPage_with_page_browser) {
     constexpr auto htmlPage = TEST_HTML;
+#ifdef HAS_FS
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
+#else
+    ASSERT_TRUE(GempyreUtils::fileExists(htmlPage));
+#endif
     const auto browser = defaultChrome();
 
     Gempyre::Ui::Filemap map;
@@ -110,7 +120,11 @@ TEST(UiTests, openPage_with_page_browser) {
 
 TEST(UiTests, openPage_with_page) {
     constexpr auto htmlPage = TEST_HTML;
+#ifdef HAS_FS
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
+#else
+    ASSERT_TRUE(GempyreUtils::fileExists(htmlPage));
+#endif
     const auto browser = defaultChrome();
 
     Gempyre::Ui::Filemap map;
@@ -398,7 +412,11 @@ TEST_F(TestUi, root) {
 
 TEST_F(TestUi, addressOf) {
     const auto htmlPage = TEST_HTML;
+#ifdef HAS_FS
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
+#else
+    ASSERT_TRUE(GempyreUtils::fileExists(htmlPage));
+#endif
     m_ui->onOpen([this, htmlPage](){
         EXPECT_TRUE(m_ui->addressOf(htmlPage).length() > 0); //TODO better test would be write this as html and open it
         m_ui->exit();

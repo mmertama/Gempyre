@@ -124,7 +124,12 @@ jobs:
         execute_process(
           COMMAND cmake --build build
           RESULT_VARIABLE result
+          OUTPUT_VARIABLE build_out
+          ERROR_VARIABLE build_out
         )
+        
+        message("build out: ${build_out}")
+        
         if (NOT result EQUAL 0)
           message(FATAL_ERROR "Bad exit status")
         endif()
