@@ -114,12 +114,11 @@ if (WIN32 OR ANDROID)
     set(UVA_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${UVA_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
     if (MSVC)
-        set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
-        #if (NOT ${IS_RELEASE})
-        #        set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
-        #else()
-        #        set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
-        #endif()
+        if (NOT ${IS_RELEASE})
+                set(UV_LIB_FULL "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
+        else()
+                set(UV_LIB_FULL "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
+        endif()
         message("gempyre-libuv: MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
     else()
         if(NOT ANDROID)
@@ -533,50 +532,52 @@ else()
         @ONLY)
 
     install(
-       TARGETS ${PROJECT_NAME}
-       EXPORT GempyreTargets
-       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
-       PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-       )
+        TARGETS ${PROJECT_NAME}
+        EXPORT GempyreTargets
+        ARCHIVE DESTINATION ${LIBRARY_FULL_DIR}
+        PUBLIC_HEADER DESTINATION ${INCLUDE_FULL_DIR}
+        )
 
        # internal testing
-   export(EXPORT GempyreTargets
-     FILE  "${PROJECT_TARGETS_FILE}"
-     NAMESPACE gempyre::
-     )
+    export(EXPORT GempyreTargets
+       FILE  "${PROJECT_TARGETS_FILE}"
+       NAMESPACE gempyre::
+       )
 
     install(FILES ${CONNECTION_LIB_FULL}
-            DESTINATION ${LIBRARY_DIR}
-            )
+        DESTINATION ${LIBRARY_FULL_DIR}
+        )
 
     install(FILES
-            ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
-            DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
-            )
+        ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
+        DESTINATION "${PROJECT_CMAKE_DIR}"
+        )
 
    install(FILES
        ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
        ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
        ${CMAKE_SOURCE_DIR}/scripts/genStringResource.py
        ${CMAKE_SOURCE_DIR}/scripts/gempyre.cmake
-       DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
+       DESTINATION "${PROJECT_CMAKE_DIR}"
        )
 
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts/jsmin-2.2.2
-        DESTINATION "${GEMPYRE_CONFIG_INSTALL_DIR}"
+        DESTINATION "${PROJECT_CMAKE_DIR}"
         )
+
+    message("GempyreConfig.cmake is stored in ${PROJECT_CMAKE_DIR}")
 
     if(MSVC)
         install(FILES #CMAKE does not support (exp gen) static lib's pdb location
             "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.dir/${CMAKE_BUILD_TYPE}/${PROJECT_NAME}.pdb"
-            DESTINATION ${LIBRARY_DIR}
+            DESTINATION ${LIBRARY_FULL_DIR}
             OPTIONAL
             )
     endif()
 
     if(WIN32)
       # make Windows easier to find the Gempyre
-      set(ENV{gempyre_ROOT} ${GEMPYRE_CONFIG_INSTALL_DIR})    
+      set(ENV{gempyre_ROOT} ${PROJECT_CMAKE_DIR})
     endif()
 
 endif()

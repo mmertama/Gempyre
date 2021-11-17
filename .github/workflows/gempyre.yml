@@ -135,13 +135,19 @@ jobs:
           message(FATAL_ERROR "Running tests failed!")
         endif()
 
+    - name: List this folder
+      shell: bash
+      run: ls -R
 
     - name: Install Strip
-      run: cmake --install build --prefix instdir --strip
+      run: cmake --install build --prefix install_dir --strip
 
+    - name: List this folder
+      shell: bash
+      run: ls -R
 
     - name: Pack
-      working-directory: instdir
+      working-directory: install_dir
       run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
 
 

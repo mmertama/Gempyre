@@ -3,11 +3,12 @@ if "%VSCMD_ARG_HOST_ARCH%"=="x64" goto pass_ver
 echo Execute in the x64 Native tools command prompt.
 echo "msvc_install.bat <DIR>"
 echo DIR is optional and points to the install dir, defaults defined in GnuInstallDirs where the find_package should find it.
+echo Warning: if a DIR is a relative directory, it refers to msvc_build folder. 
 goto exit
 :pass_ver
+
 if not "%1"=="" set PREFIX=-DCMAKE_INSTALL_PREFIX=%1
-if "%1"=="" set PREFIX=-UCMAKE_INSTALL_PREFIX
-set PREFIX=
+if "%1"=="" set PREFIX=
 
 if not exist "msvc_build" mkdir msvc_build
 
