@@ -115,10 +115,11 @@ if (WIN32 OR ANDROID)
 
     if (MSVC)
         if (NOT ${IS_RELEASE})
-                set(UV_LIB_FULL "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
+                set(UV_LIB_FULL_R "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
         else()
-                set(UV_LIB_FULL "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
+                set(UV_LIB_FULL_R "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
         endif()
+        set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
         message("gempyre-libuv: MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
     else()
         if(NOT ANDROID)
@@ -475,7 +476,7 @@ elseif(ANDROID)
 else()
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${SOCKETS_LIB};${CMAKE_THREAD_LIBS_INIT}")
     target_link_libraries (${PROJECT_NAME}
-        PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+        PRIVATE ${CMAKE_THREAD_LIBS_INIT}ƒ
         PRIVATE ${SOCKETS_LIB}
         PRIVATE -lstdc++)
 endif()
@@ -492,9 +493,13 @@ generate_export_header(${PROJECT_NAME})
 
 #set(RESOURCE_SCRIPTS_DIR "${CMAKE_PREFIX_PATH}/${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(LIBRARY_DIR ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME})
-set(LIBRARY_FULL_DIR ${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR})
-set(INCLUDE_FULL_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-set(PROJECT_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/${GEMPYRE_CONFIG_INSTALL_DIR}")
+set(LIBRARY_FULL_DIR "${LIBRARY_DIR}" CACHE PATH "" FORCE)
+set(INCLUDE_FULL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}" CACHE PATH "" FORCE)
+if(UNIX AND NOT APPLE)
+    set(PROJECT_CMAKE_DIR "${GEMPYRE_CONFIG_INSTALL_DIR}" CACHE PATH "" FORCE)
+else()
+    set(PROJECT_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/${GEMPYRE_CONFIG_INSTALL_DIR}" CACHE PATH "" FORCE)
+endif()
 get_target_property(TARGET_LIBRARY_NAME ${PROJECT_NAME} OUTPUT_NAME)
 
 include(CMakePackageConfigHelpers)
@@ -507,8 +512,6 @@ write_basic_package_version_file(
     ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
     COMPATIBILITY SameMajorVersion
     )
-
-
 
 file(GLOB HEADERS include/*.h  ${CMAKE_SOURCE_DIR}/affiliates/include/*.h)
 
@@ -546,11 +549,21 @@ else()
 
     install(FILES ${CONNECTION_LIB_FULL}
         DESTINATION ${LIBRARY_FULL_DIR}
+        OPTIONAL
         )
+
+
+    if(MSVC)
+        # I really wont get why on some setup above works, and sometimes this is needed 8-\ win
+        install(FILES ${UV_LIB_FULL_R}
+            DESTINATION ${LIBRARY_FULL_DIR}
+            OPTIONAL
+            )
+    endif()
 
     install(FILES
         ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
-        DESTINATION "${PROJECT_CMAKE_DIR}"
+        DESTINATION ${PROJECT_CMAKE_DIR}
         )
 
    install(FILES
@@ -558,11 +571,11 @@ else()
        ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
        ${CMAKE_SOURCE_DIR}/scripts/genStringResource.py
        ${CMAKE_SOURCE_DIR}/scripts/gempyre.cmake
-       DESTINATION "${PROJECT_CMAKE_DIR}"
+       DESTINATION ${PROJECT_CMAKE_DIR}
        )
 
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts/jsmin-2.2.2
-        DESTINATION "${PROJECT_CMAKE_DIR}"
+        DESTINATION ${PROJECT_CMAKE_DIR}
         )
 
     message("GempyreConfig.cmake is stored in ${PROJECT_CMAKE_DIR}")
