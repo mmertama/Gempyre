@@ -28,3 +28,5 @@ target_link_libraries (${PROJECT_NAME}
     gtest
     "$<TARGET_PROPERTY:gempyre,gempyre_libs>"
     )
+
+

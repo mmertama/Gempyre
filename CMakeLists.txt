@@ -1,6 +1,9 @@
 cmake_minimum_required (VERSION 3.18)
 project(gempyre LANGUAGES CXX)
 
+# enable ctests, starting from the top build folder
+include(CTest)
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -47,15 +50,32 @@ elseif(UNIX)
    add_compile_options(-fPIC)
 endif()
 
+option(CI_ACTIONS "Github Actions build" OFF)
+
+if(CI_ACTIONS)
+    add_compile_options(-DCI_ACTIONS)
+    message(WARNING "This is for Github actions")
+endif()
+
 add_subdirectory(gempyrelib)
 
 option(HAS_AFFILIATES "Affiliats are built" ON)
-if(MINGW)
-    message(WARNING "Tests not working ok with MINGW")
+#if(MINGW)
+#    message(WARNING "Tests not working ok with MINGW")
+#    option(HAS_TEST "Test are built" OFF)
+#else()
+#    option(HAS_TEST "Test are built" ON)
+#endif()
+
+# dunno what is wrong with Github actions, but it gives random timeouts
+# for tests using headless chrome
+if(NOT CI_ACTIONS)
+    message(WARNING "Tests are too slow in Github actions")
     option(HAS_TEST "Test are built" OFF)
 else()
     option(HAS_TEST "Test are built" ON)
 endif()
+
 option(HAS_EXAMPLES "Examples are built" ON)
 
 if(HAS_AFFILIATES)
