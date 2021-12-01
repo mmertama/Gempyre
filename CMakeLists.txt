@@ -60,21 +60,22 @@ endif()
 add_subdirectory(gempyrelib)
 
 option(HAS_AFFILIATES "Affiliats are built" ON)
-#if(MINGW)
-#    message(WARNING "Tests not working ok with MINGW")
-#    option(HAS_TEST "Test are built" OFF)
-#else()
-#    option(HAS_TEST "Test are built" ON)
-#endif()
-
-# dunno what is wrong with Github actions, but it gives random timeouts
-# for tests using headless chrome
-if(NOT CI_ACTIONS)
-    message(WARNING "Tests are too slow in Github actions")
+if(MINGW)
+    message(WARNING "Tests not working ok with MINGW")
     option(HAS_TEST "Test are built" OFF)
 else()
     option(HAS_TEST "Test are built" ON)
 endif()
+
+# dunno what is wrong with Github actions, but it gives random timeouts
+# I now build the tests, but they are not executed on CI. TBS
+# for tests using headless chrome
+# if(CI_ACTIONS)
+#    message(WARNING "Tests are too slow in Github actions")
+#    option(HAS_TEST "Test are built" OFF)
+# else()
+#    option(HAS_TEST "Test are built" ON)
+# endif()
 
 option(HAS_EXAMPLES "Examples are built" ON)
 
