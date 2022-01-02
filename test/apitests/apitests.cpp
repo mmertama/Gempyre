@@ -80,24 +80,24 @@ void killHeadless() {
 }
 
 class TestUi : public testing::Test {
-    protected:
-    void SetUp() override {
+    public:
+    static void SetUpTestCase() {
         m_ui = std::make_unique<Gempyre::Ui>(
                     Apitests_resourceh,
                     "apitests.html",
                      defaultChrome(),
                      headlessParams());
-        m_ui->onError([this](const auto& element, const auto& info) {
+        m_ui->onError([](const auto& element, const auto& info) {
             std::cerr << element << " err:" << info;
             EXPECT_TRUE(false);
             m_ui->exit();
         });
     }
-    void TearDown() override {
+    static void TearDownTestCase()  {
         m_ui.reset();
         killHeadless();
     }
-    std::unique_ptr<Gempyre::Ui> m_ui;
+    static inline std::unique_ptr<Gempyre::Ui> m_ui;
 };
 
 /*

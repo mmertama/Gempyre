@@ -387,6 +387,8 @@ void Ui::exit() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop", toStr(m_status));
         eventLoop();
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop done, back in mainloop", toStr(m_status));
+    //    m_server.reset();
+      //  GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server cleaned");
     }
         break;
     case State::CLOSE:

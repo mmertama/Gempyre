@@ -125,15 +125,15 @@ jobs:
         # # include(ProcessorCount)
         # # ProcessorCount(N)
         # # j {N} not executed as API tests cannot be concurrent
-        message(AUTHOR_WARNING "skip the tests as GH Actions gives random timeouts")
-        # execute_process(
-        #  COMMAND ctest -j 1
-        #  WORKING_DIRECTORY build
-        #  RESULT_VARIABLE result
-        #)
-        # if (NOT result EQUAL 0)
-        #  message(FATAL_ERROR "Running tests failed!")
-        # endif()
+        # message(AUTHOR_WARNING "skip the tests as GH Actions gives random timeouts")
+        execute_process(
+            COMMAND ctest -j 1
+            WORKING_DIRECTORY build
+            RESULT_VARIABLE result
+            )
+        if (NOT result EQUAL 0)
+            message(WARNING "Running tests failed!")
+         endif()
 
     - name: List this folder
       shell: bash
@@ -184,7 +184,7 @@ jobs:
         name: upload_url
 
   publish:
-    # if: contains(github.ref, 'tags/v')
+    if: contains(github.ref, 'master')
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
@@ -226,12 +226,13 @@ jobs:
         upload_url=`cat ./upload_url`
         echo ::set-output name=upload_url::$upload_url
 
-    - name: Upload to Release
-      id: upload_to_release
-      uses: marvinpinto/action-automatic-releases@v1.2.1
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        files: ./${{ matrix.config.artifact }}
-        automatic_release_tag: "Latest"
+    #- name: Upload to Release
+    #  id: upload_to_release
+    #  if: ${{ github.ref == 'refs/heads/main' }}
+    #  uses: marvinpinto/action-automatic-releases@v1.2.1
+    #  with:
+    #    repo_token: ${{ secrets.GITHUB_TOKEN }}
+    #    files: ./${{ matrix.config.artifact }}
+    #    automatic_release_tag: "Latest"
  
         
