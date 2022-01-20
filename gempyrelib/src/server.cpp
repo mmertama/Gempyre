@@ -6,40 +6,17 @@
 #include <chrono>
 #include <random>
 #include <numeric>
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wall"
-    #pragma clang diagnostic ignored "-Wextra"
-#endif
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wall"
-    #pragma GCC diagnostic ignored "-Wextra"
-    #pragma GCC diagnostic ignored "-Wunused-parameter"
-    #pragma GCC diagnostic ignored "-Wsign-compare"
-    #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-    #pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
-#define UWS_NO_ZLIB
-#include <App.h>
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic pop
-#endif
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic pop
-#endif
-
 #include <nlohmann/json.hpp>
+
+#include "broadcaster.h"
 
 // for convenience
 
 using json = nlohmann::json;
 using namespace std::chrono_literals;
 
-struct SomeData {};
 using WSServer = uWS::TemplatedApp<false>;
-using WSBehaviour = WSServer::WebSocketBehavior<SomeData>;
-using WSSocket = uWS::WebSocket<false, true, SomeData>;
+using WSBehaviour = WSServer::WebSocketBehavior<Gempyre::ExtraSocketData>;
 using namespace Gempyre;
 
 constexpr unsigned short DEFAULT_PORT  = 30000;
@@ -71,7 +48,7 @@ static std::string fileToMime(const std::string_view& filename) {
 }
 
 
-std::any convert(const nlohmann::json& js) {
+static std::any convert(const nlohmann::json& js) {
     if(js.is_object()) {
         Server::Object params;
         for(const auto& [key, value] : js.items()) {
@@ -108,6 +85,37 @@ static std::string toLower(const std::string& str) {
     return s;
 }
 
+
+static int wishAport(int port, int max) {
+    int end = port + max;
+    while(!GempyreUtils::isAvailable(port)) {
+        ++port;
+        if(port == end) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "wish a port", GempyreUtils::lastError());
+            return 0;
+        }
+    }
+    return port;
+}
+
+static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "") {
+    return R"(<html>
+           <header>
+               <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0 "/>
+               <meta http-equiv="Pragma" content="no-cache" />
+               <meta http-equiv="Expires" content="0" />
+               <meta charset="UTF-8">
+               <style>
+               #styled {
+                   color:red;
+                   font-size:32px
+               }
+               </style>
+           </header>
+      <body><h1>Ooops</h1><h3 class="styled">404 Data Not Found </h3><h5>)" + std::string(url) + "</h5><i>" + std::string(info) + "</i></body></html>";
+}
+
+
 class Gempyre::Batch {
 public:
     Batch() {
@@ -126,86 +134,6 @@ private:
     json m_array;
 };
 
-class Gempyre::Broadcaster {
-    static constexpr auto DELAY = 100ms;
-public:
-    bool send(const std::string_view& text) {
-        for(auto& s : m_sockets) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket txt buffer", s->getBufferedAmount());
-            const auto success = s->send(text, uWS::OpCode::TEXT);
-
-            if(!success) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket t2 buffer", s->getBufferedAmount());
-                if(!m_backPressureMutex.try_lock_for(DELAY))
-                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
-                return false;
-            }
-        }
-        return !m_sockets.empty();
-    }
-
-    bool send(const char* data, size_t len) {
-        for(auto& s : m_sockets) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket bin buffer", s->getBufferedAmount());
-            const auto success = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
-            if(!success) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket b2 buffer", s->getBufferedAmount());
-                if(!m_backPressureMutex.try_lock_for(DELAY))
-                       GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
-                return false;
-            }
-        }
-        return !m_sockets.empty();
-    }
-
-    void append(WSSocket* socket) {
-        m_sockets.emplace(socket);
-    }
-
-    void remove(WSSocket* socket) {
-        auto it = m_sockets.find(socket);
-        if(it != m_sockets.end()) {
-            m_sockets.erase(it);
-        }
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket erased", m_sockets.size());
-    }
-
-    bool empty() const {
-        return m_sockets.empty();
-    }
-
-    bool size() const {
-        return m_sockets.size();
-    }
-
-    size_t bufferSize() const {
-        auto min = 0U;
-        for(const auto& s : m_sockets) {
-            min = std::min(min, s->getBufferedAmount());
-        }
-        return static_cast<size_t>(min);
-    }
-
-    void unlock() {
-        m_backPressureMutex.unlock();
-    }
-
-private:
-    std::unordered_set<WSSocket*> m_sockets;
-    std::timed_mutex m_backPressureMutex;
-};
-
-int wishAport(int port, int max) {
-    int end = port + max;
-    while(!GempyreUtils::isAvailable(port)) {
-        ++port;
-        if(port == end) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error, "wish a port", GempyreUtils::lastError());
-            return 0;
-        }
-    }
-    return port;
-}
 
 Server::Server(
     unsigned short port,
@@ -226,9 +154,7 @@ Server::Server(
     //mStartFunction([this]()->std::unique_ptr<std::thread> {
 //   return makeServer();
 //}),
-    m_serverThread(std::make_unique<std::thread>([this]() {
-    serverThread(m_port);
-})) {
+    m_serverThread{newThread()} {
 #ifdef RANDOM_PORT
     const auto seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator(seed);
@@ -237,25 +163,26 @@ Server::Server(
 #endif
 }
 
-static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "") {
-    return R"(<html>
-           <header>
-               <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0 "/>
-               <meta http-equiv="Pragma" content="no-cache" />
-               <meta http-equiv="Expires" content="0" />
-               <meta charset="UTF-8">
-               <style>
-               #styled {
-                   color:red;
-                   font-size:32px
-               }
-               </style>
-           </header>
-      <body><h1>Ooops</h1><h3 class="styled">404 Data Not Found </h3><h5>)" + std::string(url) + "</h5><i>" + std::string(info) + "</i></body></html>";
+std::unique_ptr<std::thread> Server::newThread() {
+    auto thread = std::make_unique<std::thread>([this]() {
+                serverThread(m_port);
+            });
+    m_waitStart.wait();
+    return thread;
 }
 
+
 void Server::serverThread(unsigned short port) {
+    assert(!m_isRunning);
+    assert(!m_uiready);
+    if(m_doExit) {
+        m_waitStart.signal();  // on exit
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "early exit request!");
+        return;
+    }
+    m_isRunning = true;
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "makeServe - execute, using port:", port);
+    m_waitStart.signal(); // on success
     auto openHandler =
             [this](auto ws) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS open");
@@ -270,6 +197,9 @@ void Server::serverThread(unsigned short port) {
                 const auto f = jsObj.find("type");
                 if(f != jsObj.end()) {
                     if(*f == "keepalive") {
+                        if(m_doExit) {
+                            ws->close();
+                        }
                         return;
                     }
                     if(*f == "uiready") {
@@ -323,9 +253,9 @@ void Server::serverThread(unsigned short port) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "close", code, message);
         m_broadcaster->remove(ws);
         m_onClose(Close::CLOSE, code);
-        ws->close();
+        const auto close_ok = ws->close();
         doClose();
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Socket is closed");
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Socket is closed", close_ok);
     };
 
     WSBehaviour behavior;
@@ -339,9 +269,11 @@ void Server::serverThread(unsigned short port) {
     };
 
 
+    assert(!m_uiready);
+    assert(!m_doExit);
 
-    WSServer()
-    .ws<SomeData>("/" + toLower(SERVICE_NAME), std::move(behavior))
+    auto app = WSServer()
+    .ws<ExtraSocketData>("/" + toLower(SERVICE_NAME), std::move(behavior))
     .get("/data/:id", [this](auto * res, auto * req) {
         const auto id = std::string(req->getParameter(0)); //till c++20 ?
         const auto it = m_pulled.find(id);
@@ -412,14 +344,20 @@ void Server::serverThread(unsigned short port) {
             GempyreUtils::log(GempyreUtils::LogLevel::Error, "404, not found", url);
         }
     })
-    .listen(port, [this, port](auto * socket) {
+    .listen(port, [this, port](auto socket) {
         char PADDING[2];
         (void) PADDING;
+        assert(!m_uiready);
         if(socket) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "listening on port:", port);
-            m_closeData = socket;
-            if(!m_onListen(port)) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "List callback failed, closing");
+            assert(!m_closeData);
+            m_closeData.store(socket);
+            if(m_doExit) { // cancel, exit has bee requested!
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listen cancelled, closing");
+                doClose();
+            }
+            else if(!m_onListen(port)) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listen callback failed, closing");
                 doClose();
             } else {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listen ok, wait for event");
@@ -429,11 +367,14 @@ void Server::serverThread(unsigned short port) {
             m_onClose(Close::FAIL, -1);
         }
     }).run();
+    m_isRunning = false;
+    m_doExit = false;
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server is about go close");
 }
 
 
 Server::~Server() {
+    assert(!m_broadcaster ||  m_broadcaster->empty());
     close(true);
 }
 
@@ -443,12 +384,12 @@ int Server::addPulled(DataType type, const std::string_view& data) {
     return m_pulledId;
 }
 
-void Server::closeSocket() {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server", "closeSocket", m_closeData.has_value());
-    if(m_closeData.has_value()) {
-        auto socket = std::any_cast<us_listen_socket_t*>(m_closeData);
+void Server::closeListenSocket() {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server", "closeSocket", static_cast<bool>(m_closeData));
+    if(m_closeData) {
+        auto socket = m_closeData.load();
+        m_closeData.store(nullptr);
         us_listen_socket_close(0, socket);
-        m_closeData.reset();
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server", "listen socket closed");
     }
 }
@@ -463,7 +404,7 @@ bool Server::retryStart() {
         return false;
     }
 
-    closeSocket();
+    closeListenSocket();
 
     if(m_serverThread) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Joining server");
@@ -475,7 +416,7 @@ bool Server::retryStart() {
 
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "retry end", m_doExit);
     if(!m_doExit) {
-        m_serverThread = std::make_unique<std::thread>([this]() {serverThread(m_port);});
+        m_serverThread = newThread();
         return true;
     } else {
         return false;
@@ -558,16 +499,20 @@ bool Server::send(const char* data, size_t len) {
 }
 
 void Server::doClose() {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Do Close", m_closeData.has_value());
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Do Close", static_cast<bool>(m_closeData));
     m_doExit = true;
-    //mStartFunction = nullptr; //mutexx?
-    closeSocket();
+    closeListenSocket();
 }
 
 void Server::close(bool wait) {
+    int attempts = 20;
+    while(!m_broadcaster->empty() && --attempts > 0) {
+        std::this_thread::sleep_for(200ms);
+    }
+    m_broadcaster->forceClose();
     doClose();
     if(wait && m_serverThread && m_serverThread->joinable()) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Wait server to close");
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Wait server to close", !!m_closeData);
         m_serverThread->join();
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server close");
     }

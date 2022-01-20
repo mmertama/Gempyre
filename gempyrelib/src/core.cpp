@@ -163,10 +163,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
     m_responsemap(std::make_unique<EventMap<std::string, std::any>>()),
     m_sema(std::make_unique<Semaphore>()),
     m_timers(std::make_unique<TimerMgr>()),
-    m_onUiExit([this]() {
-        exit();
-    }),
-m_filemap(normalizeNames(filemap)) {
+    m_filemap(normalizeNames(filemap)) {
     GempyreUtils::init();
 
     m_startup = [this, port, indexHtml, browser, extraParams, root]() {
@@ -376,6 +373,7 @@ void Ui::exit() {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - send", toStr(m_status));
             if(!m_server->send({{"type", "exit_request"}})) {
                 //on fail we force
+                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "exit - send force", toStr(m_status));
                 m_server->close(true); //at this point we can close server (it may already be close)
                 return false;
             }
@@ -561,11 +559,25 @@ void Ui::run() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "run, Status change --> RUNNING");
     m_status = State::RUNNING;
     eventLoop();
-    //assert(m_status == State::EXIT);
+    if(m_onUiExit) { // what is point? Should this be here
+        m_onUiExit();
+    }
+    GEM_DEBUG("requests:", m_requestqueue.size(), "timers:", m_timerqueue.size());
+    m_requestqueue.clear(); // we have exit, rest of requests get ignored
+    GEM_DEBUG("run, exit event loop");
+    m_server->close(true);
+    assert(!m_server->isJoinable());
+    m_server.reset(); // so the run can be recalled
+    m_timers->clear();
+    m_timerqueue.clear();
+    m_timers->flush(false);
+    assert(m_requestqueue.empty());
+    assert(!m_timers->isValid());
 }
 
 
 void Ui::eventLoop() {
+    GEM_DEBUG("enter", !!m_server, (m_server && m_server->isRunning()));
     while(m_server && m_server->isRunning()) {
 
         if(m_sema->count() == 0) {
@@ -595,9 +607,6 @@ void Ui::eventLoop() {
 
         if(m_status == State::CLOSE) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is Close", m_server && m_server->isRunning());
-            if(m_onUiExit) {
-                m_onUiExit();
-            }
             if(!m_server->isConnected()) {
                 m_server->close(true);
             }
@@ -643,6 +652,7 @@ void Ui::eventLoop() {
             const auto fptr = m_onOpen;
             holdTimers(true);
             addRequest([fptr, this]() {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
                 fptr();
                 holdTimers(false);
                 return true;
@@ -696,6 +706,7 @@ void Ui::eventLoop() {
             }
         }
     }
+    GEM_DEBUG("Eventloop exit");
 }
 
 void Ui::setLogging(bool logging) {
@@ -725,11 +736,14 @@ std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> U
     const clock_t begin_time = ::clock();
     const auto pong = const_cast<Ui*>(this)->query<std::string>(std::string(), "ping");
     if(pong.has_value() && !pong->empty()) {
-        auto full = double(::clock() - begin_time) / (CLOCKS_PER_SEC / 1000000.0);
-        auto half = (stod(*pong) * 1000) - ms.count();
+        const auto full = double(::clock() - begin_time) / (CLOCKS_PER_SEC / 1000000.0);
+        const auto pong_time = pong.value();
+        const auto half = (stod(pong_time) * 1000.) - ms.count();
         return std::make_pair(
                    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::duration<double, std::ratio<1, 1000000>>(full)),
                    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::duration<double, std::ratio<1, 1000000>>(half)));
+    } else {
+        GEM_DEBUG("Bad ping pong");
     }
     return std::nullopt;
 }

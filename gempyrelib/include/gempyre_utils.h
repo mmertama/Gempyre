@@ -377,6 +377,12 @@ inline bool doFatal(const std::string& txt, std::function<void()> f, const char*
     return false;
 }
 
+#ifdef _MSC_VER
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
+
+#define GEM_DEBUG(...) GempyreUtils::log(GempyreUtils::LogLevel::Debug, __PRETTY_FUNCTION__, __VA_ARGS__)
+
 enum AddressType{Ipv4 = 0x1, Ipv6 = 0x2};
 UTILS_EX std::vector<std::string> ipAddresses(int addressType);
 

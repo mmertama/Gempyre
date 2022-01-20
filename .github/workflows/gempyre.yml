@@ -224,15 +224,4 @@ jobs:
     - id: set_upload_url
       run: |
         upload_url=`cat ./upload_url`
-        echo ::set-output name=upload_url::$upload_url
-
-    #- name: Upload to Release
-    #  id: upload_to_release
-    #  if: ${{ github.ref == 'refs/heads/main' }}
-    #  uses: marvinpinto/action-automatic-releases@v1.2.1
-    #  with:
-    #    repo_token: ${{ secrets.GITHUB_TOKEN }}
-    #    files: ./${{ matrix.config.artifact }}
-    #    automatic_release_tag: "Latest"
- 
-        
+        echo ::set-output name=upload_url::$upload_url        

@@ -36,8 +36,10 @@ public:
                const TimerMgr::Callback& cb);   //this is a cb run in timer thread, that returns a function that call a func executed in event thread
     bool remove(int id);
     void flush(bool doRun); //do run not used - fix if issue - test everything!
+    void clear();
     ~TimerMgr();
     TimerMgr();
+    bool isValid() const {return m_timerThread.valid();}
 private:
     void start();
 private:
@@ -47,6 +49,7 @@ private:
     std::mutex m_waitMutex;
     std::atomic<bool> m_exit = false;
     Semaphore m_callWait;
+    std::mutex m_queueMutex;
 };
 }
 

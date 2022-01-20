@@ -10,7 +10,12 @@
 #include <unordered_map>
 #include <string_view>
 #include <string>
+#include <atomic>
 
+#include "semaphore.h"
+
+struct us_listen_socket_t;
+using ListenSocket = std::atomic<us_listen_socket_t*>;
 
 namespace Gempyre {
 
@@ -36,7 +41,9 @@ public:
            const CloseFunction& onClose,
            const GetFunction& onGet,
            const ListenFunction& onListen);
-    bool isRunning() const {return m_serverThread && m_serverThread->joinable();}
+    bool isJoinable() const {return m_serverThread && m_serverThread->joinable();}
+    // joinable does not mean it is running, and not running does not mean it soon wont :-)
+    bool isRunning() const {return isJoinable() && m_isRunning;}
     bool isConnected() const;
     bool retryStart();
     void close(bool wait = false);
@@ -52,11 +59,12 @@ public:
 private:
     std::unique_ptr<std::thread> makeServer(unsigned short port);
     void doClose();
-    void closeSocket();
+    void closeListenSocket();
     enum class DataType{Json, Bin};
     int addPulled(DataType, const std::string_view& data);
     void serverThread(unsigned short port);
     bool checkPort();
+    std::unique_ptr<std::thread> newThread();
 private:
     unsigned short m_port;
     std::string m_rootFolder;
@@ -67,14 +75,16 @@ private:
     const CloseFunction m_onClose;
     const GetFunction m_onGet;
     const ListenFunction m_onListen;
-    std::unique_ptr<std::thread> m_serverThread;
-    std::any m_closeData; //arbitrary
+    ListenSocket m_closeData = nullptr; //arbitrary
     bool m_uiready = false;
     mutable int m_queryId = 0;
     std::unique_ptr<Batch> m_batch;
     std::unordered_map<std::string, std::pair<DataType, std::string>> m_pulled;
     int m_pulledId = 0;
     bool m_doExit = false;
+    std::atomic_bool m_isRunning = false;
+    Semaphore   m_waitStart; // must be before thread
+    std::unique_ptr<std::thread> m_serverThread; // must be last
 };
 }
 

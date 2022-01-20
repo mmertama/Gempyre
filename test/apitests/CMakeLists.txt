@@ -14,7 +14,8 @@ include_directories(
 link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
 
 add_executable(${PROJECT_NAME}
-    apitests.cpp
+    ui_tests.cpp
+    core_tests.cpp
     gui/${PROJECT_NAME}.html
     )
 
@@ -28,6 +29,10 @@ gempyre_add_resources(PROJECT ${PROJECT_NAME}
 # copy HTML to binary for tests
 add_compile_definitions(TEST_HTML="${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html")
 configure_file(gui/${PROJECT_NAME}.html ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html COPYONLY)
+
+# set test app name
+add_compile_definitions(TEST_BINARY="${TEST_PROXY_BINARY}")
+
 
 add_dependencies (${PROJECT_NAME} gempyre)
 find_library(gtest PATHS ${TEST_LIBRARY_DIR})

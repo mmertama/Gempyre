@@ -1,6 +1,6 @@
 #cmake_minimum_required (VERSION 3.18)
 
-project (gempyre VERSION 0.7.0 LANGUAGES CXX C)
+project (gempyre VERSION 0.8.0 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -155,6 +155,9 @@ externalproject_add(libjson
 
 ExternalProject_Get_Property(libjson SOURCE_DIR)
 set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
+
+# store for testing json re-use
+set_property(TARGET libjson PROPERTY json_dir "${SOURCE_DIR}/include")
 
 if(WIN32 OR ANDROID)
     # Sources are just globbed in the project, see later
@@ -344,6 +347,7 @@ set(GEMPYRE_SRC
     src/element.cpp
     src/core.h
     src/timequeue.h
+    src/broadcaster.h
     ${DIALOG_SRC}
     )
 

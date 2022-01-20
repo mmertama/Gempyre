@@ -824,7 +824,7 @@ static std::string printTime(std::chrono::time_point<T> time) {
     since_epoch -= s;
     const auto milli = duration_cast<std::chrono::milliseconds>(since_epoch);
 
-    strcat(buf, ":");
+    strcat(buf, ".");
     strcat(buf, std::to_string(milli.count()).c_str());
     return std::string(buf);
 }

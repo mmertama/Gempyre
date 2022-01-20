@@ -7,6 +7,7 @@ using namespace Gempyre;
 void TimerMgr::start() {
     m_exit = false;
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timers start");
+    assert(!m_timerThread.valid());
     m_timerThread = std::async(std::launch::async, [this]() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer thread start");
         while(!m_exit) {
@@ -59,16 +60,19 @@ void TimerMgr::start() {
 }
 
 int TimerMgr::append(const TimeQueue::TimeType& ms, bool singleShot, const TimeQueue::Function& timerFunc, const Callback& cb) {
+    std::lock_guard<std::mutex> lock(m_queueMutex);
     m_exit = false;
-    const auto doStart = m_queue->empty();
     const auto id = m_queue->append(ms, [singleShot, timerFunc, this, cb] (int id) {
+         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Timer callback", id);
         cb([singleShot, timerFunc, id, this]() {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Timer running", id);
-            timerFunc(id);
             if(singleShot) {
-                remove(id); // does notify
-            } else {
-                m_queue->restoreIf(id);
+                remove(id);     // does notify
+            }
+            timerFunc(id);      //call timer
+            if(!singleShot) {
+                std::lock_guard<std::mutex> lock(m_queueMutex);
+                m_queue->restoreIf(id);     // restore priority
                 m_cv.notify_all();
             }
             m_callWait.signal();
@@ -76,8 +80,7 @@ int TimerMgr::append(const TimeQueue::TimeType& ms, bool singleShot, const TimeQ
     });
 
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer append", id, m_queue->size());
-
-    if(doStart) {
+    if(!m_timerThread.valid()) {
         start();
     }
     m_cv.notify_all(); //if appeded thread is done, priot que may have changed
@@ -86,30 +89,41 @@ int TimerMgr::append(const TimeQueue::TimeType& ms, bool singleShot, const TimeQ
 
 
 bool TimerMgr::remove(int id) {
-    if(!m_exit) //on exit queue is cleaned
+    if(!m_exit) { //on exit queue is cleaned
+        std::lock_guard<std::mutex> lock(m_queueMutex);
         m_queue->remove(id);
+    }
     m_cv.notify_all();  //if currently waiting has been waiting thing may have changed
     return true;
 }
 
 void TimerMgr::flush(bool doRun) {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "flush", m_queue->empty());
+    std::lock_guard<std::mutex> lock(m_queueMutex);
     if(!m_queue->empty()) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "flush");
         m_queue->setNow(doRun);
-        m_exit = true;
-        m_callWait.signal();
-        m_cv.notify_all();
+    }
+    m_exit = true;
+    m_callWait.signal();
+    m_cv.notify_all();
+    if(m_timerThread.valid()) // it CAN get invalidated (at least when some breakpoints are set)
         m_timerThread.wait();
+    m_queue->clear();
+    m_timerThread = {};
+}
+
+void TimerMgr::clear() {
+    std::lock_guard<std::mutex> lock(m_queueMutex);
+    if(!m_queue->empty()) {
         m_queue->clear();
+        m_cv.notify_all();
+        assert(m_queue->empty());
     }
 }
 
 TimerMgr::~TimerMgr() {
-    if(!m_queue->empty()) {
-        m_queue->clear();
-        m_cv.notify_all();
-        m_timerThread.wait();
-    }
+    m_exit = true;
+    clear();
 }
 
 TimerMgr::TimerMgr() : m_queue(std::make_unique<TimeQueue>()) {

@@ -118,6 +118,7 @@ public:
     }
 
     void clear() {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer queue clear");
         std::lock_guard<std::mutex> guard(m_mutex);
         m_priorityQueue.clear();
     }
