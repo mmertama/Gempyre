@@ -5,7 +5,7 @@ Gempyre
 UI Framework
 -------------
 
-Gempyre is a C++ UI framework. It is a UI framework without widgets - instead  the UI is composed using common web tools and frameworks.  Therefore Gempyre is small, easy to learn and quick to take in use.
+Gempyre is a UI framework. It is a UI framework without widgets - instead  the UI is composed using common web tools and frameworks.  Therefore Gempyre is small, easy to learn and quick to take in use.
 
 For Android support, visit also [Gempyre-Android](https://github.com/mmertama/Gempyre-Android)
 
@@ -63,13 +63,14 @@ How to build on Windows 10
 * Support for secure web socket (nice for remote UIs)
 * Flatbuffer/protobuf instead of JSON (perf up)
 * Using WASM instean of JS (perf up)
-* Better Unit and moduletests coverage
-* CI pipelines
+* Testing coverage and perf measurements.
+* JS testing  
 * Cleaning code and refactoring (API behind PIMPL?, string_views instead of strings when possible, meaningless std::any for code encapsulation)
 * Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
 * Reconsider libwebsockets instead of uWebsockets.
 * POC of Gempyre-Android style architecture also in core.
 * camelStyle or snake_style? (Gempyre-Python already uses snake, and Im warmin up for that :-)
+* Rust wrapper
 
 
 Late updates
@@ -81,6 +82,9 @@ Late updates
 ### 2021 2
 * Lot of fixes and some new utils
 * Native application window for OSX, Linux and Windows are using [Hiillos] (https://github.com/mmertama/Hiillos)                        
+### 2022 1
+* Lot of fixes
+* CI using Github actions 
 
 Copyright
 Markus Mertama 2020, 2021
