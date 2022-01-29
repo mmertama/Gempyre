@@ -31,7 +31,7 @@ endif()
 # maybe use Fetch command instead of Externalproject add and then override flags
 
 if(NOT WIN32)
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -Wno-psabi")
 else()
     set(CMAKE_CXX_FLAGS "-DWINDOWS_OS ${CMAKE_CXX_FLAGS}")
     add_compile_options(-D_WIN32)
@@ -66,16 +66,6 @@ if(MINGW)
 else()
     option(HAS_TEST "Test are built" ON)
 endif()
-
-# dunno what is wrong with Github actions, but it gives random timeouts
-# I now build the tests, but they are not executed on CI. TBS
-# for tests using headless chrome
-# if(CI_ACTIONS)
-#    message(WARNING "Tests are too slow in Github actions")
-#    option(HAS_TEST "Test are built" OFF)
-# else()
-#    option(HAS_TEST "Test are built" ON)
-# endif()
 
 option(HAS_EXAMPLES "Examples are built" ON)
 

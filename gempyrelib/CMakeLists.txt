@@ -77,8 +77,12 @@ if(WIN32)
     endif()
 endif()
 
+if (WIN32 OR ANDROID OR RASPBERRY)
+    set(COMPILE_UV_IN ON)
+endif()
 
-if (WIN32 OR ANDROID)
+
+if (COMPILE_UV_IN)
    
     # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
     # maybe use Fetch command instead of Externalproject add and then override flags
@@ -122,7 +126,7 @@ if (WIN32 OR ANDROID)
         set(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}")
         message("gempyre-libuv: MSVC builds artifacts upon release type at ${UV_LIB_FULL}")
     else()
-        if(NOT ANDROID)
+        if(MinGW)
             find_program(NINJA ninja.exe DOC "Ninja must be in path" REQUIRED)
         endif()
         get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
@@ -159,7 +163,7 @@ set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
 # store for testing json re-use
 set_property(TARGET libjson PROPERTY json_dir "${SOURCE_DIR}/include")
 
-if(WIN32 OR ANDROID)
+if(COMPILE_UV_IN)
     # Sources are just globbed in the project, see later
 
     FetchContent_Declare(
@@ -372,7 +376,7 @@ if(ANDROID)
 endif()
 
         
-if(WIN32 OR ANDROID)
+if(COMPILE_UV_IN)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
 endif()
@@ -397,7 +401,7 @@ else()
     endif()
 endif()
 
-if(ANDROID)
+if(ANDROID OR RASPBERRY)
     #openssl is not there
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLIBUS_NO_SSL")
     list(REMOVE_ITEM SOCKETS_SRC "${SOCKETS_SOURCES}/src/ssl.c")
@@ -445,7 +449,7 @@ if(NOT CLIENT_DIALOGS)
     add_dependencies(${PROJECT_NAME} libpfd)
 endif()
 
-if (WIN32 OR ANDROID)
+if (COMPILE_UV_IN)
     #add_dependencies(libsockets libuv)
     add_dependencies(${PROJECT_NAME} libuv)
 else()
@@ -471,12 +475,21 @@ if(WIN32)
         PUBLIC ${WIN_LIB}
         )
 elseif(ANDROID)
-    message("uvdir ${UV_LIB}")
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs ${UV_LIB})
+    message("uvdir ${UVA_LIB_NAME}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs ${UVA_LIB_NAME})
     target_link_libraries (${PROJECT_NAME}
-        PRIVATE ${UV_LIB}
+        PRIVATE -l${UVA_LIB_NAME_CORE}
         PRIVATE -lstdc++
         )
+elseif(RASPBERRY)
+    message("uvlib is set as:'${UV_LIB_FULL}'")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${UVA_LIB_NAME_CORE};${CMAKE_THREAD_LIBS_INIT}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${UV_LIB_DIR}")
+    target_link_libraries (${PROJECT_NAME}
+        PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+        PRIVATE {UVA_LIB_NAME_CORE}
+        PRIVATE -lstdc++
+        )        
 else()
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${SOCKETS_LIB};${CMAKE_THREAD_LIBS_INIT}")
     target_link_libraries (${PROJECT_NAME}
