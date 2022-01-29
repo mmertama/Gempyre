@@ -183,13 +183,6 @@ namespace Gempyre {
         ///Opens an url in the UI view
         void open(const std::string& url, const std::string& name = "");
 
-        [[deprecated ("startPeriodic and after instead")]]
-        TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (TimerId id)>& timerFunc);
-        [[deprecated ("startPeriodic and after instead")]]
-        TimerId startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void ()>& timerFunc);
-        [[deprecated ("use cancel")]]
-        bool stopTimer(TimerId timerId);
-
         ///Starts a perdiodic timer.
         TimerId startPeriodic(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
         ///Starts a perdiodic timer.
@@ -254,8 +247,14 @@ namespace Gempyre {
         static std::string toStr(const std::atomic<State>&);
         inline void addRequest(std::function<bool()>&&);
     private:
+        struct InternalEvent {
+            std::string element;
+            std::string handler;
+            std::unordered_map<std::string, std::any> data;
+        };
+    private:
         std::atomic<State> m_status = State::NOTSTARTED;
-        std::unique_ptr<EventQueue<std::tuple<std::string, std::string, std::unordered_map<std::string, std::any>>>> m_eventqueue;
+        std::unique_ptr<EventQueue<InternalEvent>> m_eventqueue;
         std::unique_ptr<EventMap<std::string, std::any>> m_responsemap;
         std::unique_ptr<Semaphore>  m_sema;
         std::unique_ptr<TimerMgr> m_timers;
