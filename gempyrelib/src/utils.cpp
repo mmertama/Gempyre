@@ -273,7 +273,7 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
     std::multimap<std::string, std::string> options;
 
     for(;;) {
-        const char opt = getopt_long(argc, const_cast<char**>(argv), plist.c_str(),
+        const auto opt = getopt_long(argc, const_cast<char**>(argv), plist.c_str(),
                             longOptions, nullptr);
         if(opt < 0)
             break;

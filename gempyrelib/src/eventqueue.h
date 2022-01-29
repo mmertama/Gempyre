@@ -15,7 +15,7 @@ class EventQueue {
 public:
     Event take() {
         std::lock_guard<std::mutex> guard(m_mutex);
-        auto event = std::move(m_events.back());
+        auto event = m_events.back(); // was move, but copy elision makes it irrelevant, also random crashes on rasperry
         m_events.pop_back();
         return event;
        }

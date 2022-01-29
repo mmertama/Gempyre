@@ -159,7 +159,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int heig
        port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
-    m_eventqueue(std::make_unique<EventQueue<std::tuple<std::string, std::string, std::unordered_map<std::string, std::any>>>>()),
+    m_eventqueue(std::make_unique<EventQueue<InternalEvent>>()),
     m_responsemap(std::make_unique<EventMap<std::string, std::any>>()),
     m_sema(std::make_unique<Semaphore>()),
     m_timers(std::make_unique<TimerMgr>()),
@@ -179,7 +179,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
             }
         };
 
-        auto messageHandler = [this, indexHtml, extraParams](const std::unordered_map<std::string, std::any>& params) { //message
+        auto messageHandler = [this, indexHtml, extraParams](const Server::Object& params) { //message
             const auto kit = params.find("type");
             if(kit != params.end())  {
                 const auto type = std::any_cast<std::string>(kit->second);
@@ -187,7 +187,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                 if(type == "event") {
                     const auto element = std::any_cast<std::string>(params.at("element"));
                     const auto event = std::any_cast<std::string>(params.at("event"));
-                    const auto properties = std::any_cast<std::unordered_map<std::string, std::any>>(params.at("properties"));
+                    const auto properties = std::any_cast<Server::Object>(params.at("properties"));
                     m_eventqueue->push({element, event, properties});
                 } else if(type == "query") {
                     const auto key = std::any_cast<std::string>(params.at("query_value"));
@@ -516,21 +516,9 @@ Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<v
     });
 }
 
-Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void ()>& timerFunc) {
-    return singleShot ? after(ms, timerFunc) : startPeriodic(ms, timerFunc);
-}
-
-Ui::TimerId Ui::startTimer(const std::chrono::milliseconds& ms, bool singleShot, const std::function<void (int)>& timerFunc) {
-    return singleShot ? after(ms, timerFunc) : startPeriodic(ms, timerFunc);
-}
-
 bool Ui::cancel(TimerId id) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Stop Timer", id);
     return m_timers->remove(id);
-}
-
-bool Ui::stopTimer(TimerId id) {
-    return cancel(id);
 }
 
 Ui& Ui::onExit(std::function<void ()> onUiExitFunction) {
@@ -690,19 +678,19 @@ void Ui::eventLoop() {
         //events must be last as they may generate more requests or responses
         while(!m_eventqueue->empty() && m_status == State::RUNNING) {
             const auto it = m_eventqueue->take();
-            const auto element = m_elements.find(std::get<0>(it));
+            const auto element = m_elements.find(it.element);
             if(element != m_elements.end()) {
-                const auto handlerName = std::get<1>(it);
+                const auto handlerName = it.handler;
                 const auto handlers = std::get<1>(*element);
                 const auto h = handlers.find(handlerName);
 
                 if(h != handlers.end()) {
-                    h->second(Event{Element(*this, std::move(element->first)), std::move(std::get<2>(it))});
+                    h->second(Event{Element(*this, std::move(element->first)), std::move(it.data)});
                 } else {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element", std::get<0>(it));
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element", it.element);
                 }
             } else {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find", std::get<0>(it), "from elements");
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find", it.element, "from elements");
             }
         }
     }

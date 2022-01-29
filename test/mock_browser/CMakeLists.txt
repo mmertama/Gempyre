@@ -23,5 +23,13 @@ include_directories("${JSON_DIR}")
 
 set(TEST_PROXY_BINARY "$<TARGET_FILE:${PROJECT_NAME}>" PARENT_SCOPE)
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE ${WS_LIBS})
+if(RASPBERRY)
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE ${WS_LIBS}
+        PRIVATE -lstdc++
+        )
+else()
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE ${WS_LIBS})        
+endif()
+

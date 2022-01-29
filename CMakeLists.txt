@@ -30,18 +30,23 @@ endif()
 # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
 # maybe use Fetch command instead of Externalproject add and then override flags
 
-if(NOT WIN32)
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
-else()
+if(WIN32)
     set(CMAKE_CXX_FLAGS "-DWINDOWS_OS ${CMAKE_CXX_FLAGS}")
     add_compile_options(-D_WIN32)
     add_compile_options(-DWINDOWS_OS)
     add_compile_options(-DLIBUS_NO_SSL)
     add_compile_options(-DNOMINMAX)
     set(CMAKE_DEBUG_POSTFIX d)
+else()
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
 endif()
+
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-DMAC_OS ${CMAKE_CXX_FLAGS}")
+elseif(RASPBERRY)
+    set(CMAKE_CXX_FLAGS "-DUNIX_OS -DRASPBERRY_OS -Wno-psabi ${CMAKE_CXX_FLAGS}")  # Should be Rasbian?
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    add_compile_options(-fPIC)
 elseif(ANDROID)
      set(CMAKE_CXX_FLAGS "-DANDROID_OS ${CMAKE_CXX_FLAGS}")
 elseif(UNIX)
@@ -66,16 +71,6 @@ if(MINGW)
 else()
     option(HAS_TEST "Test are built" ON)
 endif()
-
-# dunno what is wrong with Github actions, but it gives random timeouts
-# I now build the tests, but they are not executed on CI. TBS
-# for tests using headless chrome
-# if(CI_ACTIONS)
-#    message(WARNING "Tests are too slow in Github actions")
-#    option(HAS_TEST "Test are built" OFF)
-# else()
-#    option(HAS_TEST "Test are built" ON)
-# endif()
 
 option(HAS_EXAMPLES "Examples are built" ON)
 
