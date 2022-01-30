@@ -179,7 +179,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
             }
         };
 
-        auto messageHandler = [this, indexHtml, extraParams](const std::unordered_map<std::string, std::any>& params) { //message
+        auto messageHandler = [this, indexHtml, extraParams](const Server::Object& params) { //message
             const auto kit = params.find("type");
             if(kit != params.end())  {
                 const auto type = std::any_cast<std::string>(kit->second);
@@ -187,7 +187,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                 if(type == "event") {
                     const auto element = std::any_cast<std::string>(params.at("element"));
                     const auto event = std::any_cast<std::string>(params.at("event"));
-                    const auto properties = std::any_cast<std::unordered_map<std::string, std::any>>(params.at("properties"));
+                    const auto properties = std::any_cast<Server::Object>(params.at("properties"));
                     m_eventqueue->push({element, event, properties});
                 } else if(type == "query") {
                     const auto key = std::any_cast<std::string>(params.at("query_value"));

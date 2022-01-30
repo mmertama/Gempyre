@@ -287,10 +287,13 @@ TEST(TestMockUi, ping) {
          ping->second.count() > 0 &&
          ping->first.count() < 30000 &&
          ping->second.count() < 30000;
-        if(ping)
+        if(ping) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ping:", ping->first.count(), ping->second.count());
+            if(! ok)
+                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ping too slow:", ping->first.count(), ping->second.count());
+        }
         else
-             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ping: N/A");
+             GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ping: N/A");
         ui.exit();
     });
     ui.run();
