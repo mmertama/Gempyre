@@ -36,7 +36,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <stdio.h>
+#include <cstdio>
 #include <variant>
 #include <cassert>
 
@@ -46,7 +46,7 @@
 #include "base64.h"
 
 //without <filesystem> support
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace GempyreUtils {
 template<typename T>
@@ -504,10 +504,11 @@ std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
     auto dir = ::opendir(dname.c_str());
     if(!dir)
         return entries;
-    while(auto dirEntry = readdir(dir)) {
-        if(strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
+    while(auto dirEntry = ::readdir(dir)) {
+        if(std::strcmp(dirEntry->d_name, ".") != 0 && std::strcmp(dirEntry->d_name, "..") != 0)
             entries.push_back({dirEntry->d_name});
     }
+    ::closedir(dir);
 #else
         const auto searchPath = dirname + "/*.*";
         WIN32_FIND_DATA fd;
