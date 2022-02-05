@@ -1,4 +1,4 @@
-# Built on Raspberry
+# Gempyre on Raspberry
 ### Raspberry 3 with Rasbian 
 
 
@@ -40,9 +40,7 @@ or
 
 4) run
     ```bash
-    $ ./raspberry_install.sh
+    ./raspberry_install.sh
     ```
 
-This is Gempyre core, apps get open into browser window. (look Examples)
-
-For windowed apps a [Hiillos](https://github.com/mmertama/Hiillos) is needed. 
+This is a Gempyre core therefore apps get open into browser window. (look Examples). For windowed apps, a [Hiillos](https://github.com/mmertama/Hiillos) is needed. 
