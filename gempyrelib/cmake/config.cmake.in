@@ -16,7 +16,7 @@ if(WIN32)
     find_dependency(uva)
 elseif(RASPBERRY)
     message("Gempyre for Raspberry")
-    # this could be done prettier, but for me it looks Rasbian paths are kind of broken
+    # this could be done prettier?
     set(CMAKE_PREFIX_PATH "/usr/local/lib/gempyre;${CMAKE_PREFIX_PATH}")
     set(GEMPYRE_PATH "/usr/local/lib/gempyre")
     set(ABSOLUTE_INSTALL_PREFIX /usr/local/)
@@ -27,7 +27,10 @@ else()
         message("Gempyre for OSX")
     else()
         message("Gempyre for Linux")
-    endif()    
+        set(GEMPYRE_PATH "/usr/local/lib/gempyre") # Otherwise find_library for gempyre wont work
+        set(ABSOLUTE_INSTALL_PREFIX /usr/local/)   # Otherwise includes are not found
+        set(CMAKE_PREFIX_PATH "/usr/local/lib/gempyre;${CMAKE_PREFIX_PATH}") # Otherwise usockets wont found    
+    endif()
     find_dependency(uSockets)
     find_package(Threads)
 endif()
