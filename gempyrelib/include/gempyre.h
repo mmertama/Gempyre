@@ -146,11 +146,6 @@ namespace Gempyre {
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /// use OS browser as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// When explicit app  (Hiillos) iniates the UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// When explicit app  (Hiillos) iniates the UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-
 
         ~Ui();
         Ui(const Ui& other) = delete;
@@ -188,13 +183,13 @@ namespace Gempyre {
         ///Starts a perdiodic timer.
         TimerId startPeriodic(const std::chrono::milliseconds& ms, const std::function<void ()>& timerFunc);
 
-        ///Starts a perdiodic timer.
+        ///Starts a single shot timer.
         TimerId after(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
         ///Starts a perdiodic timer.
         TimerId after(const std::chrono::milliseconds& ms, const std::function<void ()>& timerFunc);
 
         ///Stops a timer.
-        bool cancel(TimerId timerId);
+        bool cancelTimer(TimerId timerId);
 
         ///Get a (virtual) root element.
         [[nodiscard]] Element root() const;

@@ -68,14 +68,14 @@ int main(int /*argc*/, char** /*argv*/) {
     };
 
     flakes_count.subscribe("change", [&draw_a_flake, &update_a_label](const Gempyre::Event& ev) {
-        const auto v = GempyreUtils::to<int>(ev.properties.at("value"));
+        const auto v = GempyreUtils::convert<int>(ev.properties.at("value"));
         update_a_label(v);
         draw_a_flake(v);
     }, {"value"});
 
     ui.onOpen([&flakes_count, &draw_a_flake, &update_a_label, &canvas, &rect]() {
         rect = *canvas.rect();
-        const auto v = GempyreUtils::to<int>(flakes_count.values()->at("value"));
+        const auto v = GempyreUtils::convert<int>(flakes_count.values()->at("value"));
         update_a_label(v);
         draw_a_flake(v);
     });

@@ -55,13 +55,39 @@ void Gempyre::setJNIENV(void*, void*) {
 #define STR(x) #x
 #define TOSTRING(x) STR(x)
 
+template <class T>
+static std::optional<T> getConf(const Gempyre::Ui& ui, const std::string& key) {
+    /*const auto app_path = GempyreUtils::appPath();
+    const auto conf = GempyreUtils::pushPath(GempyreUtils::pathPop(app_path), "gempyre.conf");
+    if(GempyreUtils::fileExists(conf)) {
+        const auto js_string = GempyreUtils::slurp(conf);*/
+    const auto js_data = ui.resource("/gempyre.conf");
+    if(js_data) {
+        const auto js_string = std::string(reinterpret_cast<const char*>(js_data->data()),
+                                           js_data->size());
+        const auto js = GempyreUtils::jsonToAny(js_string);
+        if(js) {
+            const auto map = std::any_cast<std::unordered_map<std::string, std::any>>(&js.value());
+            if(map && map->find(key) != map->end()) {
+                const auto any_value = map->at(key);
+                const auto value = std::any_cast<T>(&any_value);
+                if(value) {
+                    return std::make_optional<T>(*value);
+                }
+            }
+        }
+    }
+    return std::nullopt;
+}
+
 std::tuple<int, int, int> Gempyre::version() {
     static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
     const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
-    return {GempyreUtils::to<int>(c[0]), GempyreUtils::to<int>(c[1]), GempyreUtils::to<int>(c[2])};
+    return {GempyreUtils::convert<int>(c[0]), GempyreUtils::convert<int>(c[1]), GempyreUtils::convert<int>(c[2])};
 }
 
 
+/* deprecated?
 static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, char** argv) {
     const auto& [params, opt] = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
     const auto it = opt.find("gempyre-app");
@@ -75,6 +101,7 @@ static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int 
     }
     return std::nullopt;
 }
+*/
 
 /**
  * The server assumes that file are found at root, therefore we add a '/' if missing
@@ -139,6 +166,7 @@ Ui::Ui(const std::string& indexHtml, const std::string& browser, int width, int 
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser,
        stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams), port, root) {}
 
+/* deprected?
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml,
        gempyreAppParams(argc, argv).has_value() ?
@@ -152,7 +180,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** ar
            std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
        (stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams)) + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
        port, root) {}
-
+*/
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml, browser,
        stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams),
@@ -277,7 +305,15 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
             m_status = State::RUNNING;
             const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
 
-            const std::string appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
+            const auto conf_browser = getConf<std::string>(*this, "guiapp");
+
+            std::string appui = !browser.empty()
+                    ? browser : conf_browser.value_or(GempyreUtils::htmlFileLaunchCmd());
+
+            //TODO?  const auto conf_width = getConf<std::string>(*this, "guiapp_width");
+            //TODO? const auto conf_height = getConf<std::string>(*this, "guiapp_height");
+            //TODO? const auto conf_title = getConf<std::string>(*this, "guiapp_title");
+            //TODO? const auto conf_params = getConf<std::string>(*this, "guiapp_params");
 
 #ifndef ANDROID_OS
             gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
@@ -516,7 +552,7 @@ Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<v
     });
 }
 
-bool Ui::cancel(TimerId id) {
+bool Ui::cancelTimer(TimerId id) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Stop Timer", id);
     return m_timers->remove(id);
 }
@@ -720,13 +756,15 @@ void Ui::open(const std::string& url, const std::string& name) {
 }
 
 std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> Ui::ping() const {
-    const auto ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+    const auto milliseconds_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     const clock_t begin_time = ::clock();
     const auto pong = const_cast<Ui*>(this)->query<std::string>(std::string(), "ping");
     if(pong.has_value() && !pong->empty()) {
+        // full loop
         const auto full = double(::clock() - begin_time) / (CLOCKS_PER_SEC / 1000000.0);
+        // timestamp from the response
         const auto pong_time = pong.value();
-        const auto half = (stod(pong_time) * 1000.) - ms.count();
+        const auto half = GempyreUtils::convert<decltype(milliseconds_since_epoch)>(pong_time) - milliseconds_since_epoch;
         return std::make_pair(
                    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::duration<double, std::ratio<1, 1000000>>(full)),
                    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::duration<double, std::ratio<1, 1000000>>(half)));

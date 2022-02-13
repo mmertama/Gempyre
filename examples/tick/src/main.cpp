@@ -21,7 +21,7 @@ int main(int /*argc*/, char** /*argv*/) {
     ui.startPeriodic(100ms, [&count1, &counter1, &ui](Gempyre::Ui::TimerId id) mutable {
         counter1.setHTML(std::to_string(++count1));
         if(count1 == 100)
-            ui.cancel(id);
+            ui.cancelTimer(id);
     });
     const auto [ver, min, maj] = Gempyre::version();
     Gempyre::Element(ui, "ver").setHTML(GempyreUtils::join(std::vector<std::string>{std::to_string(ver), std::to_string(min), std::to_string(maj)}, "."));

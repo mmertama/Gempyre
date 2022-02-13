@@ -6,8 +6,8 @@ using namespace Gempyre;
 
 void TimerMgr::start() {
     m_exit = false;
+    m_timerThread = {};
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timers start");
-    assert(!m_timerThread.valid());
     m_timerThread = std::async(std::launch::async, [this]() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer thread start");
         while(!m_exit) {
@@ -80,7 +80,7 @@ int TimerMgr::append(const TimeQueue::TimeType& ms, bool singleShot, const TimeQ
     });
 
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer append", id, m_queue->size());
-    if(!m_timerThread.valid()) {
+    if(!m_exit) {
         start();
     }
     m_cv.notify_all(); //if appeded thread is done, priot que may have changed
