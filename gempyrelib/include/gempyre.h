@@ -14,6 +14,7 @@
 #include <vector>
 #include <variant>
 #include <mutex>
+#include <tuple>
 
 /**
   * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
@@ -241,6 +242,7 @@ namespace Gempyre {
         void eventLoop();
         static std::string toStr(const std::atomic<State>&);
         inline void addRequest(std::function<bool()>&&);
+        std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, const std::string& browser, int port, const std::string& extraParams);
     private:
         struct InternalEvent {
             std::string element;

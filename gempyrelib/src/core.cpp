@@ -57,10 +57,6 @@ void Gempyre::setJNIENV(void*, void*) {
 
 template <class T>
 static std::optional<T> getConf(const Gempyre::Ui& ui, const std::string& key) {
-    /*const auto app_path = GempyreUtils::appPath();
-    const auto conf = GempyreUtils::pushPath(GempyreUtils::pathPop(app_path), "gempyre.conf");
-    if(GempyreUtils::fileExists(conf)) {
-        const auto js_string = GempyreUtils::slurp(conf);*/
     const auto js_data = ui.resource("/gempyre.conf");
     if(js_data) {
         const auto js_string = std::string(reinterpret_cast<const char*>(js_data->data()),
@@ -80,10 +76,60 @@ static std::optional<T> getConf(const Gempyre::Ui& ui, const std::string& key) {
     return std::nullopt;
 }
 
+static std::string osName() {
+    switch (GempyreUtils::currentOS()) {
+    case GempyreUtils::OS::WinOs: return "win";
+    case GempyreUtils::OS::LinuxOs: return "linux";
+    case GempyreUtils::OS::MacOs: return "macos";
+    case GempyreUtils::OS::AndroidOs: return "android";
+    case GempyreUtils::OS::OtherOs: return "other";
+    default: return "undefined";
+    }
+}
+
 std::tuple<int, int, int> Gempyre::version() {
     static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
     const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
     return {GempyreUtils::convert<int>(c[0]), GempyreUtils::convert<int>(c[1]), GempyreUtils::convert<int>(c[2])};
+}
+
+// read command line form conf
+static std::optional<std::tuple<std::string, std::string>> confCmdLine(Ui& ui, const std::string& url) {
+    auto cmdName = getConf<std::string>(ui, osName() + "-" + "cmd_name");
+    if(!cmdName)
+        cmdName = getConf<std::string>(ui, "cmd_name");
+    if(cmdName) {
+        auto cmd_params = getConf<std::string>(ui, osName() + "-" + "cmd_params");
+        if(!cmd_params)
+            cmd_params = getConf<std::string>(ui, "cmd_params");
+        if(cmd_params) {
+            const auto params = GempyreUtils::substitute(*cmd_params, R"(\$URL)", url);
+            return std::tuple<std::string, std::string>(*cmdName, params); // make_tuple uses refs, hence copy
+          }
+    }
+    return std::nullopt;
+}
+
+// figure out and construct gui app and command line
+std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml, const std::string& browser, int port, const std::string& extraParams) {
+    const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
+
+    const auto url =  SERVER_ADDRESS + ":"
+    + std::to_string(port) + "/"
+    + (appPage.empty() ? "index.html" : appPage);
+
+    // explicily given browser overrides conf
+    if(browser.empty()) {
+        const auto conf = confCmdLine(*this, url);
+        if(conf)
+            return conf.value();
+    }
+
+    const auto appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
+#ifndef ANDROID_OS
+    gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
+#endif
+    return {appui, url + " " + extraParams};
 }
 
 
@@ -303,34 +349,15 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                 return false; //we are on exit, no more listening please
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
             m_status = State::RUNNING;
-            const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
 
-            const auto conf_browser = getConf<std::string>(*this, "guiapp");
-
-            std::string appui = !browser.empty()
-                    ? browser : conf_browser.value_or(GempyreUtils::htmlFileLaunchCmd());
-
-            //TODO?  const auto conf_width = getConf<std::string>(*this, "guiapp_width");
-            //TODO? const auto conf_height = getConf<std::string>(*this, "guiapp_height");
-            //TODO? const auto conf_title = getConf<std::string>(*this, "guiapp_title");
-            //TODO? const auto conf_params = getConf<std::string>(*this, "guiapp_params");
-
-#ifndef ANDROID_OS
-            gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
-#endif
-
-            const auto on_path = GempyreUtils::which(appui);
-            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
-
-            const auto cmd_params =  SERVER_ADDRESS + ":"
-            + std::to_string(port) + "/"
-            + (appPage.empty() ? "index.html" : appPage)
-            + " " + extraParams;
+            const auto [appui, cmd_params] = guiCmdLine(indexHtml, browser, port, extraParams);
 
 #if defined (ANDROID_OS)
             const auto result = androidLoadUi(appui + " " + cmd_params);
 #else
 
+            const auto on_path = GempyreUtils::which(appui);
+            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
             const auto result = is_exec ?
                         GempyreUtils::execute(appui, cmd_params) : GempyreUtils::execute("", appui + " " +  cmd_params);
 
