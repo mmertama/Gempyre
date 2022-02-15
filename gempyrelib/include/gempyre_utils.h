@@ -283,7 +283,7 @@ private:
 UTILS_EX  std::string hexify(const std::string& src, const std::string pat);
 UTILS_EX  std::string unhexify(const std::string& src);
 
-enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs};
+enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};
 
 UTILS_EX OS currentOS();
 

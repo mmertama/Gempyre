@@ -811,10 +811,12 @@ GempyreUtils::OS GempyreUtils::currentOS() {
     return OS::MacOs;
 #elif defined(WINDOWS_OS)
     return OS::WinOs;
-#elif defined(UNIX_OS)
+#elif defined(UNIX_OS) && !defined(RASPBERRY_OS)
     return OS::LinuxOs;
 #elif defined(ANDROID_OS)
     return OS::AndroidOs;
+#elif defined(RASPBERRY_OS)
+    return OS::RaspberryOs;
 #else
     return OS::OtherOs;
 #endif

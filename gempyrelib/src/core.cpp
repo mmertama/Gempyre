@@ -82,6 +82,7 @@ static std::string osName() {
     case GempyreUtils::OS::LinuxOs: return "linux";
     case GempyreUtils::OS::MacOs: return "macos";
     case GempyreUtils::OS::AndroidOs: return "android";
+    case GempyreUtils::OS::RaspberryOs: return "raspberry";
     case GempyreUtils::OS::OtherOs: return "other";
     default: return "undefined";
     }
