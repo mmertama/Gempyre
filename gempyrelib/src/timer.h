@@ -35,8 +35,7 @@ public:
                const TimerMgr::Function& func,  //this is a parameter
                const TimerMgr::Callback& cb);   //this is a cb run in timer thread, that returns a function that call a func executed in event thread
     bool remove(int id);
-    void flush(bool doRun); //do run not used - fix if issue - test everything!
-    void clear();
+    void flush(bool do_run); 
     ~TimerMgr();
     TimerMgr();
     bool isValid() const {return m_timerThread.valid();}

@@ -620,9 +620,12 @@ void Ui::run() {
     m_server->close(true);
     assert(!m_server->isJoinable());
     m_server.reset(); // so the run can be recalled
-    m_timers->clear();
-    m_timerqueue.clear();
     m_timers->flush(false);
+    
+    // clear or erase calls destructor and that seems to be issue in raspberry
+    while(!m_timerqueue.empty())
+        m_timerqueue.pop_front();
+    
     assert(m_requestqueue.empty());
     assert(!m_timers->isValid());
 }

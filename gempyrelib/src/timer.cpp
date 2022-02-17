@@ -97,11 +97,11 @@ bool TimerMgr::remove(int id) {
     return true;
 }
 
-void TimerMgr::flush(bool doRun) {
+void TimerMgr::flush(bool do_run) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "flush", m_queue->empty());
     std::lock_guard<std::mutex> lock(m_queueMutex);
     if(!m_queue->empty()) {
-        m_queue->setNow(doRun);
+        m_queue->setNow(do_run);
     }
     m_exit = true;
     m_callWait.signal();
@@ -112,18 +112,10 @@ void TimerMgr::flush(bool doRun) {
     m_timerThread = {};
 }
 
-void TimerMgr::clear() {
-    std::lock_guard<std::mutex> lock(m_queueMutex);
-    if(!m_queue->empty()) {
-        m_queue->clear();
-        m_cv.notify_all();
-        assert(m_queue->empty());
-    }
-}
 
 TimerMgr::~TimerMgr() {
     m_exit = true;
-    clear();
+    flush(false);
 }
 
 TimerMgr::TimerMgr() : m_queue(std::make_unique<TimeQueue>()) {
