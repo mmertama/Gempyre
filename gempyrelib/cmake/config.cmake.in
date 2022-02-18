@@ -11,6 +11,11 @@ add_library(gempyre::gempyre INTERFACE IMPORTED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
+
+find_path(SYSTEM_GEMPYRE_INSTALL gempyre PATHS /usr/local/include /usr/include)
+get_filename_component(PARENT_DIR ${SYSTEM_GEMPYRE_INSTALL} DIRECTORY)
+set(ABSOLUTE_INSTALL_PREFIX "${PARENT_DIR}/")
+
 if(WIN32)
     message("Gempyre for WIN32")
     find_dependency(uva)
@@ -19,21 +24,16 @@ elseif(RASPBERRY)
     # this could be done prettier?
     set(CMAKE_PREFIX_PATH "/usr/local/lib/gempyre;${CMAKE_PREFIX_PATH}")
     set(GEMPYRE_PATH "/usr/local/lib/gempyre")
-    set(ABSOLUTE_INSTALL_PREFIX /usr/local/)
+    # set(ABSOLUTE_INSTALL_PREFIX /usr/local/)
     find_dependency(uva)
     find_package(Threads)
 else()
-    if(APPLE)
-        message("Gempyre for OSX")
-    else()
-        message("Gempyre for Linux")
-        set(GEMPYRE_PATH "/usr/local/lib/gempyre") # Otherwise find_library for gempyre wont work
-        set(ABSOLUTE_INSTALL_PREFIX /usr/local/)   # Otherwise includes are not found
-        set(CMAKE_PREFIX_PATH "/usr/local/lib/gempyre;${CMAKE_PREFIX_PATH}") # Otherwise usockets wont found    
-    endif()
+    set(GEMPYRE_PATH "${ABSOLUTE_INSTALL_PREFIX}lib/gempyre") # Otherwise find_library for gempyre wont work
+    set(CMAKE_PREFIX_PATH "${ABSOLUTE_INSTALL_PREFIX}lib/gempyre;${CMAKE_PREFIX_PATH}") # Otherwise usockets wont found
     find_dependency(uSockets)
     find_package(Threads)
 endif()
+
 
 # Since msvc and mingw libraries are located in the same folder we have to be explicit with naming.
 find_library(LIB_NAME_DEBUG NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyred${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH REQUIRED)
