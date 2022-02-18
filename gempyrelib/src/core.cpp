@@ -55,26 +55,85 @@ void Gempyre::setJNIENV(void*, void*) {
 #define STR(x) #x
 #define TOSTRING(x) STR(x)
 
-std::tuple<int, int, int> Gempyre::version() {
-    static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
-    const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
-    return {GempyreUtils::to<int>(c[0]), GempyreUtils::to<int>(c[1]), GempyreUtils::to<int>(c[2])};
-}
-
-
-static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, char** argv) {
-    const auto& [params, opt] = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
-    const auto it = opt.find("gempyre-app");
-    if(it != opt.end()) {
-        const auto& [_, app] = *it;
-        const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + argc, " ");
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gempyre-app", app, "params:", GempyreUtils::join(argv, argv + argc, ", "));
-        return std::make_optional(std::make_tuple(app, reconstructed_list)); 
-    } else {
-        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "No gempyre-app switch found", GempyreUtils::join(argv, argv + argc, ", "));
+template <class T>
+static std::optional<T> getConf(const Gempyre::Ui& ui, const std::string& key) {
+    const auto js_data = ui.resource("/gempyre.conf");
+    if(js_data) {
+        const auto js_string = std::string(reinterpret_cast<const char*>(js_data->data()),
+                                           js_data->size());
+        const auto js = GempyreUtils::jsonToAny(js_string);
+        if(js) {
+            const auto map = std::any_cast<std::unordered_map<std::string, std::any>>(&js.value());
+            if(map && map->find(key) != map->end()) {
+                const auto any_value = map->at(key);
+                const auto value = std::any_cast<T>(&any_value);
+                if(value) {
+                    return std::make_optional<T>(*value);
+                }
+            }
+        }
     }
     return std::nullopt;
 }
+
+static std::string osName() {
+    switch (GempyreUtils::currentOS()) {
+    case GempyreUtils::OS::WinOs: return "win";
+    case GempyreUtils::OS::LinuxOs: return "linux";
+    case GempyreUtils::OS::MacOs: return "macos";
+    case GempyreUtils::OS::AndroidOs: return "android";
+    case GempyreUtils::OS::RaspberryOs: return "raspberry";
+    case GempyreUtils::OS::OtherOs: return "other";
+    default: return "undefined";
+    }
+}
+
+std::tuple<int, int, int> Gempyre::version() {
+    static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
+    const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
+    return {GempyreUtils::convert<int>(c[0]), GempyreUtils::convert<int>(c[1]), GempyreUtils::convert<int>(c[2])};
+}
+
+// read command line form conf
+static std::optional<std::tuple<std::string, std::string>> confCmdLine(Ui& ui, const std::string& url) {
+    auto cmdName = getConf<std::string>(ui, osName() + "-" + "cmd_name");
+    if(!cmdName)
+        cmdName = getConf<std::string>(ui, "cmd_name");
+    if(cmdName) {
+        auto cmd_params = getConf<std::string>(ui, osName() + "-" + "cmd_params");
+        if(!cmd_params)
+            cmd_params = getConf<std::string>(ui, "cmd_params");
+        if(cmd_params) {
+            const auto params = GempyreUtils::substitute(*cmd_params, R"(\$URL)", url);
+            return std::tuple<std::string, std::string>(*cmdName, params); // make_tuple uses refs, hence copy
+          }
+    }
+    return std::nullopt;
+}
+
+// figure out and construct gui app and command line
+std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml, const std::string& browser, int port, const std::string& extraParams) {
+    const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
+
+    const auto url =  SERVER_ADDRESS + ":"
+    + std::to_string(port) + "/"
+    + (appPage.empty() ? "index.html" : appPage);
+
+    // explicily given browser overrides conf
+    if(browser.empty()) {
+        const auto conf = confCmdLine(*this, url);
+        if(conf)
+            return conf.value();
+    }
+
+    const auto appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
+#ifndef ANDROID_OS
+    gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
+#endif
+    return {appui, url + " " + extraParams};
+}
+
+
 
 /**
  * The server assumes that file are found at root, therefore we add a '/' if missing
@@ -138,20 +197,6 @@ Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::stri
 Ui::Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser,
        stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams), port, root) {}
-
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(filemap, indexHtml,
-       gempyreAppParams(argc, argv).has_value() ?
-           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
-       extraParams + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
-       port, root) {}
-
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(filemap, indexHtml,
-       gempyreAppParams(argc, argv).has_value() ?
-           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
-       (stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams)) + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
-       port, root) {}
 
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml, browser,
@@ -275,26 +320,15 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
                 return false; //we are on exit, no more listening please
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
             m_status = State::RUNNING;
-            const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
 
-            const std::string appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
-
-#ifndef ANDROID_OS
-            gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
-#endif
-
-            const auto on_path = GempyreUtils::which(appui);
-            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
-
-            const auto cmd_params =  SERVER_ADDRESS + ":"
-            + std::to_string(port) + "/"
-            + (appPage.empty() ? "index.html" : appPage)
-            + " " + extraParams;
+            const auto [appui, cmd_params] = guiCmdLine(indexHtml, browser, port, extraParams);
 
 #if defined (ANDROID_OS)
             const auto result = androidLoadUi(appui + " " + cmd_params);
 #else
 
+            const auto on_path = GempyreUtils::which(appui);
+            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
             const auto result = is_exec ?
                         GempyreUtils::execute(appui, cmd_params) : GempyreUtils::execute("", appui + " " +  cmd_params);
 
@@ -425,32 +459,7 @@ void Ui::send(const DataPtr& data) {
 #endif
 }
 
-/*
-void Ui::send(const Element& el, const std::string& type, const std::string& data) {
-    m_requestqueue.emplace_back([this, el, type, data](){
-        m_server->send({{"element", el.m_id}, {"type", type}, {type, data}});
-    });
-    m_sema->signal();
 
-    if(type != "nil" && data.length() > ENSURE_SEND) {
-                                 // Im not sure this workaround is needed, but DataPtr messages may not get send immediately and
-        send(root(), "nil", ""); // therefore I have to push another message :-( maybe works without, dunno  - bug in uWs? See above in another send
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send data", type);
-    }
-}
-
-void Ui::send(const Element& el, const std::string& type, const std::vector<std::pair<std::string, std::string>>& values) {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send values", GempyreUtils::joinPairs(values.begin(), values.end()));
-    std::unordered_map<std::string, std::string> params {{"element", el.m_id}, {"type", type}};
-    for(const auto& [k, v] : values) {
-        params.emplace(k, v);
-    }
-    m_requestqueue.emplace_back([this, params](){
-        m_server->send(params);
-    });
-    m_sema->signal();
-}
-*/
 
 void Ui::beginBatch() {
     addRequest([this]() {
@@ -516,7 +525,8 @@ Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<v
     });
 }
 
-bool Ui::cancel(TimerId id) {
+
+bool Ui::cancelTimer(TimerId id) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Stop Timer", id);
     return m_timers->remove(id);
 }
@@ -556,9 +566,12 @@ void Ui::run() {
     m_server->close(true);
     assert(!m_server->isJoinable());
     m_server.reset(); // so the run can be recalled
-    m_timers->clear();
-    m_timerqueue.clear();
     m_timers->flush(false);
+    
+    // clear or erase calls destructor and that seems to be issue in raspberry
+    while(!m_timerqueue.empty())
+        m_timerqueue.pop_front();
+    
     assert(m_requestqueue.empty());
     assert(!m_timers->isValid());
 }
@@ -720,13 +733,15 @@ void Ui::open(const std::string& url, const std::string& name) {
 }
 
 std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> Ui::ping() const {
-    const auto ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+    const auto milliseconds_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     const clock_t begin_time = ::clock();
     const auto pong = const_cast<Ui*>(this)->query<std::string>(std::string(), "ping");
     if(pong.has_value() && !pong->empty()) {
+        // full loop
         const auto full = double(::clock() - begin_time) / (CLOCKS_PER_SEC / 1000000.0);
+        // timestamp from the response
         const auto pong_time = pong.value();
-        const auto half = (stod(pong_time) * 1000.) - ms.count();
+        const auto half = GempyreUtils::convert<decltype(milliseconds_since_epoch)>(pong_time) - milliseconds_since_epoch;
         return std::make_pair(
                    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::duration<double, std::ratio<1, 1000000>>(full)),
                    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::duration<double, std::ratio<1, 1000000>>(half)));

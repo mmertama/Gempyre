@@ -112,7 +112,7 @@ int main(int /*argc*/, char** /*argv*/) {
     };
 
     flakes_count.subscribe("change",  [&](const Gempyre::Event& ev) {
-        const auto v = GempyreUtils::to<unsigned>(ev.properties.at("value"));
+        const auto v = GempyreUtils::convert<unsigned>(ev.properties.at("value"));
         update_a_label(v);
 
         while(v < flakes.size()) {
@@ -131,7 +131,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     ui.onOpen([&]() {
         rect = *canvas.rect();
-        const auto v = GempyreUtils::to<int>(flakes_count.values()->at("value"));
+        const auto v = GempyreUtils::convert<int>(flakes_count.values()->at("value"));
         update_a_label(v);
 
         std::uniform_int_distribution<int> distribution(0, rect.width);

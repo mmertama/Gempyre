@@ -14,28 +14,11 @@
 
 
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char** /*argv*/) {
     Gempyre::setDebug();
-    const auto plist = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
 
-    const auto opt = std::get<GempyreUtils::Options>(plist);
-    const auto gempyre_app = GempyreUtils::getValue(opt, std::string("gempyre-app"));
-
-    auto ui = [&](){
-        if(!gempyre_app) {
-            if(!std::get<GempyreUtils::ParamList>(plist).empty()) { // python
-                const std::string py = std::get<GempyreUtils::ParamList>(plist)[0];
-                return Gempyre::Ui(Dialogs_test_resourceh,
-                             "dialogs_test.html", py, Gempyre::Ui::stdParams(500, 640, "Test Dialogs"));
-            } else { // plain
-                return Gempyre::Ui(Dialogs_test_resourceh,
+    auto ui =  Gempyre::Ui(Dialogs_test_resourceh,
                              "dialogs_test.html");
-            }
-        } else { //Hiillos
-            return Gempyre::Ui(Dialogs_test_resourceh,
-                         "dialogs_test.html", argc, argv);
-        }
-    }();
 
     Gempyre::Element content(ui, "content");
     Gempyre::Element openFile(ui, "open_file");

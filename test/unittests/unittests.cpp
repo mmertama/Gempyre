@@ -364,3 +364,17 @@ int main(int argc, char **argv) {
             Gempyre::setDebug();
   return RUN_ALL_TESTS();
 }
+
+#if 0
+TEST(Unittests, app_time) {
+    const auto p = GempyreUtils::appPath();
+    const auto path = GempyreUtils::split<std::vector<std::string>>(p, '/');
+    ASSERT_TRUE(p.size() > 0);
+
+    const auto t = GempyreUtils::timeStamp(p);
+    EXPECT_GT(t, 1644441122);
+    EXPECT_LT(t, 3159205922);
+}
+#endif
+
+

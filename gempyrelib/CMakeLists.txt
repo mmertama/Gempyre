@@ -1,6 +1,7 @@
 #cmake_minimum_required (VERSION 3.18)
 
-project (gempyre VERSION 0.9.0 LANGUAGES CXX C)
+
+project (gempyre VERSION 0.10.0 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -538,6 +539,9 @@ if(ANDROID)
     # Where to install for crosscompile? Maybe just use a ENV as this far
 else()
     if(WIN32)
+        set(CONNECTION_FIND Finduva.cmake)
+        set(CONNECTION_LIB_FULL ${UV_LIB_FULL})
+    elseif(RASPBERRY)
         set(CONNECTION_FIND Finduva.cmake)
         set(CONNECTION_LIB_FULL ${UV_LIB_FULL})
     else()

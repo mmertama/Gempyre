@@ -48,6 +48,16 @@ How to build on Windows 10
     * Add C:\msys64\mingw64\bin and C:\msys64\usr\bin to your path
     * Then you can execute "mingw_install.bat" Windows Command promt at Gempyre folder.
  
+How to build on Raspberry OS
+    __still in early phase, performance and stability are under construction__
+    *  Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17)
+    * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
+    * Run
+        ```bash
+        ./raspberry_install.sh
+        ```
+
+
  Projects using Gempyre:
  * [mandelbrot-Gempyre](https://github.com/mmertama/mandelbrot-Gempyre)
  * [treeview-Gempyre](https://github.com/mmertama/treeview-Gempyre)

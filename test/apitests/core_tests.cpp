@@ -214,7 +214,7 @@ TEST(TestMockUi, stopTimer) {
     ui.after(3000ms, [&ui]() {
           ui.exit();
        });
-    ui.cancel(id);
+    ui.cancelTimer(id);
     ui.run();
     EXPECT_TRUE(ok);
 }
@@ -277,19 +277,36 @@ TEST(TestMockUi, timing) {
    ui.run();
 }
 
+TEST(TestMockUi, timerStartStop) {
+    TEST_UI;
+    int count = 0;
+    ui.after(0s, [&](){
+        ui.exit();
+        ++count;
+    });
+    ui.run();
+    std::this_thread::sleep_for(1s);
+    ui.after(0s, [&](){
+        ui.exit();
+        ++count;
+    });
+    ui.run();
+    EXPECT_EQ(count, 2);
+}
+
 TEST(TestMockUi, ping) {
     TEST_UI;
     bool ok = false;
     ui.after(1s, [&ok, &ui](){
         const auto ping = ui.ping();
         ok = ping.has_value() &&
-         ping->first.count() > 0 &&
-         ping->second.count() > 0 &&
-         ping->first.count() < 30000 &&
-         ping->second.count() < 30000;
+        ping->first.count() >= 0 &&
+        ping->second.count() >= 0 &&
+        ping->first.count() < 30000 &&
+        ping->second.count() < 30000;
         if(ping) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ping:", ping->first.count(), ping->second.count());
-            if(! ok)
+            if(!ok)
                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ping too slow:", ping->first.count(), ping->second.count());
         }
         else

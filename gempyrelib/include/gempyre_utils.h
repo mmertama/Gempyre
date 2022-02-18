@@ -75,9 +75,6 @@ using Params = std::tuple<ParamList, Options>;
 /// parse arguments
 UTILS_EX Params parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
 
-/// just clean arguments from Gempyre spesific internal stuff
-UTILS_EX void cleanArgs(int& argc, char** argv);
-
 /**
  * @brief The LogLevel enum
  */
@@ -99,15 +96,15 @@ UTILS_EX std::string substitute(const std::string& str, const std::string& subst
 UTILS_EX std::string trimmed(const std::string& s);
 
 template <typename T>
-T to(const std::string& source) {
+T convert(const std::string& source) {
     std::istringstream ss(source);
-    T v;
+    typename std::remove_const<T>::type v{};
     ss.operator>>(v); //overloads have similar conversions MSVC19
     return v;
 }
 
 template <>
-inline std::string to<std::string>(const std::string& source)
+inline std::string convert<std::string>(const std::string& source)
 {
     return source;
 }
@@ -164,7 +161,7 @@ Container split(const std::string& str, const char splitChar = ' ') {
     Container con;
     std::istringstream iss(str);
     for(std::string token; iss.good() && std::getline(iss, token, splitChar);) {
-        con.insert(con.end(), to<typename Container::value_type>(token));
+        con.insert(con.end(), convert<typename Container::value_type>(token));
     }
     return con;
 }
@@ -286,7 +283,7 @@ private:
 UTILS_EX  std::string hexify(const std::string& src, const std::string pat);
 UTILS_EX  std::string unhexify(const std::string& src);
 
-enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs};
+enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};
 
 UTILS_EX OS currentOS();
 
@@ -391,7 +388,7 @@ UTILS_EX std::vector<std::string> ipAddresses(int addressType);
   * File Utils
   */
 
-#ifdef UNIX_OS //fix if needed
+#if 0
 UTILS_EX long timeStamp(const std::string& filename);
 UTILS_EX std::string appPath();
 #endif

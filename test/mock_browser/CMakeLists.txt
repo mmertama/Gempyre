@@ -10,6 +10,9 @@ add_executable(${PROJECT_NAME}
     ws.hpp
     ws.cpp)
 
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE WS_LOG_LEVEL=0)
+
 # dependency so that JSON_DIR would be there
 add_dependencies(${PROJECT_NAME} gempyre)
 

@@ -36,17 +36,20 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <stdio.h>
+#include <cstdio>
 #include <variant>
 #include <cassert>
 
+#if 0 //def MAC_OS
+#include <mach-o/dyld.h>
+#endif
 
 
 #include "gempyre_utils.h"
 #include "base64.h"
 
 //without <filesystem> support
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace GempyreUtils {
 template<typename T>
@@ -479,11 +482,27 @@ std::string GempyreUtils::substitute(const std::string& str, const std::string& 
     return std::string();
 }
 
-#ifdef UNIX_OS //fix if needed
+#if 0
 std::string GempyreUtils::appPath() {
-    return getLink("/proc/self/exe");  //obviously UNIX only
+#ifdef WINDOWS_OS
+    char buffer[MAX_PATH];
+    const auto ok =  GetModuleFileNameA(
+        nullptr,
+        buffer,
+        MAX_PATH);
+    return ok ? std::string{buffer} : std::string{};
+}
+#elif MAC_OS
+    char buffer[PATH_MAX];
+    uint32_t bufsize = PATH_MAX;
+    const auto err = NSGetExecutablePath(buffer, &bufsize);
+    return !err ? std::string{buffer};
+#elif UNIX_OS
+    return getLink("/proc/self/exe");
+#endif
 }
 #endif
+
 
 
 bool GempyreUtils::fileExists(const std::string& filename) {
@@ -504,10 +523,11 @@ std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
     auto dir = ::opendir(dname.c_str());
     if(!dir)
         return entries;
-    while(auto dirEntry = readdir(dir)) {
-        if(strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0)
+    while(auto dirEntry = ::readdir(dir)) {
+        if(std::strcmp(dirEntry->d_name, ".") != 0 && std::strcmp(dirEntry->d_name, "..") != 0)
             entries.push_back({dirEntry->d_name});
     }
+    ::closedir(dir);
 #else
         const auto searchPath = dirname + "/*.*";
         WIN32_FIND_DATA fd;
@@ -592,10 +612,15 @@ bool GempyreUtils::isHiddenEntry(const std::string& filename) {
 #endif
 }
 
-#ifdef UNIX_OS
+#if 0
 long GempyreUtils::timeStamp(const std::string& filename) {
+#if WINDOWS_OS
+    struct _stat buf;
+    if(::_stat(filename.c_str(), &attr) == -1) {
+#else
     struct stat attr;
     if(::stat(filename.c_str(), &attr) == -1) {
+#endif
         log(LogLevel::Error, "time stamp request failed", filename,  ::strerror(errno));
         return 0;
     }
@@ -786,10 +811,12 @@ GempyreUtils::OS GempyreUtils::currentOS() {
     return OS::MacOs;
 #elif defined(WINDOWS_OS)
     return OS::WinOs;
-#elif defined(UNIX_OS)
+#elif defined(UNIX_OS) && !defined(RASPBERRY_OS)
     return OS::LinuxOs;
 #elif defined(ANDROID_OS)
     return OS::AndroidOs;
+#elif defined(RASPBERRY_OS)
+    return OS::RaspberryOs;
 #else
     return OS::OtherOs;
 #endif
@@ -1011,16 +1038,6 @@ std::string GempyreUtils::trimmed(const std::string& s) {
     return substitute(s, R"(\s+)", std::string{});
 }
 
-// remove all --gempyre spesific ids from arguments
-void GempyreUtils::cleanArgs(int& argc, char** argv) {
-    const auto id = "--gempyre-";
-    for(int i = argc - 1; i > 0; --i) {
-        if(strncmp(argv[i], id, strlen(id)) == 0) {
-            argv[i] = argv[i + 1];
-            --argc;
-        }
-    }
-}
 
 void GempyreUtils::processAbort(int exitCode) {
 #ifdef WINDOWS_OS

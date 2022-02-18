@@ -4,33 +4,12 @@
 #include <iostream>
 #include <cassert>
 
-const unsigned short DefaultPort = 8080;
 #include "html_resource.h"
 
-int main(int argc, char** argv) {
+int main(int /*argc*/, char** /*argv*/) {
     Gempyre::setDebug();
-    const auto p = GempyreUtils::parseArgs(argc, argv, {{"port", 'p', GempyreUtils::ArgType::REQ_ARG}});
 
-    std::function<std::unique_ptr<Gempyre::Ui> ()> makeUi = nullptr;
-
-    if(std::get<GempyreUtils::ParamList>(p).size() < 1) {
-        makeUi = [&]() {
-            return std::make_unique<Gempyre::Ui>(Html_resourceh, "index.html", argc, argv);
-        };
-
-    } else {
-        makeUi = [&]() {
-            const auto indexPath = std::get<GempyreUtils::ParamList>(p)[0];
-            Gempyre::Ui::Filemap map;
-            const auto url = Gempyre::Ui::addFile(map, indexPath);
-            gempyre_utils_assert_x(url, "Not Found:" + indexPath);
-            return std::make_unique<Gempyre::Ui>(map, *url, argc, argv, "",
-                         GempyreUtils::to<unsigned short>(GempyreUtils::atOr(std::get<GempyreUtils::Options>(p), "port", std::to_string(DefaultPort))),
-                         GempyreUtils::pathPop(indexPath)); //root directory;
-        };
-    }
-
-    auto ui = makeUi();
+    auto ui = std::make_unique<Gempyre::Ui>(Html_resourceh, "index.html");
 
     Gempyre::Element text(*ui, "content");
     Gempyre::Element button(*ui, "startbutton");
@@ -71,7 +50,7 @@ int main(int argc, char** argv) {
     });
 
     Gempyre::Element(*ui, "width").subscribe("change", [&ui](const auto& event)  {
-        const auto w = GempyreUtils::to<int>(event.properties.at("value"));
+        const auto w = GempyreUtils::convert<int>(event.properties.at("value"));
         const auto r = ui->root().rect();
         assert(r);
         ui->resize(w, r->height);
@@ -79,7 +58,7 @@ int main(int argc, char** argv) {
 
 
     Gempyre::Element(*ui, "height").subscribe("change", [&ui](const auto& event)  {
-        const auto h = GempyreUtils::to<int>(event.properties.at("value"));
+        const auto h = GempyreUtils::convert<int>(event.properties.at("value"));
         const auto r = ui->root().rect();
         assert(r);
         ui->resize(r->width, h);

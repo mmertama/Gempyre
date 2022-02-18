@@ -18,7 +18,8 @@ std::string App::on_status(websocket::Status status) {
 }
 
 void websocket::debug_print(int lvl, const char* cstr) {
-    std::cout << lvl << ":" << cstr << std::endl;
+    if(lvl <= WS_LOG_LEVEL)
+        std::cout << lvl << ":" << cstr << std::endl;
 }
 
 int App::received(const char* cstr)

@@ -44,7 +44,7 @@ endif()
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-DMAC_OS ${CMAKE_CXX_FLAGS}")
 elseif(RASPBERRY)
-    set(CMAKE_CXX_FLAGS "-DUNIX_OS -DRASPBERRY_OS -Wno-psabi ${CMAKE_CXX_FLAGS")  # Should be Rasbian?
+    set(CMAKE_CXX_FLAGS "-DUNIX_OS -DRASPBERRY_OS -Wno-psabi ${CMAKE_CXX_FLAGS}")
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     add_compile_options(-fPIC)
 elseif(ANDROID)
@@ -85,5 +85,4 @@ endif()
 if(HAS_EXAMPLES)
     add_subdirectory(examples)
 endif()
-
 
