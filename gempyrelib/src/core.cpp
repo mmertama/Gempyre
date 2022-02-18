@@ -134,21 +134,6 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
 }
 
 
-/* deprecated?
-static std::optional<std::tuple<std::string, std::string>> gempyreAppParams(int argc, char** argv) {
-    const auto& [params, opt] = GempyreUtils::parseArgs(argc, argv, {{"gempyre-app", 'a', GempyreUtils::ArgType::OPT_ARG}});
-    const auto it = opt.find("gempyre-app");
-    if(it != opt.end()) {
-        const auto& [_, app] = *it;
-        const auto reconstructed_list = GempyreUtils::join(argv + 1, argv + argc, " ");
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gempyre-app", app, "params:", GempyreUtils::join(argv, argv + argc, ", "));
-        return std::make_optional(std::make_tuple(app, reconstructed_list)); 
-    } else {
-        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "No gempyre-app switch found", GempyreUtils::join(argv, argv + argc, ", "));
-    }
-    return std::nullopt;
-}
-*/
 
 /**
  * The server assumes that file are found at root, therefore we add a '/' if missing
@@ -213,21 +198,6 @@ Ui::Ui(const std::string& indexHtml, const std::string& browser, int width, int 
     Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser,
        stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams), port, root) {}
 
-/* deprected?
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(filemap, indexHtml,
-       gempyreAppParams(argc, argv).has_value() ?
-           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
-       extraParams + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
-       port, root) {}
-
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int argc, char** argv, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(filemap, indexHtml,
-       gempyreAppParams(argc, argv).has_value() ?
-           std::get<0>(*gempyreAppParams(argc, argv)) : std::string(),
-       (stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams)) + (gempyreAppParams(argc, argv).has_value() ? ' ' + std::get<1>(*gempyreAppParams(argc, argv)) : std::string()),
-       port, root) {}
-*/
 Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
     Ui(filemap, indexHtml, browser,
        stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams),
@@ -489,32 +459,7 @@ void Ui::send(const DataPtr& data) {
 #endif
 }
 
-/*
-void Ui::send(const Element& el, const std::string& type, const std::string& data) {
-    m_requestqueue.emplace_back([this, el, type, data](){
-        m_server->send({{"element", el.m_id}, {"type", type}, {type, data}});
-    });
-    m_sema->signal();
 
-    if(type != "nil" && data.length() > ENSURE_SEND) {
-                                 // Im not sure this workaround is needed, but DataPtr messages may not get send immediately and
-        send(root(), "nil", ""); // therefore I have to push another message :-( maybe works without, dunno  - bug in uWs? See above in another send
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send data", type);
-    }
-}
-
-void Ui::send(const Element& el, const std::string& type, const std::vector<std::pair<std::string, std::string>>& values) {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send values", GempyreUtils::joinPairs(values.begin(), values.end()));
-    std::unordered_map<std::string, std::string> params {{"element", el.m_id}, {"type", type}};
-    for(const auto& [k, v] : values) {
-        params.emplace(k, v);
-    }
-    m_requestqueue.emplace_back([this, params](){
-        m_server->send(params);
-    });
-    m_sema->signal();
-}
-*/
 
 void Ui::beginBatch() {
     addRequest([this]() {
