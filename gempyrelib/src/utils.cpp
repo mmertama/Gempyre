@@ -425,11 +425,25 @@ std::string GempyreUtils::pathPop(const std::string& filename, int steps) {
     }
 }
 
-#ifndef WINDOWS_OS
-std::string GempyreUtils::readProcess(const std::string& processName) {
-    auto fd = ::popen(processName.c_str(), "r");
-    gempyre_utils_assert_x(fd, "cannot create pipe");
-    gempyre_utils_auto_close(fd, ::pclose);
+std::optional<std::string> GempyreUtils::readProcess(const std::string& processName, const std::vector<std::string>& params) {
+    const auto param_line = join(params, " ");
+    auto fd =
+ #ifndef WINDOWS_OS
+            ::popen
+ #else
+            ::_popen
+ #endif
+            ((processName + " " + param_line).c_str(), "r");
+
+    if(!fd)
+        return std::nullopt;
+      gempyre_utils_auto_close(fd,
+ #ifndef WINDOWS_OS
+    ::pclose
+#else
+    ::_pclose
+#endif
+    );
     std::string out;
     char buffer[256];
     while (fgets(buffer, sizeof(buffer), fd) != nullptr) {
@@ -437,7 +451,7 @@ std::string GempyreUtils::readProcess(const std::string& processName) {
     }
     return out;
 }
-#endif
+
 
 #ifdef WINDOWS_OS
 #define USE_TEMPNAM
@@ -574,14 +588,14 @@ std::string GempyreUtils::getLink(const std::string& lname) {
 #endif
 }
 
-std::string GempyreUtils::systemEnv(const std::string& env) {
+std::optional<std::string> GempyreUtils::systemEnv(const std::string& env) {
     if(env.length() > 0) {
         auto str = std::getenv(env.c_str());
         if(str) {
             return str;
         }
     }
-    return std::string();
+    return std::nullopt;
 }
 
 std::string GempyreUtils::hostName() {
@@ -754,9 +768,11 @@ SSIZE_T GempyreUtils::fileSize(const std::string& filename) {
     return stream.tellg();
 }
 
-std::string GempyreUtils::which(const std::string& filename) {
+std::optional<std::string> GempyreUtils::which(const std::string& filename) {
     const auto pe = systemEnv("PATH");
-    const auto path = split<std::vector<std::string>>(pe,
+    if(!pe)
+        return std::nullopt;
+    const auto path = split<std::vector<std::string>>(*pe,
 #ifdef WINDOWS_OS
     ';');
 #else
@@ -787,7 +803,7 @@ std::string GempyreUtils::which(const std::string& filename) {
         }
 
     }
-    return "";
+    return std::nullopt;
 }
 
 std::shared_ptr<GempyreUtils::expiror> GempyreUtils::waitExpire(std::chrono::seconds s, const std::function<void ()>& onExpire) {
@@ -824,7 +840,7 @@ GempyreUtils::OS GempyreUtils::currentOS() {
 
 std::string GempyreUtils::htmlFileLaunchCmd() {
     return
-    #if defined(UNIX_OS) //maybe works only on Debian derivatives
+    #if defined(UNIX_OS) || defined(RASPBERRY_OS) //maybe works only on Debian derivatives
         "x-www-browser"
     #elif defined(MAC_OS)
         "open"

@@ -441,7 +441,7 @@ else()
     set(JSMIN "")
 endif()
 
-gempyre_add_resources(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js py/pyclient.py)
 
 add_dependencies(${PROJECT_NAME} libwebsockets)
 add_dependencies(${PROJECT_NAME} libjson)

@@ -13,8 +13,7 @@ int main(int argc, char* argv[]) {
     const auto commandLine = GempyreUtils::join(std::vector<std::string>({std::string("host=") + hostName,
     "port=43102", std::string(localAddr[0]), "400", "400", "\"Remote, but near\""}), " ");
 
-    const std::string python3 = GempyreUtils::which("python3").empty() ? "python" : "python3";
-
+    const std::string python3 = !GempyreUtils::which("python3") ? "python" : "python3";
 
     const auto rpc = GempyreUtils::pathPop(argv[0], 2) + std::string("/py_uisrv/ui_srvclient.py");
     gempyre_utils_assert_x(GempyreUtils::fileExists(rpc), rpc + " not found");

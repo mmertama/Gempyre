@@ -88,6 +88,28 @@ static std::string osName() {
     }
 }
 
+static std::optional<std::string> python3() {
+    const auto  py3 = GempyreUtils::which("python3");
+    if(py3)
+        return *py3;
+    const auto  py = GempyreUtils::which("python");
+    if(!py)
+        return std::nullopt;
+    const auto out = GempyreUtils::readProcess("python", {"--version"});
+    if(!out)
+        return std::nullopt;
+    const auto pv = GempyreUtils::split<std::vector<std::string>>(*out, ' '); //// Python 2.7.16
+    if(pv.size() < 2)
+        return std::nullopt;
+    const auto ver = GempyreUtils::split<std::vector<std::string>>(pv[1], ' ');
+    if(pv.size() < 1)
+        return std::nullopt;
+    const auto major = GempyreUtils::convert<int>(pv[0]);
+    if(major < 3)
+        return std::nullopt;
+    return py;
+}
+
 std::tuple<int, int, int> Gempyre::version() {
     static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
     const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
@@ -124,6 +146,13 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
         const auto conf = confCmdLine(*this, url);
         if(conf)
             return conf.value();
+        // then we try python
+        const auto py3 = python3();
+        if(py3) {
+            const auto py_code = Base64::decode(Pyclientpy);
+            std::string py = GempyreUtils::join(py_code);
+            return {*py3, std::string("-c \"") + py + "\" " + url + " " + extraParams };
+        }
     }
 
     const auto appui = !browser.empty() ? browser : GempyreUtils::htmlFileLaunchCmd();
@@ -328,7 +357,7 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
 #else
 
             const auto on_path = GempyreUtils::which(appui);
-            const auto is_exec = GempyreUtils::isExecutable(appui) || GempyreUtils::isExecutable(on_path);
+            const auto is_exec = GempyreUtils::isExecutable(appui) || (on_path && GempyreUtils::isExecutable(*on_path));
             const auto result = is_exec ?
                         GempyreUtils::execute(appui, cmd_params) : GempyreUtils::execute("", appui + " " +  cmd_params);
 

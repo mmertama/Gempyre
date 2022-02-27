@@ -399,20 +399,20 @@ UTILS_EX std::string workingDir();
 UTILS_EX std::string absPath(const std::string& rpath);
 UTILS_EX std::string pathPop(const std::string& filename, int steps = 1);
 UTILS_EX std::vector<std::string> directory(const std::string& dirname);
-UTILS_EX std::string readProcess(const std::string& processName);
+UTILS_EX std::optional<std::string> readProcess(const std::string& processName, const std::vector<std::string>& params);
 UTILS_EX std::string baseName(const std::string& filename);
 UTILS_EX std::tuple<std::string, std::string> splitName(const std::string& filename);
 /// Generate unique name (prefer <filesystem> if available)
 UTILS_EX std::string tempName();
 UTILS_EX std::string hostName();
-UTILS_EX std::string systemEnv(const std::string& env);
+UTILS_EX std::optional<std::string> systemEnv(const std::string& env);
 UTILS_EX bool isHiddenEntry(const std::string& filename);
 UTILS_EX bool isExecutable(const std::string& filename);
 UTILS_EX SSIZE_T fileSize(const std::string& filename);
 UTILS_EX bool rename(const std::string& of, const std::string& nf);
 UTILS_EX void removeFile(const std::string& filename);
 UTILS_EX bool fileExists(const std::string& filename);
-UTILS_EX std::string which(const std::string& filename);
+UTILS_EX std::optional<std::string> which(const std::string& filename);
 /// push name to path
 UTILS_EX std::string pushPath(const std::string& path, const std::string& name);
 template<class ...NAME>

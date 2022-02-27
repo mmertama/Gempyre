@@ -54,18 +54,18 @@ std::string headlessParams(bool log = false) {
 
 }
 
-std::string systemChrome() {
+std::optional<std::string> systemChrome() {
     switch(GempyreUtils::currentOS()) {
     case GempyreUtils::OS::MacOs: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
     case GempyreUtils::OS::WinOs: return R"(start "_" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")";
     case GempyreUtils::OS::LinuxOs: {
         auto browser = GempyreUtils::which(R"(chromium-browser)");
-        if(!browser.empty())
-            return browser;
+        if(browser)
+            return *browser;
         return GempyreUtils::which(R"(google-chrome)");
         //xdg-open
     }
-    default: return "";
+    default: return std::nullopt;
     }
 }
 
@@ -81,10 +81,11 @@ void killHeadless() {
 class TestUi : public testing::Test {
     public:
     static void SetUpTestSuite() {
+        const auto chrome = systemChrome();
         m_ui = std::make_unique<Gempyre::Ui>(
                     Apitests_resourceh,
                     "apitests.html",
-                     systemChrome(),
+                     chrome ? chrome.value() : "",
                      headlessParams());
         m_ui->onError([](const auto& element, const auto& info) {
             std::cerr << element << " err:" << info;
