@@ -205,6 +205,8 @@ def main():
             extra[m[1]] = m[2]
     ##
 
+    print('FOO:', sys.argv)
+
     uri = urlparse(uri_string)
     window = webview.create_window(title, url=uri_string, width=width, height=height)
     window.shown += lambda: on_show(window, uri.hostname, uri.port)

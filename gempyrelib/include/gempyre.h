@@ -128,25 +128,34 @@ namespace Gempyre {
         using Filemap = std::unordered_map<std::string, std::string>;
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
-        static constexpr char UseDefaultRoot[] = "";   //zero means default root
-        [[nodiscard]]
+        static constexpr auto UseDefaultRoot = "";   //zero means default root
+       /* [[nodiscard]]
         static std::string stdParams(int width, int height, const std::string& title);
 
         /// load a file
+        [[deprecated]]
         explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /// load a file
-
-        explicit Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-
+        [[deprecated]]
+        //explicit Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        [[deprecated]]
         explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
 
         /// use explicit app as UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        [[deprecated]]
+        //explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /// use explicit app as UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        [[deprecated]]
+        //explicit Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         /// use OS browser as UI
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        */
+        /// Create UI using default ui app or gempyre.conf
+        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title = "",  int width = -1, int height = -1, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
+        /// Create UI using given ui app and command line
+        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser,  const std::string& browser_params, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         ~Ui();
         Ui(const Ui& other) = delete;
@@ -208,7 +217,7 @@ namespace Gempyre {
         ///Access an UI extension
         [[nodiscard]] std::optional<std::any> extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
 
-        [[deprecated ("use extensionGet or extensionCall instead")]] std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        //[[deprecated ("use extensionGet or extensionCall instead")]] std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
 
 
         ///Get a compiled in resource string.
@@ -233,8 +242,11 @@ namespace Gempyre {
         void resize(int width, int height);
         /// set title, fail silently if backend wont support
         void setTitle(const std::string& name);
+        /// load file as a maps
+        static Ui::Filemap toFileMap(const std::vector<std::string>& filenames);
     private:
         enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
+        Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root, const std::unordered_map<std::string, std::string>& parameters);
         void send(const DataPtr& data);
         void send(const Element& el, const std::string& type, const std::any& data, bool unique = false);
         template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
@@ -242,7 +254,7 @@ namespace Gempyre {
         void eventLoop();
         static std::string toStr(const std::atomic<State>&);
         inline void addRequest(std::function<bool()>&&);
-        std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, const std::string& browser, int port, const std::string& extraParams);
+        std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, int port, const std::unordered_map<std::string, std::string>& browser_params);
     private:
         struct InternalEvent {
             std::string element;

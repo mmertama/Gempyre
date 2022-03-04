@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     const auto it = options.find("resources");
     const auto root = (it != options.end()) ? (it->second + "/") : std::string("");
 
-    Gempyre::Ui ui({{"/imageblit.html", Imageblithtml}, {"/owl.png", Owlpng}}, "imageblit.html", Gempyre::Ui::UseDefaultPort, root);
+    Gempyre::Ui ui({{"/imageblit.html", Imageblithtml}, {"/owl.png", Owlpng}}, "imageblit.html", "", "", Gempyre::Ui::UseDefaultPort, root);
 
     Gempyre::CanvasElement canvas(ui, "canvas");
 
