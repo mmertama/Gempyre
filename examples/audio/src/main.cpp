@@ -3,7 +3,7 @@
 #include "audio_resource.h"
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::setDebug(Gempyre::DebugLevel::Debug);
+    Gempyre::setDebug(true);
     Gempyre::Ui ui(Audio_resourceh, "audio.html");
     Gempyre::Element play(ui, "play");
     Gempyre::Element audio(ui, "audio", ui.root());

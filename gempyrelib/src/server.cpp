@@ -230,8 +230,13 @@ void Server::serverThread(unsigned short port) {
                             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS", *msg);
                         else if(*log == "warn")
                             GempyreUtils::log(GempyreUtils::LogLevel::Warning, "JS", *msg);
-                        else if(*log == "" || *log == "error")
+                        else if(*log == "" || *log == "error") {
                             GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS", *msg);
+                            const auto trace = jsObj.find("trace");
+                            if(trace != jsObj.end()) {
+                                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS-TRACE", *trace);
+                            }
+                        }
                         return;
                     }
                 }

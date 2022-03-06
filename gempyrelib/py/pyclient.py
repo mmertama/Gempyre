@@ -6,10 +6,10 @@ import sys
 import webview
 import websockets
 import re
-import argparse;
+import argparse
+
 
 do_exit = None
-
 
 # file_types = ('Image Files (*.bmp;*.jpg;*.gif)', 'All files (*.*)')
 def make_filters(filters):
@@ -32,7 +32,7 @@ def on_show(window, host, port):
     ws_uri = 'ws://{}:{}/gempyre'.format(host, port)
 
     async def extender():
-        async with websockets.connect(ws_uri, close_timeout=1) as ws:
+        async with websockets.connect(ws_uri, close_timeout=10) as ws:
             loop = asyncio.get_event_loop()
             receive = loop.create_task(ws.recv())
 
@@ -62,6 +62,8 @@ def on_show(window, host, port):
                 call_id = obj['extension_call']
                 params = json.loads(obj['extension_parameters'])
                 ext_id = obj['extension_id']
+
+                response = None
 
                 if call_id == 'openFile':
                     dir_name = params['dir']
@@ -114,16 +116,23 @@ def on_show(window, host, port):
                 if call_id == 'setAppIcon':
                     pass
                 if call_id == 'resize':
+                    # window.resize include titlebar, so we get current body and get title height, so we can add it to get requested body size
+                    # known issue, does not work well with FRAMELESS. Fix someday.
+                    vp_height = window.evaluate_js(r'Math.min(window.innerHeight, document.documentElement.clientHeight);')
+                    vp_width = window.evaluate_js(r'Math.min(window.innerWidth, document.documentElement.clientWidth);')
+                    border_height = window.height - vp_height
+                    border_width = window.width - vp_width
                     width = params['width']
                     height = params['height']
-                    window.resize(width, height)
+                    window.resize(width + border_width, height + border_height)
                 if call_id == 'setTitle':
                     title = params['title']
                     window.set_title(title)
                 if call_id == 'ui_info':
                     pass
 
-                await ws.send(response)
+                if response:
+                    await ws.send(response)
 
     asyncio.run(extender())
 
@@ -132,7 +141,9 @@ def main():
     width = 1024
     height = 768
     title = ''
-
+    extra = {}
+    '''
+    uri = None
     if len(sys.argv) < 2:
         sys.exit('Usage: URL <width> <height> <title>')
 
@@ -168,6 +179,19 @@ def main():
     except ValueError as err:
         pass
     ##
+    '''
+    NORESIZE = 0x1
+    FULLSCREEN = 0x2
+    HIDDEN = 0x4
+    FRAMELESS = 0x8
+    MINIMIZED = 0x10
+    ONTOP = 0x20
+    CONFIRMCLOSE = 0x40
+    TEXTSELECT = 0x80
+    EASYDRAG = 0x100
+    TRANSPARENT = 0x200
+
+    flags = 0
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--gempyre-url', type=str)
@@ -175,6 +199,7 @@ def main():
     parser.add_argument('--gempyre-height', type=int)
     parser.add_argument('--gempyre-title', type=str)
     parser.add_argument('--gempyre-extra', type=str)
+    parser.add_argument('--gempyre-flags', type=int)
     parser.add_argument('url', type=str)
 
     try:
@@ -196,6 +221,9 @@ def main():
     elif args.url:
         uri_string = args.url
 
+    if args.gempyre_flags:
+        flags = args.gempyre_flags
+
     if sys.platform == 'win32':
         extra['gui'] = 'cef'
 
@@ -203,12 +231,19 @@ def main():
         for e in args.gempyre_extra.split(';'):
             m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
             extra[m[1]] = m[2]
-    ##
-
-    print('FOO:', sys.argv)
 
     uri = urlparse(uri_string)
-    window = webview.create_window(title, url=uri_string, width=width, height=height)
+    window = webview.create_window(title, url=uri_string, width=width, height=height,
+    resizable = True if not flags & NORESIZE else False,
+    fullscreen = True if flags & FULLSCREEN else False,
+    hidden = True if flags & HIDDEN else False,
+    frameless = True if flags & FRAMELESS else False,
+    minimized = True if flags & MINIMIZED else False,
+    on_top = True if flags & ONTOP else False,
+    confirm_close = True if flags & CONFIRMCLOSE else False,
+    text_select = True if flags & TEXTSELECT else False,
+    easy_drag = True if flags & EASYDRAG else False,
+    transparent = True if flags & TRANSPARENT else False)
     window.shown += lambda: on_show(window, uri.hostname, uri.port)
     window.closing += on_close
     webview.start(**extra)

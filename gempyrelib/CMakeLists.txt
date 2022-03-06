@@ -346,7 +346,6 @@ set(GEMPYRE_SRC
     src/eventqueue.h
     src/semaphore.h
     src/idlist.h
-    js/gempyre.js
     src/json.cpp
     src/graphics.cpp
     src/element.cpp
@@ -354,6 +353,8 @@ set(GEMPYRE_SRC
     src/timequeue.h
     src/broadcaster.h
     ${DIALOG_SRC}
+    js/gempyre.js
+    py/pyclient.py
     )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")

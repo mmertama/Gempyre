@@ -31,6 +31,7 @@ constexpr auto BROWSER_PARAMS_KEY{"params"};
 constexpr auto WIDTH_KEY{"width"};
 constexpr auto HEIGHT_KEY{"height"};
 constexpr auto TITLE_KEY{"title"};
+constexpr auto FLAGS_KEY{"flags"};
 
 #ifdef ANDROID_OS
 extern int androidLoadUi(const std::string&);
@@ -38,17 +39,8 @@ extern int androidLoadUi(const std::string&);
 
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 
-void Gempyre::setDebug(Gempyre::DebugLevel level) {
-    const std::unordered_map<Gempyre::DebugLevel, GempyreUtils::LogLevel> lvl =  {
-        {Gempyre::DebugLevel::Quiet, GempyreUtils::LogLevel::None},
-        {Gempyre::DebugLevel::Fatal, GempyreUtils::LogLevel::Fatal},
-        {Gempyre::DebugLevel::Error, GempyreUtils::LogLevel::Error},
-        {Gempyre::DebugLevel::Warning, GempyreUtils::LogLevel::Warning},
-        {Gempyre::DebugLevel::Info, GempyreUtils::LogLevel::Info},
-        {Gempyre::DebugLevel::Debug, GempyreUtils::LogLevel::Debug},
-        {Gempyre::DebugLevel::Debug_Trace, GempyreUtils::LogLevel::Debug_Trace}
-    };
-    GempyreUtils::setLogLevel(lvl.at(level));
+void Gempyre::setDebug(bool is_debug) {
+    GempyreUtils::setLogLevel(is_debug ? GempyreUtils::LogLevel::Debug : GempyreUtils::LogLevel::Error);
 }
 
 
@@ -129,7 +121,7 @@ static std::optional<std::tuple<std::string, std::string>> confCmdLine(Ui& ui, c
         if(cmd_params) {
             auto params = *cmd_params;
             for(const auto& [key, value] : replacement)
-                params = GempyreUtils::substitute(params, R"(\$\{\s*)" + key + R"(\s*})", value);
+                params = GempyreUtils::substitute(params, R"(\$\{\s*)" + key + R"(\s*\})", value);
             return std::tuple<std::string, std::string>(*cmdName, params); // make_tuple uses refs, hence copy
           }
     }
@@ -166,7 +158,8 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
         const auto height = value(param_map, HEIGHT_KEY, "240");
         const auto title = value(param_map, TITLE_KEY, "Gempyre");
         const auto extra = value(param_map, BROWSER_PARAMS_KEY, "");
-        const auto conf = confCmdLine(*this, {{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}});
+        const auto flags = value(param_map, FLAGS_KEY, "");
+        const auto conf = confCmdLine(*this, {{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}, {"FLAGS", flags}});
         if(conf)
             return conf.value();
         // then we try python
@@ -180,6 +173,7 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
                                  join(param_map, WIDTH_KEY, "--gempyre-width="),
                                  join(param_map, HEIGHT_KEY,"--gempyre-height="),
                                  join(param_map, TITLE_KEY,"--gempyre-title="),
+                                 join(param_map, FLAGS_KEY,"--gempyre-flags="),
                                  join(param_map, BROWSER_PARAMS_KEY,"--gempyre-extra=")}, " ") };
         }
     }
@@ -189,7 +183,7 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
 #ifndef ANDROID_OS
     gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
-    return {appui, url + " " + params};
+    return {appui, params};
 }
 
 
@@ -273,11 +267,13 @@ Ui::Ui(const Filemap& filemap,
        const std::string& title,
        int width,
        int height,
+       unsigned flags,
        unsigned short port,
        const std::string& root) : Ui(filemap, indexHtml, port, root,
             {
     // add only if valid
     {!title.empty() ? TITLE_KEY : "", title},
+    {FLAGS_KEY, std::to_string(flags)},
     {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
     {height > 0 ? HEIGHT_KEY : "", std::to_string(height)}}){}
 
@@ -341,6 +337,7 @@ Ui::Ui(const Filemap& filemap,
                 } else if(type == "error") {
                     GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS says at:", std::any_cast<std::string>(params.at("element")),
                                       "error:", std::any_cast<std::string>(params.at("error")));
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS trace:", std::any_cast<std::string>(params.at("trace")));
                     if(m_onError) {
                         m_onError(std::any_cast<std::string>(params.at("element")), std::any_cast<std::string>(params.at("error")));
                     }
@@ -416,7 +413,7 @@ Ui::Ui(const Filemap& filemap,
 
             const auto& [appui, cmd_params] = guiCmdLine(indexHtml, port, parameters);
 
-           GempyreUtils::log(GempyreUtils::LogLevel::Error, "CMD", appui, cmd_params);
+           GempyreUtils::log(GempyreUtils::LogLevel::Debug, "CMD", appui, cmd_params);
 
 #if defined (ANDROID_OS)
             const auto result = androidLoadUi(appui + " " + cmd_params);
@@ -425,7 +422,8 @@ Ui::Ui(const Filemap& filemap,
             const auto on_path = GempyreUtils::which(appui);
             const auto is_exec = GempyreUtils::isExecutable(appui) || (on_path && GempyreUtils::isExecutable(*on_path));
             const auto result = is_exec ?
-                        GempyreUtils::execute(appui, cmd_params) : GempyreUtils::execute("", appui + " " +  cmd_params);
+                    GempyreUtils::execute(appui, cmd_params) :
+                    GempyreUtils::execute("", appui + " " +  cmd_params);
 
 #endif
             if(result != 0) {
@@ -512,7 +510,7 @@ void Ui::exit() {
         //m_status = State::CLOSE;
         m_timers->flush(true);
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop", toStr(m_status));
-        eventLoop();
+        eventLoop(true);
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop done, back in mainloop", toStr(m_status));
     //    m_server.reset();
       //  GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server cleaned");
@@ -651,7 +649,7 @@ void Ui::run() {
     m_startup();
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "run, Status change --> RUNNING");
     m_status = State::RUNNING;
-    eventLoop();
+    eventLoop(true);
     if(m_onUiExit) { // what is point? Should this be here
         m_onUiExit();
     }
@@ -672,8 +670,8 @@ void Ui::run() {
 }
 
 
-void Ui::eventLoop() {
-    GEM_DEBUG("enter", !!m_server, (m_server && m_server->isRunning()));
+void Ui::eventLoop(bool is_main) {
+    GEM_DEBUG("enter", is_main, !!m_server, (m_server && m_server->isRunning()));
     while(m_server && m_server->isRunning()) {
 
         if(m_sema->count() == 0) {
@@ -776,7 +774,9 @@ void Ui::eventLoop() {
 
         //if there are responses they must be handled
         if(!m_responsemap->empty()) {
-            return; //handle query elsewhere
+            if(!is_main)
+                return; //handle query elsewhere, hopefully some one is pending
+           // TODO: looks pretty busy (see calc) GempyreUtils::log(GempyreUtils::LogLevel::Warning, "There are unhandled responses on main");
         }
 
         if(!m_eventqueue->empty() && m_status != State::RUNNING) {
@@ -917,7 +917,7 @@ std::optional<std::any> Ui::extensionGet(const std::string& callId, const std::u
     });
 
     for(;;) {   //start waiting the response
-        eventLoop();
+        eventLoop(false);
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension - wait in eventloop done, back in mainloop", toStr(m_status));
         if(m_status != State::RUNNING) {
             m_sema->signal();

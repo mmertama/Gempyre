@@ -62,7 +62,7 @@ private:
 };
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::setDebug(Gempyre::DebugLevel::Info);
+    Gempyre::setDebug(true);
     Gempyre::Ui ui(Framerate_resourceh, "framerate.html");
     Gempyre::CanvasElement canvas(ui, "canvas");
     Gempyre::Element flakes_count(ui, "flakes_count");

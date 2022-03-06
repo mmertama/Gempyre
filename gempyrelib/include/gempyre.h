@@ -46,10 +46,8 @@ namespace Gempyre {
     template <class T> class IdList;
     template <class K, class T> class EventMap;
 
-    enum class DebugLevel{Quiet, Fatal, Error, Warning, Info, Debug, Debug_Trace};
-
-    /// set debuging level and target, defauls to std::cout
-    GEMPYRE_EX void setDebug(DebugLevel level = DebugLevel::Debug);
+    /// set debuging on/off
+    GEMPYRE_EX void setDebug(bool isDebug = true);
     /// Internal for Android
     GEMPYRE_EX void setJNIENV(void* env, void* obj);
     /// Return current version
@@ -125,6 +123,18 @@ namespace Gempyre {
         };
         using Handler = std::function<void (const Event& el)>;
     public:
+        enum UiFlags : unsigned {
+            NoResize = 0x1,
+            FullScreen = 0x2,
+            Hidden = 0x4,
+            Frameless = 0x8,
+            Minimized = 0x10,
+            OnTop = 0x20,
+            ConfirmClose = 0x40,
+            TextSelect = 0x80,
+            EasyDrag = 0x100,
+            Transparent = 0x200
+        };
         using Filemap = std::unordered_map<std::string, std::string>;
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
@@ -152,7 +162,7 @@ namespace Gempyre {
         explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
         */
         /// Create UI using default ui app or gempyre.conf
-        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title = "",  int width = -1, int height = -1, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title = "",  int width = -1, int height = -1, unsigned flags = 0, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         /// Create UI using given ui app and command line
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser,  const std::string& browser_params, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
@@ -251,7 +261,7 @@ namespace Gempyre {
         void send(const Element& el, const std::string& type, const std::any& data, bool unique = false);
         template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
         void pendingClose();
-        void eventLoop();
+        void eventLoop(bool is_main);
         static std::string toStr(const std::atomic<State>&);
         inline void addRequest(std::function<bool()>&&);
         std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, int port, const std::unordered_map<std::string, std::string>& browser_params);

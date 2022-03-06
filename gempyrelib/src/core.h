@@ -3,6 +3,9 @@
 #include "semaphore.h"
 #include "eventqueue.h"
 #include <algorithm>
+#include <vector>
+#include "gempyre.h"
+#include "gempyre_utils.h"
 
 namespace Gempyre {
 
@@ -63,7 +66,7 @@ std::optional<T> Ui::query(const std::string& elId, const std::string& queryStri
         });
 
         for(;;) {   //start waiting the response
-            eventLoop();
+            eventLoop(false);
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", toStr(m_status));
             if(m_status != State::RUNNING) {
                 m_sema->signal();

@@ -37,8 +37,13 @@ function g_info(msg) {
 }
 
 function g_error(msg) {
+    const getTrace = function() {
+      const obj = {};
+      Error.captureStackTrace(obj, getTrace);
+      return obj.stack;
+    };
     const logged = Array.prototype.slice.call(arguments).join(', ');
-    socket.send(JSON.stringify({'type': 'log', 'level': 'error', 'msg': logged}));
+    socket.send(JSON.stringify({'type': 'log', 'level': 'error', 'msg': logged, 'trace': getTrace()}));
     sys_error(msg);
 }
 
@@ -51,8 +56,15 @@ function log(...logStr) {
 
 function errlog(source, text) {
     source = source || "Unknown";
+
+    const getTrace = function() {
+      const obj = {};
+      Error.captureStackTrace(obj, getTrace);
+      return obj.stack;
+    };
+
     console.error("error:" + source + " --> " + text);
-    socket.send(JSON.stringify({'type': 'error', 'element': String(source), 'error': text}));
+    socket.send(JSON.stringify({'type': 'error', 'element': String(source), 'error': text, 'trace': getTrace()}));
 }
 
 function createElement(parent, tag, id) {
@@ -170,9 +182,10 @@ function sendGempyreEvent(source, eventname, values) {
 }
 
 function id(el) {
-    console.assert(el.nodeType == 1, "Shall not get id of non element");
-    if(!el.id)
-        el.id = "gempyre_"+ Math.random().toString(32).substr(2,16);
+    console.assert(el.nodeType === 1, "Shall not get id of non element");
+    if(!el.id) {
+        el.id = 'gempyre_' + Math.random().toString(32).substr(2,16);
+    }
     return el.id;
 }
 
@@ -237,6 +250,9 @@ function serveQuery(element, query_id, query, query_params) {
            break;
         case 'bounding_rect':
             const r = el.getBoundingClientRect();
+           // const r = (el != document.root) ? el.getBoundingClientRect() : function() {
+           //     return {'left':0,'top':0,'right': window.outterWidth,'bottom': window.outterHeight + 400};
+           // }();
             socket.send(JSON.stringify({
                'type': 'query',
                'query_id': query_id,
