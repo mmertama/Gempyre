@@ -27,7 +27,7 @@
     #pragma clang diagnostic pop
 #endif
 
-#include <unordered_set>
+#include <unordered_map>
 
 namespace Gempyre {
 
@@ -37,12 +37,18 @@ using WSSocket = uWS::WebSocket<false, true, ExtraSocketData>;
 class Broadcaster {
     static constexpr auto DELAY = 100ms;
 public:
-    bool send(const std::string_view& text) {
+    enum class Type {
+        Undefined,
+        Ui,
+        Extension
+    };
+    bool send(const std::string_view& text, bool is_ext = false) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        for(auto& s : m_sockets) {
+        for(auto& [s, type] : m_sockets) {
+            if((type == Type::Ui && is_ext) || (type == Type::Extension && !is_ext))
+                continue;
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket txt buffer", s->getBufferedAmount());
             const auto success = s->send(text, uWS::OpCode::TEXT);
-
             if(!success) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket t2 buffer", s->getBufferedAmount());
                 if(!m_backPressureMutex.try_lock_for(DELAY))
@@ -55,14 +61,16 @@ public:
 
     bool send(const char* data, size_t len) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        for(auto& s : m_sockets) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket bin buffer", s->getBufferedAmount());
-            const auto success = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
-            if(!success) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket b2 buffer", s->getBufferedAmount());
-                if(!m_backPressureMutex.try_lock_for(DELAY))
-                       GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
-                return false;
+        for(auto& [s, type] : m_sockets) {
+            if(type == Type::Ui) { // extension is not expected to handle binary messages
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket bin buffer", s->getBufferedAmount());
+                const auto success = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
+                if(!success) {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket b2 buffer", s->getBufferedAmount());
+                    if(!m_backPressureMutex.try_lock_for(DELAY))
+                           GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
+                    return false;
+                }
             }
         }
         return !m_sockets.empty();
@@ -70,7 +78,7 @@ public:
 
     void append(WSSocket* socket) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        m_sockets.emplace(socket);
+        m_sockets.emplace(socket, Type::Undefined);
     }
 
     void remove(WSSocket* socket) {
@@ -85,11 +93,12 @@ public:
     void forceClose() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Force Close", m_sockets.size());
         while(true) {
-            auto ws = m_sockets.begin();
-            if(ws == m_sockets.end())
+            auto it = m_sockets.begin();
+            if(it == m_sockets.end())
                 return;
-            (*ws)->close();
-            remove(*ws);
+            auto ws = it->first;
+            ws->close();
+            remove(ws);
         }
     }
 
@@ -106,10 +115,15 @@ public:
     size_t bufferSize() const {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         auto min = 0U;
-        for(const auto& s : m_sockets) {
+        for(const auto& [s, type] : m_sockets) {
             min = std::min(min, s->getBufferedAmount());
         }
         return static_cast<size_t>(min);
+    }
+
+    void setType(WSSocket* ws, Type type) {
+        assert(m_sockets[ws] == Type::Undefined);
+        m_sockets[ws] = type;
     }
 
     void unlock() {
@@ -117,7 +131,7 @@ public:
     }
 
 private:
-    std::unordered_set<WSSocket*> m_sockets;
+    std::unordered_map<WSSocket*, Type> m_sockets;
     std::timed_mutex m_backPressureMutex;
     mutable std::mutex m_socketMutex;
 };

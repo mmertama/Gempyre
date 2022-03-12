@@ -42,6 +42,8 @@ def on_show(window, host, port):
             global do_exit
             do_exit = f
 
+            ws.send(json.dumps({'type': 'extensionready'}))
+
             while True:
                 try:
                     await receive
@@ -52,7 +54,11 @@ def on_show(window, host, port):
                 doc = receive.result()
 
                 receive = loop.create_task(ws.recv())
-                obj = json.loads(doc)
+                try:
+                    obj = json.loads(doc)
+                except UnicodeDecodeError as e:
+                    print('Exception on extender:', e, '\nWhen parsing:', doc, file=sys.stderr)
+                    return
                 if not type(obj) is dict:
                     print('Invalid JS object', doc)
                     continue

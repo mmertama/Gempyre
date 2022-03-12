@@ -204,9 +204,12 @@ void Server::serverThread(unsigned short port) {
                     }
                     if(*f == "uiready") {
                         m_uiready = true;
+                        m_broadcaster->setType(ws, Broadcaster::Type::Ui);
                     }
                     if(*f == "extensionready") {
-                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "extensioneady");
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "extensionready");
+                        m_broadcaster->setType(ws, Broadcaster::Type::Extension);
+
                     }
                     if(*f == "extension") {
                         const auto log = jsObj.find("level");
@@ -467,8 +470,12 @@ bool Server::send(const std::unordered_map<std::string, std::string>& object, co
             js = json::parse(*jopt);
         }
     }
+    bool is_ext = false;
     for(const auto& [key, value] : object) {
         js[key] = value;
+        if(key == "type" && value == "extension") {
+            is_ext = true;
+        }
     }
     if(m_batch) {
         m_batch->push_back(std::move(js));
@@ -481,7 +488,7 @@ bool Server::send(const std::unordered_map<std::string, std::string>& object, co
             const auto pull = addPulled(DataType::Json, str);
             const json obj = {{"type", "pull_json"}, {"id", pull}};
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add text pull", str.size(), pull);
-            if(!m_broadcaster->send(obj.dump()))
+            if(!m_broadcaster->send(obj.dump(), is_ext))
                    return false;
         }
 

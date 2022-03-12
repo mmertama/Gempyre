@@ -275,7 +275,8 @@ Ui::Ui(const Filemap& filemap,
     {!title.empty() ? TITLE_KEY : "", title},
     {FLAGS_KEY, std::to_string(flags)},
     {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
-    {height > 0 ? HEIGHT_KEY : "", std::to_string(height)}}){}
+    {height > 0 ? HEIGHT_KEY : "", std::to_string(height)},
+    {GempyreUtils::logLevel() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "", "debug=True" }}){}
 
 
 Ui::Ui(const Filemap& filemap,
@@ -345,7 +346,8 @@ Ui::Ui(const Filemap& filemap,
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "client kindly asks exit --> Status change Exit");
                     m_status = State::EXIT;
                 } else if(type == "extensionready") {
-                     const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
+                     /* no more like this
+                      * const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
                      const auto address =
                      + " " + std::string(SERVER_ADDRESS) + "/"
                      + (appPage.empty() ? "index.html" : appPage);
@@ -353,6 +355,7 @@ Ui::Ui(const Filemap& filemap,
                      extensionCall("ui_info", {
                                       {"url", address},
                                       {"params", ""}});
+                    */
                 }
                 m_sema->signal();
             }

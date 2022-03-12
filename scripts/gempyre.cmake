@@ -12,13 +12,15 @@ function (gempyre_add_resources)
         set(MINIFY "")
     endif()
 	
-	if(NOT WIN32)
-		find_program(PYTHON "python3" REQUIRED)
-		set (PYTHON3 python3)
-	else()
-		find_program(PYTHON "python" REQUIRED)
-		set (PYTHON3 python)
-        endif()
+    if(NOT WIN32)
+        find_program(PYTHON "python3" REQUIRED)
+        set (PYTHON3 python3)
+    else()
+        find_program(PYTHON "python" REQUIRED)
+        set (PYTHON3 python)
+    endif()
+
+    set(PYTHON3 ${PYTHON3} PARENT_SCOPE)
 
     find_file(GEN_RESOURCE
         genStringResource.py
