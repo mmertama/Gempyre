@@ -64,6 +64,12 @@ void TimerMgr::start() {
 
 int TimerMgr::append(const TimeQueue::TimeType& ms, bool singleShot, const TimeQueue::Function& timerFunc, const Callback& cb) {
     std::lock_guard<std::mutex> lock(m_queueMutex);
+    if(m_timerThread.valid() && m_queue->empty()) {
+        // it timer running / not invalidated, but empty, we wait and invalidate
+        // otherwise its not restarted
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Timer wait finish...");
+        m_timerThread.get();
+    }
     m_exit = false;
     const auto id = m_queue->append(ms, [singleShot, timerFunc, this, cb] (int id) {
          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Timer callback", id);
@@ -112,7 +118,7 @@ void TimerMgr::flush(bool do_run) {
     if(m_timerThread.valid()) // it CAN get invalidated (at least when some breakpoints are set)
         m_timerThread.wait();
     m_queue->clear();
-    m_timerThread = {};
+    m_timerThread.get();
 }
 
 
