@@ -3,61 +3,72 @@
 #include <cassert>
 
 using namespace Gempyre;
+using namespace std::chrono_literals;
 
 void TimerMgr::start() {
-   assert(!m_exit);
-   assert(!m_timerThread.valid());
-    // m_exit = false;
-   // if(m_timerThread.valid())
-   //    m_timerThread.get();  // invalidate
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timers start");
-    m_timerThread = std::async(std::launch::async, [this]() {
+   assert(!m_exit);     // not exiting
+   assert(!m_timerThread.valid());  // not running
+   GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timers start");
+
+   m_timerThread = std::async(std::launch::async, [this]() {
+
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer thread start");
+
         while(!m_exit) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer thread loop");
             if(m_queue->empty()) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer thread loop exit");
                 break;
             }
-            const auto itemOr = m_queue->copyTop();
+            const auto itemOr = m_queue->copyTop(); // take 1st item from prio queue
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer queue peeked");
-            if(!itemOr.has_value()) {
+
+            if(!itemOr.has_value()) {  // if there is no top
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer idling");
                 std::unique_lock<std::mutex> lock(m_waitMutex);
                 m_cv.wait(lock);
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer idle end");
-                continue;
+                continue;            // wait an event and the re-loop
             }
+
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer thread has value");
             const auto data = itemOr.value(); //value is shared pointer thus is floats even killed, and we wait
-            const auto currentSleep = data.currentTime;
+            const auto currentSleep = data.currentTime; // expected wait
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer thread wait", currentSleep.count());
-            if(currentSleep > std::chrono::milliseconds{0}) {
+
+            if(currentSleep > std::chrono::milliseconds{0}) { // if wait is > 0
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer thread lock active");
                 std::unique_lock<std::mutex> lock(m_waitMutex);
                 const auto begin = std::chrono::steady_clock::now();
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer wait now:", data.id);
-                m_cv.wait_for(lock, std::chrono::duration(currentSleep));
+                m_cv.wait_for(lock, std::chrono::duration(currentSleep)); // do actual wait
                 const auto end = std::chrono::steady_clock::now(); //we may have had an early  wakeup
                 const auto actualWait = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer awake id:", data.id , currentSleep.count(), actualWait.count(), m_queue->size());
                 m_queue->reduce(actualWait);  //so we see if we are still there, and restart
                 continue; //find a new
+            } else {  // no wait is <= 0
+
+                if(!m_queue->setPending(data.id))
+                    continue;
+
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer pop id:", data.id, m_queue->size());
+
+                const auto begin = std::chrono::steady_clock::now();
+
+                data.func(data.id);
+
+                if(!m_exit) {
+                    if(!m_callWait.wait(1000ms)) {  // this is maximum we can wait func
+                        GempyreUtils::log(GempyreUtils::LogLevel::Error, "timer timeout", data.id, m_queue->size(), data.initialTime, data.currentTime);
+                    }
+                }
+
+                const auto end = std::chrono::steady_clock::now(); //we may have had an early  wakeup
+                const auto actualWait = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+                m_queue->reduce(actualWait);  //so we see if we are still there, and restart
+                }
             }
-            if(!m_queue->setPending(data.id))
-                continue;
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer pop id:", data.id, m_queue->size());
-
-            const auto begin = std::chrono::steady_clock::now();
-
-            data.func(data.id);
-            if(!m_exit)
-                m_callWait.wait();
-
-            const auto end = std::chrono::steady_clock::now(); //we may have had an early  wakeup
-            const auto actualWait = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-            m_queue->reduce(actualWait);  //so we see if we are still there, and restart
-        }
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer thread ended", m_queue->size(), m_exit.load());
     });
 }
