@@ -59,8 +59,16 @@ void TimerMgr::start() {
                 data.func(data.id);
 
                 if(!m_exit) {
-                    if(!m_callWait.wait(1000ms)) {  // this is maximum we can wait func
-                        GempyreUtils::log(GempyreUtils::LogLevel::Error, "timer timeout", data.id, m_queue->size(), data.initialTime, data.currentTime);
+                    if(!m_callWait.wait(10s)) {  // this is maximum we can wait func
+                        GempyreUtils::log(GempyreUtils::LogLevel::Error,
+                                          "timer timeout",
+                                          data.id,
+                                          m_queue->size(),
+                                          data.initialTime.count(),
+                                          data.currentTime.count());
+#ifdef GEMPYRE_IS_DEBUG
+                        gempyre_utils_fatal("Timer thread blocked");
+#endif
                     }
                 }
 
@@ -126,10 +134,11 @@ void TimerMgr::flush(bool do_run) {
     m_exit = true;
     m_callWait.signal();
     m_cv.notify_all();
-    if(m_timerThread.valid()) // it CAN get invalidated (at least when some breakpoints are set)
+    if(m_timerThread.valid()) {// it CAN get invalidated (at least when some breakpoints are set)
         m_timerThread.wait();
-    m_queue->clear();
-    m_timerThread.get();
+        m_queue->clear();
+        m_timerThread.get();
+    }
 }
 
 

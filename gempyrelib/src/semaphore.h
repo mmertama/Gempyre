@@ -37,12 +37,13 @@ public:
         return true;
     }
 
-    int count() const {
-        return m_count;
+    bool empty() const {
+        std::unique_lock<std::mutex> lock(m_mtx);
+        return m_count == 0;
     }
 
 private:
-    std::mutex m_mtx;
+    mutable  std::mutex m_mtx;
     std::condition_variable m_cv;
     int m_count = 0;
 };

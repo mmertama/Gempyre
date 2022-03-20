@@ -677,7 +677,7 @@ void Ui::eventLoop(bool is_main) {
     GEM_DEBUG("enter", is_main, !!m_server, (m_server && m_server->isRunning()));
     while(m_server && m_server->isRunning()) {
 
-        if(m_sema->count() == 0) {
+        if(!m_sema->empty()) {
             const auto start = std::chrono::steady_clock::now();
 
             m_sema->wait();
