@@ -265,6 +265,7 @@ namespace Gempyre {
         static std::string toStr(const std::atomic<State>&);
         inline void addRequest(std::function<bool()>&&);
         std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, int port, const std::unordered_map<std::string, std::string>& browser_params);
+        std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
     private:
         struct InternalEvent {
             std::string element;

@@ -24,16 +24,16 @@ namespace Gempyre {
  */
 
 class TimeQueue;
+class TimerData;
 
 class TimerMgr {
 public:
     using Function = std::function<void (int)>;
-    using Callback = std::function<void (const std::function<void()>& f)>;
+    using Callback = std::function<void (int)>;
     using TimeType = std::chrono::milliseconds;
     int append(const TimerMgr::TimeType& ms,    //at this time
                bool singleShot,                 //do re do?
-               const TimerMgr::Function& func,  //this is a parameter
-               const TimerMgr::Callback& cb);   //this is a cb run in timer thread, that returns a function that call a func executed in event thread
+               TimerMgr::Callback&& cb);   //this is a cb run in timer thread, that returns a function that call a func executed in event thread
     bool remove(int id);
     void flush(bool do_run); 
     ~TimerMgr();
@@ -41,6 +41,7 @@ public:
     bool isValid() const {return m_timerThread.valid();}
 private:
     void start();
+    void onElapsed(const TimerData& data) ;
 private:
     std::condition_variable m_cv;
     std::future<void> m_timerThread;

@@ -591,11 +591,25 @@ void Ui::send(const Element& el, const std::string& type, const std::any& values
     }
 }
 
-Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
-    const int id = m_timers->append(ms, false, timerFunc, [this](const std::function<void()>& f) {
-        m_timerqueue.emplace_back(f);
+// timer elapses calls a function
+// that calls a function that adds a another function to a queue
+// that function calls a the actual timer functio when on top
+std::function<void(int)> Ui::makeCaller(const std::function<void (TimerId id)>& function) {
+    const auto caller =  [this, function](int id) {
+        auto call = [function, id]() {
+            function(id);
+        };
+        m_timerqueue.emplace_back(std::move(call));
         m_sema->signal();
-    });
+    };
+    return caller;
+}
+
+
+Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
+    assert(timerFunc);
+    auto caller = makeCaller(timerFunc);
+    const int id = m_timers->append(ms, false, std::move(caller));
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start Periodic", ms.count(), id);
     return id;
 }
@@ -607,10 +621,8 @@ Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::fu
 }
 
 Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
-    const int id = m_timers->append(ms, true, timerFunc, [this](const std::function<void()>& f) {
-        m_timerqueue.emplace_back(f);
-        m_sema->signal();
-    });
+    auto caller = makeCaller(timerFunc);
+    const int id = m_timers->append(ms, true, std::move(caller));
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start After", ms.count(), id);
     return id;
 }

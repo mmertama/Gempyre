@@ -30,40 +30,40 @@ TEST(Unittests, Test_rgb) {
 TEST(Unittests, test_timequeue) {
     Gempyre::TimeQueue tq;
     std::vector<int> ids;
-    ids.push_back(tq.append(3s, [](int){})); //0
-    ids.push_back(tq.append(4s, [](int){})); //1
-    ids.push_back(tq.append(1s, [](int){})); //2
-    ids.push_back(tq.append(2s, [](int){})); //3
+    ids.push_back(tq.append(3s, true, [](int){})); //0
+    ids.push_back(tq.append(4s, true, [](int){})); //1
+    ids.push_back(tq.append(1s, true, [](int){})); //2
+    ids.push_back(tq.append(2s, true, [](int){})); //3
     EXPECT_EQ(ids.size(), tq.size());
     EXPECT_FALSE(tq.empty());
     for(const auto i : ids)
         EXPECT_TRUE(tq.contains(i));
     const auto top = tq.copyTop();
-    EXPECT_EQ(top->id, ids[2]);
-    tq.reduce(top->currentTime);
+    EXPECT_EQ(top->id(), ids[2]);
+    tq.reduce(top->currentTime());
 
     const auto top1 = tq.copyTop();
-    EXPECT_EQ(top1->id, ids[2]);
-    EXPECT_EQ(top1->currentTime, 0s);
-    EXPECT_TRUE(tq.setPending(top1->id));
+    EXPECT_EQ(top1->id(), ids[2]);
+    EXPECT_EQ(top1->currentTime(), 0s);
+    EXPECT_TRUE(tq.setPending(top1->id()));
 
     const auto top2 = tq.copyTop();
-    EXPECT_EQ(top2->id, ids[3]);
-    EXPECT_EQ(top2->currentTime, 1s);
-    tq.reduce(top2->currentTime);
-    EXPECT_TRUE(tq.setPending(top2->id));
+    EXPECT_EQ(top2->id(), ids[3]);
+    EXPECT_EQ(top2->currentTime(), 1s);
+    tq.reduce(top2->currentTime());
+    EXPECT_TRUE(tq.setPending(top2->id()));
 
     const auto top3 = tq.copyTop();
-    EXPECT_EQ(top3->id, ids[0]);
-    EXPECT_EQ(top3->currentTime, 1s);
-    EXPECT_TRUE(tq.setPending(top3->id));
+    EXPECT_EQ(top3->id(), ids[0]);
+    EXPECT_EQ(top3->currentTime(), 1s);
+    EXPECT_TRUE(tq.setPending(top3->id()));
 
     const auto top4 = tq.copyTop();
-    EXPECT_EQ(top4->id, ids[1]);
+    EXPECT_EQ(top4->id(), ids[1]);
 
     tq.remove(ids[2]);
     const auto top5 = tq.copyTop();
-    EXPECT_EQ(top5->id, ids[1]);
+    EXPECT_EQ(top5->id(), ids[1]);
 
     EXPECT_EQ(ids.size() - 1, tq.size());
     EXPECT_FALSE(tq.empty());
@@ -81,14 +81,14 @@ TEST(Unittests, test_timequeue) {
     //now when 1 is removed, 2 and 3 restored, 4 shall be on top
 
     const auto top6 = tq.copyTop();
-    EXPECT_EQ(top6->id, ids[1]);
+    EXPECT_EQ(top6->id(), ids[1]);
 
     tq.setNow(true);
     EXPECT_FALSE(tq.empty());
     for(auto i = 0U; i < tq.size(); i++) {
        const auto t = tq.copyTop();
-       EXPECT_EQ(t->currentTime, 0s);
-       tq.setPending(t->id);
+       EXPECT_EQ(t->currentTime(), 0s);
+       tq.setPending(t->id());
     }
 
     for(auto i = 0U; i < ids.size(); i++)
@@ -98,7 +98,7 @@ TEST(Unittests, test_timequeue) {
             EXPECT_FALSE(tq.restoreIf(ids[i]));
 
     EXPECT_TRUE(tq.copyTop());
-    EXPECT_NE(tq.copyTop()->currentTime, 0s);
+    EXPECT_NE(tq.copyTop()->currentTime(), 0s);
 
     tq.clear();
 
@@ -114,17 +114,17 @@ TEST(Unittests, test_timermgr) {
         EXPECT_TRUE(counts.find(id) != counts.end());
         ++counts[id];
         };
-    const auto bar = [](const std::function<void()>& f) {
-        f();
+    const auto bar = [foo](int id) {
+        foo(id);
     };
-    const auto id0 = mgr.append(10ms, false, foo, bar);
+    const auto id0 = mgr.append(10ms, false, bar);
     counts[id0] = 0;
-    const auto id1 = mgr.append(20ms, false, foo, bar);
+    const auto id1 = mgr.append(20ms, false, bar);
     counts[id1] = 0;
-    const auto id2 = mgr.append(100ms, false, foo, bar);
+    const auto id2 = mgr.append(100ms, false, bar);
     counts[id2] = 0;
 
-    const auto id3 = mgr.append(1s, true, foo, bar);
+    const auto id3 = mgr.append(1s, true, bar);
     counts[id3] = 0;
 
     int b;
@@ -134,7 +134,7 @@ TEST(Unittests, test_timermgr) {
         if(counts[id] == 12 && id == *to_stop) {
             mgr.remove(id);
         }
-    }, bar);
+    });
     counts[id4] = 0;
     b = id4;
 
