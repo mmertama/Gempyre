@@ -86,17 +86,17 @@ public:
     }
 
     ///Remove a timer
-    void remove(int id) {
+    bool remove(int id) {
         std::lock_guard<std::mutex> guard(m_mutex);
         auto it = std::find_if(m_priorityQueue.begin(), m_priorityQueue.end(), [&id](const auto& d){return d->id() == id;});
         if(it == m_priorityQueue.end()) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error,
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug,
                               "timer remove - not found",
                               id, m_priorityQueue.size());
-            assert(false);
-            return;
+            return false;
         }
         m_priorityQueue.erase(it);
+        return true;
     }
 
 

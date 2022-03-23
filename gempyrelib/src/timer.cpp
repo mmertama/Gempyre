@@ -135,12 +135,13 @@ int TimerMgr::append(const TimerData::TimeType& ms, bool singleShot, Callback&& 
 
 
 bool TimerMgr::remove(int id) {
+    bool ok = true;
     if(!m_exit) { //on exit queue is cleaned
         std::lock_guard<std::mutex> lock(m_queueMutex);
-        m_queue->remove(id);
+        ok = !m_queue->remove(id);
     }
     m_cv.notify_all();  //if currently waiting has been waiting thing may have changed
-    return true;
+    return ok;
 }
 
 void TimerMgr::flush(bool do_run) {
