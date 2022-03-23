@@ -26,10 +26,12 @@ public:
     }
 
     void push(Event&& event) {
+        std::lock_guard<std::mutex> guard(m_mutex);
         m_events.emplace_front(std::forward<Event>(event));
     }
 
     size_t size() const {
+        std::lock_guard<std::mutex> guard(m_mutex);
         return m_events.size();
     }
 
@@ -57,11 +59,14 @@ public:
         std::lock_guard<std::mutex> guard(m_mutex);
         return m_events.empty();
     }
+
     void push(const Key& key, Event&& event) {
+        std::lock_guard<std::mutex> guard(m_mutex);
         m_events.emplace(key, std::move(event));
     }
 
     size_t size() const {
+        std::lock_guard<std::mutex> guard(m_mutex);
         return m_events.size();
     }
 

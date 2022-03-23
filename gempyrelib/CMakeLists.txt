@@ -36,6 +36,12 @@ else()
     set(IS_RELEASE TRUE)
 endif()
 
+if(IS_RELEASE)
+    message("Build is release")
+else()
+     message("Build is debug")
+endif()
+
 option(BLEEDING_EDGE OFF)
 
 #googletest-src release-1.10.0-612-g6c5c4554
@@ -110,7 +116,7 @@ if (COMPILE_UV_IN)
     ExternalProject_Get_Property(libuv BINARY_DIR)
     set(UV_LIB_DIR ${BINARY_DIR})
                                        
-    if(NOT ${IS_RELEASE})
+    if(NOT IS_RELEASE)
         set(UVA_LIB_NAME_CORE uv_ad)
     else()
         set(UVA_LIB_NAME_CORE uv_a)
@@ -119,7 +125,7 @@ if (COMPILE_UV_IN)
     set(UVA_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${UVA_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
     if (MSVC)
-        if (NOT ${IS_RELEASE})
+        if (NOT IS_RELEASE)
                 set(UV_LIB_FULL_R "${UV_LIB_DIR}/Debug/${UVA_LIB_NAME}")
         else()
                 set(UV_LIB_FULL_R "${UV_LIB_DIR}/Release/${UVA_LIB_NAME}")
@@ -137,13 +143,7 @@ if (COMPILE_UV_IN)
 
     message(STATUS "gempyre-libuv lib: ${UV_LIB_FULL} inc: ${SYSTEM_INCLUDES}")
 
-#TODO: Same shit with usockets
-#        add_library(uv_lib_interface STATIC IMPORTED)
-#        set_target_properties(uv_lib_interface PROPERTIES
-#            INTERFACE_LINK_LIBRARIES "${UV_LIB_FULL}"
-#            INTERFACE_INCLUDE_DIRECTORIES "${UV_DIR}/src/libuv/include>"
-#            )
-#        set(UV_LIB uv_lib_interface)
+
 endif()
 
 externalproject_add(libjson
@@ -159,6 +159,7 @@ externalproject_add(libjson
     )
 
 ExternalProject_Get_Property(libjson SOURCE_DIR)
+#set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${JSON_DIR}/src/libjson/include")
 set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
 
 # store for testing json re-use
@@ -180,7 +181,6 @@ if(COMPILE_UV_IN)
 
     set(SOCKETS_SOURCES ${srcDirVar})
     set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}/src")
-
 
 else()
     externalproject_add(libsockets
@@ -237,6 +237,13 @@ externalproject_add(libwebsockets
 ExternalProject_Get_Property(libwebsockets SOURCE_DIR)
 set(WEBSOCKETS_SOURCES ${SOURCE_DIR})
 set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/src")    
+
+#set_property(DIRECTORY ${WEBSOCKETS_SOURCES}
+#    PROPERTY COMPILE_DEFINITIONS "DISABLE_WERROR=ON")
+
+#set_property(DIRECTORY ${WEBSOCKETS_SOURCES}
+#    PROPERTY COMPILE_FLAGS "-Wunused-parameter")
+
 
 find_path(ZLIB_H zlib.h PATHS
     ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}
@@ -318,16 +325,15 @@ if(NOT (MSVC OR ANDROID))
     find_package (Threads REQUIRED)
 endif()
 
-message("INCLUDES ${INCLUDES}")
+#message("INCLUDES ${INCLUDES}")
 
 set(INCLUDES
-    ${INCLUDES}
+    #${INCLUDES}
     include
-    ${WEBSOCKETS_SOURCES}/src
-    ${SOCKETS_SOURCES}/src
+    #${WEBSOCKETS_SOURCES}/src
+   # ${SOCKETS_SOURCES}/src
     include/generated
-    ${JSON_DIR}/src/libjson/include
-    ${ZLIB_H}
+    #${ZLIB_H}
     )
 
 set(GEMPYRE_SRC
@@ -357,21 +363,21 @@ set(GEMPYRE_SRC
     py/pyclient.py
     )
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    # bool type is also used as reference, even the compiler warns, therefore we suppress
-    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/json.cpp PROPERTIES COMPILE_FLAGS "-Wrange-loop-analysis")
-    # with syslog stuff
-    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp PROPERTIES COMPILE_FLAGS "-Wformat-security")
-    set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "/w")
-else()
-    message(FATAL_ERROR "Cannot identify compiler: ${CMAKE_CXX_COMPILER_ID}")
-endif()
+#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+#    # bool type is also used as reference, even the compiler warns, therefore we suppress
+#    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/json.cpp PROPERTIES COMPILE_FLAGS "-Wrange-loop-analysis")
+#    # with syslog stuff
+#   set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp PROPERTIES COMPILE_FLAGS "-Wformat-security")
+#    set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
+#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
+#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+#  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
+#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "/w")
+#else()
+#    message(FATAL_ERROR "Cannot identify compiler: ${CMAKE_CXX_COMPILER_ID}")
+#endif()
 
 if(ANDROID)
     set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android.cpp)
@@ -381,6 +387,10 @@ endif()
 if(COMPILE_UV_IN)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
+     # suppress all warnings in globbed sources
+    set_property(SOURCE ${SOCKETS_SRC} PROPERTY COMPILE_OPTIONS -w)
+     # suppress all warnings in globbed sources
+    set_property(SOURCE ${SOCKETS_HRD} PROPERTY COMPILE_OPTIONS -w)
 endif()
 
 if(DEFINED GEMPYRE_SHARED)
@@ -424,15 +434,38 @@ else()
     )
 endif()
 
+target_compile_options(${PROJECT_NAME}
+    PRIVATE -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef)
+
+if (LINUX OR RASPBERRY)
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE -fstack-usage -Wstack-usage=8192 -Wformat-truncation)
+    if(NOT IS_RELEASE AND RASPBERRY)
+        message("Add some Raspberry special debug flags")
+        target_compile_options(${PROJECT_NAME}
+            PRIVATE -g3 -ggdb -fstack-protector-strong -fno-eliminate-unused-debug-symbols -gstatement-frontiers -ginline-points -fsanitize=address) # -fsanitize=safe-stack
+    endif()
+endif()
+
+target_compile_options(${PROJECT_NAME}
+    PRIVATE -fno-common -Wconversion)
+#set_source_files_properties(foo.cpp PROPERTIES COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-missing-field-initializer")
+
+
 string(REPLACE " " ";" SYSTEM_INCLUDES_LIST ${SYSTEM_INCLUDES})
+
+message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES_LIST}")
+#message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES}")
 
 target_include_directories( ${PROJECT_NAME}
     PUBLIC include
     PUBLIC include/generated
-    PRIVATE SYSTEM "$<BUILD_INTERFACE:${SYSTEM_INCLUDES_LIST}>"
+    #PRIVATE SYSTEM INTERFACE "$<BUILD_INTERFACE:${SYSTEM_INCLUDES_LIST}>"
     )
 
- message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES_LIST}")   
+include_directories(SYSTEM
+    ${SYSTEM_INCLUDES_LIST}
+   )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 

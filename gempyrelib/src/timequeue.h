@@ -89,7 +89,13 @@ public:
     void remove(int id) {
         std::lock_guard<std::mutex> guard(m_mutex);
         auto it = std::find_if(m_priorityQueue.begin(), m_priorityQueue.end(), [&id](const auto& d){return d->id() == id;});
-        assert(it != m_priorityQueue.end());
+        if(it == m_priorityQueue.end()) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Error,
+                              "timer remove - not found",
+                              id, m_priorityQueue.size());
+            assert(false);
+            return;
+        }
         m_priorityQueue.erase(it);
     }
 

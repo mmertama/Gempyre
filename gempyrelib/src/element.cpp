@@ -35,10 +35,10 @@ Element::Element(Ui& ui, const std::string& htmlElement, const Element& parent) 
 
 Element& Element::subscribe(const std::string& name, std::function<void(const Event&)> handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
     m_ui->m_elements[m_id].emplace(name, [handler](const Ui::Event& event) {
-        std::unordered_map<std::string, std::string> properties;
+        std::unordered_map<std::string, std::string> property_map;
         for(const auto& [k, v] : event.properties)
-            properties.emplace(k, std::any_cast<std::string>(v));
-        Gempyre::Event ev{event.element, std::move(properties)};
+            property_map.emplace(k, std::any_cast<std::string>(v));
+        Gempyre::Event ev{event.element, std::move(property_map)};
         handler(ev);
     });
     m_ui->send(*this, "event", std::unordered_map<std::string, std::any>{

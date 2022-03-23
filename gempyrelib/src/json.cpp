@@ -30,9 +30,9 @@ static std::optional<std::string> containertoString(const std::any& any) {
             obj.emplace(k, json::parse(o.value()));
         }
         return obj.dump();
-    } else if(const auto* h = std::any_cast<std::map<std::string, T>>(&any)) {
+    } else if(const auto* h0 = std::any_cast<std::map<std::string, T>>(&any)) {
         auto obj = json::object();
-        for(const auto& [k, a] : *h) {
+        for(const auto& [k, a] : *h0) {
             const auto o = GempyreUtils::toJsonString(a);
             if(!o.has_value()) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "Map", k);

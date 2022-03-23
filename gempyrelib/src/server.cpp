@@ -1,5 +1,6 @@
 #include "server.h"
 #include "gempyre_utils.h"
+#include "broadcaster.h"
 #include <unordered_map>
 #include <unordered_set>
 #include <thread>
@@ -7,8 +8,6 @@
 #include <random>
 #include <numeric>
 #include <nlohmann/json.hpp>
-
-#include "broadcaster.h"
 
 // for convenience
 
@@ -86,9 +85,9 @@ static std::string toLower(const std::string& str) {
 }
 
 
-static int wishAport(int port, int max) {
-    int end = port + max;
-    while(!GempyreUtils::isAvailable(port)) {
+static unsigned wishAport(unsigned port, unsigned max) {
+    auto end = port + max;
+    while(!GempyreUtils::isAvailable(static_cast<unsigned short>(port))) {
         ++port;
         if(port == end) {
             GempyreUtils::log(GempyreUtils::LogLevel::Error, "wish a port", GempyreUtils::lastError());
@@ -136,7 +135,7 @@ private:
 
 
 Server::Server(
-    unsigned short port,
+    unsigned port,
     const std::string& root,
     const OpenFunction& onOpen,
     const MessageFunction& onMessage,
@@ -172,7 +171,7 @@ std::unique_ptr<std::thread> Server::newThread() {
 }
 
 
-void Server::serverThread(unsigned short port) {
+void Server::serverThread(unsigned int port) {
     assert(!m_isRunning);
     assert(!m_uiready);
     if(m_doExit) {
@@ -313,10 +312,10 @@ void Server::serverThread(unsigned short port) {
             if(!query.empty()) {
                 const auto queries = GempyreUtils::split<std::vector<std::string>>(std::string(query), '&');
                 for(const auto& q : queries) {
-                    const auto queries = GempyreUtils::split<std::vector<std::string>>(q, '=');
-                    if(queries.size() == 2) {
-                        if(queries[0] == "file") {
-                            fullPath = GempyreUtils::unhexify(queries[1]);
+                    const auto query_list = GempyreUtils::split<std::vector<std::string>>(q, '=');
+                    if(query_list.size() == 2) {
+                        if(query_list[0] == "file") {
+                            fullPath = GempyreUtils::unhexify(query_list[1]);
                         }
                     }
                 }
@@ -352,7 +351,7 @@ void Server::serverThread(unsigned short port) {
             GempyreUtils::log(GempyreUtils::LogLevel::Error, "404, not found", url);
         }
     })
-    .listen(port, [this, port](auto socket) {
+    .listen(static_cast<int>(port), [this, port](auto socket) {
         char PADDING[2];
         (void) PADDING;
         assert(!m_uiready);
@@ -406,7 +405,7 @@ void Server::closeListenSocket() {
 
 bool Server::retryStart() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Retry", m_port);
-    const int port = wishAport(m_port, PORT_ATTEMPTS);
+    const auto port = wishAport(m_port, PORT_ATTEMPTS);
     if(port <= 0) {
         GempyreUtils::log(GempyreUtils::LogLevel::Error, "Listen ports:", m_port, "failed", GempyreUtils::lastError());
         return false;

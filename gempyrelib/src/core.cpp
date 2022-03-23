@@ -147,7 +147,7 @@ std::tuple<int, int, int> Gempyre::version() {
 
 // figure out and construct gui app and command line
 std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml,
-                                                    int port,
+                                                    unsigned port,
                                                     const std::unordered_map<std::string, std::string>& param_map) {
     const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
     const auto url =  std::string(SERVER_ADDRESS) + ":"
@@ -408,13 +408,13 @@ Ui::Ui(const Filemap& filemap,
             return std::nullopt;
         };
 
-        auto listener = [this, indexHtml, parameters](auto port)->bool { //listening
+        auto listener = [this, indexHtml, parameters](auto listen_port)->bool { //listening
             if(m_status == State::EXIT)
                 return false; //we are on exit, no more listening please
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
             m_status = State::RUNNING;
 
-            const auto& [appui, cmd_params] = guiCmdLine(indexHtml, port, parameters);
+            const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
 
            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "CMD", appui, cmd_params);
 

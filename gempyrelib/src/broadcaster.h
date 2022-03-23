@@ -4,30 +4,11 @@
 #include "gempyre.h"
 #include "gempyre_utils.h"
 
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wall"
-    #pragma clang diagnostic ignored "-Wextra"
-#endif
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wall"
-    #pragma GCC diagnostic ignored "-Wextra"
-    #pragma GCC diagnostic ignored "-Wunused-parameter"
-    #pragma GCC diagnostic ignored "-Wsign-compare"
-    #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-    #pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
 #define UWS_NO_ZLIB
 #include <App.h>
-#ifdef COMPILER_GCC
-    #pragma GCC diagnostic pop
-#endif
-#ifdef COMPILER_CLANG
-    #pragma clang diagnostic pop
-#endif
 
 #include <unordered_map>
+#include <cassert>
 
 namespace Gempyre {
 

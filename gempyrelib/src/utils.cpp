@@ -186,7 +186,7 @@ private:
     void write() {
         std::ptrdiff_t n = pptr() - pbase();
         m_buffer[n] = '\0';
-        if(!m_logWriter->doWrite(m_buffer, n)) {
+        if(!m_logWriter->doWrite(m_buffer, static_cast<size_t>(n))) {
             std::cerr << "Log cannot write " << m_buffer << std::endl;
         }
         pbump(static_cast<int>(-n));
@@ -654,8 +654,10 @@ bool GempyreUtils::rename(const std::string& of, const std::string& nf) {
         if(!ostream.is_open())
             return false;
 
-        const size_t bufsz = 1024 * 1024;
-        char buffer[bufsz];
+        
+        const size_t bufsz = 1024 * 16;
+        auto bufferData = std::make_unique<char[]>(bufsz);
+        auto buffer = bufferData.get();
 
         for (;;) {
             stream.read(buffer, bufsz);
@@ -765,7 +767,7 @@ SSIZE_T GempyreUtils::fileSize(const std::string& filename) {
         log(LogLevel::Error, "Cannot open file", qq(filename));
         return -1;
     }
-    return stream.tellg();
+    return static_cast<SSIZE_T>(stream.tellg());
 }
 
 std::optional<std::string> GempyreUtils::which(const std::string& filename) {
@@ -922,7 +924,7 @@ bool GempyreUtils::isAvailable(int port) {
     struct sockaddr_in serv_addr = {};
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(port);
+    serv_addr.sin_port = htons(static_cast<unsigned short>(port));
     if (bind(sockfd, reinterpret_cast<struct sockaddr *>(&serv_addr), sizeof(serv_addr)) < 0) {
         if( errno == EADDRINUSE )
            return false;
@@ -1067,7 +1069,7 @@ int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) 
     const auto l1 = s1.length();
     const auto l2 = s2.length();
 
-    auto dist = std::vector<std::vector<int>>(l2 + 1, std::vector<int>(l1 + 1));
+    auto dist = std::vector<std::vector<unsigned>>(l2 + 1, std::vector<unsigned>(l1 + 1));
 
     for(auto i = 0U; i <= l1 ; i++) {
        dist[0][i] = i;
@@ -1079,11 +1081,11 @@ int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) 
 
     for (auto j = 1U; j <= l1; j++) {
        for(auto i = 1U; i <= l2 ;i++) {
-          const auto track = (s2[i-1] == s1[j-1]) ? 0 : 1;
+          const auto track = (s2[i-1] == s1[j-1]) ? 0U : 1U;
           const auto t = std::min((dist[i - 1][j] + 1), (dist[i][j - 1] + 1));
           dist[i][j] = std::min(t, (dist[i - 1][j - 1] + track));
        }
     }
-    return dist[l2][l1];
+    return static_cast<int>(dist[l2][l1]);
 }
 
