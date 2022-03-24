@@ -15,6 +15,12 @@
 
 #define TEST_FAIL assert(false)
 
+#ifdef RASPBERRY_OS
+constexpr auto WaitExpireTimeout = 30s;
+#else
+constexpr auto WaitExpireTimeout = 10s;
+#endif
+
 TEST(TestMockUi, openPage_with_page_browser) {
     constexpr auto htmlPage = TEST_HTML;
 #ifdef HAS_FS
@@ -37,7 +43,7 @@ TEST(TestMockUi, openPage_with_page_browser) {
     ui.onError([](const auto& element, const auto& info) {
         std::cerr << element << " err:" << info; TEST_FAIL;
     });
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -62,7 +68,7 @@ TEST(TestMockUi, openPage_with_page) {
         ui.exit();
     });
     ui.onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {ASSERT_TRUE(false);});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -76,7 +82,7 @@ TEST(TestMockUi, openPage_with_browser) {
         ui.exit();
     });
     ui.onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {ASSERT_TRUE(false);});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
     ui.run();
     ASSERT_TRUE(ok);
 
@@ -93,7 +99,7 @@ TEST(TestMockUi, openPage_defaults) {
         ui.exit();
     });
     ui.onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -109,7 +115,7 @@ TEST(TestMockUi, onExit) {
         ASSERT_FALSE(ok);
         ok = true;
     });
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -124,7 +130,7 @@ TEST(TestMockUi, close) {
         ASSERT_FALSE(ok);
         ok = true;
     });
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -137,7 +143,7 @@ TEST(TestMockUi, setLogging) {
         ui.setLogging(false);
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
 }
 
@@ -149,7 +155,7 @@ TEST(TestMockUi, debug) {
         ok = true;
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -163,10 +169,12 @@ TEST(TestMockUi, alert) {
         ok = true;
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
+
+//#ifndef RASPBERRY_OS
 
 TEST(TestMockUi, open) {
     TEST_UI;
@@ -176,10 +184,12 @@ TEST(TestMockUi, open) {
         ok = true;
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(10s, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
+
+//#endif
 
 TEST(TestMockUi, startTimer) {
     TEST_UI;

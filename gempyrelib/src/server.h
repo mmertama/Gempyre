@@ -21,6 +21,7 @@ namespace Gempyre {
 
 class Broadcaster;
 class Batch;
+class SocketHandler;
 
 class Server {
 public:
@@ -65,6 +66,7 @@ private:
     void serverThread(unsigned port);
     bool checkPort();
     std::unique_ptr<std::thread> newThread();
+    void messageHandler(const std::string& message, int opCode);
 private:
     unsigned int m_port;
     std::string m_rootFolder;
@@ -81,10 +83,11 @@ private:
     std::unique_ptr<Batch> m_batch;
     std::unordered_map<std::string, std::pair<DataType, std::string>> m_pulled;
     int m_pulledId = 0;
-    bool m_doExit = false;
+    std::atomic_bool m_doExit = false;
     std::atomic_bool m_isRunning = false;
     Semaphore   m_waitStart; // must be before thread
     std::unique_ptr<std::thread> m_serverThread; // must be last
+    friend class SocketHandler;
 };
 }
 

@@ -363,21 +363,6 @@ set(GEMPYRE_SRC
     py/pyclient.py
     )
 
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-#    # bool type is also used as reference, even the compiler warns, therefore we suppress
-#    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/json.cpp PROPERTIES COMPILE_FLAGS "-Wrange-loop-analysis")
-#    # with syslog stuff
-#   set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp PROPERTIES COMPILE_FLAGS "-Wformat-security")
-#    set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-#  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-#  set_target_properties(libwebsockets PROPERTIES COMPILE_FLAGS "/w")
-#else()
-#    message(FATAL_ERROR "Cannot identify compiler: ${CMAKE_CXX_COMPILER_ID}")
-#endif()
 
 if(ANDROID)
     set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android.cpp)
@@ -435,15 +420,19 @@ else()
 endif()
 
 target_compile_options(${PROJECT_NAME}
-    PRIVATE -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef)
+    PRIVATE -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef
+    )
 
 if (LINUX OR RASPBERRY)
     target_compile_options(${PROJECT_NAME}
         PRIVATE -fstack-usage -Wstack-usage=8192 -Wformat-truncation)
     if(NOT IS_RELEASE AND RASPBERRY)
         message("Add some Raspberry special debug flags")
+        # -fsanitize=address
+        # -fno-eliminate-unused-debug-symbols -gstatement-frontiers -ginline-points 
+        # -ggdb  -fsanitize=address
         target_compile_options(${PROJECT_NAME}
-            PRIVATE -g3 -ggdb -fstack-protector-strong -fno-eliminate-unused-debug-symbols -gstatement-frontiers -ginline-points -fsanitize=address) # -fsanitize=safe-stack
+            PRIVATE -g3 -fstack-protector-strong -fno-omit-frame-pointer) 
     endif()
 endif()
 

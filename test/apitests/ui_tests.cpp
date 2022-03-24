@@ -58,6 +58,7 @@ std::optional<std::string> systemChrome() {
     switch(GempyreUtils::currentOS()) {
     case GempyreUtils::OS::MacOs: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
     case GempyreUtils::OS::WinOs: return R"(start "_" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")";
+    case GempyreUtils::OS::RaspberryOs: [[fallthrough]];
     case GempyreUtils::OS::LinuxOs: {
         auto browser = GempyreUtils::which(R"(chromium-browser)");
         if(browser)

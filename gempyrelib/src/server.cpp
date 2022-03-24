@@ -134,6 +134,94 @@ private:
 };
 
 
+class Gempyre::SocketHandler {
+    public:
+    explicit SocketHandler(Server& server) : m_s(server){}
+    void openHandler(Gempyre::WSSocket* ws) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS open");
+        m_s.m_broadcaster->append(ws);
+        m_s.m_onOpen(m_s.m_broadcaster->size());
+    }
+    void messageHandler(Gempyre::WSSocket* ws, std::string_view message, int opCode) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS message", message, opCode);
+        const auto jsObj = json::parse(message);
+        const auto f = jsObj.find("type");
+        if(f != jsObj.end()) {
+            if(*f == "keepalive") {
+                if(m_s.m_doExit) {
+                    ws->close();
+                }
+                return;
+            }
+            if(*f == "uiready") {
+                m_s.m_uiready = true;
+                m_s.m_broadcaster->setType(ws, Broadcaster::Type::Ui);
+            }
+            if(*f == "extensionready") {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "extensionready");
+                m_s.m_broadcaster->setType(ws, Broadcaster::Type::Extension);
+
+            }
+            if(*f == "extension") {
+                const auto log = jsObj.find("level");
+                const auto msg = jsObj.find("msg");
+                if(*log == "log")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Info, "Ext", *msg);
+                else if(*log == "info")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", *msg);
+                else if(*log == "warn")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Ext", *msg);
+                else if(*log == "error" || log->empty())
+                    GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ext", *msg);
+                return;
+            }
+            if(*f == "log") {
+                const auto log = jsObj.find("level");
+                const auto msg = jsObj.find("msg");
+                if(*log == "log")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Info, "JS", *msg);
+                else if(*log == "info")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS", *msg);
+                else if(*log == "warn")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "JS", *msg);
+                else if(*log == "" || *log == "error") {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS", *msg);
+                    const auto trace = jsObj.find("trace");
+                    if(trace != jsObj.end()) {
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS-TRACE", *trace);
+                    }
+                }
+                return;
+            }
+        }
+        const auto js = convert(jsObj);
+        auto object = std::any_cast<Server::Object>(js);
+        m_s.m_onMessage(std::move(object));
+
+    }
+    void closeHandler(WSSocket* ws, int code, std::string_view message) {
+        if(code != 1001 && code != 1006) {  //browser window closed
+            if(code == 1000 || (code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Error, "WS", "closed on error", code, message);
+            }   else if(code != 0) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "Non closing error", code, message);
+                return;
+            }
+        }
+        //exit request
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "close", code, message);
+        m_s.m_broadcaster->remove(ws);
+        m_s.m_onClose(Server::Close::CLOSE, code);
+        const auto close_ok = ws->close();
+        m_s.doClose();
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Socket is closed", close_ok);
+    }
+    private:
+    Server& m_s;
+};
+
+
+
 Server::Server(
     unsigned port,
     const std::string& root,
@@ -170,114 +258,39 @@ std::unique_ptr<std::thread> Server::newThread() {
     return thread;
 }
 
-
 void Server::serverThread(unsigned int port) {
     assert(!m_isRunning);
     assert(!m_uiready);
+
     if(m_doExit) {
         m_waitStart.signal();  // on exit
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "early exit request!");
         return;
     }
+
     m_isRunning = true;
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "makeServe - execute, using port:", port);
     m_waitStart.signal(); // on success
-    auto openHandler =
-            [this](auto ws) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS open");
-                m_broadcaster->append(ws);
-                m_onOpen(m_broadcaster->size());
-            };
-    auto messageHandler =
-            [this](auto ws, auto message, auto opCode) {
-                (void) ws;
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS message", message, opCode);
-                const auto jsObj = json::parse(message);
-                const auto f = jsObj.find("type");
-                if(f != jsObj.end()) {
-                    if(*f == "keepalive") {
-                        if(m_doExit) {
-                            ws->close();
-                        }
-                        return;
-                    }
-                    if(*f == "uiready") {
-                        m_uiready = true;
-                        m_broadcaster->setType(ws, Broadcaster::Type::Ui);
-                    }
-                    if(*f == "extensionready") {
-                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "extensionready");
-                        m_broadcaster->setType(ws, Broadcaster::Type::Extension);
-
-                    }
-                    if(*f == "extension") {
-                        const auto log = jsObj.find("level");
-                        const auto msg = jsObj.find("msg");
-                        if(*log == "log")
-                            GempyreUtils::log(GempyreUtils::LogLevel::Info, "Ext", *msg);
-                        else if(*log == "info")
-                            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", *msg);
-                        else if(*log == "warn")
-                            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Ext", *msg);
-                        else if(*log == "error" || log->empty())
-                            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ext", *msg);
-                        return;
-                    }
-                    if(*f == "log") {
-                        const auto log = jsObj.find("level");
-                        const auto msg = jsObj.find("msg");
-                        if(*log == "log")
-                            GempyreUtils::log(GempyreUtils::LogLevel::Info, "JS", *msg);
-                        else if(*log == "info")
-                            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS", *msg);
-                        else if(*log == "warn")
-                            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "JS", *msg);
-                        else if(*log == "" || *log == "error") {
-                            GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS", *msg);
-                            const auto trace = jsObj.find("trace");
-                            if(trace != jsObj.end()) {
-                                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS-TRACE", *trace);
-                            }
-                        }
-                        return;
-                    }
-                }
-                const auto js = convert(jsObj);
-                auto object = std::any_cast<Object>(js);
-                m_onMessage(std::move(object));
-
-            };
-    auto closeHandler = [this](auto ws, auto code, auto message) {
-        if(code != 1001 && code != 1006) {  //browser window closed
-            if(code == 1000 || (code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "WS", "closed on error", code, message);
-            }   else if(code != 0) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "Non closing error", code, message);
-                return;
-            }
-        }
-        //exit request
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "close", code, message);
-        m_broadcaster->remove(ws);
-        m_onClose(Close::CLOSE, code);
-        const auto close_ok = ws->close();
-        doClose();
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Socket is closed", close_ok);
-    };
 
     WSBehaviour behavior;
-    behavior.open = openHandler;
-    behavior.message = messageHandler;
-    behavior.close = closeHandler;
+    behavior.open =  [this](WSSocket* ws) {
+        Gempyre::SocketHandler(*this).openHandler(ws);
+    };;
+    behavior.message =  [this](auto ws, auto message, auto opCode) {
+        Gempyre::SocketHandler(*this).messageHandler(ws, message, opCode);
+    };;
+    behavior.close = [this](auto ws, auto code, auto message) {
+        Gempyre::SocketHandler(*this).closeHandler(ws, code, message);
+    };
     //  bh.maxPayloadLength = 1024 * 1024;
     behavior.drain = [this](auto ws) {
         GempyreUtils::log(GempyreUtils::LogLevel::Warning, "drain", ws->getBufferedAmount());
         m_broadcaster->unlock(); //release backpressure wait
     };
 
-
     assert(!m_uiready);
-    assert(!m_doExit);
+    //m_doExit can false here or very soon, but we cannot avoid starting to server
+    //just hope that closing sockets will desctruct just created app about right away
 
     auto app = WSServer()
     .ws<ExtraSocketData>("/" + toLower(SERVICE_NAME), std::move(behavior))
@@ -373,7 +386,8 @@ void Server::serverThread(unsigned int port) {
             GempyreUtils::log(GempyreUtils::LogLevel::Warning, "try listen on port:", port, "failed", GempyreUtils::lastError());
             m_onClose(Close::FAIL, -1);
         }
-    }).run();
+    });
+    app.run(); // start app
     m_isRunning = false;
     m_doExit = false;
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server is about go close");
@@ -421,7 +435,7 @@ bool Server::retryStart() {
 
     m_serverThread.reset();
 
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "retry end", m_doExit);
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "retry end", m_doExit.load());
     if(!m_doExit) {
         m_serverThread = newThread();
         return true;
