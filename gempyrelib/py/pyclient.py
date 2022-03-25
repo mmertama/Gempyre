@@ -148,44 +148,7 @@ def main():
     height = 768
     title = ''
     extra = {}
-    '''
-    uri = None
-    if len(sys.argv) < 2:
-        sys.exit('Usage: URL <width> <height> <title>')
 
-    extra = {}
-    uri = None
-
-    try:
-        if len(sys.argv) > 2 and sys.argv[2].isdigit():
-            width = int(sys.argv[2])
-        else:
-            raise ValueError
-
-        if len(sys.argv) > 3 and sys.argv[3].isdigit():
-            height = int(sys.argv[3])
-        else:
-            raise ValueError
-
-        if len(sys.argv) > 4:
-            title = sys.argv[4]
-
-        if sys.platform == 'win32':
-            extra['gui'] = 'cef'
-
-        if len(sys.argv) > 5:
-            print(sys.argv)
-            for e in sys.argv[5].split(';'):
-                m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
-                extra[m[1]] = m[2]
-
-        uri_string = sys.argv[1]
-        uri = urlparse(uri_string)
-
-    except ValueError as err:
-        pass
-    ##
-    '''
     NORESIZE = 0x1
     FULLSCREEN = 0x2
     HIDDEN = 0x4
@@ -199,6 +162,8 @@ def main():
 
     flags = 0
 
+    print(sys.argv)
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--gempyre-url', type=str)
     parser.add_argument('--gempyre-width', type=int)
@@ -206,7 +171,8 @@ def main():
     parser.add_argument('--gempyre-title', type=str)
     parser.add_argument('--gempyre-extra', type=str)
     parser.add_argument('--gempyre-flags', type=int)
-    parser.add_argument('url', type=str)
+   # parser.add_argument('url', type=str)
+    parser.add_argument('-c', action='store_true') # clean off
 
     try:
         args = parser.parse_args()

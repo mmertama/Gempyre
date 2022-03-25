@@ -42,7 +42,13 @@ def main():
 
             sname = re.sub('[^0-9a-zA-Z_]', '', os.path.basename(inName)).capitalize()
 
-            item_list[os.path.basename(inName)] = sname
+            c_name = os.path.basename(inName)
+
+            if c_name in item_list:
+                print(f"Fatal error: duplicate name '{inName}'")
+                exit(-1)
+
+            item_list[c_name] = sname
 
             chunksize = 1024
             data = [encoded[i - chunksize: i] for i in range(chunksize, len(encoded) + chunksize, chunksize)]

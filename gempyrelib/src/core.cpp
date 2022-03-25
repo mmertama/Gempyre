@@ -55,23 +55,31 @@ void Gempyre::setJNIENV(void*, void*) {
 
 template <class T>
 static std::optional<T> getConf(const Gempyre::Ui& ui, const std::string& key) {
-    const auto js_data = ui.resource("/gempyre.conf");
-    if(js_data) {
-        const auto js_string = std::string(reinterpret_cast<const char*>(js_data->data()),
-                                           js_data->size());
-        const auto js = GempyreUtils::jsonToAny(js_string);
-        if(js) {
-            const auto map = std::any_cast<std::unordered_map<std::string, std::any>>(&js.value());
-            if(map && map->find(key) != map->end()) {
-                const auto any_value = map->at(key);
-                const auto value = std::any_cast<T>(&any_value);
-                if(value) {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, *value);
-                    return std::make_optional<T>(*value);
-                }
-            }
+    (void) ui;
+    constexpr auto gempyre_conf = "/gempyre.conf"; // let's not use definion in gempyrejsh as that may not be there
+    const auto conf = Gempyrejsh.find(gempyre_conf);
+    if(conf == Gempyrejsh.end())
+        return std::nullopt;
+    const auto js_data = Base64::decode(conf->second);
+    gempyre_utils_assert_x(!js_data.empty(), "Broken resource " + conf->first);
+  
+    const auto js_string = std::string(reinterpret_cast<const char*>(js_data.data()),
+                                       js_data.size());
+                                       
+    const auto js = GempyreUtils::jsonToAny(js_string);
+    
+    gempyre_utils_assert_x(js, "Broken json " + js_string);
+       
+    const auto map = std::any_cast<std::unordered_map<std::string, std::any>>(&js.value());
+    if(map && map->find(key) != map->end()) {
+        const auto any_value = map->at(key);
+        const auto value = std::any_cast<T>(&any_value);
+        if(value) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, *value);
+            return std::make_optional<T>(*value);
         }
     }
+    
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, "No found");
     return std::nullopt;
 }
@@ -167,16 +175,20 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
         // then we try python
         const auto py3 = python3();
         if(py3) {
-            const auto py_code = Base64::decode("/pyclient.py");
-            std::string py = GempyreUtils::join(py_code);
-            return {*py3, std::string("-c \"") + py + "\" "
-                        + url + " "
-                        + GempyreUtils::join<std::vector<std::string>>({
-                                 join(param_map, WIDTH_KEY, "--gempyre-width="),
-                                 join(param_map, HEIGHT_KEY,"--gempyre-height="),
-                                 join(param_map, TITLE_KEY,"--gempyre-title="),
-                                 join(param_map, FLAGS_KEY,"--gempyre-flags="),
-                                 join(param_map, BROWSER_PARAMS_KEY,"--gempyre-extra=")}, " ") };
+            constexpr auto py_file = "/pyclient.py"; // let's not use definion in gempyrejsh as that may not be there
+            const auto py_data = Gempyrejsh.find(py_file);
+            if(py_data != Gempyrejsh.end()) {
+                const auto py_code = Base64::decode(py_data->second);
+                std::string py = GempyreUtils::join(py_code);
+                return {*py3, std::string("-c \"") + py + "\" "
+                            + GempyreUtils::join<std::vector<std::string>>({
+                                     "--gempyre-url=" + url,
+                                     join(param_map, WIDTH_KEY, "--gempyre-width="),
+                                     join(param_map, HEIGHT_KEY,"--gempyre-height="),
+                                     join(param_map, TITLE_KEY,"--gempyre-title="),
+                                     join(param_map, FLAGS_KEY,"--gempyre-flags="),
+                                     join(param_map, BROWSER_PARAMS_KEY,"--gempyre-extra=")}, " ") };
+            }
         }
     }
 
@@ -259,7 +271,7 @@ Ui::Ui(const Filemap& filemap,
             {
     // add only if valid
     {!title.empty() ? TITLE_KEY : "", title},
-    {FLAGS_KEY, std::to_string(flags)},
+    {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},
     {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
     {height > 0 ? HEIGHT_KEY : "", std::to_string(height)},
     {GempyreUtils::logLevel() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "", "debug=True" }}){}
@@ -403,8 +415,6 @@ Ui::Ui(const Filemap& filemap,
 
             const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
 
-           GempyreUtils::log(GempyreUtils::LogLevel::Debug, "CMD", appui, cmd_params);
-
 #if defined (ANDROID_OS)
             const auto result = androidLoadUi(appui + " " + cmd_params);
 #else
@@ -416,12 +426,12 @@ Ui::Ui(const Filemap& filemap,
                     GempyreUtils::execute("", appui + " " +  cmd_params);
 
 #endif
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
+              
             if(result != 0) {
                 //TODO: Change to Fatal
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot open:", appui, cmd_params, "error:", result, GempyreUtils::lastError());
-            } else {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening:", appui, cmd_params);
-            }
+                GempyreUtils::log(GempyreUtils::LogLevel::Error, "gui cmd Error:", result, GempyreUtils::lastError());
+            } 
             return true;
         };
 
