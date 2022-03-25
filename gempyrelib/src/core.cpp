@@ -66,11 +66,13 @@ static std::optional<T> getConf(const Gempyre::Ui& ui, const std::string& key) {
                 const auto any_value = map->at(key);
                 const auto value = std::any_cast<T>(&any_value);
                 if(value) {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, *value);
                     return std::make_optional<T>(*value);
                 }
             }
         }
     }
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, "No found");
     return std::nullopt;
 }
 
@@ -165,7 +167,7 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
         // then we try python
         const auto py3 = python3();
         if(py3) {
-            const auto py_code = Base64::decode(Pyclientpy);
+            const auto py_code = Base64::decode("/pyclient.py");
             std::string py = GempyreUtils::join(py_code);
             return {*py3, std::string("-c \"") + py + "\" "
                         + url + " "
@@ -244,22 +246,6 @@ std::string Ui::toStr(const std::atomic<Gempyre::Ui::State>& s) {
     return m.at(s.load());
 }
 
-/*
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root)
-    : Ui(filemap, indexHtml, "", "", port, root) {}
-
-Ui::Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser, extraParams, port, root) {}
-
-Ui::Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(toFileMap(indexHtml), '/' + GempyreUtils::baseName(indexHtml), browser,
-       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams), port, root) {}
-
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams, unsigned short port, const std::string& root) :
-    Ui(filemap, indexHtml, browser,
-       stdParams(width, height, title) + (extraParams.empty() ? "" :  + " " + extraParams),
-       port, root) {}
-*/
 
 /// Create UI using default ui app or gempyre.conf
 Ui::Ui(const Filemap& filemap,
@@ -289,6 +275,7 @@ Ui::Ui(const Filemap& filemap,
     {!browser.empty() ? BROWSER_KEY : "", browser},
     {!browser_params.empty() ? BROWSER_PARAMS_KEY : "", browser_params}}){}
 
+
 Ui::Ui(const Filemap& filemap,
        const std::string& indexHtml,
        unsigned short port,
@@ -308,7 +295,7 @@ Ui::Ui(const Filemap& filemap,
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Request reload, Status change --> Reload");
                 m_status = State::RELOAD;
             }
-            //   setLogging(Utils::logLevel() == Utils::LogLevel::Debug);
+            
             if(m_sema) {
                 m_sema->signal();    // there may be some pending requests
             }

@@ -464,8 +464,18 @@ else()
     set(JSMIN "")
 endif()
 
+if(RASPBERRY)
+    # RASPEBERRY is using chrome conf as a default instead of
+    # pyclient.py
+    set(UI_APP "conf/gempyre.conf")
+else()
+    set(UI_APP "py/pyclient.py")     
+endif()
 
-gempyre_add_resources(PROJECT ${PROJECT_NAME} ${JSMIN} TARGET src/generated/gempyre.js.h SOURCES js/gempyre.js py/pyclient.py)
+gempyre_add_resources(
+    PROJECT ${PROJECT_NAME} ${JSMIN} 
+    TARGET src/generated/gempyre.js.h 
+    SOURCES js/gempyre.js py/pyclient.py ${UI_APP})
 
 add_custom_target(target ${PROJECT_NAME} PRE_BUILD
     COMMAND ${PYTHON3} -m py_compile py/pyclient.py
