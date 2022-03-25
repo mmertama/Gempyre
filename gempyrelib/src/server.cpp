@@ -289,8 +289,6 @@ void Server::serverThread(unsigned int port) {
     };
 
     assert(!m_uiready);
-    //m_doExit can false here or very soon, but we cannot avoid starting to server
-    //just hope that closing sockets will desctruct just created app about right away
 
     auto app = WSServer()
     .ws<ExtraSocketData>("/" + toLower(SERVICE_NAME), std::move(behavior))
@@ -387,7 +385,13 @@ void Server::serverThread(unsigned int port) {
             m_onClose(Close::FAIL, -1);
         }
     });
-    app.run(); // start app
+
+    //m_doExit can false here or very soon, but we cannot avoid starting to server
+    //just hope that closing sockets will desctruct just created app about right away
+    // protect with mutex if not ok
+    if(!m_doExit) {
+        app.run(); // start app
+    }
     m_isRunning = false;
     m_doExit = false;
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server is about go close");
