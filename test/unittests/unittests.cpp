@@ -140,10 +140,18 @@ TEST(Unittests, test_timermgr) {
 
     std::this_thread::sleep_for(5s);
 
+#ifdef WINDOWS_OS              
+    EXPECT_GT(counts[id0], 300);  // windows is more relaxed, maybe all should have the same, let's thinkabout it
+#else
     EXPECT_GT(counts[id0], 400);
+#endif    
     EXPECT_LT(counts[id0], 500);
 
+#ifdef WINDOWS_OS
+    EXPECT_GT(counts[id1], 100); // windows is more relaxed
+ #else
     EXPECT_GT(counts[id1], 200);
+ #endif   
     EXPECT_LT(counts[id1], 250);
 
     EXPECT_GT(counts[id2], 40);

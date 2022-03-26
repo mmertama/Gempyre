@@ -36,5 +36,6 @@ function (gempyre_add_resources)
     
     add_custom_target(${ADD_RESOURCE_PROJECT}_resource DEPENDS ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES})
     add_dependencies(${ADD_RESOURCE_PROJECT} ${ADD_RESOURCE_PROJECT}_resource)
+
     
 endfunction()

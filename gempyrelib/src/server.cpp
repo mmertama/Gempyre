@@ -384,14 +384,14 @@ void Server::serverThread(unsigned int port) {
             GempyreUtils::log(GempyreUtils::LogLevel::Warning, "try listen on port:", port, "failed", GempyreUtils::lastError());
             m_onClose(Close::FAIL, -1);
         }
-    });
+    }).run();
 
     //m_doExit can false here or very soon, but we cannot avoid starting to server
     //just hope that closing sockets will desctruct just created app about right away
     // protect with mutex if not ok
-    if(!m_doExit) {
-        app.run(); // start app
-    }
+    //if(!m_doExit) {
+    //    app.run(); // start app
+    //}
     m_isRunning = false;
     m_doExit = false;
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server is about go close");

@@ -60,7 +60,7 @@ if(BLEEDING_EDGE)
     set(LIB_ZLIB_VER master)
     set(LIB_PFD_VER master)
 else()
-    set(LIB_UV_VER  v1.41.0)
+    set(LIB_UV_VER  v1.44.0)
     set(LIB_JSON_VER v3.9.0)
     set(LIB_SOCKETS_VER v0.7.1)
     set(LIB_WS_VER 0b97cc7)
@@ -372,10 +372,14 @@ endif()
 if(COMPILE_UV_IN)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
-     # suppress all warnings in globbed sources
-    set_property(SOURCE ${SOCKETS_SRC} PROPERTY COMPILE_OPTIONS -w)
-     # suppress all warnings in globbed sources
-    set_property(SOURCE ${SOCKETS_HRD} PROPERTY COMPILE_OPTIONS -w)
+    if(MSVC)
+        set_property(SOURCE ${SOCKETS_HRD} PROPERTY COMPILE_OPTIONS "/W0")
+        set_property(SOURCE ${SOCKETS_SRC} PROPERTY COMPILE_OPTIONS "/W0")
+    else()
+        # suppress all warnings in globbed sources
+        set_property(SOURCE ${SOCKETS_SRC} PROPERTY COMPILE_OPTIONS -w)
+        set_property(SOURCE ${SOCKETS_HRD} PROPERTY COMPILE_OPTIONS -w)
+    endif()
 endif()
 
 if(DEFINED GEMPYRE_SHARED)
@@ -419,9 +423,16 @@ else()
     )
 endif()
 
-target_compile_options(${PROJECT_NAME}
-    PRIVATE -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef
-    )
+if(NOT MSVC)
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE -Wall -Wextra -Wshadow -Wdouble-promotion -Wformat=2 -Wundef
+        )
+    
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE -fno-common -Wconversion
+        )   
+endif()
+
 
 if (LINUX OR RASPBERRY)
     target_compile_options(${PROJECT_NAME}
@@ -435,11 +446,6 @@ if (LINUX OR RASPBERRY)
             PRIVATE -g3 -fstack-protector-strong -fno-omit-frame-pointer) 
     endif()
 endif()
-
-target_compile_options(${PROJECT_NAME}
-    PRIVATE -fno-common -Wconversion)
-#set_source_files_properties(foo.cpp PROPERTIES COMPILE_OPTIONS "-Wno-unused-parameter;-Wno-missing-field-initializer")
-
 
 string(REPLACE " " ";" SYSTEM_INCLUDES_LIST ${SYSTEM_INCLUDES})
 

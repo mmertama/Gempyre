@@ -437,13 +437,11 @@ std::optional<std::string> GempyreUtils::readProcess(const std::string& processN
 
     if(!fd)
         return std::nullopt;
-      gempyre_utils_auto_close(fd,
- #ifndef WINDOWS_OS
-    ::pclose
+#ifndef WINDOWS_OS
+    gempyre_utils_auto_close(fd,::pclose);
 #else
-    ::_pclose
+   gempyre_utils_auto_close(fd,::_pclose);
 #endif
-    );
     std::string out;
     char buffer[256];
     while (fgets(buffer, sizeof(buffer), fd) != nullptr) {
