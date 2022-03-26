@@ -23,16 +23,17 @@ class Broadcaster;
 class Batch;
 class SocketHandler;
 
+enum class CloseStatus {EXIT, FAIL, CLOSE};
+
 class Server {
 public:
     static constexpr int PAGEXIT = 1001;
-    enum class Close {EXIT, FAIL, CLOSE};
     using Data = std::any;
     using Array = std::vector<Data>;
     using Object = std::unordered_map<std::string, Data>;
     using MessageFunction = std::function<void (const Object&)>;
-    using CloseFunction =  std::function<void (Close, int)>;
-    using OpenFunction =  std::function<void (int)>;
+    using CloseFunction =  std::function<void (CloseStatus, int)>;
+    using OpenFunction =  std::function<void ()>;
     using GetFunction =  std::function<std::optional<std::string> (const std::string_view& filename)>;
     using ListenFunction =  std::function<bool (unsigned)>;
     Server(unsigned int port,

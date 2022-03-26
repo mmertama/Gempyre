@@ -140,7 +140,7 @@ class Gempyre::SocketHandler {
     void openHandler(Gempyre::WSSocket* ws) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS open");
         m_s.m_broadcaster->append(ws);
-        m_s.m_onOpen(m_s.m_broadcaster->size());
+        m_s.m_onOpen();
     }
     void messageHandler(Gempyre::WSSocket* ws, std::string_view message, int opCode) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS message", message, opCode);
@@ -211,7 +211,7 @@ class Gempyre::SocketHandler {
         //exit request
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "close", code, message);
         m_s.m_broadcaster->remove(ws);
-        m_s.m_onClose(Server::Close::CLOSE, code);
+        m_s.m_onClose(CloseStatus::CLOSE, code);
         const auto close_ok = ws->close();
         m_s.doClose();
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Socket is closed", close_ok);
@@ -382,7 +382,7 @@ void Server::serverThread(unsigned int port) {
             }
         } else {
             GempyreUtils::log(GempyreUtils::LogLevel::Warning, "try listen on port:", port, "failed", GempyreUtils::lastError());
-            m_onClose(Close::FAIL, -1);
+            m_onClose(CloseStatus::FAIL, -1);
         }
     }).run();
 

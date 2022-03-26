@@ -42,6 +42,7 @@ namespace Gempyre {
     class Server;
     class Semaphore;
     class TimerMgr;
+    enum class CloseStatus;
     template <class T> class EventQueue;
     template <class T> class IdList;
     template <class K, class T> class EventMap;
@@ -266,6 +267,11 @@ namespace Gempyre {
         inline void addRequest(std::function<bool()>&&);
         std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, unsigned port, const std::unordered_map<std::string, std::string>& browser_params);
         std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
+        void openHandler();
+        void messageHandler(const std::string& indexHtml,  const std::unordered_map<std::string, std::string>& parameters, const std::unordered_map<std::string, std::any>& params);
+        void closeHandler(CloseStatus closeStatus, int code);
+        std::optional<std::string> getHandler(const std::string_view & name);
+        bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters , int listen_port);
     private:
         struct InternalEvent {
             std::string element;

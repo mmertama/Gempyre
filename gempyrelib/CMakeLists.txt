@@ -475,7 +475,7 @@ if(RASPBERRY OR WIN32)
     # pyclient.py
     # WINDOWS is using edge conf as a default instead of
     # pyclient.py - unfortunately there is no tabless mode?
-    set(UI_APP "conf/gempyre.conf")
+    set(UI_APP "conf/gempyre_default.conf")
 else()
     set(UI_APP "py/pyclient.py")     
 endif()
