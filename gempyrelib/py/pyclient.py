@@ -162,8 +162,6 @@ def main():
 
     flags = 0
 
-    print(sys.argv)
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--gempyre-url', type=str)
     parser.add_argument('--gempyre-width', type=int)

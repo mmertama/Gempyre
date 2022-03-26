@@ -470,9 +470,11 @@ else()
     set(JSMIN "")
 endif()
 
-if(RASPBERRY)
+if(RASPBERRY OR WIN32)
     # RASPEBERRY is using chrome conf as a default instead of
     # pyclient.py
+    # WINDOWS is using edge conf as a default instead of
+    # pyclient.py - unfortunately there is no tabless mode?
     set(UI_APP "conf/gempyre.conf")
 else()
     set(UI_APP "py/pyclient.py")     

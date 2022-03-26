@@ -287,10 +287,6 @@ enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};
 
 UTILS_EX OS currentOS();
 
-#ifdef UNIX_OS //fix if needed
-UTILS_EX bool setPriority(int priority);
-UTILS_EX std::pair<int, int> getPriorityLevels();
-#endif
 
 UTILS_EX std::string htmlFileLaunchCmd();
 

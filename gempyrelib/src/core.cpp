@@ -109,10 +109,10 @@ static std::optional<std::string> python3() {
     const auto pv = GempyreUtils::split<std::vector<std::string>>(*out, ' '); //// Python 2.7.16
     if(pv.size() < 2)
         return std::nullopt;
-    const auto ver = GempyreUtils::split<std::vector<std::string>>(pv[1], ' ');
+    const auto ver = GempyreUtils::split<std::vector<std::string>>(pv[1], '.');
     if(pv.size() < 1)
         return std::nullopt;
-    const auto major = GempyreUtils::convert<int>(pv[0]);
+    const auto major = GempyreUtils::convert<int>(ver[0]);
     if(major < 3)
         return std::nullopt;
     return py;
@@ -148,6 +148,8 @@ static inline std::string join(const std::unordered_map<std::string, std::string
     return it == map.end() ? std::string() : prefix + it->second;
 }
 
+
+
 std::tuple<int, int, int> Gempyre::version() {
     static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
     const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
@@ -179,8 +181,9 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
             const auto py_data = Gempyrejsh.find(py_file);
             if(py_data != Gempyrejsh.end()) {
                 const auto py_code = Base64::decode(py_data->second);
-                std::string py = GempyreUtils::join(py_code);
-                return {*py3, std::string("-c \"") + py + "\" "
+                const std::string py = GempyreUtils::join(py_code);
+                const auto call_param = std::string("-c \"") + py + "\" ";
+                return {*py3, call_param
                             + GempyreUtils::join<std::vector<std::string>>({
                                      "--gempyre-url=" + url,
                                      join(param_map, WIDTH_KEY, "--gempyre-width="),
@@ -415,6 +418,9 @@ Ui::Ui(const Filemap& filemap,
 
             const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
 
+             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
+
+
 #if defined (ANDROID_OS)
             const auto result = androidLoadUi(appui + " " + cmd_params);
 #else
@@ -426,8 +432,7 @@ Ui::Ui(const Filemap& filemap,
                     GempyreUtils::execute("", appui + " " +  cmd_params);
 
 #endif
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
-              
+
             if(result != 0) {
                 //TODO: Change to Fatal
                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "gui cmd Error:", result, GempyreUtils::lastError());

@@ -779,8 +779,15 @@ std::optional<std::string> GempyreUtils::which(const std::string& filename) {
     ':');
 #endif
     for(const auto& d : path) {
-        for(const auto& name  : directory(d)) {
-            const auto longName = d + "/" + name;
+        if(d.empty())
+            continue;
+        const auto dir = d.back() == '\\' || d.back() == '/' ? d.substr(0, d.size() - 1) : d;
+        for(const auto& name  : directory(dir)) {
+#ifdef WINDOWS_OS
+             const auto longName = dir + '\\' + name;
+#else
+            const auto longName = dir + '/' + name;
+#endif
             if(!isExecutable(longName))
                 continue;
             const auto e = name.find_last_of('.');
@@ -789,9 +796,9 @@ std::optional<std::string> GempyreUtils::which(const std::string& filename) {
                 continue;
             const auto n = toLow(name);
             const auto ext = n.substr(e + 1);
-            if(ext != "exe" || ext != "bat" || ext != "cmd")
+            if(ext != "exe" && ext != "bat" && ext != "cmd")
                 continue;
-            const auto basename = n.substr(0, e - 1);
+            const auto basename = n.substr(0, e);
             std::string lname = toLow(filename);
             if(lname == basename || lname == n)
                 return longName;
@@ -886,6 +893,7 @@ std::string GempyreUtils::lastError() {
 #endif
 }
 
+/*
 #ifdef UNIX_OS //fix if needed
 bool GempyreUtils::setPriority(int priority) {
       sched_param sch;
@@ -912,7 +920,7 @@ std::pair<int, int> GempyreUtils::getPriorityLevels() {
     return {sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO)};
 }
 #endif
-
+*/
 
 bool GempyreUtils::isAvailable(int port) {
     const int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -1042,7 +1050,26 @@ int GempyreUtils::execute(const std::string& executable, const std::string& para
     if(executable.empty())
         return system(parameters.c_str()); // for compatibility with osbrowser
     else {
-        const auto hi = (INT_PTR) ::ShellExecuteA(NULL, NULL, executable.c_str(), parameters.c_str(), NULL, SW_SHOWNORMAL);
+        /*
+        STARTUPINFO si = {};
+        si.cb = sizeof (STARTUPINFO);
+        PROCESS_INFORMATION pi = {};
+        auto cmd = executable + " " + parameters;
+        auto plist = const_cast<char*>(parameters.c_str());
+        const auto ok = CreateProcess(executable.c_str(),   // No module name (use command line)
+                plist,        // Command line
+                NULL,           // Process handle not inheritable
+                NULL,           // Thread handle not inheritable
+                FALSE,          // Set handle inheritance to FALSE
+                CREATE_NEW_PROCESS_GROUP,              //new process
+                NULL,           // Use parent's environment block
+                NULL,           // Use parent's starting directory
+                &si,            // Pointer to STARTUPINFO structure
+                &pi);           // Pointer
+        CloseHandle( pi.hProcess );
+        CloseHandle( pi.hThread );
+        return ok ? 0 : 1;*/
+        const auto hi = reinterpret_cast<INT_PTR>(::ShellExecuteA(NULL, NULL, executable.c_str(), parameters.c_str(), NULL, SW_SHOWNORMAL));
         return (hi > 32 || hi < 0) ? 0 : hi ; //If the function succeeds, it returns a value greater than 32. If the function fails, it returns an error value that indicates the cause of the failure.
     }
 #else
