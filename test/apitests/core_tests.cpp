@@ -5,6 +5,7 @@
 #include <tuple>
 #include <functional>
 #include <set>
+#include <thread>
 #ifdef HAS_FS
 #include <filesystem>
 #endif

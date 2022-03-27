@@ -451,13 +451,17 @@ std::optional<std::string> GempyreUtils::readProcess(const std::string& processN
 }
 
 
-#ifdef WINDOWS_OS
-#define USE_TEMPNAM
-#endif
 
 std::string GempyreUtils::tempName() {
-#ifndef USE_TEMPNAM
-//in MT this may NOT be any more safe than the std::tmpnam
+#ifdef WINDOWS_OS
+    TCHAR path_buf[MAX_PATH];
+    const auto len = GetTempPathA(MAX_PATH, path_buf);
+    path_buf[len] = '\0';
+    TCHAR name_buf[MAX_PATH];
+    const auto err = GetTempFileNameA(path_buf, TEXT("ecu"), 0, name_buf);
+    assert(err); (void) err;
+    const std::string name{name_buf};  
+#else
 #ifdef MAC_OS
     const auto tmp = std::getenv("TMPDIR");
     assert(tmp); // should alway be there;
@@ -473,8 +477,6 @@ std::string GempyreUtils::tempName() {
 #endif
     const auto fd = ::mkstemp(name);
     ::close(fd);
-#else
-    const auto name = std::tmpnam(nullptr); //tmpnam is not encouraged to use, but some systems mkstemp may not be supported
 #endif
     return name;
 }
@@ -683,7 +685,7 @@ std::string GempyreUtils::workingDir() {
 #else
 std::string GempyreUtils::workingDir() {
     std::vector<char> buffer(GetCurrentDirectory(0, nullptr));
-    GetCurrentDirectory(buffer.size(), buffer.data());
+    GetCurrentDirectory(static_cast<DWORD>(buffer.size()), buffer.data());
     return std::string(buffer.data(), ::strlen(buffer.data()));
 }
 #endif
@@ -721,10 +723,10 @@ std::string GempyreUtils::hexify(const std::string& src, const std::string pat) 
        if(l > 0)
            out += src.substr(pos, p - pos);
        gempyre_utils_assert_x(i->str().length() == 1, "Bad pattern, should only match a single char");
-       const auto byte = i->str()[0];
+       const auto f_byte = i->str()[0];
        out += '%';
-       out += hex_chars[ ( byte & 0xF0 ) >> 4 ];
-       out += hex_chars[ ( byte & 0x0F ) >> 0 ];
+       out += hex_chars[ ( f_byte & 0xF0 ) >> 4 ];
+       out += hex_chars[ ( f_byte & 0x0F ) >> 0 ];
        pos = p + 1;
     }
     if(pos <  src.length())
@@ -923,10 +925,16 @@ std::pair<int, int> GempyreUtils::getPriorityLevels() {
 */
 
 bool GempyreUtils::isAvailable(int port) {
-    const int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if(sockfd < 0 ) {
+    const auto sockfd = socket(AF_INET, SOCK_STREAM, 0);
+#ifdef WINDOWS_OS
+    if(sockfd == INVALID_SOCKET ) {
+        return false;
+    } 
+#else
+    if(sockfd < 0) {
         return false;
     }
+#endif
     struct sockaddr_in serv_addr = {};
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -957,11 +965,11 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     for (auto *ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
         if (!ifa->ifa_addr)
             continue;
-        const auto family = ifa->ifa_addr->sa_family;
-        if ((family == AF_INET && (addressType & AddressType::Ipv4)) ||
-                (family == AF_INET6 && (addressType & AddressType::Ipv6))) {
+        const auto sa_family = ifa->ifa_addr->sa_family;
+        if ((sa_family == AF_INET && (addressType & AddressType::Ipv4)) ||
+                (sa_family == AF_INET6 && (addressType & AddressType::Ipv6))) {
             char host[1025];
-            const auto s = ::getnameinfo(ifa->ifa_addr, (family == AF_INET) ?
+            const auto s = ::getnameinfo(ifa->ifa_addr, (sa_family == AF_INET) ?
                                            sizeof(struct sockaddr_in) :
                                            sizeof(struct sockaddr_in6),
                                host, sizeof(host),
@@ -974,8 +982,9 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
     return addresses;
 
 #else
-    const auto family = addressType == AddressType::Ipv4 
-    ? AF_INET : (addressType == AddressType::Ipv6 ? AF_INET6 :  AF_UNSPEC);  
+     const auto a_family = addressType == AddressType::Ipv4 
+    ? AF_INET : (addressType == AddressType::Ipv6 ? AF_INET6 :  AF_UNSPEC);
+    (void) a_family;
     const ULONG flags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_SKIP_FRIENDLY_NAME;
     ULONG adapterBufferSize = 15 * 1024;
     auto buf_ptr = std::make_unique<uint8_t[]>(adapterBufferSize);
@@ -997,14 +1006,14 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
         if (IF_TYPE_SOFTWARE_LOOPBACK == adapter->IfType)     // Skip loopback adapters
             continue;
         for(auto* address = adapter->FirstUnicastAddress; address; address = address->Next) {
-            const auto family = address->Address.lpSockaddr->sa_family;
-            if(family == AF_INET) {
+            const auto sa_family = address->Address.lpSockaddr->sa_family;
+            if(sa_family == AF_INET) {
                 auto ipv4 = reinterpret_cast<SOCKADDR_IN*>(address->Address.lpSockaddr);
                 char str_buffer[INET_ADDRSTRLEN] = {0};
                 inet_ntop(AF_INET, &(ipv4->sin_addr), str_buffer, INET_ADDRSTRLEN);
                 addresses.push_back(std::string(str_buffer));
                 }
-            else if(family == AF_INET6) {
+            else if(sa_family == AF_INET6) {
                 SOCKADDR_IN6* ipv6 = reinterpret_cast<SOCKADDR_IN6*>(address->Address.lpSockaddr);
                 char str_buffer[INET6_ADDRSTRLEN] = {0};
                 inet_ntop(AF_INET6, &(ipv6->sin6_addr), str_buffer, INET6_ADDRSTRLEN);
@@ -1070,7 +1079,7 @@ int GempyreUtils::execute(const std::string& executable, const std::string& para
         CloseHandle( pi.hThread );
         return ok ? 0 : 1;*/
         const auto hi = reinterpret_cast<INT_PTR>(::ShellExecuteA(NULL, NULL, executable.c_str(), parameters.c_str(), NULL, SW_SHOWNORMAL));
-        return (hi > 32 || hi < 0) ? 0 : hi ; //If the function succeeds, it returns a value greater than 32. If the function fails, it returns an error value that indicates the cause of the failure.
+        return static_cast<int>((hi > 32 || hi < 0) ? 0 : hi); //If the function succeeds, it returns a value greater than 32. If the function fails, it returns an error value that indicates the cause of the failure.
     }
 #else
     return std::system((executable + " " + parameters + " &").c_str());

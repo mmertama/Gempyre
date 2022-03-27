@@ -1,10 +1,13 @@
+#include <iostream>
+#include <cmath>
+
+#include <unordered_map>
+
 #include "gempyre_graphics.h"
 #include "gempyre_utils.h"
 #include "snowflakes_resource.h"
-#include <iostream>
-#include <cmath>
+
 #include "koch.h"
-#include <unordered_map>
 
 using namespace std::chrono_literals;
 

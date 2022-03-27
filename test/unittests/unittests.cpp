@@ -1,3 +1,4 @@
+#include <thread>
 #include <gtest/gtest.h>
 #include "gempyre.h"
 #include "gempyre_graphics.h"

@@ -127,7 +127,7 @@ static std::optional<std::string> python3() {
 
 // read command line form conf
 
-static std::optional<std::tuple<std::string, std::string>> confCmdLine(Ui& ui, const std::unordered_map<std::string, std::string>& replacement) {
+static std::optional<std::tuple<std::string, std::string>> confCmdLine(const std::unordered_map<std::string, std::string>& replacement) {
     auto cmdName = getConf<std::string>(osName() + "-" + "cmd_name");
     if(!cmdName)
         cmdName = getConf<std::string>("cmd_name");
@@ -178,7 +178,7 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
         const auto title = value(param_map, TITLE_KEY, "Gempyre");
         const auto extra = value(param_map, BROWSER_PARAMS_KEY, "");
         const auto flags = value(param_map, FLAGS_KEY, "");
-        const auto conf = confCmdLine(*this, {{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}, {"FLAGS", flags}});
+        const auto conf = confCmdLine({{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}, {"FLAGS", flags}});
         if(conf)
             return conf.value();
         // then we try python
@@ -309,7 +309,7 @@ void Ui::openHandler() {
     }
 }
 
-void Ui::messageHandler(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters, const Server::Object& params) {
+void Ui::messageHandler(const Server::Object& params) {
     const auto kit = params.find("type");
     if(kit != params.end())  {
         const auto type = std::any_cast<std::string>(kit->second);
@@ -451,7 +451,7 @@ Ui::Ui(const Filemap& filemap,
                    port,
                    root.empty() ? GempyreUtils::workingDir() : root,
                    [this](){openHandler();},
-                   [indexHtml, parameters, this](const Server::Object& obj){messageHandler(indexHtml, parameters, obj);},
+                   [this](const Server::Object& obj){messageHandler(obj);},
                    [this](CloseStatus status, int code){closeHandler(status, code);},
                    [this](const std::string_view& name){return getHandler(name);},
                    [indexHtml, parameters, this](int listen_port){return startListen(indexHtml, parameters, listen_port);}

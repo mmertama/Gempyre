@@ -268,7 +268,7 @@ namespace Gempyre {
         std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, unsigned port, const std::unordered_map<std::string, std::string>& browser_params);
         std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
         void openHandler();
-        void messageHandler(const std::string& indexHtml,  const std::unordered_map<std::string, std::string>& parameters, const std::unordered_map<std::string, std::any>& params);
+        void messageHandler(const std::unordered_map<std::string, std::any>& params);
         void closeHandler(CloseStatus closeStatus, int code);
         std::optional<std::string> getHandler(const std::string_view & name);
         bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters , int listen_port);
@@ -292,9 +292,9 @@ namespace Gempyre {
         std::function<void ()> m_onReload{nullptr};
         std::function<void ()> m_onOpen{nullptr};
         std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
-        std::unique_ptr<Server> m_server;
-        std::function<void ()> m_startup;
         Filemap m_filemap;
+        std::function<void ()> m_startup;
+        std::unique_ptr<Server> m_server;
         std::mutex m_mutex;
         bool m_hold{false};
         unsigned m_msgId{1};

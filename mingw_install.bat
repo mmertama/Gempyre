@@ -1,4 +1,5 @@
 @echo off
+set PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
 where gcc
 IF ERRORLEVEL 00 goto pass1
 echo gcc not found

@@ -73,10 +73,13 @@ set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
 
 set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
 
+
 if(WIN32)
     set(CMAKE_CXX_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_C_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_C_FLAGS}")
     add_compile_options(-DWINDOWS_EXPORT)
     add_compile_options(-D_WIN32)
+
     if(NOT MSVC)
         add_compile_definitions(_WIN32_WINNT=0x0A00)  #win10, needed for mingw
     else()
@@ -90,9 +93,9 @@ endif()
 
 
 if (COMPILE_UV_IN)
-   
     # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
     # maybe use Fetch command instead of Externalproject add and then override flags
+
 
     externalproject_add(libuv
     GIT_REPOSITORY https://github.com/libuv/libuv.git
@@ -320,7 +323,6 @@ endif()
 set(CMAKE_CXX_FLAGS, "-DUWS_NO_ZLIB ${CMAKE_CXX_FLAGS}")
 set(CMAKE_C_FLAGS, "-DUWS_NO_ZLIB ${CMAKE_C_FLAGS}")
 
-
 if(NOT (MSVC OR ANDROID))
     find_package (Threads REQUIRED)
 endif()
@@ -511,11 +513,24 @@ endif()
 if(WIN32)
     message("uvlib is set as:'${UV_LIB_FULL}'")
     if(MSVC)
-        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib shlwapi.lib)
+        set(WIN_LIB 
+            psapi.lib
+            userenv.lib
+            iphlpapi.lib
+            shlwapi.lib)
     else()
-        set(WIN_LIB psapi.lib userenv.lib iphlpapi.lib ws2_32.lib shlwapi.lib)
+        # lot lot static linking make the binary pretty fat
+        set(WIN_LIB 
+            psapi.lib
+            userenv.lib
+            iphlpapi.lib
+            ws2_32.lib
+            shlwapi.lib
+            -static-libgcc
+            -static-libstdc++
+            -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic)
     endif()
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${UVA_LIB_NAME};${WIN_LIB}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${UVA_LIB_NAME};${WIN_LIB}")    
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_obj "${UVA_LIB};${WIN_LIB}")
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${UV_LIB_DIR}")
     target_link_libraries (${PROJECT_NAME}
