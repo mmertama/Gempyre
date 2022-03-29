@@ -140,28 +140,6 @@ namespace Gempyre {
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr auto UseDefaultRoot = "";   //zero means default root
-       /* [[nodiscard]]
-        static std::string stdParams(int width, int height, const std::string& title);
-
-        /// load a file
-        [[deprecated]]
-        explicit Ui(const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// load a file
-        [[deprecated]]
-        //explicit Ui(const std::string& indexHtml, const std::string& browser, int width, int height, const std::string& title, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        [[deprecated]]
-        explicit Ui(const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-
-
-        /// use explicit app as UI
-        [[deprecated]]
-        //explicit Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// use explicit app as UI
-        [[deprecated]]
-        //explicit Ui(const Filemap& filemap, const std::string& indexHtml, int width, int height, const std::string& title, const std::string& browser, const std::string& extraParams = "", unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        /// use OS browser as UI
-        explicit Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        */
         /// Create UI using default ui app or gempyre.conf
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title = "",  int width = -1, int height = -1, unsigned flags = 0, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
@@ -228,9 +206,6 @@ namespace Gempyre {
         ///Access an UI extension
         [[nodiscard]] std::optional<std::any> extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
 
-        //[[deprecated ("use extensionGet or extensionCall instead")]] std::optional<std::any> extension(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
-
-
         ///Get a compiled in resource string.
         [[nodiscard]] std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
         ///Add a file data into Gempyre to be accessed via url
@@ -265,7 +240,6 @@ namespace Gempyre {
         void eventLoop(bool is_main);
         static std::string toStr(const std::atomic<State>&);
         inline void addRequest(std::function<bool()>&&);
-        std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHTML, unsigned port, const std::unordered_map<std::string, std::string>& browser_params);
         std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
         void openHandler();
         void messageHandler(const std::unordered_map<std::string, std::any>& params);

@@ -156,17 +156,9 @@ static inline std::string join(const std::unordered_map<std::string, std::string
 }
 
 
-
-std::tuple<int, int, int> Gempyre::version() {
-    static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
-    const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
-    return {GempyreUtils::convert<int>(c[0]), GempyreUtils::convert<int>(c[1]), GempyreUtils::convert<int>(c[2])};
-}
-
-
 // figure out and construct gui app and command line
-std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml,
-                                                    unsigned port,
+static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
+                                                    int port,
                                                     const std::unordered_map<std::string, std::string>& param_map) {
     const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
     const auto url =  std::string(SERVER_ADDRESS) + ":"
@@ -211,7 +203,6 @@ std::tuple<std::string, std::string> Ui::guiCmdLine(const std::string& indexHtml
 }
 
 
-
 /**
  * The server assumes that file are found at root, therefore we add a '/' if missing
  */
@@ -244,7 +235,6 @@ static std::vector<typename C::key_type> keys(const C& map) {
     return k;
 }
 
-
 Ui::Filemap Ui::toFileMap(const std::vector<std::string>& filenames) {
     Ui::Filemap map;
     for(const auto& filename : filenames) {
@@ -255,6 +245,14 @@ Ui::Filemap Ui::toFileMap(const std::vector<std::string>& filenames) {
     }
     return map;
 }
+
+std::tuple<int, int, int> Gempyre::version() {
+    static_assert(TOSTRING(GEMPYRE_PROJECT_VERSION)[0], "GEMPYRE_PROJECT_VERSION not set");
+    const auto c = GempyreUtils::split<std::vector<std::string>>(TOSTRING(GEMPYRE_PROJECT_VERSION), '.');
+    return {GempyreUtils::convert<int>(c[0]), GempyreUtils::convert<int>(c[1]), GempyreUtils::convert<int>(c[2])};
+}
+
+
 
 std::string Ui::toStr(const std::atomic<Gempyre::Ui::State>& s) {
     const std::unordered_map<Gempyre::Ui::State, std::string> m{
