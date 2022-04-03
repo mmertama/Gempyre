@@ -30,16 +30,17 @@ int main(int /*argc*/, char** /*argv*/) {
         ui.exit();
     });
 
-    openFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::openFileDialog(ui, "foo", "bar", {{"Text", {"*.txt"}}});
+
+    openFile.subscribe("click", [&content](const Gempyre::Event&) {
+        const auto out = Gempyre::Dialog::openFileDialog("Open something", GempyreUtils::homeDir(), {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
             const auto stuff = GempyreUtils::slurp(*out);
             content.setHTML("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::fileSize(*out)));
         }
     });
 
-    openFiles.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::openFilesDialog(ui);
+    openFiles.subscribe("click", [&content](const Gempyre::Event&) {
+        const auto out = Gempyre::Dialog::openFilesDialog();
         if(out && !out->empty()) {
             std::string line;
             for(const auto& o : *out) {
@@ -49,8 +50,8 @@ int main(int /*argc*/, char** /*argv*/) {
         }
     });
 
-    openDir.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::openDirDialog(ui, "dir");
+    openDir.subscribe("click", [&content](const Gempyre::Event&) {
+        const auto out = Gempyre::Dialog::openDirDialog("dir");
         if(out && !out->empty()) {
             const auto dirlist = GempyreUtils::directory(*out);
             std::string line;
@@ -61,8 +62,8 @@ int main(int /*argc*/, char** /*argv*/) {
         }
     });
 
-    saveFile.subscribe("click", [&ui, &content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::saveFileDialog(ui, "", "", {{"Text", {"*.txt", "*.text"}}, {"Log", {"*.log"}}});
+    saveFile.subscribe("click", [&content](const Gempyre::Event&) {
+        const auto out = Gempyre::Dialog::saveFileDialog("", "", {{"Text", {"*.txt", "*.text"}}, {"Log", {"*.log"}}});
         if(out && !out->empty()) {
             if(GempyreUtils::fileExists(*out)) {
                  content.setHTML("Do not pick existing file:" + *out);

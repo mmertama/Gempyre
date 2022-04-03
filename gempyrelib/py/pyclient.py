@@ -22,33 +22,39 @@ def make_filters(filters):
     return tuple(filters_list)
 
 
-def on_close():
-    if do_exit:
-        do_exit()
-        os._exit(0)  # socket closing takes 10s! Sorry, Im impatient
-
 
 def on_show(window, host, port):
     ws_uri = 'ws://{}:{}/gempyre'.format(host, port)
-
+    window_destroyed = False
     async def extender():
         async with websockets.connect(ws_uri, close_timeout=10) as ws:
+            nonlocal window_destroyed
             loop = asyncio.get_event_loop()
             receive = loop.create_task(ws.recv())
 
-            def f():
+            def destroy_window():
+                if not window_destroyed:
+                    window.minimize()  # it takes some time
+                    window.destroy()
+                return
+
+            def exit_f():
                 receive.cancel()
 
             global do_exit
-            do_exit = f
+            do_exit = exit_f
 
-            ws.send(json.dumps({'type': 'extensionready'}))
+            await ws.send(json.dumps({'type': 'extensionready'}))
 
             while True:
                 try:
                     await receive
-                except asyncio.exceptions.CancelledError:
+                except asyncio.CancelledError:
+                    destroy_window()
                     await ws.close()
+                    return
+                except websockets.ConnectionClosedError:
+                    destroy_window()
                     return
 
                 doc = receive.result()
@@ -62,6 +68,11 @@ def on_show(window, host, port):
                 if not type(obj) is dict:
                     print('Invalid JS object', doc)
                     continue
+
+                if obj['type'] == 'exit_request':
+                    window_destroyed = True
+                    window.destroy()
+
                 if obj['type'] != 'extension':
                     continue
 
@@ -70,7 +81,7 @@ def on_show(window, host, port):
                 ext_id = obj['extension_id']
 
                 response = None
-
+                '''
                 if call_id == 'openFile':
                     dir_name = params['dir']
                     filters = params['filter']
@@ -118,7 +129,7 @@ def on_show(window, host, port):
                         'extension_call': 'saveFileResponse',
                         'extension_id': ext_id,
                         'saveFileResponse': str(result) if result else ''})
-
+                '''
                 if call_id == 'setAppIcon':
                     pass
                 if call_id == 'resize':
@@ -141,6 +152,12 @@ def on_show(window, host, port):
                     await ws.send(response)
 
     asyncio.run(extender())
+
+def on_close():
+    if do_exit:
+        do_exit()
+    os._exit(0) # pyvwebview is very slow to close sockets.
+
 
 
 def main():
@@ -214,8 +231,12 @@ def main():
     text_select = True if flags & TEXTSELECT else False,
     easy_drag = True if flags & EASYDRAG else False,
     transparent = True if flags & TRANSPARENT else False)
-    window.shown += lambda: on_show(window, uri.hostname, uri.port)
-    window.closing += on_close
+    if hasattr(window, 'events'): # version compliancy
+        window.events.shown += lambda: on_show(window, uri.hostname, uri.port)
+        window.events.closing += on_close
+    else:
+        window.shown += lambda: on_show(window, uri.hostname, uri.port)
+        window.closing += on_close
     webview.start(**extra)
 
     

@@ -30,7 +30,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }, {"value"});
 
     Gempyre::Element(*ui, "open_icon").subscribe("click", [&ui](const auto&)  {
-        const auto icon_name = Gempyre::Dialog::openFileDialog(*ui, "Open Image");
+        const auto icon_name = Gempyre::Dialog::openFileDialog("Open Image");
         if(!icon_name)
             return;
         Gempyre::Element(*ui, "icon_label").setHTML(*icon_name);

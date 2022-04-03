@@ -34,9 +34,9 @@ if ! [ -x "$(command -v ninja)" ]; then
     exit 1
  fi 
 
- ONOFF="OFF"
-
- TARGET=""
+ONOFF="OFF"
+PREFIX=""
+TARGET=""
 
 while [ -n "$1" ]; do # while loop starts
 
@@ -62,7 +62,12 @@ done
 
 if [[ $PREFIX -ne "" && ! -d $PREFIX ]]; then
     echo "$PREFIX not found"
-    return 
+    return
+fi
+
+if [[ $PREFIX -ne "" && -d $PREFIX ]]; then
+    PREFIX=-DCMAKE_INSTALL_PREFIX=$PREFIX
+    return
 fi
 
 

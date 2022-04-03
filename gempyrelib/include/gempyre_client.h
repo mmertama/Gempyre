@@ -21,7 +21,7 @@ public:
      * @param filters
      * @return
      */
-    static std::optional<std::string> openFileDialog(Gempyre::Ui& ui, const std::string& caption = "",
+    static std::optional<std::string> openFileDialog(const std::string& caption = "",
                                   const std::string& root = "",
                                   const Filter& filters = {});
 
@@ -33,7 +33,7 @@ public:
      * @param filters
      * @return
      */
-    static std::optional<std::vector<std::string>> openFilesDialog(Gempyre::Ui& ui, const std::string& caption = "",
+    static std::optional<std::vector<std::string>> openFilesDialog(const std::string& caption = "",
                                   const std::string& root = "",
                                   const Filter& filters = {});
     /**
@@ -42,7 +42,7 @@ public:
      * @param root
      * @return
      */
-    static std::optional<std::string> openDirDialog(Gempyre::Ui& ui, const std::string& caption = "",
+    static std::optional<std::string> openDirDialog(const std::string& caption = "",
                                    const std::string& root = "");
     /**
      * @brief openDirDialog
@@ -52,7 +52,7 @@ public:
      * @param filters
      * @return
      */
-     static std::optional<std::string> saveFileDialog(Gempyre::Ui& ui, const std::string& caption = "",
+     static std::optional<std::string> saveFileDialog(const std::string& caption = "",
                                       const std::string& root = "",
                                       const Filter& filters = {});
 };

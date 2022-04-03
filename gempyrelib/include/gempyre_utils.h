@@ -392,6 +392,8 @@ UTILS_EX std::string appPath();
 UTILS_EX std::string getLink(const std::string& fname);
 UTILS_EX bool isDir(const std::string& fname);
 UTILS_EX std::string workingDir();
+UTILS_EX std::string homeDir();
+UTILS_EX std::string rootDir();
 UTILS_EX std::string absPath(const std::string& rpath);
 UTILS_EX std::string pathPop(const std::string& filename, int steps = 1);
 UTILS_EX std::vector<std::string> directory(const std::string& dirname);
