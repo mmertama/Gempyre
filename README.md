@@ -54,9 +54,12 @@ How to build on Raspberry OS
     * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
     * Run
         ```bash
-        ./raspberry_install.sh
+        pi@raspberrypi:~/Development/Gempyre ./raspberry_install.sh
         ```
-
+    * When building on Raspberry, please pass -DRASPBERRY=1 for your cmake call. E.g. 
+        ```bash
+         pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
+        ```     
 
  Projects using Gempyre:
  * [mandelbrot-Gempyre](https://github.com/mmertama/mandelbrot-Gempyre)
