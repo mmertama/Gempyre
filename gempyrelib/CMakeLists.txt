@@ -88,11 +88,11 @@ if(WIN32)
 endif()
 
 if (WIN32 OR ANDROID OR RASPBERRY)
-    set(COMPILE_UV_IN ON)
+    set(COMPILE_SOCKETS_IN ON)
 endif()
 
 
-if (COMPILE_UV_IN)
+if (COMPILE_SOCKETS_IN)
     # NOTE: lib UV is linking only MD, therefore Gempyre to be linked MD, and thus MT wont work here either, sigh
     # maybe use Fetch command instead of Externalproject add and then override flags
 
@@ -104,7 +104,8 @@ if (COMPILE_UV_IN)
     CMAKE_ARGS
         -DLIBUV_BUILD_TESTS=OFF
         -DLIBUV_BUILD_BENCH=OFF
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        #-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_DEBUG_POSTFIX=${CMAKE_DEBUG_POSTFIX}
     UPDATE_DISCONNECTED false
     INSTALL_COMMAND "" # libuv wont always respect install prefix :-(
@@ -168,7 +169,7 @@ set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
 # store for testing json re-use
 set_property(TARGET libjson PROPERTY json_dir "${SOURCE_DIR}/include")
 
-if(COMPILE_UV_IN)
+if(COMPILE_SOCKETS_IN)
     # Sources are just globbed in the project, see later
 
     FetchContent_Declare(
@@ -371,7 +372,7 @@ if(ANDROID)
 endif()
 
         
-if(COMPILE_UV_IN)
+if(COMPILE_SOCKETS_IN)
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
     if(MSVC)
@@ -500,7 +501,7 @@ if(NOT CLIENT_DIALOGS)
     add_dependencies(${PROJECT_NAME} libpfd)
 endif()
 
-if (COMPILE_UV_IN)
+if (COMPILE_SOCKETS_IN)
     #add_dependencies(libsockets libuv)
     add_dependencies(${PROJECT_NAME} libuv)
 else()

@@ -1123,10 +1123,12 @@ int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) 
     return static_cast<int>(dist[l2][l1]);
 }
 
+
 std::string GempyreUtils::homeDir() {
 #ifdef WINDOWS_OS
-   TCHAR path_buf[MAX_DATA];
-   const auto sz = GetEnvironmentVariable("USERDATA", path_buf, MAX_DATA);
+   constexpr int max_data = 512;
+   TCHAR path_buf[max_data];
+   const auto sz = GetEnvironmentVariable("USERDATA", path_buf, max_data);
    if(sz)
        return std::string(path_buf, sz);
 #else

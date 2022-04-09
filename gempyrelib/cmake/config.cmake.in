@@ -11,13 +11,19 @@ add_library(gempyre::gempyre INTERFACE IMPORTED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
-
-find_path(SYSTEM_GEMPYRE_INSTALL gempyre PATHS /usr/local/include /usr/include)
-get_filename_component(PARENT_DIR ${SYSTEM_GEMPYRE_INSTALL} DIRECTORY)
-set(ABSOLUTE_INSTALL_PREFIX "${PARENT_DIR}/")
+if(WIN32)
+    set(CMAKE_PREFIX_PATH "C:/Program Files (x86)/gempyre/lib/gempyre;C:/Program Files/gempyre/lib/gempyre;${CMAKE_PREFIX_PATH}")
+    find_path(SYSTEM_GEMPYRE_INSTALL gempyre REQUIRED)
+    set(ABSOLUTE_INSTALL_PREFIX "${SYSTEM_GEMPYRE_INSTALL}/gempyre/")
+else()
+    find_path(SYSTEM_GEMPYRE_INSTALL gempyre PATHS /usr/local/include /usr/include)
+    get_filename_component(PARENT_DIR ${SYSTEM_GEMPYRE_INSTALL} DIRECTORY)
+    set(ABSOLUTE_INSTALL_PREFIX "${PARENT_DIR}/")
+ endif()   
 
 if(WIN32)
     message("Gempyre for WIN32")
+    set(GEMPYRE_PATH "C:/Program Files (x86)/gempyre/lib/gempyre;C:/Program Files/gempyre/lib/gempyre")
     find_dependency(uva)
 elseif(RASPBERRY)
     message("Gempyre for Raspberry")
@@ -40,6 +46,7 @@ message("Found debug libraries ${gempyre_LIBRARIES}")
 find_library(LIB_NAME NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyre${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH}  NO_DEFAULT_PATH REQUIRED)
 message("Found release libraries ${gempyre_LIBRARIES}")
 
+
 set_and_check(gempyre_legacy_INCLUDE_DIR "${ABSOLUTE_INSTALL_PREFIX}@INCLUDE_FULL_DIR@")
 set_and_check(gempyre_LIBRARY_DIR "${ABSOLUTE_INSTALL_PREFIX}@LIBRARY_FULL_DIR@")
 set(ENV{gempyre_ROOT} "@PROJECT_CMAKE_DIR@")
@@ -47,7 +54,7 @@ set(ENV{gempyre_ROOT} "@PROJECT_CMAKE_DIR@")
 add_library(gempyre::gempyre_lib STATIC IMPORTED)
     
 set_target_properties(gempyre::gempyre_lib PROPERTIES
-    IMPORTED_LOCATION "${LIB_NAME}"
+    IMPORTED_LOCATION_RELEASE "${LIB_NAME}"
     IMPORTED_LOCATION_DEBUG ${LIB_NAME_DEBUG}
     )
 
@@ -55,10 +62,8 @@ if(WIN32)
     add_library(gempyre::gempyre_uv STATIC IMPORTED)
 
     set_target_properties(gempyre::gempyre_uv PROPERTIES
-        IMPORTED_LOCATION "${uva_LIBRARY}"
-      #  IMPORTED_LOCATION_DEBUG ${uva_LIBRARY} # this is wrong
-        )
-
+        IMPORTED_LOCATION "${uva_LIBRARY}")
+    
     if(MSVC)
         set_target_properties(gempyre::gempyre_lib PROPERTIES
             INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:Shlwapi.lib>"
@@ -87,7 +92,7 @@ elseif(RASPBERRY)
         )    
 
     set_target_properties(gempyre::gempyre PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES ${gempyre_legacy_INCLUDE_DIR}
+       #INTERFACE_INCLUDE_DIRECTORIES ${gempyre_legacy_INCLUDE_DIR}
         INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_uv"
         )           
 else()
@@ -103,7 +108,7 @@ else()
             )    
 
     set_target_properties(gempyre::gempyre PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES ${gempyre_legacy_INCLUDE_DIR}
+        #INTERFACE_INCLUDE_DIRECTORIES ${gempyre_legacy_INCLUDE_DIR}
         INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_usock"
         )
 endif()

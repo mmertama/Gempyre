@@ -27,5 +27,6 @@ set(TEST_LIBRARY_DIR ${googletest_BINARY_DIR})
 add_subdirectory(mock_browser)
 add_subdirectory(apitests)
 add_subdirectory(unittests)
+add_subdirectory(install_test EXCLUDE_FROM_ALL)
 
 
