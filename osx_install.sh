@@ -41,3 +41,6 @@ sudo cmake --install . --config Release
 fi
 
 popd
+
+echo "Run install test"
+test/install_test/install_test.sh build

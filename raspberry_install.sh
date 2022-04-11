@@ -58,3 +58,7 @@ if [[ ! "$TARGET" == "DEBUG" ]]; then
 fi
 
 popd
+
+
+echo "Run install test"
+test/install_test/install_test.sh build

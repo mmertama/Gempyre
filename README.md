@@ -39,17 +39,17 @@ How to build on Windows 10
 * Install cmake https://cmake.org/download/ (let it to be added in path)
 * MSVC:
     * Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
-    * Install Python 3.8 (3.6 >= shall be ok) https://www.python.org/downloads/windows/
+    * Install Python (maybe 3.9, yet tested mostly with 3.8, but 3.6 >= shall be ok) https://www.python.org/downloads/windows/
     * From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
     * Run "msvc_install.bat" at Gempyre folder.
 * MinGW
-    * See Instrictions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
+    * Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))
+    * See Instructions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
     * Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"
     * Add C:\msys64\mingw64\bin and C:\msys64\usr\bin to your path
     * Then you can execute "mingw_install.bat" Windows Command promt at Gempyre folder.
  
 How to build on Raspberry OS
-    __still in early phase, performance and stability are under construction__
     *  Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17)
     * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
     * Run

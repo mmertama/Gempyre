@@ -18,3 +18,7 @@ cmake --build . --config Release
 sudo cmake --install . --config Release
 
 popd
+
+echo "Run install test"
+test/install_test/install_test.sh build
+

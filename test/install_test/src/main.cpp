@@ -1,13 +1,22 @@
 #include <gempyre.h>
 #include "hello.html.h"
+
 int main(int /*argc*/, char** /*argv*/)  {
-   Gempyre::Ui ui({{"/hello.html", Hellohtml}}, "hello.html", "\"Hello world!\"", 250, 150);
-   Gempyre::Element text(ui, "content");
-   Gempyre::Element button(ui, "startbutton");
-   button.setHTML("Hello?");
-   button.subscribe("click", [&text](const Gempyre::Event&) {
-       text.setHTML("Hello World!");
-     });
-   ui.run();
-   return 0;
+  Gempyre::Ui ui({{"/hello.html", Hellohtml}}, "hello.html", "\"Welcome!\"", 250, 150);
+  Gempyre::Element text(ui, "content");
+  Gempyre::Element button(ui, "startbutton");
+  button.subscribe("click", [&text](const Gempyre::Event&) {
+    text.setHTML("Hello World!");
+    });
+  int count = 5; 
+  ui.onOpen([&]() {
+    ui.startPeriodic(1s, [&]() {
+      --count;
+      button.setHTML("Exit in " +  std::to_string(count) + "s");
+      if(count == 0)
+        ui.exit();
+      });
+  });    
+  ui.run();
+  return 0;
 }

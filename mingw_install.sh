@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e 
 
 CMD_STR='$ ./mingw_install.sh [-all] [-dir <DIR>] [-debug] [-release]'
@@ -79,12 +80,14 @@ if [ -f  "install.log" ]; then
     rm install.log
 fi
 
+PWD=$(pwd)
+BUILD_PATH=$(cygpath -w $PWD)
+
 if [[ ! "$TARGET" == "RELEASE" ]]; then
 
     cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF $PREFIX
     cmake --build . --config Debug
 
-    BUILD_PATH=$(pwd)
     popd
 
     echo Start an elevated prompt for an install.
@@ -99,12 +102,13 @@ if [[ ! "$TARGET" == "DEBUG" ]]; then
     cmake ..  -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF $PREFIX
     cmake --build . --config Release
 
-    BUILD_PATH=$(pwd)
-
     popd
     echo Start an elevated prompt for an install.
     powershell -Command "Start-Process scripts\win_inst.bat -Verb RunAs -ArgumentList ${BUILD_PATH}"
 
 fi 
+
+echo "Run install test"
+test/install_test/install_test.sh mingw_build $TARGET
 
 echo done
