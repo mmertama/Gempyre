@@ -1,3 +1,5 @@
+set -e 
+
 PREFIX=$1
 
 if [[ $PREFIX -ne "" && ! -d $PREFIX ]]; then
@@ -20,5 +22,6 @@ sudo cmake --install . --config Release
 popd
 
 echo "Run install test"
-test/install_test/install_test.sh build
+pip3 install pywebview
+bash ./test/install_test/install_test.sh build
 

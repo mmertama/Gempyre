@@ -5,51 +5,51 @@ Gempyre
 UI Framework
 -------------
 
-Gempyre is a UI framework. It is a UI framework without widgets - instead  the UI is composed using common web tools and frameworks.  Therefore Gempyre is small, easy to learn and quick to take in use.
+Gempyre is a UI multiplatform framework. Supporting Windows, Mac OSX, Linux, Raspberry OS and Android. Gempyre is minimalistic and simple; It is a UI framework without widgets - instead, the UI is composed using common web tools and frameworks. Therefore Gempyre is small, easy to learn and quick to take in use.
+ 
+The application engine is implemented using C++, the UI is constructed using Javascript, CSS and HTML like any front end. All common frameworks from the vast pool web technologies shall be available, as long as the UI elements can be refrerred using HTML id and name tags. Gempyre library provides a C++ interface to interact with the UI - the API is only a few dozen calls.
 
-For Android support, visit also [Gempyre-Android](https://github.com/mmertama/Gempyre-Android)
+Gempyre is intended for applications that has a solid C++ core (or C), and takes benefit of rapid UI development without extra hassle with complex/expensive/platform specific/quirky UI development. Gempyre combines power of C++ with vast options of front end development tools, sources, documents frameworks that are only available on for Web Developers.
 
-If you prefer Python, please try [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) 
+Gempyre is multiplatform, its core is written using C++17  (tested OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.
 
-The application engine is implemented using C++, the UI is constructed using  Javascript, CSS and HTML like any front end; all common frameworks from the vast pool web technologies shall be available as long as the UI elements can be refrerred using ids. Gempyre library provides a  C++ interface to interact with the UI - the API is only a few dozen calls. Gempyre is intended for applications that has a solid C++ core (or C) and takes benefit of rapid UI development without extra hassle with complex/expensive/platform specific/quirky UI development. Gempyre combines power of C++ with vast options of front end development tools, sources, documents frameworks that are only available on for Web Developers.
+Gempyre itself does not contain an application window. The UI is drawn using external application. So OSes uses native browser help, some Python webview. However that is fully configurable per application. 
 
-Gempyre is multiplatform, its core is written using C++17  (tested OSX (CLang), Ubuntu (gcc) and Windows 10 (MSVC) ). The Gempyre framework can be downloaded at Github under MIT license.
-
-Gempyre itself does not contain application window and bare Gempyre applications are excecuted on system browser window. However for native application a __client application__ is used. Native application window for OSX, Linux and Windows are using [Hiillos] (https://github.com/mmertama/Hiillos). However Gempyre::Ui constructor can support other client applications as well - for example [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) uses a Python client and [Gempyre-Android](https://github.com/mmertama/Gempyre-Android) is a special native application. 
+Gempyre is a library that is linked with the application, except for Android, see [Gempyre-Android](https://github.com/mmertama/Gempyre-Android). For Python, install [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) on top of Gempyre library.
 
 
-Gempyre API has few headers
+### Gempyre API has few headers
 
 * [Gempyre core in _gempyre.h_](gempyre.md), everything that basic application needs.
 * [Gempyre Utils in _gempyre_utils.h_](gempyre_utils.md), miscellaneous collection or function that helps writing applications.
 * [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive and games.
 * gempyre_client.h, provides file dialogs when started using client application. 
 
-How to build on Linux and MacOS
-* Run git clone https://github.com/mmertama/Gempyre.git.
-* md build
-* cd build
-* cmake ..
-* cmake --build .
-* sudo cmake --install .
 
-How to build on Windows 10
+### Linux
+Run linux_install.sh
+
+### Mac OSX
+Run osx_install.sh
+How to build on Linux and MacOS
+
+### Windows
 * Install git bash from https://gitforwindows.org/
 * Run git clone https://github.com/mmertama/Gempyre.git on git bash console.
-* Install cmake https://cmake.org/download/ (let it to be added in path)
-* MSVC:
+#### MSVC:
+    * Install cmake https://cmake.org/download/ (let it to be added in path)
     * Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
     * Install Python (maybe 3.9, yet tested mostly with 3.8, but 3.6 >= shall be ok) https://www.python.org/downloads/windows/
     * From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
     * Run "msvc_install.bat" at Gempyre folder.
-* MinGW
+#### MinGW
     * Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))
     * See Instructions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
     * Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"
     * Add C:\msys64\mingw64\bin and C:\msys64\usr\bin to your path
     * Then you can execute "mingw_install.bat" Windows Command promt at Gempyre folder.
  
-How to build on Raspberry OS
+### Raspberry OS
     *  Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17)
     * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
     * Run
@@ -98,7 +98,9 @@ Late updates
 ### 2022 1
 * Lot of fixes
 * CI using Github actions 
-
+### 2022 2
+* Lot of fixes
+* Raspberry, and imporoved MinGW support
 Copyright
-Markus Mertama 2020, 2021
+Markus Mertama 2020, 2021, 2022
 

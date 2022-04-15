@@ -17,6 +17,6 @@ add_executable(${PROJECT_NAME}
    gui/hello.html
    )
 
-gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/hello.html.h SOURCES gui/hello.html)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET ${CMAKE_CURRENT_BINARY_DIR}/include/hello.html.h SOURCES gui/hello.html)
 
 target_link_libraries (${PROJECT_NAME}  gempyre::gempyre)
