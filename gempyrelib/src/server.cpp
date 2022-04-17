@@ -201,7 +201,7 @@ class Gempyre::SocketHandler {
     }
     void closeHandler(WSSocket* ws, int code, std::string_view message) {
         if(code != 1001 && code != 1006) {  //browser window closed
-            if(code == 1000 || (code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
+            if(code == 1000 || (code != 1005 && code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "WS", "closed on error", code, message);
             }   else if(code != 0) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "Non closing error", code, message);

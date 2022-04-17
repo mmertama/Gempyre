@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
    include
+   ${CMAKE_CURRENT_BINARY_DIR}/include # resource is added here
 )
 
 add_executable(${PROJECT_NAME}
