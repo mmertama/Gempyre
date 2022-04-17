@@ -21,7 +21,8 @@ sudo cmake --install . --config Release
 
 popd
 
-echo "Run install test"
-pip3 install pywebview
-bash ./test/install_test/install_test.sh build
-
+if [[ "$ACTIONS" != "TRUE" ]]; then
+    echo "Run install test"
+    pip3 install pywebview
+    bash ./test/install_test/install_test.sh build
+fi

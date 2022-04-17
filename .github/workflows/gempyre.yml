@@ -63,7 +63,7 @@ jobs:
         brew install cmake ninja
         ninja --version
         cmake --version
-    
+
     - name: Configure
       shell: cmake -P {0}
       run: |
@@ -87,7 +87,7 @@ jobs:
         endif()
 
         execute_process(
-                COMMAND cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCI_ACTIONS=ON -G Ninja
+                COMMAND cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCI_ACTIONS=ON -G Ninja -DACTIONS=TRUE
                 RESULT_VARIABLE result
                 )
 

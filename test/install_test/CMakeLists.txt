@@ -7,7 +7,7 @@ find_package (gempyre REQUIRED)
 include(gempyre)
 
 set(CMAKE_CXX_STANDARD 17)
-
+ 
 include_directories(
    include
    ${CMAKE_CURRENT_BINARY_DIR}/include # resource is added here

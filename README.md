@@ -7,7 +7,7 @@ UI Framework
 
 Gempyre is a UI multiplatform framework. Supporting Windows, Mac OSX, Linux, Raspberry OS and Android. Gempyre is minimalistic and simple; It is a UI framework without widgets - instead, the UI is composed using common web tools and frameworks. Therefore Gempyre is small, easy to learn and quick to take in use.
  
-The application engine is implemented using C++, the UI is constructed using Javascript, CSS and HTML like any front end. All common frameworks from the vast pool web technologies shall be available, as long as the UI elements can be refrerred using HTML id and name tags. Gempyre library provides a C++ interface to interact with the UI - the API is only a few dozen calls.
+For the application, its engine is implemented using C++ (or Python), the UI is constructed using Javascript, CSS and HTML like any front end. All common tools from the vast pool web technologies shall be available. Gempyre library provides a C++ interface to interact with the UI - the whole API is only a few dozen calls.
 
 Gempyre is intended for applications that has a solid C++ core (or C), and takes benefit of rapid UI development without extra hassle with complex/expensive/platform specific/quirky UI development. Gempyre combines power of C++ with vast options of front end development tools, sources, documents frameworks that are only available on for Web Developers.
 
@@ -21,9 +21,9 @@ Gempyre is a library that is linked with the application, except for Android, se
 ### Gempyre API has few headers
 
 * [Gempyre core in _gempyre.h_](gempyre.md), everything that basic application needs.
-* [Gempyre Utils in _gempyre_utils.h_](gempyre_utils.md), miscellaneous collection or function that helps writing applications.
-* [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive and games.
-* gempyre_client.h, provides file dialogs when started using client application. 
+* [Gempyre Utils in _gempyre_utils.h_](gempyre_utils.md), miscellaneous collection or function that helps writing applications. 
+* [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive applications and games.
+* gempyre_client.h, provides file dialogs for Gempyre application. 
 
 
 ### Linux
@@ -50,7 +50,7 @@ How to build on Linux and MacOS
     * Then you can execute "mingw_install.bat" Windows Command promt at Gempyre folder.
  
 ### Raspberry OS
-    *  Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17)
+    *  Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17). Tested Raspberry Pi 3 and Raspberry Pi 4.  
     * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
     * Run
         ```bash
@@ -61,18 +61,19 @@ How to build on Linux and MacOS
          pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
         ```     
 
- Projects using Gempyre:
+ Some example projects using Gempyre:
+ * [Examples](https://github.com/mmertama/Gempyre/tree/raspberry/examples)
  * [mandelbrot-Gempyre](https://github.com/mmertama/mandelbrot-Gempyre)
  * [treeview-Gempyre](https://github.com/mmertama/treeview-Gempyre)
  * [hexview-Gempyre](https://github.com/mmertama/hexview-Gempyre)
  * [calc-Gempyre](https://github.com/mmertama/calc-Gempyre)
+
  
  
- Things to do and in pipeline
+ Some future development directions
 ---------------------
 * Update / improve documentation (C++ and Python)  
 * Binary releases (Maybe installer / some packet manager support / pip)
-* Raspberry build (remote and local UI)
 * Support for secure web socket (nice for remote UIs)
 * Flatbuffer/protobuf instead of JSON (perf up)
 * Using WASM instean of JS (perf up)

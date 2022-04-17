@@ -27,6 +27,7 @@ set(TEST_LIBRARY_DIR ${googletest_BINARY_DIR})
 add_subdirectory(mock_browser)
 add_subdirectory(apitests)
 add_subdirectory(unittests)
-add_subdirectory(install_test EXCLUDE_FROM_ALL)
-
+if(NOT DEFINED ACTIONS)  # on actions EXCLUDE_FROM_ALL is not proof
+  add_subdirectory(install_test EXCLUDE_FROM_ALL)
+endif()
 
