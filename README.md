@@ -27,41 +27,60 @@ Gempyre is a library that is linked with the application, except for Android, se
 
 
 ### Linux
-Run linux_install.sh
 
+* Run
+  ```bash
+  linux_install.sh
+  ```
+  
 ### Mac OSX
-Run osx_install.sh
-How to build on Linux and MacOS
 
+* Run
+  ```bash
+   osx_install.sh
+  ```
+ 
 ### Windows
+
 * Install git bash from https://gitforwindows.org/
 * Run git clone https://github.com/mmertama/Gempyre.git on git bash console.
-#### MSVC:
-    * Install cmake https://cmake.org/download/ (let it to be added in path)
-    * Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
-    * Install Python (maybe 3.9, yet tested mostly with 3.8, but 3.6 >= shall be ok) https://www.python.org/downloads/windows/
-    * From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
-    * Run "msvc_install.bat" at Gempyre folder.
+
+#### MSVC
+
+* Install cmake https://cmake.org/download/ (let it to be added in path)
+* Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
+* Install Python (maybe 3.9, yet tested mostly with 3.8, but 3.6 >= shall be ok) https://www.python.org/downloads/windows/
+* From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
+* Run 
+   ```bat
+    msvc_install.bat
+   ```
+
 #### MinGW
-    * Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))
-    * See Instructions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
-    * Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"
-    * Add C:\msys64\mingw64\bin and C:\msys64\usr\bin to your path
-    * Then you can execute "mingw_install.bat" Windows Command promt at Gempyre folder.
+
+* Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))
+* See Instructions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
+* Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"
+* Run
+  ```bash
+  mingw_install.sh
+  ```
  
 ### Raspberry OS
-    *  Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17). Tested Raspberry Pi 3 and Raspberry Pi 4.  
-    * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
-    * Run
-        ```bash
-        pi@raspberrypi:~/Development/Gempyre ./raspberry_install.sh
-        ```
-    * When building on Raspberry, please pass -DRASPBERRY=1 for your cmake call. E.g. 
-        ```bash
-         pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
-        ```     
 
- Some example projects using Gempyre:
+ * Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17). Tested Raspberry Pi 3 and Raspberry Pi 4.  
+ * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
+ * Run
+  ```bash
+        pi@raspberrypi:~/Development/Gempyre ./raspberry_install.sh
+   ```
+ * When building on Raspberry, please pass -DRASPBERRY=1 for your cmake call. E.g. 
+  ```bash
+         pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
+   ```     
+
+ ### Some example projects using Gempyre
+ 
  * [Examples](https://github.com/mmertama/Gempyre/tree/raspberry/examples)
  * [mandelbrot-Gempyre](https://github.com/mmertama/mandelbrot-Gempyre)
  * [treeview-Gempyre](https://github.com/mmertama/treeview-Gempyre)
@@ -72,6 +91,7 @@ How to build on Linux and MacOS
  
  Some future development directions
 ---------------------
+
 * Update / improve documentation (C++ and Python)  
 * Binary releases (Maybe installer / some packet manager support / pip)
 * Support for secure web socket (nice for remote UIs)
@@ -89,17 +109,25 @@ How to build on Linux and MacOS
 
 Late updates
 ----------------
+
 ### 2021 1
+
 * Proper build and install with cmake
 * Use GTest for API testing
 * Rewrote timers + other smaller fixes
+
 ### 2021 2
+
 * Lot of fixes and some new utils
 * Native application window for OSX, Linux and Windows are using [Hiillos] (https://github.com/mmertama/Hiillos)                        
+
 ### 2022 1
+
 * Lot of fixes
 * CI using Github actions 
+
 ### 2022 2
+
 * Lot of fixes
 * Raspberry, and imporoved MinGW support
 Copyright
