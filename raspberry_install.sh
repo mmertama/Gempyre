@@ -61,4 +61,4 @@ popd
 
 
 echo "Run install test"
-test/install_test/install_test.sh build
+export EXTRA_FLAGS="-DRASPBERRY=1";test/install_test/install_test.sh build

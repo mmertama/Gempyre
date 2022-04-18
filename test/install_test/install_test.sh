@@ -6,9 +6,11 @@ pushd $1/test/install_test
 
 TARGET=$2
 
+echo "extra: $EXTRA_FLAGS"
+
 if [[ ! "$TARGET" == "RELEASE" ]]; then
 
-    cmake ../../../test/install_test -DCMAKE_BUILD_TYPE=Debug
+    cmake ../../../test/install_test -DCMAKE_BUILD_TYPE=Debug $EXTRA_FLAGS
     err=$?
     if [ ! $err -eq 0 ]; then
         popd
@@ -35,7 +37,7 @@ pushd $1/test/install_test
 
 if [[ ! "$TARGET" == "DEBUG" ]]; then
 
-    cmake ../../../test/install_test -DCMAKE_BUILD_TYPE=Release
+    cmake ../../../test/install_test -DCMAKE_BUILD_TYPE=Release $EXTRA_FLAGS
     err=$?
     if [ ! $err -eq 0 ]; then
         popd
@@ -54,4 +56,4 @@ fi
 
 popd
 
- $1/test/install_test/Hello
+$1/test/install_test/Hello
