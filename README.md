@@ -130,6 +130,6 @@ Late updates
 
 * Lot of fixes
 * Raspberry, and imporoved MinGW support
-Copyright
-Markus Mertama 2020, 2021, 2022
+
+Copyright Markus Mertama 2020, 2021, 2022
 
