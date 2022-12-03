@@ -1,8 +1,11 @@
 include(FetchContent)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
+
 if(RASPBERRY)
 set(CMAKE_CXX_FLAGS "-D_POSIX_PATH_MAX=256 ${CMAKE_CXX_FLAGS}")
 endif()
+
 
 FetchContent_Declare(
   googletest

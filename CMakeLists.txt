@@ -72,6 +72,7 @@ option(HAS_TEST "Test are built" ON)
 
 option(HAS_EXAMPLES "Examples are built" ON)
 
+
 if(HAS_AFFILIATES)
     add_subdirectory(affiliates)
 endif()

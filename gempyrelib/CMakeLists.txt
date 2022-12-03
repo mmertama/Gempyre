@@ -58,14 +58,14 @@ if(BLEEDING_EDGE)
     set(LIB_SOCKETS_VER master)
     set(LIB_WS_VER master)
     set(LIB_ZLIB_VER master)
-    set(LIB_PFD_VER master)
+    set(LIB_PFD_VER main)
 else()
     set(LIB_UV_VER  v1.44.0)
     set(LIB_JSON_VER v3.9.0)
     set(LIB_SOCKETS_VER v0.7.1)
     set(LIB_WS_VER 0b97cc7)
     set(LIB_ZLIB_VER v1.2.11)
-    set(LIB_PFD_VER master v0.1.0)
+    set(LIB_PFD_VER main v0.1.0)
 endif()
 
 # todo: use expternalproject_getproperty SOURCE DIR instead to simplify
@@ -281,9 +281,11 @@ if(CLIENT_DIALOGS)
     set(DIALOG_SRC src/ui_client.cpp)
 else()
     set(DIALOG_SRC src/ui_pfd.cpp)
+    message("skip libpfd version, use latest")
     externalproject_add(libpfd
         GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
         #GIT_TAG ${LIB_PFD_VER}
+        GIT_TAG main
         GIT_PROGRESS true
         UPDATE_DISCONNECTED false
         BUILD_COMMAND ""
