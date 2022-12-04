@@ -16,6 +16,10 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+if(USE_PYTHON_UI)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_PYTHON_UI)
+endif()
+
 message("compiler is ${CMAKE_CXX_COMPILER_ID}")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   add_compile_definitions(COMPILER_CLANG)

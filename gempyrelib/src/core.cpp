@@ -103,6 +103,12 @@ static std::string osName() {
     }
 }
 
+[[maybe_unused]] static inline std::string join(const std::unordered_map<std::string, std::string>& map, const std::string& key, const std::string& prefix) {
+    const auto it = map.find(key);
+    return it == map.end() ? std::string() : prefix + it->second;
+}
+
+[[maybe_unused]]
 static std::optional<std::string> python3() {
     const auto  py3 = GempyreUtils::which("python3");
     if(py3)
@@ -150,11 +156,6 @@ static inline std::string value(const std::unordered_map<std::string, std::strin
     return it == map.end() ? default_value : it->second;
 }
 
-static inline std::string join(const std::unordered_map<std::string, std::string>& map, const std::string& key, const std::string& prefix) {
-    const auto it = map.find(key);
-    return it == map.end() ? std::string() : prefix + it->second;
-}
-
 
 // figure out and construct gui app and command line
 static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
@@ -173,7 +174,7 @@ static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexH
         const auto conf = confCmdLine({{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}, {"FLAGS", flags}});
         if(conf)
             return conf.value();
-        // then we try python
+#ifdef USE_PYTHON_UI
         const auto py3 = python3();
         if(py3) {
             constexpr auto py_file = "/pyclient.py"; // let's not use definion in gempyrejsh as that may not be there
@@ -192,6 +193,7 @@ static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexH
                                      join(param_map, BROWSER_PARAMS_KEY,"--gempyre-extra=")}, " ") };
             }
         }
+#endif
     }
 
     const auto params = url + " " + value(param_map, BROWSER_PARAMS_KEY, "");
