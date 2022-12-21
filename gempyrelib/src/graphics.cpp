@@ -7,7 +7,7 @@ using namespace Gempyre;
 CanvasData::~CanvasData() {
 }
 
-CanvasDataPtr CanvasElement::makeCanvas(int width, int height) { //could be const, but is it sustainable?
+CanvasDataPtr CanvasElement::make_canvas(int width, int height) { //could be const, but is it sustainable?
     gempyre_graphics_assert(width > 0 && height > 0, "Graphics size is expected be more than zero");
     m_tile = std::shared_ptr<CanvasData>(new CanvasData(/*std::min(width,*/ TileWidth/*)*/, /*td::min(height,*/ TileHeight/*)*/, m_id));
     return std::shared_ptr<CanvasData>(new CanvasData(width, height, m_id)); //private cannot use make_...
@@ -61,8 +61,8 @@ std::string CanvasElement::addImage(const std::string& url, const std::function<
         imageElement.subscribe("load", [loaded, name](const Gempyre::Event&) {
             loaded(name);
         });
-    imageElement.setAttribute("style", "display:none");
-    imageElement.setAttribute("src", url);
+    imageElement.set_attribute("style", "display:none");
+    imageElement.set_attribute("src", url);
     return name;
 }
 
@@ -142,7 +142,7 @@ void CanvasElement::draw(const FrameComposer& frameComposer) const {
 }
 
 
-void CanvasElement::drawCompleted(const DrawCallback& drawCompletedCallback) {
+void CanvasElement::draw_completed(const DrawCallback& drawCompletedCallback) {
     subscribe("event_notify", [this](const Event& ev) {
         if(m_drawCallback && ev.properties.at("name") == "canvas_draw") {
             m_drawCallback();
@@ -169,7 +169,7 @@ void CanvasElement::erase(bool resized) const {
     draw({"clearRect", 0, 0, m_width, m_height});
 }
 
-Graphics::Graphics(const Gempyre::CanvasElement& element, int width, int height) : m_element(element), m_canvas(m_element.makeCanvas(width, height)) {
+Graphics::Graphics(const Gempyre::CanvasElement& element, int width, int height) : m_element(element), m_canvas(m_element.make_canvas(width, height)) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Graphics consructed", width, height);
 }
 /**
@@ -216,7 +216,7 @@ void Graphics::merge(const Graphics& other) {
        const auto go = (Color::g(po) * ao);
        const auto bo = (Color::b(po) * ao);
 
-       const auto pix = Color::rgbaClamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a);
+       const auto pix = Color::rgba_clamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a);
        pos[i] = pix;
     }
 }

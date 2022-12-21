@@ -46,22 +46,22 @@ Element& Element::subscribe(const std::string& name, std::function<void(const Ev
     return *this;
 }
 
-Element& Element::setHTML(const std::string& htmlText) {
+Element& Element::set_html(const std::string& htmlText) {
     m_ui->send(*this, "html", htmlText);
     return *this;
 }
 
-Element& Element::setAttribute(const std::string &attr, const std::string &value) {
+Element& Element::set_attribute(const std::string &attr, const std::string &value) {
     m_ui->send(*this, "set_attribute", std::unordered_map<std::string, std::string>{{"attribute", attr}, {"value", value}});
     return *this;
 }
 
-Element& Element::removeAttribute(const std::string &attr) {
+Element& Element::remove_attribute(const std::string &attr) {
     m_ui->send(*this, "remove_attribute", std::unordered_map<std::string, std::string>{{"attribute", attr}});
     return *this;
 }
 
-Element& Element::setStyle(const std::string &styleName, const std::string &value) {
+Element& Element::set_style(const std::string &styleName, const std::string &value) {
     m_ui->send(*this, "set_style", std::unordered_map<std::string, std::string>{{"style", styleName}, {"value", value}});
     return *this;
 }

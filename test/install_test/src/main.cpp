@@ -6,13 +6,13 @@ int main(int /*argc*/, char** /*argv*/)  {
   Gempyre::Element text(ui, "content");
   Gempyre::Element button(ui, "startbutton");
   button.subscribe("click", [&text](const Gempyre::Event&) {
-    text.setHTML("Hello World!");
+    text.set_html("Hello World!");
     });
   int count = 5; 
-  ui.onOpen([&]() {
-    ui.startPeriodic(1s, [&]() {
+  ui.on_open([&]() {
+    ui.start_periodic(1s, [&]() {
       --count;
-      button.setHTML("Exit in " +  std::to_string(count) + "s");
+      button.set_html("Exit in " +  std::to_string(count) + "s");
       if(count == 0)
         ui.exit();
       });

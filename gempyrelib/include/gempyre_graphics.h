@@ -93,7 +93,8 @@ public:
     CanvasElement& operator=(const CanvasElement& other) = default;
     CanvasElement& operator=(CanvasElement&& other) = default;
 
-    [[nodiscard]] CanvasDataPtr makeCanvas(int width, int height);
+    [[nodiscard]] CanvasDataPtr make_canvas(int width, int height);
+    [[nodiscard, deprecated("use snake")]] CanvasDataPtr makeCanvas(int width, int height) {return make_canvas(width, height);}
     std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
     std::vector<std::string> addImages(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
     void paintImage(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
@@ -101,7 +102,8 @@ public:
     void draw(const CommandList& canvasCommands) const;
     void draw(const FrameComposer& frameComposer) const;
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
-    void drawCompleted(const DrawCallback& drawCompletedCallback);
+    void draw_completed(const DrawCallback& drawCompletedCallback);
+    [[deprecated("use snake")]] void drawCompleted(const DrawCallback& drawCompletedCallback) {draw_completed(drawCompletedCallback);}
     void erase(bool resized = false) const;
     [[nodiscard]] bool hasCanvas() const {
         return !!m_tile;
@@ -118,9 +120,10 @@ private:
 
 namespace  Color {
 using type = Gempyre::Data::dataT;
-[[nodiscard]] static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {
+[[nodiscard]] static constexpr inline type rgba_clamped(type r, type g, type b, type a = 0xFF) {
     return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
 }
+[[nodiscard, deprecated("Use snake")]] static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {return rgba_clamped(r, g, b, a);}
 [[nodiscard]] static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
     return r | (g << 8) | (b << 16) | (a << 24);
 }

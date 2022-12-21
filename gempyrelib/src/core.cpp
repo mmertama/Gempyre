@@ -39,7 +39,7 @@ extern int androidLoadUi(const std::string&);
 
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 
-void Gempyre::setDebug(bool is_debug) {
+void Gempyre::set_debug(bool is_debug) {
     GempyreUtils::setLogLevel(is_debug ? GempyreUtils::LogLevel::Debug : GempyreUtils::LogLevel::Error);
 }
 
@@ -237,7 +237,7 @@ static std::vector<typename C::key_type> keys(const C& map) {
     return k;
 }
 
-Ui::Filemap Ui::toFileMap(const std::vector<std::string>& filenames) {
+Ui::Filemap Ui::to_file_map(const std::vector<std::string>& filenames) {
     Ui::Filemap map;
     for(const auto& filename : filenames) {
         const auto bytes = GempyreUtils::slurp<Base64::Byte>(filename);
@@ -461,7 +461,7 @@ Ui::Ui(const Filemap& filemap,
     // automatically try to set app icon if favicon is available
     const auto icon = resource("/favicon.ico");
     if(icon)
-        setApplicationIcon(icon->data(), icon->size(), "ico");
+        set_application_icon(icon->data(), icon->size(), "ico");
 }
 
 Ui::~Ui() {
@@ -566,13 +566,13 @@ void Ui::send(const DataPtr& data) {
 
 
 
-void Ui::beginBatch() {
+void Ui::begin_batch() {
     addRequest([this]() {
         return m_server->beginBatch();
     });
 }
 
-void Ui::endBatch() {
+void Ui::end_batch() {
     addRequest([this]() {
         return m_server->endBatch();
     });
@@ -615,7 +615,7 @@ std::function<void(int)> Ui::makeCaller(const std::function<void (TimerId id)>& 
 }
 
 
-Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
+Ui::TimerId Ui::start_periodic(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
     assert(timerFunc);
     auto caller = makeCaller(timerFunc);
     const int id = m_timers->append(ms, false, std::move(caller));
@@ -623,8 +623,8 @@ Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::fu
     return id;
 }
 
-Ui::TimerId Ui::startPeriodic(const std::chrono::milliseconds &ms, const std::function<void ()> &timerFunc) {
-    return startPeriodic(ms, [timerFunc](TimerId) {
+Ui::TimerId Ui::start_periodic(const std::chrono::milliseconds &ms, const std::function<void ()> &timerFunc) {
+    return start_periodic(ms, [timerFunc](TimerId) {
         return timerFunc();
     });
 }
@@ -643,27 +643,27 @@ Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<v
 }
 
 
-bool Ui::cancelTimer(TimerId id) {
+bool Ui::cancel_timer(TimerId id) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Stop Timer", id);
     return m_timers->remove(id);
 }
 
-Ui& Ui::onExit(std::function<void ()> onUiExitFunction) {
+Ui& Ui::on_exit(std::function<void ()> onUiExitFunction) {
     m_onUiExit = std::move(onUiExitFunction);
     return *this;
 }
 
-Ui& Ui::onReload(std::function<void ()> onReloadFunction) {
+Ui& Ui::on_reload(std::function<void ()> onReloadFunction) {
     m_onReload = std::move(onReloadFunction);
     return *this;
 }
 
-Ui& Ui::onOpen(std::function<void ()> onOpenFunction) {
+Ui& Ui::on_open(std::function<void ()> onOpenFunction) {
     m_onOpen = std::move(onOpenFunction);
     return *this;
 }
 
-Ui& Ui::onError(std::function<void (const std::string&, const std::string&)> onErrorFunction) {
+Ui& Ui::on_error(std::function<void (const std::string&, const std::string&)> onErrorFunction) {
     m_onError = std::move(onErrorFunction);
     return *this;
 }
@@ -768,11 +768,11 @@ void Ui::eventLoop(bool is_main) {
 
         if(m_onOpen && m_status == State::RUNNING && m_server->isConnected()) {
             const auto fptr = m_onOpen;
-            holdTimers(true);
+            hold_timers(true);
             addRequest([fptr, this]() {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
                 fptr();
-                holdTimers(false);
+                hold_timers(false);
                 return true;
             }); //we try to keep logic call order
             m_onOpen = nullptr; //as the function may reset the function, we do let that happen
@@ -829,7 +829,7 @@ void Ui::eventLoop(bool is_main) {
     GEM_DEBUG("Eventloop exit");
 }
 
-void Ui::setLogging(bool logging) {
+void Ui::set_logging(bool logging) {
     send(root(), "logging", logging ? "true" : "false");
 }
 
@@ -875,13 +875,13 @@ Element Ui::root() const {
 }
 
 
-std::string Ui::addressOf(const std::string& filepath) const {
+std::string Ui::address_of(const std::string& filepath) const {
     gempyre_utils_assert_x(m_server, "Not connected");
     return std::string(SERVER_ADDRESS) + ":" + std::to_string(m_server->port()) +
            "?file=" + GempyreUtils::hexify(GempyreUtils::absPath(filepath), R"([^a-zA-Z0-9-,.,_~])");
 }
 
-std::optional<Element::Elements> Ui::byClass(const std::string& className) const {
+std::optional<Element::Elements> Ui::by_class(const std::string& className) const {
     Element::Elements childArray;
     const auto childIds = const_cast<Ui*>(this)->query<std::vector<std::string>>(className, "classes");
     if(!childIds.has_value()) {
@@ -893,7 +893,7 @@ std::optional<Element::Elements> Ui::byClass(const std::string& className) const
     return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
-std::optional<Element::Elements> Ui::byName(const std::string& className) const {
+std::optional<Element::Elements> Ui::by_name(const std::string& className) const {
     Element::Elements childArray;
     const auto childIds = const_cast<Ui*>(this)->query<std::vector<std::string>>(className, "names");
     if(!childIds.has_value()) {
@@ -905,7 +905,7 @@ std::optional<Element::Elements> Ui::byName(const std::string& className) const 
     return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
-void Ui::extensionCall(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+void Ui::extension_call(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
     const auto json = GempyreUtils::toJsonString(parameters);
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
     addRequest([this, callId, json]() {
@@ -925,7 +925,7 @@ std::optional<std::any> Ui::extension(const std::string& callId, const std::unor
 }
 */
 
-std::optional<std::any> Ui::extensionGet(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
+std::optional<std::any> Ui::extension_get(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
     if(m_status != State::RUNNING) {
         return std::nullopt;
     }
@@ -964,7 +964,7 @@ std::optional<std::vector<uint8_t>> Ui::resource(const std::string& url) const {
     return std::make_optional(data);
 }
 
-bool Ui::addFile(const std::string& url, const std::string& file) {
+bool Ui::add_file(const std::string& url, const std::string& file) {
     if(!GempyreUtils::fileExists(file)) {
         return false;
     }
@@ -978,21 +978,21 @@ bool Ui::addFile(const std::string& url, const std::string& file) {
     return true;
 }
 
-std::optional<double> Ui::devicePixelRatio() const {
+std::optional<double> Ui::device_pixel_ratio() const {
     const auto value = const_cast<Ui*>(this)->query<std::string>("", "devicePixelRatio");
     return value.has_value() && m_status == Ui::State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
 }
 
-void Ui::setApplicationIcon(const uint8_t *data, size_t dataLen, const std::string& type) {
-    extensionCall("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}, {"type", type}});
+void Ui::set_application_icon(const uint8_t *data, size_t dataLen, const std::string& type) {
+    extension_call("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}, {"type", type}});
 }
 
 void Ui::resize(int width, int height) {
-    extensionCall("resize", {{"width", width}, {"height", height}});
+    extension_call("resize", {{"width", width}, {"height", height}});
 }
 
-void Ui::setTitle(const std::string& name) {
-    extensionCall("setTitle", {{"title", name}});
+void Ui::set_title(const std::string& name) {
+    extension_call("setTitle", {{"title", name}});
 }
 
 /*
@@ -1002,7 +1002,7 @@ std::string Ui::stdParams(int width, int height, const std::string& title) {
     return ss.str();
 }
 */
-std::optional<std::string> Ui::addFile(Gempyre::Ui::Filemap& map, const std::string& file) {
+std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, const std::string& file) {
     if(!GempyreUtils::fileExists(file)) {
         return std::nullopt;
     }
