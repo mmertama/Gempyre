@@ -95,10 +95,14 @@ public:
 
     [[nodiscard]] CanvasDataPtr make_canvas(int width, int height);
     [[nodiscard, deprecated("use snake")]] CanvasDataPtr makeCanvas(int width, int height) {return make_canvas(width, height);}
-    std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
-    std::vector<std::string> addImages(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
-    void paintImage(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
-    void paintImage(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
+    std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
+    [[nodiscard, deprecated("use snake")]]  std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr) {return add_image(url, loaded);}
+    std::vector<std::string> add_images(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
+    [[nodiscard, deprecated("use snake")]]  std::vector<std::string> addImages(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr) {return add_images(urls, loaded);}
+    void paint_image(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
+    [[deprecated("use snake")]]  void paintImage(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const {paint_image(imageId, x, y, clippingRect);}
+    void paint_image(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
+    [[deprecated("use snake")]]void paintImage(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const {paint_image(imageId, targetRect, clippingRect);}
     void draw(const CommandList& canvasCommands) const;
     void draw(const FrameComposer& frameComposer) const;
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
@@ -202,7 +206,8 @@ public:
     [[nodiscard]] int height() const {
         return m_canvas->height;
     }
-    void drawRect(const Element::Rect& rect, Color::type color);
+    void draw_rect(const Element::Rect& rect, Color::type color);
+    [[deprecated("Use snake")]]void drawRect(const Element::Rect& rect, Color::type color) {draw_rect(rect, color);}
     void merge(const Graphics& other);
     void swap(Graphics& other) {
         m_canvas.swap(other.m_canvas);

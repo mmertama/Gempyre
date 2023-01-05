@@ -54,7 +54,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sent canvas data");
 }
 
-std::string CanvasElement::addImage(const std::string& url, const std::function<void (const std::string& id)> &loaded) {
+std::string CanvasElement::add_image(const std::string& url, const std::function<void (const std::string& id)> &loaded) {
     const auto name = generateId("image");
     Gempyre::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
@@ -66,7 +66,7 @@ std::string CanvasElement::addImage(const std::string& url, const std::function<
     return name;
 }
 
-std::vector<std::string> CanvasElement::addImages(const std::vector<std::string>& urls, const std::function<void (const std::vector<std::string>)>& loaded) {
+std::vector<std::string> CanvasElement::add_images(const std::vector<std::string>& urls, const std::function<void (const std::vector<std::string>)>& loaded) {
     std::vector<std::string> names;
     auto result = std::make_shared<std::map<std::string, bool>>();
     std::for_each(urls.begin(), urls.end(), [this, &names, loaded, &result](const auto& url){
@@ -84,7 +84,7 @@ std::vector<std::string> CanvasElement::addImages(const std::vector<std::string>
     return names;
 }
 
-void CanvasElement::paintImage(const std::string& imageId, int x, int y, const Rect& clippingRect) const {
+void CanvasElement::paint_image(const std::string& imageId, int x, int y, const Rect& clippingRect) const {
     auto This = const_cast<CanvasElement*>(this);
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
         This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
@@ -95,7 +95,7 @@ void CanvasElement::paintImage(const std::string& imageId, int x, int y, const R
                                                                          {"clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height}}});
 }
 
-void CanvasElement::paintImage(const std::string& imageId, const Rect& targetRect, const Element::Rect& clippingRect) const {
+void CanvasElement::paint_image(const std::string& imageId, const Rect& targetRect, const Element::Rect& clippingRect) const {
     if(targetRect.width <= 0 || targetRect.height <= 0)
         return;
     auto This = const_cast<CanvasElement*>(this);
@@ -182,7 +182,7 @@ Graphics::Graphics(const Gempyre::CanvasElement& element) : m_element(element) {
     GempyreUtils::log(GempyreUtils::LogLevel::Info, "Graphics without canvas created, create() must be called");
 }
 
-void Graphics::drawRect(const Element::Rect& rect, Color::type color) {
+void Graphics::draw_rect(const Element::Rect& rect, Color::type color) {
     if(rect.width <= 0 || rect.width <= 0)
         return;
     const auto x = std::max(0, rect.x);
