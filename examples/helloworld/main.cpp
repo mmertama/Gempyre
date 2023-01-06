@@ -7,45 +7,45 @@
 #include "html_resource.h"
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::setDebug();
+    Gempyre::set_debug();
 
     auto ui = std::make_unique<Gempyre::Ui>(Html_resourceh, "index.html");
 
     Gempyre::Element text(*ui, "content");
     Gempyre::Element button(*ui, "startbutton");
-    button.setHTML("Hello?");
+    button.set_html("Hello?");
     button.subscribe("click", [&ui, &text](auto) {
-        text.setHTML("Hello World!");
+        text.set_html("Hello World!");
         const auto p = ui->ping();
         if(p.has_value()) {
             auto [ping, halfping] = p.value();
-            text.setHTML("Ping roundtrip:" + std::to_string(static_cast<double>(ping.count()) / 1000.)
+            text.set_html("Ping roundtrip:" + std::to_string(static_cast<double>(ping.count()) / 1000.)
                     + " to UI:" + std::to_string(static_cast<double>(halfping.count()) / 1000.));
        }
     });
 
     Gempyre::Element(*ui, "title").subscribe("change", [&ui](const auto& event)  {
         const auto title_name = event.properties.at("value");
-        ui->setTitle(title_name);
+        ui->set_title(title_name);
     }, {"value"});
 
     Gempyre::Element(*ui, "open_icon").subscribe("click", [&ui](const auto&)  {
         const auto icon_name = Gempyre::Dialog::openFileDialog("Open Image");
         if(!icon_name)
             return;
-        Gempyre::Element(*ui, "icon_label").setHTML(*icon_name);
+        Gempyre::Element(*ui, "icon_label").set_html(*icon_name);
         const auto icon_data = GempyreUtils::slurp<uint8_t>(*icon_name);
         if(icon_data.empty())
             return;
         const auto& [_, ext] = GempyreUtils::splitName(*icon_name);
-        ui->setApplicationIcon(icon_data.data(), icon_data.size(), ext);
+        ui->set_application_icon(icon_data.data(), icon_data.size(), ext);
     });
 
-    ui->onOpen([&ui] {
+    ui->on_open([&ui] {
        const auto r = ui->root().rect();
        if(r) {
-           Gempyre::Element(*ui, "width").setAttribute("value", std::to_string(r->width));
-           Gempyre::Element(*ui, "height").setAttribute("value", std::to_string(r->height));
+           Gempyre::Element(*ui, "width").set_attribute("value", std::to_string(r->width));
+           Gempyre::Element(*ui, "height").set_attribute("value", std::to_string(r->height));
        }
     });
 
