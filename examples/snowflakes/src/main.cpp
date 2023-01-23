@@ -42,7 +42,7 @@ private:
 constexpr int Size = 400;
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::setDebug(true);
+    Gempyre::set_debug(true);
     Gempyre::Ui ui({{"/snowflakes.html", Snowflakeshtml}}, "snowflakes.html");
     Gempyre::CanvasElement canvas(ui, "canvas");
     Gempyre::Element flakes_count(ui, "flakes_count");
@@ -67,7 +67,7 @@ int main(int /*argc*/, char** /*argv*/) {
     };
 
     const auto update_a_label = [&flakes_label](int iterations) {
-          flakes_label.setHTML("Iterations: " + std::to_string(iterations));
+          flakes_label.set_html("Iterations: " + std::to_string(iterations));
     };
 
     flakes_count.subscribe("change", [&draw_a_flake, &update_a_label](const Gempyre::Event& ev) {
@@ -76,7 +76,7 @@ int main(int /*argc*/, char** /*argv*/) {
         draw_a_flake(v);
     }, {"value"});
 
-    ui.onOpen([&flakes_count, &draw_a_flake, &update_a_label, &canvas, &rect]() {
+    ui.on_open([&flakes_count, &draw_a_flake, &update_a_label, &canvas, &rect]() {
         rect = *canvas.rect();
         const auto v = GempyreUtils::convert<int>(flakes_count.values()->at("value"));
         update_a_label(v);
