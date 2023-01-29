@@ -62,7 +62,7 @@ private:
 };
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::setDebug(true);
+    Gempyre::set_debug(true);
     Gempyre::Ui ui(Framerate_resourceh, "framerate.html");
     Gempyre::CanvasElement canvas(ui, "canvas");
     Gempyre::Element flakes_count(ui, "flakes_count");
@@ -86,10 +86,10 @@ int main(int /*argc*/, char** /*argv*/) {
         ++frame_count;
     };
 
-    canvas.drawCompleted(draw_flakes);
+    canvas.draw_completed(draw_flakes);
 
     const auto update_a_label = [&flakes_label](int iterations) {
-          flakes_label.setHTML("Flakes: " + std::to_string(iterations));
+          flakes_label.set_html("Flakes: " + std::to_string(iterations));
     };
 
     const auto flake_params = [&generator, &rect](){
@@ -129,7 +129,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     }, {"value"});
 
-    ui.onOpen([&]() {
+    ui.on_open([&]() {
         rect = *canvas.rect();
         const auto v = GempyreUtils::convert<int>(flakes_count.values()->at("value"));
         update_a_label(v);
@@ -143,7 +143,7 @@ int main(int /*argc*/, char** /*argv*/) {
         draw_flakes(); // must be called only once, otherwise requests will duplicate
     });
 
-    ui.startPeriodic(1s, [&start, &duration, &frame_count, &counter, &tick_count]() {
+    ui.start_periodic(1s, [&start, &duration, &frame_count, &counter, &tick_count]() {
         const auto end = std::chrono::steady_clock::now();
         duration = end - start;
         start = end;
@@ -152,10 +152,10 @@ int main(int /*argc*/, char** /*argv*/) {
         const auto fps = static_cast<double>(frame_count) / duration.count();
         frame_count = 0;
         tick_count = 0;
-        counter.setHTML("FPS:" + std::to_string(fps) + ", deviation:" + std::to_string(deviation_persentage) + "%");
+        counter.set_html("FPS:" + std::to_string(fps) + ", deviation:" + std::to_string(deviation_persentage) + "%");
     });
 
-    ui.startPeriodic(Speed, [&flakes, &rect, &tick_count]() {
+    ui.start_periodic(Speed, [&flakes, &rect, &tick_count]() {
         for(auto& f : flakes) {
             f.fall(rect.height);
         }

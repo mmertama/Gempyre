@@ -93,3 +93,5 @@ msvc_build
 *build_all
 GPUCache
 Testing
+.idea
+cmake-build-*

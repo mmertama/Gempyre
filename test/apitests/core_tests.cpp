@@ -31,17 +31,17 @@ TEST(TestMockUi, openPage_with_page_browser) {
 #endif
 
     Gempyre::Ui::Filemap map;
-    const auto url = Gempyre::Ui::addFile(map, htmlPage);
+    const auto url = Gempyre::Ui::add_file(map, htmlPage);
 
     gempyre_utils_assert_x(url, std::string("Cannot load ") + htmlPage);
 
     Gempyre::Ui ui(map, *url, TEST_BINARY, "");
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ok = true;
         ui.exit();
     });
-    ui.onError([](const auto& element, const auto& info) {
+    ui.on_error([](const auto& element, const auto& info) {
         std::cerr << element << " err:" << info; TEST_FAIL;
     });
     const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
@@ -59,16 +59,16 @@ TEST(TestMockUi, openPage_with_page) {
 #endif
 
     Gempyre::Ui::Filemap map;
-    const auto url = Gempyre::Ui::addFile(map, htmlPage);
+    const auto url = Gempyre::Ui::add_file(map, htmlPage);
 
     gempyre_utils_assert_x(url, std::string("Cannot load ") + htmlPage);
     Gempyre::Ui ui(map, *url, TEST_BINARY, "");
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ok = true;
         ui.exit();
     });
-    ui.onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
+    ui.on_error([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
     const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
     ui.run();
     ASSERT_TRUE(ok);
@@ -78,11 +78,11 @@ TEST(TestMockUi, openPage_with_page) {
 TEST(TestMockUi, openPage_with_browser) {
     Gempyre::Ui ui({{"/foobar.html", Apitestshtml}}, "foobar.html", TEST_BINARY, "");
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ok = true;
         ui.exit();
     });
-    ui.onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
+    ui.on_error([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
     const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
     ui.run();
     ASSERT_TRUE(ok);
@@ -94,12 +94,12 @@ TEST(TestMockUi, openPage_with_browser) {
 TEST(TestMockUi, openPage_defaults) {
     TEST_UI;
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ASSERT_FALSE(ok);
         ok = true;
         ui.exit();
     });
-    ui.onError([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
+    ui.on_error([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
     const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
@@ -108,11 +108,11 @@ TEST(TestMockUi, openPage_defaults) {
 TEST(TestMockUi, onExit) {
     TEST_UI;
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ASSERT_FALSE(ok);
         ui.exit();
     });
-    ui.onExit([&ok]() {
+    ui.on_exit([&ok]() {
         ASSERT_FALSE(ok);
         ok = true;
     });
@@ -124,10 +124,10 @@ TEST(TestMockUi, onExit) {
 TEST(TestMockUi, close) {
     TEST_UI;
     bool ok = false;
-    ui.onOpen([&ui]() {
+    ui.on_open([&ui]() {
         ui.close();
     });
-    ui.onExit([&ok]() {
+    ui.on_exit([&ok]() {
         ASSERT_FALSE(ok);
         ok = true;
     });
@@ -139,9 +139,9 @@ TEST(TestMockUi, close) {
 
 TEST(TestMockUi, setLogging) {
     TEST_UI;
-    ui.onOpen([&ui]() {
-        ui.setLogging(true);
-        ui.setLogging(false);
+    ui.on_open([&ui]() {
+        ui.set_logging(true);
+        ui.set_logging(false);
         ui.exit();
     });
     const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
@@ -151,7 +151,7 @@ TEST(TestMockUi, setLogging) {
 TEST(TestMockUi, debug) {
     TEST_UI;
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ui.debug("Test - Debug");
         ok = true;
         ui.exit();
@@ -165,7 +165,7 @@ TEST(TestMockUi, debug) {
 TEST(TestMockUi, alert) {
     TEST_UI;
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ui.alert("Test - Alert");
         ok = true;
         ui.exit();
@@ -180,7 +180,7 @@ TEST(TestMockUi, alert) {
 TEST(TestMockUi, open) {
     TEST_UI;
     bool ok = false;
-    ui.onOpen([&ui, &ok]() {
+    ui.on_open([&ui, &ok]() {
         ui.open("http://www.google.com");
         ok = true;
         ui.exit();
@@ -225,7 +225,7 @@ TEST(TestMockUi, stopTimer) {
     ui.after(3000ms, [&ui]() {
           ui.exit();
        });
-    ui.cancelTimer(id);
+    ui.cancel_timer(id);
     ui.run();
     EXPECT_TRUE(ok);
 }
@@ -234,7 +234,7 @@ TEST(TestMockUi, stopTimer) {
 TEST(TestMockUi, startManyTimers) {
     TEST_UI;
     std::string test = "";
-    ui.onOpen([&test](){
+    ui.on_open([&test](){
         test += 'm';
     });
     ui.after(0ms, [&test](Gempyre::Ui::TimerId id)  {
@@ -342,7 +342,7 @@ TEST(TestMockUi, addFile) {
      TEST_UI;
     const std::string test = "The quick brown fox jumps over the lazy dog";
     const auto tempFile = GempyreUtils::writeToTemp(test);
-    const auto ok = ui.addFile("test_data", tempFile);
+    const auto ok = ui.add_file("test_data", tempFile);
     ASSERT_TRUE(ok);
     GempyreUtils::removeFile(tempFile);
     const auto r = ui.resource("test_data");

@@ -182,7 +182,7 @@ public:
     Graphics& operator=(const Graphics& other) = default;
     Graphics& operator=(Graphics&& other) = default;
     void create(int width, int height) {
-        m_canvas = m_element.makeCanvas(width, height);
+        m_canvas = m_element.make_canvas(width, height);
     }
     Graphics clone() const;
     static constexpr Color::type pix(Color::type r, Color::type g, Color::type b, Color::type a = 0xFF) {return Color::rgba(r, g, b, a);}

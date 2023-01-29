@@ -8,7 +8,7 @@ using namespace std::chrono_literals;
 
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::setDebug();
+    Gempyre::set_debug();
     Gempyre::Ui ui({{"/drawcanvas.html", Drawcanvashtml}}, "drawcanvas.html");
 
     Gempyre::CanvasElement canvas(ui, "canvas");
