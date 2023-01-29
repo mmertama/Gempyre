@@ -6,7 +6,7 @@
 using namespace std::chrono_literals;
 
 void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el) {
-    el.ui().beginBatch();
+    el.ui().begin_batch();
     const auto width = 1000. / 9.;
     const auto height = 1000. / 9.;
     auto caret = x;
@@ -14,7 +14,7 @@ void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el
         if(c >= 'a' && c <=  'z') {
             const int row = (c - 'a') % 9;
             const int col = (c - 'a') / 9;
-            el.paintImage("salcat", {caret, y, 20, 20}, {
+            el.paint_image("salcat", {caret, y, 20, 20}, {
                               static_cast<int>(row * width),
                               static_cast<int>(col * height),
                               static_cast<int>(width),
@@ -26,11 +26,11 @@ void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el
         } else
             caret += 20;
     }
-    el.ui().endBatch();
+    el.ui().end_batch();
 }
 
 int main(int argc, char** argv) {
-   // Gempyre::setDebug();
+   // Gempyre::set_debug();
     const auto args = GempyreUtils::parseArgs(argc, argv, {{"resources", 'r', GempyreUtils::ArgType::REQ_ARG}});
     const auto options = std::get<GempyreUtils::Options>(args);
     const auto it = options.find("resources");
@@ -48,23 +48,23 @@ int main(int argc, char** argv) {
     });
 
     //2) via baked in resource (this image is added in above)
-    canvas.addImage("/owl.png", [&canvas](const auto id){
-        canvas.paintImage(id, {200, 0, 200, 200});
+    canvas.add_image("/owl.png", [&canvas](const auto id){
+        canvas.paint_image(id, {200, 0, 200, 200});
     });
 
 
     //3). via page and add as a resources
     ui.after(2000ms, [&canvas]() {
-        canvas.paintImage("some_sceneid", {0, 200, 200, 200});
+        canvas.paint_image("some_sceneid", {0, 200, 200, 200});
     });
     /* This does not work
     Gempyre::Element(ui, "some_sceneid").subscribe("load", [&canvas] (const Gempyre::Element::Event&){
-         canvas.paintImage("some_sceneid", {0, 200, 200, 200});
+         canvas.paint_image("some_sceneid", {0, 200, 200, 200});
     });
     */
     const auto simage1 = root + "free-scenery-7.jpg";
     if(GempyreUtils::fileExists(simage1)) {
-        if(!ui.addFile("/scene.jpg", simage1)) {
+        if(!ui.add_file("/scene.jpg", simage1)) {
             std::cerr << "Cannot load " << simage1 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
             return -1;
         }
@@ -73,25 +73,25 @@ int main(int argc, char** argv) {
     //4) add as resource and image
     const auto simage2 = root + "tom-hanssens-shot-01.jpg";
     if(GempyreUtils::fileExists(simage2)) {
-        if(!ui.addFile("/scene2.jpg", simage2)) {
+        if(!ui.add_file("/scene2.jpg", simage2)) {
             std::cerr << "Cannot load " << simage2 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
             return -1;
         }
     } else ui.alert(simage2 + " not found!");
 
-    canvas.addImage("/scene2.jpg", [&canvas](const auto& scene){
-         canvas.paintImage(scene, {200, 200, 200, 200});
+    canvas.add_image("/scene2.jpg", [&canvas](const auto& scene){
+         canvas.paint_image(scene, {200, 200, 200, 200});
     });
 
     //5) local file - see root parameter in constructor (assuming it is set correctly here to imageblit/stuff folder)
     ui.after(3000ms, [&canvas]() {
-        canvas.paintImage("huld", {0, 400, 200, 200});
+        canvas.paint_image("huld", {0, 400, 200, 200});
     });
 
     auto frame = 0U;
 
-    canvas.addImage("leigh-kellogg-captainamerica-poseframes-2.jpg", [&canvas, &ui, &frame](const auto& marica){
-        ui.startPeriodic(50ms, [&canvas, &frame, marica]{
+    canvas.add_image("leigh-kellogg-captainamerica-poseframes-2.jpg", [&canvas, &ui, &frame](const auto& marica){
+        ui.start_periodic(50ms, [&canvas, &frame, marica]{
             const std::vector<Gempyre::Element::Rect> frames{
                 {100, 300, 248, 344},
                 {348, 300, 282, 344},
@@ -118,16 +118,16 @@ int main(int argc, char** argv) {
                 {1295, 1832, 320, 344},
             };
        /*     for(int i = 0; i < 6; i++){
-                canvas.paintImage(marica, {i * 50, 0, 49, 49}, frames.at(i));
+                canvas.paint_image(marica, {i * 50, 0, 49, 49}, frames.at(i));
             }
             for(int i = 0; i < 4; i++){
-                canvas.paintImage(marica, {i * 50, 50, 49, 49}, frames.at(i + 6));
+                canvas.paint_image(marica, {i * 50, 50, 49, 49}, frames.at(i + 6));
             }
             for(int i = 0; i < 5; i++){
-                canvas.paintImage(marica, {i * 50, 100, 49, 49}, frames.at(i + 10));
+                canvas.paint_image(marica, {i * 50, 100, 49, 49}, frames.at(i + 10));
             }
             for(int i = 0; i < 5; i++){
-                canvas.paintImage(marica, {i * 50, 150, 49, 49}, frames.at(i + 15));
+                canvas.paint_image(marica, {i * 50, 150, 49, 49}, frames.at(i + 15));
             }
 */
 
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
 
             if(frame >= frames.size())
                 frame = 0;
-            canvas.paintImage(marica, {200, 400, 200, 200}, frames.at(frame));
+            canvas.paint_image(marica, {200, 400, 200, 200}, frames.at(frame));
             ++frame;
   //          std::cout << "frame" << frame << std::endl;
         });
