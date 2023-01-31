@@ -104,7 +104,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 * Reconsider libwebsockets instead of uWebsockets.
 * POC of Gempyre-Android style architecture also in core.
 * camelStyle or snake_style? (Gempyre-Python already uses snake, and Im warmin up for that :-)
-* Rust wrapper
+
 
 
 Late updates

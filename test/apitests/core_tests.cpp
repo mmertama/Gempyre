@@ -343,13 +343,13 @@ TEST(TestMockUi, addFile) {
     const std::string test = "The quick brown fox jumps over the lazy dog";
     const auto tempFile = GempyreUtils::writeToTemp(test);
     const auto ok = ui.add_file("test_data", tempFile);
-    ASSERT_TRUE(ok);
+    ASSERT_TRUE(ok) << "Cannot add file " << tempFile;
     GempyreUtils::removeFile(tempFile);
     const auto r = ui.resource("test_data");
     const std::string text = GempyreUtils::join(*r);
     const auto p1 = text.find("quick");
-    EXPECT_NE(p1, std::string::npos);
-    EXPECT_EQ(text.length(), test.length());
+    EXPECT_NE(p1, std::string::npos) << "Corrupted file";
+    EXPECT_EQ(text.length(), test.length()) << "Mismatch file length" << text.length() << " expected:" << test.length();
 }
 
 

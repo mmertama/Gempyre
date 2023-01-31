@@ -370,6 +370,8 @@ set(GEMPYRE_SRC
     ${DIALOG_SRC}
     js/gempyre.js
     py/pyclient.py
+    src/data.h
+    src/gempyre_internal.h
     )
 
 

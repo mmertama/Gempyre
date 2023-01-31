@@ -1,11 +1,12 @@
 #include "gempyre_graphics.h"
 #include "gempyre_utils.h"
+#include "data.h"
 #include <any>
+
 
 using namespace Gempyre;
 
-CanvasData::~CanvasData() {
-}
+
 
 CanvasDataPtr CanvasElement::make_canvas(int width, int height) { //could be const, but is it sustainable?
     gempyre_graphics_assert(width > 0 && height > 0, "Graphics size is expected be more than zero");
@@ -26,29 +27,29 @@ void CanvasElement::paint(const CanvasDataPtr& canvas) {
         GempyreUtils::log(GempyreUtils::LogLevel::Error, "Won't paint as buffer is NULL");
         return;
     }
-    if(canvas->height <= 0 || canvas->width <= 0 ) {
+    if(canvas->height() <= 0 || canvas->width() <= 0 ) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Won't paint as canvas size is 0");
         return;
     }
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sending canvas data");
 
-    for(auto j = 0 ; j < canvas->height ; j += TileHeight) {
-        const auto height = std::min(TileHeight, canvas->height - j);
-        for(auto i = 0 ; i < canvas->width ; i += TileWidth) {
-            const auto width = std::min(TileWidth, canvas->width - i);
-            const auto srcPos = canvas->data() + i + (j * canvas->width);
+    for(auto j = 0 ; j < canvas->height() ; j += TileHeight) {
+        const auto height = std::min(TileHeight, canvas->height() - j);
+        for(auto i = 0 ; i < canvas->width() ; i += TileWidth) {
+            const auto width = std::min(TileWidth, canvas->width() - i);
+            const auto srcPos = canvas->data() + i + (j * canvas->width());
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Copy canvas frame", i, j, width, height);
             for(int h = 0; h < height; h++) {
-                const auto lineStart = srcPos + (h * canvas->width);
+                const auto lineStart = srcPos + (h * canvas->width());
                 auto trgPos = m_tile->data() + width * h;
                 std::copy(lineStart, lineStart + width, trgPos);
             }
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Sending canvas frame", i, j, width, height);
-            m_tile->writeHeader({static_cast<CanvasData::Data::dataT>(i),
-                                 static_cast<CanvasData::Data::dataT>(j),
-                                 static_cast<CanvasData::Data::dataT>(width),
-                                 static_cast<CanvasData::Data::dataT>(height)});
-           send(m_tile);
+            m_tile->ref().writeHeader({static_cast<Gempyre::dataT>(i),
+                                 static_cast<Gempyre::dataT>(j),
+                                 static_cast<Gempyre::dataT>(width),
+                                 static_cast<Gempyre::dataT>(height)});
+           send(m_tile->ptr());
         }
     }
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sent canvas data");
@@ -187,22 +188,22 @@ void Graphics::draw_rect(const Element::Rect& rect, Color::type color) {
         return;
     const auto x = std::max(0, rect.x);
     const auto y = std::max(0, rect.y);
-    const auto width = (x + rect.width >= m_canvas->width) ?  m_canvas->width - rect.x : rect.width;
-    const auto height = (y + rect.height >= m_canvas->height) ? m_canvas->height - rect.y : rect.height;
-    auto pos = m_canvas->data() + (x + y * m_canvas->width);
+    const auto width = (x + rect.width >= m_canvas->width()) ?  m_canvas->width ()- rect.x : rect.width;
+    const auto height = (y + rect.height >= m_canvas->height()) ? m_canvas->height() - rect.y : rect.height;
+    auto pos = m_canvas->data() + (x + y * m_canvas->width());
     for(int j = 0; j < height; j++) {
         std::fill(pos, pos + width, color);
-        pos += m_canvas->width;
+        pos += m_canvas->width();
     }
 }
 
 void Graphics::merge(const Graphics& other) {
     if(other.m_canvas == m_canvas)
         return;
-    gempyre_graphics_assert(other.m_canvas->size() == m_canvas->size(), "Canvas sizes must match")
+    gempyre_graphics_assert(other.m_canvas->ref().size() == m_canvas->ref().size(), "Canvas sizes must match")
     auto pos = m_canvas->data();
     const auto posOther = other.m_canvas->data();
-    for(auto i = 0U; i < m_canvas->size(); i++) {
+    for(auto i = 0U; i < m_canvas->ref().size(); i++) {
        const auto p = pos[i];
        const auto po = posOther[i];
        const auto ao = Color::alpha(po);
@@ -224,8 +225,8 @@ void Graphics::merge(const Graphics& other) {
 
 Graphics Graphics::clone() const {
         Graphics other(m_element);
-        other.create(m_canvas->width, m_canvas->height);
-        std::copy(m_canvas->begin(), m_canvas->end(), other.m_canvas->data());
+        other.create(m_canvas->width(), m_canvas->height());
+        std::copy(m_canvas->ptr()->begin(), m_canvas->ptr()->end(), other.m_canvas->data());
         return other;
     }
 
@@ -234,4 +235,25 @@ void Graphics::update() {
         m_element.paint(m_canvas);
 }
 
+ CanvasData::CanvasData(int w, int h, const std::string& owner) :
+    m_data{std::make_shared<Data>(
+        static_cast<size_t>(w * h),
+        static_cast<dataT>(CanvasId),
+        owner,
+        std::vector<dataT>{0, 0, static_cast<dataT>(w), static_cast<dataT>(h)}
+        )},
+    m_width{w},
+    m_height{h} {}
 
+CanvasData::~CanvasData() {} 
+
+dataT* CanvasData::data() {return m_data->data();}
+const dataT* CanvasData::data() const {return m_data->data();}
+
+Data& CanvasData::ref() {
+    return *m_data;
+}
+
+DataPtr CanvasData::ptr() const {
+    return m_data;
+}

@@ -1,15 +1,14 @@
 
-#include "server.h"
-#include "semaphore.h"
-#include "eventqueue.h"
+
 #include <algorithm>
 #include <vector>
 #include "gempyre.h"
 #include "gempyre_utils.h"
+#include "gempyre_internal.h"
 
 namespace Gempyre {
 
-
+  
 /*
 template <class, class = void>
 struct has_key : std::false_type{};
@@ -57,24 +56,26 @@ template <>
 template<class T>
 std::optional<T> Ui::query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams)  {
     T response;
-    if(m_status == State::RUNNING) {
-        const auto queryId = std::to_string(m_server->queryId());
+    if(*m_ui == State::RUNNING) {
+        const auto queryId = m_ui->query_id();
 
-        addRequest([this, queryId, elId, queryString, queryParams](){
-            return m_server->send({{"type", "query"}, {"query_id", queryId}, {"element", elId},{"query", queryString}},
+        m_ui->addRequest([this, queryId, elId, queryString, queryParams](){
+            return m_ui->send({{"type", "query"}, {"query_id", queryId}, {"element", elId},{"query", queryString}},
                                   std::unordered_map<std::string, std::any>{{"query_params", queryParams}});
         });
 
         for(;;) {   //start waiting the response
             eventLoop(false);
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", toStr(m_status));
-            if(m_status != State::RUNNING) {
-                m_sema->signal();
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", m_ui->state_str());
+            if(*m_ui != State::RUNNING) {
+                m_ui->signal_pending();
                 break; //we are gone
             }
 
-            if(m_responsemap->contains(queryId)) {
-               const auto item = m_responsemap->take(queryId);
+            const auto query_response = m_ui->take_response(queryId);
+
+            if(query_response) {
+               const auto item = query_response.value();
                const auto asString = std::any_cast<std::string>(&item);
                if(asString && *asString == "query_error") {
                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Invalid query:", elId, queryString);
@@ -86,12 +87,6 @@ std::optional<T> Ui::query(const std::string& elId, const std::string& queryStri
         }
     }
     return std::make_optional<T>(response);
-}
-
-inline void Ui::addRequest(std::function<bool()>&& f) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_requestqueue.emplace_back(f);
-    m_sema->signal();
 }
 
 }

@@ -20,6 +20,9 @@
 #include "timer.h"
 
 #include "core.h"
+#include "data.h"
+
+#include "gempyre_internal.h"
 
 using namespace std::chrono_literals;
 using namespace Gempyre;
@@ -256,17 +259,6 @@ std::tuple<int, int, int> Gempyre::version() {
 
 
 
-std::string Ui::toStr(const std::atomic<Gempyre::Ui::State>& s) {
-    const std::unordered_map<Gempyre::Ui::State, std::string> m{
-        {Ui::State::NOTSTARTED, "NOTSTARTED"},
-        {Ui::State::RUNNING, "RUNNING"},
-        {Ui::State::RETRY, "RETRY"},
-        {Ui::State::EXIT, "EXIT"},
-        {Ui::State::CLOSE, "CLOSE"},
-        {Ui::State::RELOAD, "RELOAD"},
-        {Ui::State::PENDING, "PENDING"}};
-    return m.at(s.load());
-}
 
 
 /// Create UI using default ui app or gempyre.conf
@@ -298,15 +290,14 @@ Ui::Ui(const Filemap& filemap,
     {!browser_params.empty() ? BROWSER_PARAMS_KEY : "", browser_params}}){}
 
 void Ui::openHandler() {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening", toStr(m_status));
-    if(m_status == State::CLOSE || m_status == State::PENDING) {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening", m_ui->state_str());
+    if(*m_ui == State::CLOSE || *m_ui == State::PENDING) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Request reload, Status change --> Reload");
-        m_status = State::RELOAD;
+        m_ui->set(State::RELOAD);
     }
 
-    if(m_sema) {
-        m_sema->signal();    // there may be some pending requests
-    }
+    m_ui->signal_pending();    // there may be some pending requests
+    
 }
 
 void Ui::messageHandler(const Server::Object& params) {
@@ -318,28 +309,26 @@ void Ui::messageHandler(const Server::Object& params) {
             const auto element = std::any_cast<std::string>(params.at("element"));
             const auto event = std::any_cast<std::string>(params.at("event"));
             const auto properties = std::any_cast<Server::Object>(params.at("properties"));
-            m_eventqueue->push({element, event, properties});
+            m_ui->push_event({element, event, properties});
         } else if(type == "query") {
             const auto key = std::any_cast<std::string>(params.at("query_value"));
-            const auto id = std::any_cast<std::string>(params.at("query_id"));
+            auto id = std::any_cast<std::string>(params.at("query_id"));
             auto k = params.at(key);
-            m_responsemap->push(id, std::move(k));
+            m_ui->push_response(std::move(id), std::move(k));
         } else if(type == "extension_response") {
             gempyre_utils_assert_x(containsAll(keys(params), {"extension_id", "extension_call"}), "extension_response invalid parameters");
-            const auto id = std::any_cast<std::string>(params.at("extension_id"));
+            auto id = std::any_cast<std::string>(params.at("extension_id"));
             const auto key = std::any_cast<std::string>(params.at("extension_call"));
             auto k = params.at(key);
-            m_responsemap->push(id, std::move(k));
+            m_ui->push_response(std::move(id), std::move(k));
         } else if(type == "error") {
             GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS says at:", std::any_cast<std::string>(params.at("element")),
                               "error:", std::any_cast<std::string>(params.at("error")));
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS trace:", std::any_cast<std::string>(params.at("trace")));
-            if(m_onError) {
-                m_onError(std::any_cast<std::string>(params.at("element")), std::any_cast<std::string>(params.at("error")));
-            }
+            m_ui->call_error(std::any_cast<std::string>(params.at("element")), std::any_cast<std::string>(params.at("error")));
         } else if(type == "exit_request") {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "client kindly asks exit --> Status change Exit");
-            m_status = State::EXIT;
+            m_ui->set(State::EXIT);
         } else if(type == "extensionready") {
              /* no more like this
               * const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
@@ -352,39 +341,40 @@ void Ui::messageHandler(const Server::Object& params) {
                               {"params", ""}});
             */
         }
-        m_sema->signal();
+        m_ui->signal_pending();
     }
 }
 
 void Ui::closeHandler(Gempyre::CloseStatus closeStatus, int code) { //close
-    if(!m_server) {
+    if(!m_ui->has_server()) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Close, Status change --> Exit");
-        m_status = State::EXIT;
-        m_sema->signal();
+        m_ui->set(State::EXIT);
+        m_ui->signal_pending();
         return;
     }
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Gempyre close",  toStr(m_status),
-                      static_cast<int>(closeStatus), (m_server ? m_server->isConnected() : false), code);
 
-    if(m_status != State::EXIT && (closeStatus != CloseStatus::EXIT  && (closeStatus == CloseStatus::CLOSE && m_server && !m_server->isConnected()))) {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Gempyre close",  m_ui->state_str(),
+                      static_cast<int>(closeStatus), m_ui->is_connected(), code);
+
+    if(*m_ui != State::EXIT && (closeStatus != CloseStatus::EXIT  && (closeStatus == CloseStatus::CLOSE && m_ui->is_connected()))) {
         pendingClose();
     } else if(closeStatus == CloseStatus::FAIL) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Fail, Status change --> Retry");
-        m_status = State::RETRY;
+        m_ui->set(State::RETRY);
     }
 
-    if(m_status == State::EXIT || m_status == State::RETRY) {
-        m_sema->signal();
+    if(*m_ui == State::EXIT || *m_ui == State::RETRY) {
+       m_ui->signal_pending();
     }
 }
 
 
 
 bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters , int listen_port) { //listening
-    if(m_status == State::EXIT)
+    if(*m_ui == State::EXIT)
         return false; //we are on exit, no more listening please
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
-    m_status = State::RUNNING;
+    m_ui->set(State::RUNNING);
 
     const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
 
@@ -417,21 +407,20 @@ std::optional<std::string> Ui::getHandler(const std::string_view & name) { //get
         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
         return std::make_optional(page);
     }
-    const auto it = m_filemap.find(std::string(name));
-    if(it != m_filemap.end()) {
-        if(it->second.size() == 0) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Empty data:", it->first);
+    const auto file = m_ui->file(name);
+    if(file) {
+        if(file->size() == 0) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Empty data:", name);
         }
-        const auto encoded = Base64::decode(it->second);
+        const auto encoded = Base64::decode(*file);
         if(encoded.size() == 0) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Invalid Base64:", it->first);
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "This is bad:", it->second);
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Invalid Base64:", name);
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "This is bad:", *file);
         }
         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get:", page.size(), it->second.size());
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get:", page.size(), file->size());
         return std::make_optional(page);
     }
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get - not found from:", GempyreUtils::join(GempyreUtils::keys(m_filemap), ","));
     return std::nullopt;
 }
 
@@ -440,23 +429,13 @@ Ui::Ui(const Filemap& filemap,
        unsigned short port,
        const std::string& root,
        const std::unordered_map<std::string, std::string>& parameters) :
-    m_eventqueue(std::make_unique<EventQueue<InternalEvent>>()),
-    m_responsemap(std::make_unique<EventMap<std::string, std::any>>()),
-    m_sema(std::make_unique<Semaphore>()),
-    m_timers(std::make_unique<TimerMgr>()),
-    m_filemap(normalizeNames(filemap)),
-    m_startup{[this, port, indexHtml, parameters, root]() {
-
-    m_server = std::make_unique<Server>(
-                   port,
-                   root.empty() ? GempyreUtils::workingDir() : root,
-                   [this](){openHandler();},
-                   [this](const Server::Object& obj){messageHandler(obj);},
-                   [this](CloseStatus status, int code){closeHandler(status, code);},
-                   [this](const std::string_view& name){return getHandler(name);},
-                   [indexHtml, parameters, this](int listen_port){return startListen(indexHtml, parameters, listen_port);}
-                );
-    }}{
+    m_ui{std::make_unique<GempyreInternal>(
+        this,
+        filemap,
+        indexHtml,
+        port,
+        root,
+        parameters)} {
     GempyreUtils::init();
     // automatically try to set app icon if favicon is available
     const auto icon = resource("/favicon.ico");
@@ -471,71 +450,65 @@ Ui::~Ui() {
 
 void Ui::pendingClose() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending close, Status change --> Pending");
-    m_status = State::PENDING;
-    m_timers->flush(false); //all timers are run here
+    m_ui->set(State::PENDING);
+    m_ui->timers().flush(false); //all timers are run here
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start 1s wait for pending");
     after(1000ms, [this]() { //delay as a get may come due page chage
-        if(m_status == State::PENDING) {
+        if(*m_ui == State::PENDING) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending close, Status change --> Exit");
-            m_status = State::CLOSE;
-            m_sema->signal();
+            m_ui->set(State::CLOSE);
+            m_ui->signal_pending();
         } else {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending cancelled", toStr(m_status));
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending cancelled", m_ui->state_str());
         }
     });
 }
 
 void Ui::close() {
-    addRequest([this]() {
-        return m_server->send({{"type", "close_request"}});
+    m_ui->addRequest([this]() {
+        return m_ui->send({{"type", "close_request"}});
     });
 }
 
 void Ui::exit() {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - start", toStr(m_status));
-    switch(m_status) {
-    case State::RUNNING: {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - request", toStr(m_status));
-        if(!(m_server && m_server->isRunning())) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - no run", toStr(m_status));
-            m_status = State::EXIT;
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - start", m_ui->state_str());
+    if (*m_ui == State::RUNNING) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - request", m_ui->state_str());
+        if(! m_ui->is_running()) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - no run", m_ui->state_str());
+            m_ui->set(State::EXIT);
             return;
         }
-        if(!m_server->isConnected()) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - no connect", toStr(m_status));
-            m_server->close(true);
-            m_status = State::EXIT;
+        if(! m_ui->is_connected()) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - no connect", m_ui->state_str());
+            m_ui->close_server();
+            m_ui->set(State::EXIT);
             return;
         }
-
-        addRequest([this]() {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - send", toStr(m_status));
-            if(!m_server->send({{"type", "exit_request"}})) {
+        m_ui->addRequest([this]() {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - send", m_ui->state_str());
+            if(! m_ui->send({{"type", "exit_request"}})) {
                 //on fail we force
-                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "exit - send force", toStr(m_status));
-                m_server->close(true); //at this point we can close server (it may already be close)
+                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "exit - send force", m_ui->state_str());
+                m_ui->close_server(); //at this point we can close server (it may already be close)
                 return false;
             }
             return true;
         });
-        //Utils::log(Utils::LogLevel::Debug, "Status change -> CLOSE");
-        //m_status = State::CLOSE;
-        m_timers->flush(true);
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop", toStr(m_status));
+        m_ui->timers().flush(true);
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop", m_ui->state_str());
         eventLoop(true);
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop done, back in mainloop", toStr(m_status));
-    //    m_server.reset();
-      //  GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server cleaned");
-    }
-        break;
-    case State::CLOSE:
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop done, back in mainloop", m_ui->state_str());
+        }
+
+    else if(*m_ui == State::CLOSE) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Status change -> EXIT");
-        m_status = State::EXIT;  //there will be no one      
-        break;
-    default:
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "on exit switch", toStr(m_status));
+        m_ui->set(State::EXIT);  //there will be no one      
     }
-    m_sema->signal();
+    else {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "on exit switch", m_ui->state_str());
+    }
+    m_ui->signal_pending();
 }
 
 #ifndef ENSURE_SEND
@@ -549,12 +522,12 @@ void Ui::exit() {
 void Ui::send(const DataPtr& data) {
 #ifndef DIRECT_DATA
     const auto clonedBytes = data->clone();
-    addRequest([this, clonedBytes]() {
+    m_ui->addRequest([this, clonedBytes]() {
         const auto [bytes, len] = clonedBytes->payload();
 #else
     const auto [bytes, len] = data->payload();
 #endif
-        const auto ok = m_server->send(bytes, len);
+        const auto ok = m_ui->send(bytes, len);
         if(ok && len > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
             send(root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
         }                                        //multiple tiles
@@ -567,35 +540,35 @@ void Ui::send(const DataPtr& data) {
 
 
 void Ui::begin_batch() {
-    addRequest([this]() {
-        return m_server->beginBatch();
+    m_ui->addRequest([this]() {
+        return m_ui->begin_batch();
     });
 }
 
 void Ui::end_batch() {
-    addRequest([this]() {
-        return m_server->endBatch();
+    m_ui->addRequest([this]() {
+        return m_ui->end_batch();
     });
 }
 
 void Ui::send(const Element& el, const std::string& type, const std::any& values, bool unique) {
     std::unordered_map<std::string, std::string> params {{"element", el.m_id}, {"type", type}};
     if(unique) {     // for some reason WS message get sometimes duplicated in JS and that causes issues here, msgid msgs are only handled once
-        params.emplace("msgid", std::to_string(m_msgId++));
+        params.emplace("msgid", m_ui->next_msg_id());
     }
     if(const auto s = std::any_cast<std::string>(&values)) {
         params.emplace(type, *s);
-        addRequest([this, params]() {
-            return m_server->send(params);
+        m_ui->addRequest([this, params]() {
+            return m_ui->send(params);
         });
     } else if(const auto* c = std::any_cast<const char*>(&values)) {
         params.emplace(type, std::string(*c));
-        addRequest([this, params]() {
-            return m_server->send(params);
+        m_ui->addRequest([this, params]() {
+            return m_ui->send(params);
         });
     } else {
-        addRequest([this, params, values]() {
-            return m_server->send(params, values);
+        m_ui->addRequest([this, params, values]() {
+            return m_ui->send(params, values);
         });
     }
 }
@@ -608,8 +581,8 @@ std::function<void(int)> Ui::makeCaller(const std::function<void (TimerId id)>& 
         auto call = [function, id]() {
             function(id);
         };
-        m_timerqueue.emplace_back(std::move(call));
-        m_sema->signal();
+        m_ui->add_timer(std::move(call));
+        m_ui->signal_pending();
     };
     return caller;
 }
@@ -618,7 +591,7 @@ std::function<void(int)> Ui::makeCaller(const std::function<void (TimerId id)>& 
 Ui::TimerId Ui::start_periodic(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
     assert(timerFunc);
     auto caller = makeCaller(timerFunc);
-    const int id = m_timers->append(ms, false, std::move(caller));
+    const int id = m_ui->timers().append(ms, false, std::move(caller));
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start Periodic", ms.count(), id);
     return id;
 }
@@ -631,7 +604,7 @@ Ui::TimerId Ui::start_periodic(const std::chrono::milliseconds &ms, const std::f
 
 Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<void (TimerId)> &timerFunc) {
     auto caller = makeCaller(timerFunc);
-    const int id = m_timers->append(ms, true, std::move(caller));
+    const int id = m_ui->timers().append(ms, true, std::move(caller));
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start After", ms.count(), id);
     return id;
 }
@@ -645,185 +618,126 @@ Ui::TimerId Ui::after(const std::chrono::milliseconds &ms, const std::function<v
 
 bool Ui::cancel_timer(TimerId id) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Stop Timer", id);
-    return m_timers->remove(id);
+    return m_ui->timers().remove(id);
 }
 
 Ui& Ui::on_exit(std::function<void ()> onUiExitFunction) {
-    m_onUiExit = std::move(onUiExitFunction);
+    m_ui->set_on_exit(std::move(onUiExitFunction));
     return *this;
 }
 
 Ui& Ui::on_reload(std::function<void ()> onReloadFunction) {
-    m_onReload = std::move(onReloadFunction);
+    m_ui->set_on_reload(std::move(onReloadFunction));
     return *this;
 }
 
 Ui& Ui::on_open(std::function<void ()> onOpenFunction) {
-    m_onOpen = std::move(onOpenFunction);
+    m_ui->set_on_open(std::move(onOpenFunction));
     return *this;
 }
 
 Ui& Ui::on_error(std::function<void (const std::string&, const std::string&)> onErrorFunction) {
-    m_onError = std::move(onErrorFunction);
+    m_ui->set_on_error(std::move(onErrorFunction));
     return *this;
 }
 
 void Ui::run() {
-    gempyre_utils_assert_x(!m_server, "You shall not run more than once");
-    m_startup();
+    m_ui->start_server();
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "run, Status change --> RUNNING");
-    m_status = State::RUNNING;
+    m_ui->set(State::RUNNING);
     eventLoop(true);
-    if(m_onUiExit) { // what is point? Should this be here
-        m_onUiExit();
-    }
-    GEM_DEBUG("requests:", m_requestqueue.size(), "timers:", m_timerqueue.size());
-    m_requestqueue.clear(); // we have exit, rest of requests get ignored
-    GEM_DEBUG("run, exit event loop");
-    m_server->close(true);
-    assert(!m_server->isJoinable());
-    m_server.reset(); // so the run can be recalled
-    m_timers->flush(false);
-    
-    // clear or erase calls destructor and that seems to be issue in raspberry
-    while(!m_timerqueue.empty())
-        m_timerqueue.pop_front();
-    
-    assert(m_requestqueue.empty());
-    assert(!m_timers->isValid());
+    m_ui->do_exit();
 }
 
 
 void Ui::eventLoop(bool is_main) {
-    GEM_DEBUG("enter", is_main, !!m_server, (m_server && m_server->isRunning()));
-    while(m_server && m_server->isRunning()) {
-        if(!m_sema->empty()) {
-            const auto start = std::chrono::steady_clock::now();
+    GEM_DEBUG("enter", is_main, m_ui->is_running());
+    while(m_ui->is_running()) {
+        m_ui->wait_events();
 
-            m_sema->wait();
-
-            const auto end = std::chrono::steady_clock::now();
-            const auto duration = end - start;
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
-
-        }
-
-        if(m_status == State::EXIT) {
+        if(*m_ui == State::EXIT) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is exiting");
             break;
         }
 
-        if(m_status == State::RETRY) {
+        if(*m_ui == State::RETRY) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop will retry");
-            if(!m_server->retryStart()) {
-                m_status = State::EXIT;
+            if(! m_ui->retry_start()) {
+                m_ui->set(State::EXIT);
                 break;
             }
             continue;
         }
 
-        if(m_status == State::CLOSE) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is Close", m_server && m_server->isRunning());
-            if(!m_server->isConnected()) {
-                m_server->close(true);
+        if(*m_ui == State::CLOSE) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is Close", m_ui->is_running());
+            if(!m_ui->is_connected()) {
+                m_ui->close_server();
             }
             continue;
         }
 
-        if(m_status == State::RELOAD) {
+        if(*m_ui == State::RELOAD) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is Reload");
-            if(m_onReload)
-                addRequest([this]() {
-                m_onReload();
+            if(m_ui->has_reload())
+                m_ui->addRequest([this]() {
+                m_ui->on_reload();
                 return true;
             });
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Reload, Status change --> Running");
-            m_status = State::RUNNING;
+            m_ui->set(State::RUNNING);
         }
 
-        if(!m_requestqueue.empty() && m_status == State::EXIT) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip timerqueue", toStr(m_status));
+        if(m_ui->has_requests() && *m_ui == State::EXIT) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip timerqueue", m_ui->state_str());
         }
 
 
         //shoot pending requests
-        while(!m_timerqueue.empty() && m_status != State::EXIT && !m_onOpen && !m_hold) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Do timer request", m_timerqueue.size());
-            const auto timerfunction = std::move(m_timerqueue.front());
-            m_timerqueue.pop_front();
-            if(!timerfunction) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer queue miss",
-                                  toStr(m_status), !m_timerqueue.empty() && m_status != State::EXIT);
-                continue;
-            }
-            timerfunction();
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Dod timer request", m_timerqueue.size(),
-                              toStr(m_status), !m_timerqueue.empty() && m_status != State::EXIT);
-        }
+        m_ui->handle_requests();
+        
 
-        if(m_status == State::PENDING) {
+        if(*m_ui == State::PENDING) {
             continue;
         }
 
-        if(m_onOpen && m_status == State::RUNNING && m_server->isConnected()) {
-            const auto fptr = m_onOpen;
-            hold_timers(true);
-            addRequest([fptr, this]() {
+        if(m_ui->has_open() && *m_ui == State::RUNNING && m_ui->is_connected()) {
+            const auto fptr = m_ui->take_open();
+            set_timer_hold(true);
+            m_ui->addRequest([fptr, this]() {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
                 fptr();
-                hold_timers(false);
+                set_timer_hold(false);
                 return true;
             }); //we try to keep logic call order
-            m_onOpen = nullptr; //as the function may reset the function, we do let that happen
         }
 
-        if(!m_requestqueue.empty() && m_status != State::RUNNING) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip requestqueue", toStr(m_status));
+        if(m_ui->has_requests() && *m_ui != State::RUNNING) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip requestqueue", m_ui->state_str());
         }
 
         //shoot pending requests
-        while(!m_requestqueue.empty() && m_status == State::RUNNING && m_server->isConnected()) {
+        while(m_ui->has_requests() && *m_ui == State::RUNNING && m_ui->is_connected()) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "do request");
-            m_mutex.lock();
-            const std::function<bool ()> topRequest = m_requestqueue.front();
-            gempyre_utils_assert_x(topRequest, "Request is null");
-            m_requestqueue.pop_front();
-            m_mutex.unlock();
+            auto topRequest = m_ui->take_request();
             if(!topRequest()) { //yes I wanna  mutex to be unlocked
-                std::lock_guard<std::mutex> lock(m_mutex);
-                m_requestqueue.push_back(std::move(topRequest));
+                m_ui->put_request(std::move(topRequest));
             }
         }
 
         //if there are responses they must be handled
-        if(!m_responsemap->empty()) {
+        if(m_ui->has_responses()) {
             if(!is_main)
                 return; //handle query elsewhere, hopefully some one is pending
            // TODO: looks pretty busy (see calc) GempyreUtils::log(GempyreUtils::LogLevel::Warning, "There are unhandled responses on main");
         }
 
-        if(!m_eventqueue->empty() && m_status != State::RUNNING) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip eventqueue", toStr(m_status));
+        if(!m_ui->has_events() && *m_ui != State::RUNNING) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip eventqueue", m_ui->state_str());
         }
 
         //events must be last as they may generate more requests or responses
-        while(!m_eventqueue->empty() && m_status == State::RUNNING) {
-            const auto it = m_eventqueue->take();
-            const auto element = m_elements.find(it.element);
-            if(element != m_elements.end()) {
-                const auto handlerName = it.handler;
-                const auto handlers = std::get<1>(*element);
-                const auto h = handlers.find(handlerName);
-
-                if(h != handlers.end()) {
-                    h->second(Event{Element(*this, std::move(element->first)), std::move(it.data)});
-                } else {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element", it.element);
-                }
-            } else {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find", it.element, "from elements");
-            }
-        }
+        m_ui->consume_events(*this);
 
         // Todo: Here all pending tasks are done, but this starts a loop again. I.e. make a busy loop. Therefore in NEXT version 
         // this thread should hold here either for a timer thread or a service thread wakeup. For timebeing just add miniscle sleep
@@ -881,8 +795,8 @@ Element Ui::root() const {
 
 
 std::string Ui::address_of(const std::string& filepath) const {
-    gempyre_utils_assert_x(m_server, "Not connected");
-    return std::string(SERVER_ADDRESS) + ":" + std::to_string(m_server->port()) +
+    gempyre_utils_assert_x(m_ui->is_connected(), "Not connected");
+    return std::string(SERVER_ADDRESS) + ":" + std::to_string(m_ui->port()) +
            "?file=" + GempyreUtils::hexify(GempyreUtils::absPath(filepath), R"([^a-zA-Z0-9-,.,_~])");
 }
 
@@ -895,7 +809,7 @@ std::optional<Element::Elements> Ui::by_class(const std::string& className) cons
     for(const auto& cid : *childIds) {
         childArray.push_back(Element(*const_cast<Ui*>(this), cid));
     }
-    return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
+    return *m_ui == State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
 std::optional<Element::Elements> Ui::by_name(const std::string& className) const {
@@ -907,15 +821,15 @@ std::optional<Element::Elements> Ui::by_name(const std::string& className) const
     for(const auto& cid : *childIds) {
         childArray.push_back(Element(*const_cast<Ui*>(this), cid));
     }
-    return m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
+    return *m_ui == State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
 void Ui::extension_call(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
     const auto json = GempyreUtils::toJsonString(parameters);
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
-    addRequest([this, callId, json]() {
+    m_ui->addRequest([this, callId, json]() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension:", json.value());
-        return m_server->send({
+        return m_ui->send({
                                   {"type", "extension"},
                                   {"extension_call", callId},
                                   {"extension_id", ""},
@@ -931,61 +845,58 @@ std::optional<std::any> Ui::extension(const std::string& callId, const std::unor
 */
 
 std::optional<std::any> Ui::extension_get(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
-    if(m_status != State::RUNNING) {
+    if(*m_ui != State::RUNNING) {
         return std::nullopt;
     }
-    const auto queryId = std::to_string(m_server->queryId());
+    const auto queryId = m_ui->query_id();
 
     const auto json = GempyreUtils::toJsonString(parameters);
 
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
 
-    addRequest([this, queryId, callId, json]() {
+    m_ui->addRequest([this, queryId, callId, json]() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension:", json.value());
-        return m_server->send({{"type", "extension"}, {"extension_id", queryId}, {"extension_call", callId}, {"extension_parameters", json.value()}});
+        return m_ui->send({{"type", "extension"}, {"extension_id", queryId}, {"extension_call", callId}, {"extension_parameters", json.value()}});
     });
 
     for(;;) {   //start waiting the response
         eventLoop(false);
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension - wait in eventloop done, back in mainloop", toStr(m_status));
-        if(m_status != State::RUNNING) {
-            m_sema->signal();
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension - wait in eventloop done, back in mainloop", m_ui->state_str());
+        if(*m_ui != State::RUNNING) {
+            m_ui->signal_pending();
             break; //we are gone
         }
 
-        if(m_responsemap->contains(queryId)) {
-            const auto item = m_responsemap->take(queryId);
-            return std::make_optional(item);
-        }
+        const auto response = m_ui->take_response(queryId);
+        if(response)
+            return response;
     }
     return std::nullopt;
 }
 std::optional<std::vector<uint8_t>> Ui::resource(const std::string& url) const {
-    const auto it = m_filemap.find(url);
-    if(it == m_filemap.end()) {
+    const auto file = m_ui->file(url);
+    if(!file) {
         return std::nullopt;
     }
-    const auto data = Base64::decode(it->second);
+    const auto data = Base64::decode(*file);
     return std::make_optional(data);
 }
 
-bool Ui::add_file(const std::string& url, const std::string& file) {
-    if(!GempyreUtils::fileExists(file)) {
+bool Ui::add_file(const std::string& url, const std::string& file_name) {
+    if(!GempyreUtils::fileExists(file_name)) {
         return false;
     }
-    const auto it = m_filemap.find(url);
-    if(it != m_filemap.end()) {
+    const auto file = m_ui->file(url);
+    if(file) { // expect not found
         return false;
     }
-    const auto data = GempyreUtils::slurp<Base64::Byte>(file);
-    const auto string = Base64::encode(data);
-    m_filemap.insert_or_assign(url, std::move(string));
+    m_ui->add_file(url, file_name);
     return true;
 }
 
 std::optional<double> Ui::device_pixel_ratio() const {
     const auto value = const_cast<Ui*>(this)->query<std::string>("", "devicePixelRatio");
-    return value.has_value() && m_status == Ui::State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
+    return value.has_value() && *m_ui == State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
 }
 
 void Ui::set_application_icon(const uint8_t *data, size_t dataLen, const std::string& type) {
@@ -1024,3 +935,46 @@ std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, const std::st
     return url;
 }
 
+void Ui::set_timer_hold(bool on_hold) {
+    m_ui->set_hold(on_hold);
+    }
+
+bool Ui::is_timer_hold() const {
+    return m_ui->hold();
+    }
+
+const GempyreInternal& Ui::ref() const {
+    return *m_ui;
+}
+
+GempyreInternal& Ui::ref() {
+    return *m_ui;
+}
+
+
+ GempyreInternal::GempyreInternal(
+        Ui* ui, 
+        const Ui::Filemap& filemap,
+        const std::string& indexHtml,
+        unsigned short port,
+        const std::string& root,
+        const std::unordered_map<std::string, std::string>& parameters) : 
+    m_eventqueue(std::make_unique<EventQueue<Ui::InternalEvent>>()) , 
+    m_responsemap(std::make_unique<EventMap<std::string, std::any>>()),
+    m_sema(std::make_unique<Semaphore>()),
+    m_timers(std::make_unique<TimerMgr>()),
+    m_filemap(normalizeNames(filemap)),
+    m_startup{[this, ui, port, indexHtml, parameters, root]() {
+
+    
+    // This is executed in m_startup 
+    m_server = std::make_unique<Server>(
+                   port,
+                   root.empty() ? GempyreUtils::workingDir() : root,
+                   [ui](){ui->openHandler();},
+                   [ui](const Server::Object& obj){ui->messageHandler(obj);},
+                   [ui](CloseStatus status, int code){ui->closeHandler(status, code);},
+                   [ui](const std::string_view& name){return ui->getHandler(name);},
+                   [indexHtml, parameters, ui](int listen_port){return ui->startListen(indexHtml, parameters, listen_port);}
+                );
+    }} {}

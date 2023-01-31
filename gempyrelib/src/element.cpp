@@ -1,6 +1,7 @@
 #include "gempyre.h"
 #include "gempyre_utils.h"
 #include "core.h"
+#include "data.h"
 
 #include <random>
 #include <chrono>
@@ -20,8 +21,7 @@ const std::string Element::generateId(const std::string& prefix) {
 }
 
 Element::Element(Ui& ui, const std::string& id) : m_ui(&ui), m_id(id) {
-    if(m_ui->m_elements.find(id) == m_ui->m_elements.end())
-        m_ui->m_elements.emplace(std::make_pair(id, Ui::HandlerMap{}));
+    m_ui->ref().ensure_element_exists(id);
 }
 
 Element::Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent) : Element(ui, id) {
@@ -34,13 +34,8 @@ Element::Element(Ui& ui, const std::string& htmlElement, const Element& parent) 
 
 
 Element& Element::subscribe(const std::string& name, std::function<void(const Event&)> handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
-    m_ui->m_elements[m_id].emplace(name, [handler](const Ui::Event& event) {
-        std::unordered_map<std::string, std::string> property_map;
-        for(const auto& [k, v] : event.properties)
-            property_map.emplace(k, std::any_cast<std::string>(v));
-        Gempyre::Event ev{event.element, std::move(property_map)};
-        handler(ev);
-    });
+   
+    m_ui->ref().add_handler(m_id, name, handler);
     m_ui->send(*this, "event", std::unordered_map<std::string, std::any>{
                    {"event", name}, {"properties", properties}, {"throttle", std::to_string(throttle.count())}});
     return *this;
@@ -73,32 +68,32 @@ Element& Element::removeStyle(const std::string &styleName) {
 
 std::optional<Element::Attributes> Element::attributes() const {
     const auto attributes = m_ui->query<Element::Attributes>(m_id, "attributes");
-    return m_ui->m_status == Ui::State::RUNNING ? attributes : std::nullopt;
+    return m_ui->ref() == State::RUNNING ? attributes : std::nullopt;
 }
 
 std::optional<Element::Values> Element::styles(const std::vector<std::string>& keys) const {
     const auto styles = m_ui->query<Element::Values>(m_id, "styles", keys);
-    return m_ui->m_status == Ui::State::RUNNING ? styles : std::nullopt;
+    return m_ui->ref() == State::RUNNING ? styles : std::nullopt;
 }
 
 std::optional<Element::Values> Element::values() const {
     const auto value = m_ui->query<Element::Values>(m_id, "value");
-    return m_ui->m_status == Ui::State::RUNNING ? value : std::nullopt;
+    return m_ui->ref() == State::RUNNING ? value : std::nullopt;
 }
 
 std::optional<std::string> Element::html() const {
     const auto value = m_ui->query<std::string>(m_id, "innerHTML");
-    return m_ui->m_status == Ui::State::RUNNING ? value : std::nullopt;
+    return m_ui->ref() == State::RUNNING ? value : std::nullopt;
 }
 
 std::optional<std::string> Element::type() const {
     const auto value = m_ui->query<std::string>(m_id, "element_type");
-    return m_ui->m_status == Ui::State::RUNNING ? value : std::nullopt;
+    return m_ui->ref() == State::RUNNING ? value : std::nullopt;
 }
 
 std::optional<Element::Rect> Element::rect() const {
     const auto value = m_ui->query<std::unordered_map<std::string, std::string>>(m_id, "bounding_rect");
-    if(m_ui->m_status == Ui::State::RUNNING && value.has_value()) {
+    if(m_ui->ref() == State::RUNNING && value.has_value()) {
         return Rect{
             GempyreUtils::toOr<int>(value->at("x")).value(),
             GempyreUtils::toOr<int>(value->at("y")).value(),
@@ -116,7 +111,7 @@ std::optional<Element::Elements> Element::children() const {
     for(const auto& cid : *childIds) {
         childArray.push_back(Element(*m_ui, cid));
     }
-    return m_ui->m_status == Ui::State::RUNNING ? std::make_optional(childArray) : std::nullopt;
+    return m_ui->ref() == State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
 void Element::remove() {
@@ -158,7 +153,7 @@ std::string Data::owner() const {
     return out;
 }
 
-std::vector<Gempyre::Data::dataT> Data::header() const {
+std::vector<Gempyre::dataT> Data::header() const {
     std::vector<dataT> out;
     std::copy(endPtr(), endPtr() + m_data[3], std::back_inserter(out));
     return out;
@@ -173,11 +168,11 @@ std::tuple<const char*, size_t> Data::payload() const {
     return {reinterpret_cast<const char*>(m_data.data()), m_data.size() * sizeof(dataT)};
 }
 
-Data::dataT* Data::data() {
+dataT* Data::data() {
     return &m_data.data()[fixedDataSize];
 }
 
-const Data::dataT* Data::data() const {
+const dataT* Data::data() const {
     return &m_data.data()[fixedDataSize];
 }
 

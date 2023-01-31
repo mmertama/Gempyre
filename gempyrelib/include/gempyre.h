@@ -42,6 +42,7 @@ namespace Gempyre {
     class Server;
     class Semaphore;
     class TimerMgr;
+    class GempyreInternal;
     enum class CloseStatus;
     template <class T> class EventQueue;
     template <class T> class IdList;
@@ -57,6 +58,7 @@ namespace Gempyre {
 
     class Data;
     using DataPtr = std::shared_ptr<Data>;
+    using dataT = uint32_t;
 
     struct Event;
 
@@ -116,6 +118,7 @@ namespace Gempyre {
         std::string m_id;
         friend class Ui;
     };
+
     struct Event {
         Element element;
         std::unordered_map<std::string, std::string> properties;
@@ -123,11 +126,6 @@ namespace Gempyre {
 
 
     class GEMPYRE_EX Ui {
-        struct Event {
-            Element element;
-            const std::unordered_map<std::string, std::any> properties;
-        };
-        using Handler = std::function<void (const Event& el)>;
     public:
         enum UiFlags : unsigned {
             NoResize = 0x1,
@@ -141,6 +139,7 @@ namespace Gempyre {
             EasyDrag = 0x100,
             Transparent = 0x200
         };
+        
         using Filemap = std::unordered_map<std::string, std::string>;
         using TimerId = int;
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
@@ -241,11 +240,11 @@ namespace Gempyre {
         void end_batch();
         [[deprecated("use snake")]]  void endBatch() {end_batch();}
         ///Set all timers to hold. Can be used to pause UI actions.
-        void hold_timers(bool hold) {m_hold = hold;}
-        [[deprecated("use snake")]] void holdTimers(bool hold) {hold_timers(hold);}
+        void set_timer_hold(bool on_hold);
+        [[deprecated("use snake")]] void holdTimers(bool hold) {set_timer_hold(hold);}
         ///Tells if timers are on hold.
-        [[nodiscard]] bool is_hold() const {return m_hold;}
-        [[deprecated("use snake")]] bool isHold() const {return is_hold();}
+        [[nodiscard]] bool is_timer_hold() const;
+        [[deprecated("use snake")]] bool isHold() const {return is_timer_hold();}
         ///Get an native UI device pixel ratio.
         [[nodiscard]] std::optional<double> device_pixel_ratio() const;
         [[deprecated("use snake")]] std::optional<double> devicePixelRatio() const {return device_pixel_ratio();}
@@ -261,21 +260,25 @@ namespace Gempyre {
         static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
         [[deprecated("use snake")]] static Ui::Filemap toFileMap(const std::vector<std::string>& filenames) {return to_file_map(filenames);}
     private:
-        enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
         Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root, const std::unordered_map<std::string, std::string>& parameters);
         void send(const DataPtr& data);
         void send(const Element& el, const std::string& type, const std::any& data, bool unique = false);
         template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
         void pendingClose();
         void eventLoop(bool is_main);
-        static std::string toStr(const std::atomic<State>&);
-        inline void addRequest(std::function<bool()>&&);
+        //inline void addRequest(std::function<bool()>&&);
         std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
+        
         void openHandler();
         void messageHandler(const std::unordered_map<std::string, std::any>& params);
         void closeHandler(CloseStatus closeStatus, int code);
         std::optional<std::string> getHandler(const std::string_view & name);
+
         bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters , int listen_port);
+
+        const GempyreInternal& ref() const;
+        GempyreInternal& ref();
+
     private:
         struct InternalEvent {
             std::string element;
@@ -283,78 +286,9 @@ namespace Gempyre {
             std::unordered_map<std::string, std::any> data;
         };
     private:
-        std::atomic<State> m_status = State::NOTSTARTED;
-        std::unique_ptr<EventQueue<InternalEvent>> m_eventqueue;
-        std::unique_ptr<EventMap<std::string, std::any>> m_responsemap;
-        std::unique_ptr<Semaphore>  m_sema;
-        std::unique_ptr<TimerMgr> m_timers;
-        using HandlerMap = std::unordered_map<std::string, Handler>;
-        std::unordered_map<std::string, HandlerMap> m_elements;
-        std::deque<std::function<bool ()>> m_requestqueue;
-        std::deque<std::function<void ()>> m_timerqueue;
-        std::function<void ()> m_onUiExit{nullptr};
-        std::function<void ()> m_onReload{nullptr};
-        std::function<void ()> m_onOpen{nullptr};
-        std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
-        Filemap m_filemap;
-        std::function<void ()> m_startup;
-        std::unique_ptr<Server> m_server;
-        std::mutex m_mutex;
-        bool m_hold{false};
-        unsigned m_msgId{1};
+        friend class GempyreInternal;
         friend class Element;
-        friend class Server;
-    };
-
-    class GEMPYRE_EX Data {
-    public:
-        template <class T> class iteratorT {
-        public:
-            using iterator_category = std::forward_iterator_tag; //could be upgraded, but I assume there is no need
-            using value_type = T;
-            using difference_type = void;
-            using pointer = T*;
-            using reference = T&;
-            iteratorT(pointer data = nullptr) : m_data(data) {}
-            iteratorT(const iteratorT& other) = default;
-            iteratorT& operator=(const iteratorT& other) = default;
-            bool operator==(const iteratorT& other) const  {return m_data == other.m_data;}
-            bool operator!=(const iteratorT& other) const  {return m_data != other.m_data;}
-            reference operator*() {return *m_data;}
-            reference operator*() const {return *m_data;}
-            pointer operator->() {return m_data;}
-            value_type operator++() {++m_data ; return *m_data;}
-            value_type operator++(int) {auto temp(m_data); ++m_data; return *temp;}
-        private:
-            pointer m_data;
-        };
-        using dataT = uint32_t;
-        using iterator = iteratorT<dataT>;
-        using const_iterator = iteratorT<const dataT>;
-    public:
-        [[nodiscard]] dataT* data();
-        [[nodiscard]] const dataT* data() const;
-        [[nodiscard]] size_t size() const;
-        [[nodiscard]] Data::iterator begin() {return data();}
-        [[nodiscard]] Data::iterator end() {return data() + size();}
-        [[nodiscard]] const Data::const_iterator begin() const {return data();}
-        [[nodiscard]] const Data::const_iterator end() const {return data() + size();}
-        [[nodiscard]] dataT& operator[](int index) {return (data()[index]);}
-        [[nodiscard]] dataT operator[](int index) const {return (data()[index]);}
-        [[nodiscard]] dataT* endPtr() {return data() + size();}
-        [[nodiscard]] const dataT* endPtr() const {return data() + size();}
-        void writeHeader(const std::vector<dataT>& header);
-        [[nodiscard]] std::vector<dataT> header() const;
-        [[nodiscard]] std::string owner() const;
-        [[nodiscard]] DataPtr clone() const;
-        virtual ~Data() = default;
-    protected:
-        Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header);
-    private:
-        std::tuple<const char*, size_t> payload() const;
-        std::vector<dataT> m_data;
-        friend class Element;
-        friend class Ui;
+        std::unique_ptr<GempyreInternal> m_ui;
     };
 }
 

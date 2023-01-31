@@ -39,7 +39,7 @@ namespace  Gempyre {
 
 class FrameComposer;
 
-class GEMPYRE_EX CanvasData : public Data {
+class GEMPYRE_EX CanvasData  {
 private:
     enum DataTypes : dataT {
       CanvasId = 0xAAA
@@ -47,19 +47,25 @@ private:
 public:
     ~CanvasData();
     void put(int x, int y, dataT pixel) {
-        data()[x + y * width] = pixel;
+        data()[x + y * m_width] = pixel;
     }
     [[nodiscard]] dataT get(int x, int y) const {
-        return data()[x + y * width];
+        return data()[x + y * m_width];
     }
-    const int width;
-    const int height;
+    int width() const {return m_width;}
+    int height() const {return m_height;}
 private:
-    CanvasData(int w, int h, const std::string& owner) : Data(static_cast<unsigned>(w * h), CanvasId, owner,
-                                                         {0, 0, static_cast<dataT>(w), static_cast<dataT>(h)}),
-        width(w),
-        height(h) {}
+    std::shared_ptr<Data> m_data;
+    const int m_width;
+    const int m_height;
+private:
+    CanvasData(int w, int h, const std::string& owner);
+    dataT* data();
+    const dataT* data() const;
+    Data& ref();
+    DataPtr ptr() const;
     friend class CanvasElement;
+    friend class Graphics;
 };
 
 
@@ -123,7 +129,7 @@ private:
 };
 
 namespace  Color {
-using type = Gempyre::Data::dataT;
+using type = Gempyre::dataT;
 [[nodiscard]] static constexpr inline type rgba_clamped(type r, type g, type b, type a = 0xFF) {
     return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
 }
@@ -201,10 +207,10 @@ public:
         m_canvas->put(x, y, pix(Color::r(c), Color::g(c), Color::b(c), alpha));
     }
     [[nodiscard]] int width() const {
-        return m_canvas->width;
+        return m_canvas->width();
     }
     [[nodiscard]] int height() const {
-        return m_canvas->height;
+        return m_canvas->height();
     }
     void draw_rect(const Element::Rect& rect, Color::type color);
     [[deprecated("Use snake")]]void drawRect(const Element::Rect& rect, Color::type color) {draw_rect(rect, color);}

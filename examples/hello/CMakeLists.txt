@@ -15,7 +15,8 @@ link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
 
 add_executable(${PROJECT_NAME}
    src/main.cpp
-   gui/${NAME}.html
+   gui/hello.html
+   gui/favicon.ico
    )
 
 add_dependencies (${PROJECT_NAME} gempyre)

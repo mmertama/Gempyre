@@ -370,7 +370,7 @@ int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
    for(int i = 1 ; i < argc; ++i)
        if(argv[i] == std::string_view("--verbose"))
-            Gempyre::setDebug();
+            Gempyre::set_debug();
   return RUN_ALL_TESTS();
 }
 
