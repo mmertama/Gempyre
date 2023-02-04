@@ -7,13 +7,13 @@ UI Framework
 
 Gempyre is a UI multiplatform framework. Supporting Windows, Mac OSX, Linux, Raspberry OS and Android. Gempyre is minimalistic and simple; It is a UI framework without widgets - instead, the UI is composed using common web tools and frameworks. Therefore Gempyre is small, easy to learn and quick to take in use.
  
-For the application, its engine is implemented using C++ (or Python), the UI is constructed using Javascript, CSS and HTML like any front end. All common tools from the vast pool web technologies shall be available. Gempyre library provides a C++ interface to interact with the UI - the whole API is only a few dozen calls.
+For the application, Gempyre let engine to be implemented using C++ (or Python), the UI can be constructed using CSS and HTML like any front end. All common tools from the web technologies are be available. Gempyre library provides a simple and easy C++ API for a  application development and the whole API is only a few dozen calls.
 
-Gempyre is intended for applications that has a solid C++ core (or C), and takes benefit of rapid UI development without extra hassle with complex/expensive/platform specific/quirky UI development. Gempyre combines power of C++ with vast options of front end development tools, sources, documents frameworks that are only available on for Web Developers.
+Gempyre is intended for applications that has a solid C++ core (or C), and allows rapid UI development without extra hassle with platform specific UI development. 
 
 Gempyre is multiplatform, its core is written using C++17  (tested OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.
 
-Gempyre itself does not contain an application window. The UI is drawn using external application. So OSes uses native browser help, some Python webview. However that is fully configurable per application. 
+Gempyre itself does not contain an application window. The UI is drawn using external application. Some OSes defaults to system browser, some Python webview. However that is fully configurable per application. 
 
 Gempyre is a library that is linked with the application, except for Android, see [Gempyre-Android](https://github.com/mmertama/Gempyre-Android). For Python, install [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) on top of Gempyre library.
 
@@ -102,9 +102,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 * Cleaning code and refactoring (API behind PIMPL?, string_views instead of strings when possible, meaningless std::any for code encapsulation)
 * Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
 * Reconsider libwebsockets instead of uWebsockets.
-* POC of Gempyre-Android style architecture also in core.
-* camelStyle or snake_style? (Gempyre-Python already uses snake, and Im warmin up for that :-)
-
+* POC of Gempyre-Android style architecture also in core.git
 
 
 Late updates

@@ -1,7 +1,7 @@
 #cmake_minimum_required (VERSION 3.18)
 
 
-project (gempyre VERSION 0.10.0 LANGUAGES CXX C)
+project (gempyre VERSION 0.11.0 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -372,6 +372,7 @@ set(GEMPYRE_SRC
     py/pyclient.py
     src/data.h
     src/gempyre_internal.h
+    src/logging.cpp
     )
 
 
@@ -603,6 +604,7 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
     )
 
+# all files in include and affiliates / include are exported    
 file(GLOB HEADERS include/*.h  ${CMAKE_SOURCE_DIR}/affiliates/include/*.h)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")

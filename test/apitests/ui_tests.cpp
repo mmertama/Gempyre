@@ -42,7 +42,7 @@ std::string headlessParams(bool log = false) {
 #ifdef HAS_FS
     const auto temp = std::filesystem::temp_directory_path().string();
 #else
-    const auto temp = GempyreUtils::pathPop(GempyreUtils::tempName());
+    const auto temp = GempyreUtils::path_pop(GempyreUtils::temp_name());
 #endif
     return GempyreUtils::join(speed_params, " ") +  R"( --headless --remote-debugging-port=9222 --user-data-dir=)" +
 #ifdef WINDOWS_OS
@@ -55,7 +55,7 @@ std::string headlessParams(bool log = false) {
 }
 
 std::optional<std::string> systemChrome() {
-    switch(GempyreUtils::currentOS()) {
+    switch(GempyreUtils::current_os()) {
     case GempyreUtils::OS::MacOs: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
     case GempyreUtils::OS::WinOs: return R"(start "_" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")";
     case GempyreUtils::OS::RaspberryOs: [[fallthrough]];
@@ -72,7 +72,7 @@ std::optional<std::string> systemChrome() {
 
 void killHeadless() {
      const auto cmd =
-     GempyreUtils::currentOS() == GempyreUtils::OS::WinOs
+     GempyreUtils::current_os() == GempyreUtils::OS::WinOs
         ? R"(powershell.exe -command "Get-CimInstance -ClassName Win32_Process -Filter \"CommandLine LIKE '%--headless%'\" | %{Stop-Process -Id $_.ProcessId}")"
         : "pkill -f \"(chrome)?(--headless)\"";
     const auto killStatus = std::system(cmd);
@@ -164,7 +164,7 @@ TEST_F(TestUi, addressOf) {
 #ifdef HAS_FS
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
 #else
-    ASSERT_TRUE(GempyreUtils::fileExists(htmlPage));
+    ASSERT_TRUE(GempyreUtils::file_exists(htmlPage));
 #endif
     test([htmlPage]() {
         ASSERT_TRUE(m_ui->address_of(htmlPage).length() > 0); //TODO better test would be write this as html and open it

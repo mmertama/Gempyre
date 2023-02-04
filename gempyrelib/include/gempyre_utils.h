@@ -31,10 +31,11 @@
 
 #define GEMPYREUTILSDEBUG(x) GempyreUtils::log(Utils::LogLevel::Debug, x, __FILE__, __LINE__)
 //also release build assert
-#define gempyre_utils_assert_x(b, x) (b || GempyreUtils::doFatal(x, nullptr, __FILE__, __LINE__))
-#define gempyre_utils_assert_x_f(b, x, f) (b || GempyreUtils::doFatal(x, f, __FILE__, __LINE__))
-#define gempyre_utils_fatal(x) GempyreUtils::doFatal(x, nullptr, __FILE__, __LINE__)
-#define gempyre_utils_fatal_f(x, f) GempyreUtils::doFatal(x, f, __FILE__, __LINE__)
+#define gempyre_utils_assert(b) (b || GempyreUtils::do_fatal("Panic!", nullptr, __FILE__, __LINE__))
+#define gempyre_utils_assert_x(b, x) (b || GempyreUtils::do_fatal(x, nullptr, __FILE__, __LINE__))
+#define gempyre_utils_assert_x_f(b, x, f) (b || GempyreUtils::do_fatal(x, f, __FILE__, __LINE__))
+#define gempyre_utils_fatal(x) GempyreUtils::do_fatal(x, nullptr, __FILE__, __LINE__)
+#define gempyre_utils_fatal_f(x, f) GempyreUtils::do_fatal(x, f, __FILE__, __LINE__)
 #define gempyre_utils_auto_clean(p, f) std::unique_ptr<std::remove_pointer<decltype(p)>::type, decltype(&f)> _ ## p (p, &f)
 #define gempyre_utils_auto_close(p, f) GempyreUtils::_Close<std::decay_t<decltype(p)>, decltype(&f)> _ ## p (p, &f)
 
@@ -50,6 +51,101 @@ using SSIZE_T = long long;
 #else
 using SSIZE_T = ssize_t;
 #endif
+
+namespace GempyreUtils {
+/**
+ * @brief The LogLevel enum
+ */
+enum class LogLevel : int {None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
+
+/// Parent class for LogWriters
+class LogWriter {
+public:
+    /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
+    virtual std::string header(LogLevel logLevel);
+    /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
+    virtual bool do_write(const char* buffer, size_t count) = 0;
+};
+
+/// Courtesy class to write log into files, see  setLogWriter
+class UTILS_EX FileLogWriter : public LogWriter {
+public:
+    FileLogWriter(const std::string& path);
+protected:
+    bool do_write(const char* buffer, size_t count) override;
+protected:
+    std::ofstream m_file;
+};
+
+class UTILS_EX StreamLogWriter : public LogWriter {
+public:
+    StreamLogWriter(std::ostream& os);
+protected:
+    bool do_write(const char* buffer, size_t count) override;
+protected:
+    std::ostream& m_os;
+};
+
+UTILS_EX void set_log_level(LogLevel level);
+UTILS_EX LogLevel log_level(); 
+UTILS_EX std::string to_str(LogLevel l);
+UTILS_EX std::ostream log_stream(LogLevel logLevel);
+/// Replace the default writer, set nullptr to apply original, not a thread safe.
+UTILS_EX void set_log_writer(LogWriter* writer);
+
+
+template <typename T, typename ...Args>
+inline void log_line(LogLevel level, std::ostream& os, const T& e, Args... args) {
+    os << e << " ";
+    log_line(level, os, args...);
+}
+
+// predeclation
+UTILS_EX void process_exit(int);
+template<typename T>
+inline void log_line(LogLevel level, std::ostream& os, const T& e) {
+    os << e << std::endl;
+    if(level == LogLevel::Fatal)  {
+        process_exit(999);
+    }
+}
+
+template <typename T, typename ...Args>
+inline void log(LogLevel level, const T& e, Args... args) {
+    if(level <= log_level()) {
+        auto os = log_stream(level);
+        log_line(level, os, e, args...);
+    }
+}
+
+
+template <LogLevel level, typename T, typename ...Args>
+inline void write_log(const T& e, Args... args) {
+    log(level, e, args...);
+}
+
+template <typename T, typename ...Args>
+inline void log_debug(const T& e, Args... args) {
+    write_log<LogLevel::Debug, T, Args...>(e, args...);
+}
+
+
+inline bool do_fatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
+    if(f) f();
+    log(LogLevel::Fatal, txt, "at", file, "line:", line);
+    return false;
+}
+
+
+#ifdef _MSC_VER
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
+
+#define GEM_DEBUG(...) GempyreUtils::log(GempyreUtils::LogLevel::Debug, __PRETTY_FUNCTION__, __VA_ARGS__)
+
+}
+
+
 
 
 /**
@@ -73,12 +169,13 @@ using ParamList = std::vector<std::string>;
 using Options = std::multimap<std::string, std::string>;
 using Params = std::tuple<ParamList, Options>;
 /// parse arguments
-UTILS_EX Params parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
+UTILS_EX Params parse_args(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
 
-/**
- * @brief The LogLevel enum
- */
-enum class LogLevel : int {None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
+
+UTILS_EX void init();
+UTILS_EX std::string current_time_string();
+
+UTILS_EX std::string last_error();
 
 
 /**
@@ -110,16 +207,17 @@ inline std::string convert<std::string>(const std::string& source)
 }
 
 template <typename T>
-std::optional<T> toOr(const std::string& source) {
+std::optional<T> parse(const std::string& source) {
     std::istringstream ss(source);
     T v;
     static_cast<std::istream&>(ss) >> v;   //MSVC said it would be othwerwise ambiguous
     return !ss.fail() ? std::make_optional(v) : std::nullopt;
 }
 
+
 template <class T>
- T toLow(const T& str) {
-    T n;
+std::string to_low(const T& str) {
+    std::string n;
     std::transform(str.begin(), str.end(), std::back_inserter(n),
                                     [](auto c){return std::tolower(c);});
     return n;
@@ -127,15 +225,16 @@ template <class T>
 
 
  template< typename T >
- std::string toHex(T ival) {
+ std::string to_hex(T ival) {
    std::stringstream stream;
    stream << std::setfill('0') << std::setw(sizeof(T) * 2)
           << std::hex << ival;
    return stream.str();
  }
 
+
 /// Get a levenshtein distance of strings
-int levenshteinDistance(std::string_view s1, std::string_view s2);
+UTILS_EX int levenshtein_distance(std::string_view s1, std::string_view s2);
 
 /**
  * Container Utils
@@ -150,9 +249,14 @@ std::optional<T> at(const C& container, const std::string& s, unsigned index = 0
 }
 
 template<typename C, typename T>
-T atOr(const C& container, const std::string& s, const T& defaultValue, unsigned index = 0) {
+T at_or(const C& container, const std::string& s, const T& defaultValue, unsigned index = 0) {
     const auto v = at<C, T>(container, s, index);
     return v.has_value() ? *v : defaultValue;
+}
+
+template<typename C, typename T>
+T atOr(const C& container, const std::string& s, const T& defaultValue, unsigned index = 0) {
+    return at_or(container, s, defaultValue, index);
 }
 
 
@@ -256,11 +360,17 @@ template <typename IT> IT advanced(IT it, int distance) {
 
 template <typename K, typename V >
 /// Get a value from a multimap, especially helper for Parameter Options
-std::optional<V> getValue(const std::multimap<K, V>& map, const K& key, int index = 0)
+std::optional<V> get_value(const std::multimap<K, V>& map, const K& key, int index = 0)
 {
      const auto range = map.equal_range(key);
      return std::distance(range.first, range.second) > index ?
                  std::make_optional((advanced(range.first, index))->second) : std::nullopt;
+}
+
+
+template <typename K, typename V >
+std::optional<V> getValue(const std::multimap<K, V>& map, const K& key, int index = 0) {
+    return get_value(map, key, index);
 }
 
  /*
@@ -269,7 +379,7 @@ std::optional<V> getValue(const std::multimap<K, V>& map, const K& key, int inde
 
 class expiror;
 [[nodiscard]]
-UTILS_EX std::shared_ptr<expiror> waitExpire(std::chrono::seconds s, const std::function<void ()>& onExpire);
+UTILS_EX std::shared_ptr<expiror> wait_expire(std::chrono::seconds s, const std::function<void ()>& onExpire);
 class expiror {
 public:
     ~expiror() {m_f.wait();}
@@ -277,7 +387,7 @@ private:
     expiror() = default;
     expiror(std::future<void>&& f) : m_f(std::move(f)) {}
     std::future<void> m_f;
-    friend std::shared_ptr<GempyreUtils::expiror> GempyreUtils::waitExpire(std::chrono::seconds s, const std::function<void ()>& onExpire);
+    friend std::shared_ptr<GempyreUtils::expiror> GempyreUtils::wait_expire(std::chrono::seconds s, const std::function<void ()>& onExpire);
 };
 
 UTILS_EX  std::string hexify(const std::string& src, const std::string pat);
@@ -285,99 +395,14 @@ UTILS_EX  std::string unhexify(const std::string& src);
 
 enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};
 
-UTILS_EX OS currentOS();
+UTILS_EX OS current_os();
 
 
-UTILS_EX std::string htmlFileLaunchCmd();
+UTILS_EX std::string html_file_launch_cmd();
 
-/// Parent class for LogWriters
-class LogWriter {
-public:
-    /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
-    virtual std::string header(LogLevel logLevel);
-    /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
-    virtual bool doWrite(const char* buffer, size_t count) = 0;
-};
-
-/// Courtesy class to write log into files, see  setLogWriter
-class UTILS_EX FileLogWriter : public LogWriter {
-public:
-    FileLogWriter(const std::string& path);
-protected:
-    bool doWrite(const char* buffer, size_t count) override;
-protected:
-    std::ofstream m_file;
-};
-
-class UTILS_EX StreamLogWriter : public LogWriter {
-public:
-    StreamLogWriter(std::ostream& os);
-protected:
-    bool doWrite(const char* buffer, size_t count) override;
-protected:
-    std::ostream& m_os;
-};
-
-UTILS_EX void setLogLevel(LogLevel level);
-UTILS_EX LogLevel logLevel();
-UTILS_EX std::string toStr(LogLevel l);
-UTILS_EX std::ostream logStream(LogLevel logLevel);
-UTILS_EX void init();
-UTILS_EX std::string currentTimeString();
-UTILS_EX std::string lastError();
-UTILS_EX void processAbort(int err);
-/// Replace the default writer, set nullptr to apply original, not a thread safe.
-UTILS_EX void setLogWriter(LogWriter* writer);
-
-
-template <typename T, typename ...Args>
-inline void logLine(LogLevel level, std::ostream& os, const T& e, Args... args) {
-    os << e << " ";
-    logLine(level, os, args...);
-}
-
-template<typename T>
-inline void logLine(LogLevel level, std::ostream& os, const T& e) {
-    os << e << std::endl;
-    if(level == LogLevel::Fatal)  {
-        processAbort(-999);
-    }
-}
-
-template <typename T, typename ...Args>
-inline void log(LogLevel level, const T& e, Args... args) {
-    if(level <= logLevel()) {
-        auto os = logStream(level);
-        logLine(level, os, e, args...);
-    }
-}
-
-
-// Plan is to make loglevel static in coming versions so there is no extra if for each log and ref to global data
-template <LogLevel level, typename T, typename ...Args>
-inline void writeLog(const T& e, Args... args) {
-    log(level, e, args...);
-}
-
-template <typename T, typename ...Args>
-inline void logDebug(const T& e, Args... args) {
-    writeLog<LogLevel::Debug, T, Args...>(e, args...);
-}
-
-inline bool doFatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
-    if(f) f();
-    log(LogLevel::Fatal, txt, "at", file, "line:", line);
-    return false;
-}
-
-#ifdef _MSC_VER
-#define __PRETTY_FUNCTION__ __FUNCSIG__
-#endif
-
-#define GEM_DEBUG(...) GempyreUtils::log(GempyreUtils::LogLevel::Debug, __PRETTY_FUNCTION__, __VA_ARGS__)
 
 enum AddressType{Ipv4 = 0x1, Ipv6 = 0x2};
-UTILS_EX std::vector<std::string> ipAddresses(int addressType);
+UTILS_EX std::vector<std::string> ip_addresses(int addressType);
 
 
 /**
@@ -389,40 +414,44 @@ UTILS_EX long timeStamp(const std::string& filename);
 UTILS_EX std::string appPath();
 #endif
 
-UTILS_EX std::string getLink(const std::string& fname);
-UTILS_EX bool isDir(const std::string& fname);
-UTILS_EX std::string workingDir();
-UTILS_EX std::string homeDir();
-UTILS_EX std::string rootDir();
-UTILS_EX std::string absPath(const std::string& rpath);
-UTILS_EX std::string pathPop(const std::string& filename, int steps = 1);
+UTILS_EX std::string get_link(const std::string& fname);
+UTILS_EX bool is_dir(const std::string& fname);
+UTILS_EX std::string working_dir();
+UTILS_EX std::string home_dir();
+UTILS_EX std::string root_dir();
+UTILS_EX std::string abs_path(const std::string& rpath);
+UTILS_EX std::string path_pop(const std::string& filename, int steps = 1);
 UTILS_EX std::vector<std::string> directory(const std::string& dirname);
-UTILS_EX std::optional<std::string> readProcess(const std::string& processName, const std::vector<std::string>& params);
-UTILS_EX std::string baseName(const std::string& filename);
-UTILS_EX std::tuple<std::string, std::string> splitName(const std::string& filename);
+UTILS_EX std::optional<std::string> read_process(const std::string& processName, const std::vector<std::string>& params);
+UTILS_EX std::string base_name(const std::string& filename);
+UTILS_EX std::tuple<std::string, std::string> split_name(const std::string& filename);
 /// Generate unique name (prefer <filesystem> if available)
-UTILS_EX std::string tempName();
-UTILS_EX std::string hostName();
-UTILS_EX std::optional<std::string> systemEnv(const std::string& env);
-UTILS_EX bool isHiddenEntry(const std::string& filename);
-UTILS_EX bool isExecutable(const std::string& filename);
-UTILS_EX SSIZE_T fileSize(const std::string& filename);
+UTILS_EX std::string temp_name();
+UTILS_EX std::string host_name();
+UTILS_EX std::optional<std::string> system_env(const std::string& env);
+UTILS_EX bool is_hidden_entry(const std::string& filename);
+UTILS_EX bool is_executable(const std::string& filename);
+UTILS_EX SSIZE_T file_size(const std::string& filename);
 UTILS_EX bool rename(const std::string& of, const std::string& nf);
-UTILS_EX void removeFile(const std::string& filename);
-UTILS_EX bool fileExists(const std::string& filename);
+UTILS_EX void remove_file(const std::string& filename);
+UTILS_EX bool file_exists(const std::string& filename);
 UTILS_EX std::optional<std::string> which(const std::string& filename);
 /// push name to path
-UTILS_EX std::string pushPath(const std::string& path, const std::string& name);
+UTILS_EX std::string push_path(const std::string& path, const std::string& name);
 template<class ...NAME>
-std::string pushPath(const std::string& path, const std::string& name, NAME...names) {
-    return pushPath(pushPath(path, name), names...);
+std::string push_path(const std::string& path, const std::string& name, NAME...names) {
+    return push_path(push_path(path, name), names...);
 }
 ///execute a prog
 UTILS_EX int execute(const std::string& prog, const std::string& parameters);
 
+/// exit 
+UTILS_EX void process_exit(int err);
+
+
 template <class T>
-std::string writeToTemp(const T& data) {
-    const auto name = GempyreUtils::tempName();
+std::string write_to_temp(const T& data) {
+    const auto name = GempyreUtils::temp_name();
     std::ofstream out(name, std::ios::out | std::ios::binary);
     std::ostreambuf_iterator<typename T::value_type> iter(out);
     std::copy(data.begin(), data.end(), iter);
@@ -451,15 +480,16 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
 
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
-UTILS_EX std::optional<std::string> toJsonString(const std::any& any);
-UTILS_EX std::optional<std::any> jsonToAny(const std::string& str);
+UTILS_EX std::optional<std::string> to_json_string(const std::any& any);
+UTILS_EX std::optional<std::any> json_to_any(const std::string& str);
 
-UTILS_EX bool isAvailable(int port);
+UTILS_EX bool is_available(int port);
 
-UTILS_EX std::string base64Encode(const unsigned char* bytes, size_t sz);
-UTILS_EX std::vector<unsigned char> base64Decode(const std::string_view& data);
+UTILS_EX std::string base64_encode(const unsigned char* bytes, size_t sz);
+UTILS_EX std::vector<unsigned char> base64_decode(const std::string_view& data);
 
 }
+
 
 
 #endif // UTILS_H

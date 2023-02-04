@@ -53,7 +53,7 @@
 
 namespace GempyreUtils {
 template<typename T>
-static std::string lastError(T err) {
+static std::string last_error(T err) {
 #ifdef WINDOWS_OS
     const DWORD size = 256;
     char buffer[size];
@@ -67,15 +67,7 @@ static std::string lastError(T err) {
 }
 
 using namespace std::chrono_literals;
-using namespace GempyreUtils;
 
-static GempyreUtils::LogLevel g_serverLogLevel{GempyreUtils::LogLevel::
-#ifdef UTILS_LOGLEVEL
-UTILS_LOGLEVEL
-#else
-Error
-#endif
-};
 
 
 void GempyreUtils::init() {
@@ -93,23 +85,11 @@ void GempyreUtils::init() {
     const auto version = MAKEWORD(2, 2);
     const int code = WSAStartup(version, &wsa);
     if(0 != code) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Cannot initialize socket, Windows WSAStartup failed: code", code, "Last error:",  lastError());
+        GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Cannot initialize socket, Windows WSAStartup failed: code", code, "Last error:",  last_error());
     }
 #endif
 }
 
-std::string GempyreUtils::toStr(LogLevel l) {
-    const std::unordered_map<LogLevel, std::string> m = {
-        {LogLevel::None, "NONE"},
-        {LogLevel::Error, "ERROR"},
-        {LogLevel::Warning, "WARNING"},
-        {LogLevel::Info, "INFO"},
-        {LogLevel::Debug, "DEBUG"},
-        {LogLevel::Fatal, "FATAL"},
-        {LogLevel::Debug_Trace, "TRACE"}
-    };
-    return m.at(l);
-}
 
 std::string GempyreUtils::qq(const std::string& s) {
    std::stringstream ss;
@@ -130,112 +110,8 @@ std::string GempyreUtils::chop(const std::string& s, const std::string& chopped)
     return str;
 }
 
-void GempyreUtils::setLogLevel(GempyreUtils::LogLevel level) {
 
-    g_serverLogLevel = level;
-}
-
-
-std::string LogWriter::header(LogLevel logLevel) {
-    std::stringstream buf;
-    buf << '[' << currentTimeString() << "] " << toStr(logLevel) << " ";
-    return buf.str();
-}
-
-#ifdef WINDOWS_OS
-class ErrStream : public LogWriter {
-    bool doWrite(const char* bytes, size_t count) override {
-        (void) count;
-        OutputDebugStringA(bytes);
-        return true;
-    }
-};
-#else
-class ErrStream : public LogWriter {
-    bool doWrite(const char* bytes, size_t count) override {
-       (void) count;
-       std::cerr << bytes;
-       return true;
-    }
-};
-#endif
-
-template <size_t SZ>
-class LogStream : public std::streambuf {
-public:
-    LogStream() {
-        setp(m_buffer, m_buffer + SZ - 1);
-    }
-    ~LogStream() = default;
-    void setWriter(LogWriter* writer) {
-        m_logWriter = writer;
-    }
-private:
-    int_type overflow(int_type ch) override {
-        if(ch != traits_type::eof()){
-            *pptr() = static_cast<char>(ch);
-            pbump(1);
-            write();
-        }
-        return ch;
-    }
-    int sync() override {
-        write();
-        return 1;
-    }
-    void write() {
-        std::ptrdiff_t n = pptr() - pbase();
-        m_buffer[n] = '\0';
-        if(!m_logWriter->doWrite(m_buffer, static_cast<size_t>(n))) {
-            std::cerr << "Log cannot write " << m_buffer << std::endl;
-        }
-        pbump(static_cast<int>(-n));
-    }
-private:
-    char m_buffer[SZ + 1];
-    LogWriter* m_logWriter;
-};
-
-
-FileLogWriter::FileLogWriter(const std::string& path) : m_file(path, std::ios::out | std::ios::app )  {}
-bool FileLogWriter::doWrite(const char* bytes, size_t count) {
-        (void) count;
-        if(!m_file.is_open())
-            return false;
-        m_file << bytes << std::flush; // flush to catch crashes
-        return true;
-    }
-
-StreamLogWriter::StreamLogWriter(std::ostream& os) : m_os(os)  {}
-bool StreamLogWriter::doWrite(const char* bytes, size_t count) {
-        (void) count;
-        if(!m_os.good())
-            return false;
-        m_os << bytes << std::flush; // flush to catch crashes
-        return true;
-    }
-
-static std::atomic<GempyreUtils::LogWriter*> g_logWriter{nullptr};
-
-void GempyreUtils::setLogWriter(LogWriter* writer) {
-    g_logWriter = writer;
-}
-
-static ErrStream defaultErrorStream;
-
-std::ostream GempyreUtils::logStream(LogLevel logLevel) {
-    auto strm  = (g_logWriter) ? g_logWriter.load() : &defaultErrorStream;
-    static thread_local LogStream<1024> logStreamer;
-    logStreamer.setWriter(strm);
-    std::ostream(&logStreamer) << strm->header(logLevel);
-    return std::ostream(&logStreamer);
-}
-
-GempyreUtils::LogLevel GempyreUtils::logLevel() {
-    return g_serverLogLevel;
-}
-
-Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
+GempyreUtils::Params GempyreUtils::parse_args(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args) {
 #ifndef WINDOWS_OS
     /*
      * The variable optind is the index of the next element to be processed in argv.
@@ -380,7 +256,7 @@ Params GempyreUtils::parseArgs(int argc, char* argv[], const std::initializer_li
     return std::make_tuple(params, options);
 }
 
-std::string GempyreUtils::absPath(const std::string& rpath) {
+std::string GempyreUtils::abs_path(const std::string& rpath) {
 #ifndef WINDOWS_OS
     char* pathPtr = ::realpath(rpath.c_str(), nullptr);
     if(!pathPtr)
@@ -398,20 +274,20 @@ std::string GempyreUtils::absPath(const std::string& rpath) {
 #endif
 }
 
-std::tuple<std::string, std::string> GempyreUtils::splitName(const std::string& filename) {
-    const auto name = baseName(filename);
+std::tuple<std::string, std::string> GempyreUtils::split_name(const std::string& filename) {
+    const auto name = base_name(filename);
     const auto index = name.find_last_of('.');
     return std::make_tuple(name.substr(0, index), name.substr(index + 1));
 }
 
 
-std::string GempyreUtils::baseName(const std::string& filename) {
-    const auto dname = pathPop(filename);
+std::string GempyreUtils::base_name(const std::string& filename) {
+    const auto dname = path_pop(filename);
     return dname.empty() ? filename :
         filename.substr(dname.length() + 1);
 }
 
-std::string GempyreUtils::pathPop(const std::string& filename, int steps) {
+std::string GempyreUtils::path_pop(const std::string& filename, int steps) {
     if (steps <= 0)
         return filename;
     else {
@@ -421,11 +297,11 @@ std::string GempyreUtils::pathPop(const std::string& filename, int steps) {
     #else
        '\\');
     #endif
-        return pathPop(p != std::string::npos ? filename.substr(0, p) : "", steps - 1);
+        return path_pop(p != std::string::npos ? filename.substr(0, p) : "", steps - 1);
     }
 }
 
-std::optional<std::string> GempyreUtils::readProcess(const std::string& processName, const std::vector<std::string>& params) {
+std::optional<std::string> GempyreUtils::read_process(const std::string& processName, const std::vector<std::string>& params) {
     const auto param_line = join(params, " ");
     auto fd =
  #ifndef WINDOWS_OS
@@ -452,7 +328,7 @@ std::optional<std::string> GempyreUtils::readProcess(const std::string& processN
 
 
 
-std::string GempyreUtils::tempName() {
+std::string GempyreUtils::temp_name() {
 #ifdef WINDOWS_OS
     TCHAR path_buf[MAX_PATH];
     const auto len = GetTempPathA(MAX_PATH, path_buf);
@@ -481,7 +357,7 @@ std::string GempyreUtils::tempName() {
     return name;
 }
 
-void GempyreUtils::removeFile(const std::string& name) {
+void GempyreUtils::remove_file(const std::string& name) {
     ::remove(name.c_str());
 }
 
@@ -519,7 +395,7 @@ std::string GempyreUtils::appPath() {
 
 
 
-bool GempyreUtils::fileExists(const std::string& filename) {
+bool GempyreUtils::file_exists(const std::string& filename) {
 #ifndef WINDOWS_OS
     return ::access(filename.c_str(), F_OK) != -1;
 #else
@@ -558,20 +434,20 @@ std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
 
 
 #ifndef WINDOWS_OS
-bool GempyreUtils::isDir(const std::string& path) {
+bool GempyreUtils::is_dir(const std::string& path) {
    struct stat statbuf;
    if (::stat(path.c_str(), &statbuf) != 0)
        return 0;
    return S_ISDIR(statbuf.st_mode);
 }
 #else
-bool GempyreUtils::isDir(const std::string& path) {
+bool GempyreUtils::is_dir(const std::string& path) {
     return PathIsDirectory(path.c_str());
 }
 #endif
 
 
-std::string GempyreUtils::getLink(const std::string& lname) {
+std::string GempyreUtils::get_link(const std::string& lname) {
  #ifndef WINDOWS_OS
     size_t sz = 128;
     for(;;) {
@@ -588,7 +464,7 @@ std::string GempyreUtils::getLink(const std::string& lname) {
 #endif
 }
 
-std::optional<std::string> GempyreUtils::systemEnv(const std::string& env) {
+std::optional<std::string> GempyreUtils::system_env(const std::string& env) {
     if(env.length() > 0) {
         auto str = std::getenv(env.c_str());
         if(str) {
@@ -598,7 +474,7 @@ std::optional<std::string> GempyreUtils::systemEnv(const std::string& env) {
     return std::nullopt;
 }
 
-std::string GempyreUtils::hostName() {
+std::string GempyreUtils::host_name() {
 #ifndef WINDOWS_OS
     char buf[256] = {0};
     if(0 == ::gethostname(buf, sizeof (buf))) {
@@ -614,7 +490,7 @@ std::string GempyreUtils::hostName() {
     return std::string();
 }
 
-bool GempyreUtils::isHiddenEntry(const std::string& filename) {
+bool GempyreUtils::is_hidden_entry(const std::string& filename) {
 #ifndef WINDOWS_OS
     char s[4096] = {0};
     filename.copy(s, filename.length());
@@ -627,7 +503,7 @@ bool GempyreUtils::isHiddenEntry(const std::string& filename) {
 }
 
 #if 0
-long GempyreUtils::timeStamp(const std::string& filename) {
+long GempyreUtils::time_stamp(const std::string& filename) {
 #if WINDOWS_OS
     struct _stat buf;
     if(::_stat(filename.c_str(), &attr) == -1) {
@@ -672,8 +548,8 @@ bool GempyreUtils::rename(const std::string& of, const std::string& nf) {
     return true;
 }
 
+std::string GempyreUtils::working_dir() {
 #ifndef WINDOWS_OS
-std::string GempyreUtils::workingDir() {
     size_t sz = 128;
     for(;;) {
         std::vector<char> buffer(sz);
@@ -681,14 +557,12 @@ std::string GempyreUtils::workingDir() {
             return std::string(buffer.data(), ::strlen(buffer.data()));
         } else sz *= 2;
     }
-}
 #else
-std::string GempyreUtils::workingDir() {
     std::vector<char> buffer(GetCurrentDirectory(0, nullptr));
     GetCurrentDirectory(static_cast<DWORD>(buffer.size()), buffer.data());
     return std::string(buffer.data(), ::strlen(buffer.data()));
-}
 #endif
+}
 
 std::string GempyreUtils::slurp(const std::string& file, size_t max) {
     std::ifstream stream(file, std::ios::in | std::ios::ate);
@@ -753,15 +627,15 @@ std::string GempyreUtils::unhexify(const std::string& src) {
 #define S_IXUSR _S_IEXEC
 #endif
 
-bool GempyreUtils::isExecutable(const std::string& filename) {
-    if(!fileExists(filename)) {
+bool GempyreUtils::is_executable(const std::string& filename) {
+    if(!file_exists(filename)) {
         return false;
     }
     struct stat sb;
     return (stat(filename.c_str(), &sb) == 0 && sb.st_mode & S_IXUSR);
 }
 
-SSIZE_T GempyreUtils::fileSize(const std::string& filename) {
+SSIZE_T GempyreUtils::file_size(const std::string& filename) {
     std::ifstream stream(filename, std::ios::in | std::ios::binary | std::ios::ate);
     if(!stream.is_open()) {
         log(LogLevel::Error, "Cannot open file", qq(filename));
@@ -771,7 +645,7 @@ SSIZE_T GempyreUtils::fileSize(const std::string& filename) {
 }
 
 std::optional<std::string> GempyreUtils::which(const std::string& filename) {
-    const auto pe = systemEnv("PATH");
+    const auto pe = system_env("PATH");
     if(!pe)
         return std::nullopt;
     const auto path = split<std::vector<std::string>>(*pe,
@@ -790,23 +664,23 @@ std::optional<std::string> GempyreUtils::which(const std::string& filename) {
 #else
             const auto longName = dir + '/' + name;
 #endif
-            if(!isExecutable(longName))
+            if(!is_executable(longName))
                 continue;
             const auto e = name.find_last_of('.');
 #ifdef WINDOWS_OS
             if(e == std::string::npos)
                 continue;
-            const auto n = toLow(name);
+            const auto n = to_low(name);
             const auto ext = n.substr(e + 1);
             if(ext != "exe" && ext != "bat" && ext != "cmd")
                 continue;
-            const auto basename = n.substr(0, e);
-            std::string lname = toLow(filename);
-            if(lname == basename || lname == n)
+            const auto base_name = n.substr(0, e);
+            std::string lname = to_low(filename);
+            if(lname == base_name || lname == n)
                 return longName;
 #else
-            const auto basename = name.substr(0, e - 1);
-            if(filename == name || filename == basename)
+            const auto base_name = name.substr(0, e - 1);
+            if(filename == name || filename == base_name)
                 return longName;
 #endif
         }
@@ -815,7 +689,7 @@ std::optional<std::string> GempyreUtils::which(const std::string& filename) {
     return std::nullopt;
 }
 
-std::shared_ptr<GempyreUtils::expiror> GempyreUtils::waitExpire(std::chrono::seconds s, const std::function<void ()>& onExpire) {
+std::shared_ptr<GempyreUtils::expiror> GempyreUtils::wait_expire(std::chrono::seconds s, const std::function<void ()>& onExpire) {
     auto token = std::shared_ptr<expiror>(new expiror);
     std::weak_ptr<expiror> ref = token;
     token->m_f = std::async([ref, s, onExpire](){
@@ -831,7 +705,7 @@ std::shared_ptr<GempyreUtils::expiror> GempyreUtils::waitExpire(std::chrono::sec
     return token;
 }
 
-GempyreUtils::OS GempyreUtils::currentOS() {
+GempyreUtils::OS GempyreUtils::current_os() {
 #if defined(MAC_OS)
     return OS::MacOs;
 #elif defined(WINDOWS_OS)
@@ -847,7 +721,7 @@ GempyreUtils::OS GempyreUtils::currentOS() {
 #endif
 }
 
-std::string GempyreUtils::htmlFileLaunchCmd() {
+std::string GempyreUtils::html_file_launch_cmd() {
     return
     #if defined(UNIX_OS) || defined(RASPBERRY_OS) //maybe works only on Debian derivatives
         "x-www-browser"
@@ -881,17 +755,17 @@ static std::string printTime(std::chrono::time_point<T> time) {
     return std::string(buf);
 }
 
-std::string GempyreUtils::currentTimeString() {
+std::string GempyreUtils::current_time_string() {
     return printTime(std::chrono::system_clock::now());
 }
 
-std::string GempyreUtils::lastError() {
+std::string GempyreUtils::last_error() {
 #ifdef WINDOWS_OS
     DWORD dw = GetLastError();
-    return lastError(dw);
+    return last_error(dw);
 #else
     const int err = errno;
-    return lastError(err);
+    return last_error(err);
 #endif
 }
 
@@ -924,7 +798,7 @@ std::pair<int, int> GempyreUtils::getPriorityLevels() {
 #endif
 */
 
-bool GempyreUtils::isAvailable(int port) {
+bool GempyreUtils::is_available(int port) {
     const auto sockfd = socket(AF_INET, SOCK_STREAM, 0);
 #ifdef WINDOWS_OS
     if(sockfd == INVALID_SOCKET ) {
@@ -955,7 +829,7 @@ bool GempyreUtils::isAvailable(int port) {
     return true;
 }
 
-std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
+std::vector<std::string> GempyreUtils::ip_addresses(int addressType) {
     std::vector<std::string> addresses;
 #ifndef WINDOWS_OS
     struct ifaddrs *ifaddr;
@@ -998,7 +872,7 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
             adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buf_ptr.get());
         }
         else {
-            log(LogLevel::Error, "ipAddresses error:", lastError(err));
+            log(LogLevel::Error, "ipAddresses error:", last_error(err));
             return addresses;
         }
     }
@@ -1038,15 +912,15 @@ std::vector<std::string> GempyreUtils::ipAddresses(int addressType) {
 #endif
 }
 
-std::string GempyreUtils::base64Encode(const unsigned char* bytes, size_t sz) {
+std::string GempyreUtils::base64_encode(const unsigned char* bytes, size_t sz) {
     return Base64::encode(bytes, sz);
 }
 
-std::vector<unsigned char> GempyreUtils::base64Decode(const std::string_view& data) {
+std::vector<unsigned char> GempyreUtils::base64_decode(const std::string_view& data) {
     return Base64::decode(data);
 }
 
-std::string GempyreUtils::pushPath(const std::string& path, const std::string& name) {
+std::string GempyreUtils::push_path(const std::string& path, const std::string& name) {
 #ifdef OS_WIN
     return path + '\\' + name;
  #else
@@ -1090,16 +964,7 @@ std::string GempyreUtils::trimmed(const std::string& s) {
     return substitute(s, R"(\s+)", std::string{});
 }
 
-
-void GempyreUtils::processAbort(int exitCode) {
-#ifdef WINDOWS_OS
-    PostQuitMessage(exitCode); // try to flush buffers
-    Sleep(20); //20ms
-#endif
-    std::exit(exitCode);
-}
-
-int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) {
+int GempyreUtils::levenshtein_distance(std::string_view s1, std::string_view s2) {
     const auto l1 = s1.length();
     const auto l2 = s2.length();
 
@@ -1124,7 +989,7 @@ int GempyreUtils::levenshteinDistance(std::string_view s1, std::string_view s2) 
 }
 
 
-std::string GempyreUtils::homeDir() {
+std::string GempyreUtils::home_dir() {
 #ifdef WINDOWS_OS
    constexpr int max_data = 512;
    TCHAR path_buf[max_data];
@@ -1139,10 +1004,19 @@ std::string GempyreUtils::homeDir() {
     return {};
 }
 
-UTILS_EX std::string GempyreUtils::rootDir() {
+
+std::string GempyreUtils::root_dir() {
 #ifdef WINDOWS_OS
     return std::string{"C:\\"};
 #else
     return std::string{"/"};
 #endif
+}
+
+void GempyreUtils::process_exit(int exitCode) {
+#ifdef WINDOWS_OS
+    PostQuitMessage(exitCode); // try to flush buffers
+    Sleep(20); //20ms
+#endif
+    std::exit(exitCode);
 }

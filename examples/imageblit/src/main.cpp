@@ -31,7 +31,7 @@ void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el
 
 int main(int argc, char** argv) {
    // Gempyre::set_debug();
-    const auto args = GempyreUtils::parseArgs(argc, argv, {{"resources", 'r', GempyreUtils::ArgType::REQ_ARG}});
+    const auto args = GempyreUtils::parse_args(argc, argv, {{"resources", 'r', GempyreUtils::ArgType::REQ_ARG}});
     const auto options = std::get<GempyreUtils::Options>(args);
     const auto it = options.find("resources");
     const auto root = (it != options.end()) ? (it->second + "/") : std::string("");
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     });
     */
     const auto simage1 = root + "free-scenery-7.jpg";
-    if(GempyreUtils::fileExists(simage1)) {
+    if(GempyreUtils::file_exists(simage1)) {
         if(!ui.add_file("/scene.jpg", simage1)) {
             std::cerr << "Cannot load " << simage1 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
             return -1;
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
     //4) add as resource and image
     const auto simage2 = root + "tom-hanssens-shot-01.jpg";
-    if(GempyreUtils::fileExists(simage2)) {
+    if(GempyreUtils::file_exists(simage2)) {
         if(!ui.add_file("/scene2.jpg", simage2)) {
             std::cerr << "Cannot load " << simage2 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
             return -1;

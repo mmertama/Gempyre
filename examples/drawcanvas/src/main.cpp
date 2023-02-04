@@ -14,14 +14,14 @@ int main(int /*argc*/, char** /*argv*/) {
     Gempyre::CanvasElement canvas(ui, "canvas");
 
     canvas.draw(Gempyre::FrameComposer()
-                    .lineWidth(10)
-                    .strokeRect({75, 140, 150, 110})
-                    .fillRect({130, 190, 40, 60})
-                    .beginPath()
-                    .moveTo(50, 140)
-                    .lineTo(150, 60)
-                    .lineTo(250, 140)
-                    .closePath()
+                    .line_width(10)
+                    .stroke_rect({75, 140, 150, 110})
+                    .fill_rect({130, 190, 40, 60})
+                    .begin_path()
+                    .move_to(50, 140)
+                    .line_to(150, 60)
+                    .line_to(250, 140)
+                    .close_path()
                     .stroke());
 
 
@@ -73,7 +73,7 @@ int main(int /*argc*/, char** /*argv*/) {
         commands.push_back(x);
         commands.push_back(y);
         commands.push_back("fillStyle");
-        commands.push_back("#" + GempyreUtils::toHex<int>(::rand()));
+        commands.push_back("#" + GempyreUtils::to_hex<int>(::rand()));
         commands.push_back("lineTo");
         commands.push_back(x + ::sin(i + pof) * 100.);
         commands.push_back(y + ::cos(i + pof) * 100.);
@@ -118,12 +118,12 @@ int main(int /*argc*/, char** /*argv*/) {
         if(GempyreUtils::convert<int>(e.properties.at("keyCode")) != 'T')
             return;
         if(erase) {
-            canvas.draw(Gempyre::FrameComposer().clearRect({450, 350, 100 , 150}));
+            canvas.draw(Gempyre::FrameComposer().clear_rect({450, 350, 100 , 150}));
             erase = false;
         } else {
             auto f = Gempyre::FrameComposer();
-            f.beginPath();
-            f.fillStyle("red");
+            f.begin_path();
+            f.fill_style("red");
             f.ellipse(500, 400, 50, 75, M_PI / 4., 0, 2. * M_PI);
             f.fill();
             canvas.draw(f);

@@ -32,26 +32,26 @@ int main(int /*argc*/, char** /*argv*/) {
 
 
     openFile.subscribe("click", [&content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::openFileDialog("Open something", GempyreUtils::homeDir(), {{"Text", {"*.txt"}}});
+        const auto out = Gempyre::Dialog::open_file_dialog("Open something", GempyreUtils::home_dir(), {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
             const auto stuff = GempyreUtils::slurp(*out);
-            content.set_html("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::fileSize(*out)));
+            content.set_html("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::file_size(*out)));
         }
     });
 
     openFiles.subscribe("click", [&content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::openFilesDialog();
+        const auto out = Gempyre::Dialog::open_files_dialog();
         if(out && !out->empty()) {
             std::string line;
             for(const auto& o : *out) {
-                line += "filename:" + o + " size:" + std::to_string(GempyreUtils::fileSize(o)) + "</br>";
+                line += "filename:" + o + " size:" + std::to_string(GempyreUtils::file_size(o)) + "</br>";
             }
             content.set_html(line);
         }
     });
 
     openDir.subscribe("click", [&content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::openDirDialog("dir");
+        const auto out = Gempyre::Dialog::open_dir_dialog("dir");
         if(out && !out->empty()) {
             const auto dirlist = GempyreUtils::directory(*out);
             std::string line;
@@ -63,9 +63,9 @@ int main(int /*argc*/, char** /*argv*/) {
     });
 
     saveFile.subscribe("click", [&content](const Gempyre::Event&) {
-        const auto out = Gempyre::Dialog::saveFileDialog("", "", {{"Text", {"*.txt", "*.text"}}, {"Log", {"*.log"}}});
+        const auto out = Gempyre::Dialog::save_file_dialog("", "", {{"Text", {"*.txt", "*.text"}}, {"Log", {"*.log"}}});
         if(out && !out->empty()) {
-            if(GempyreUtils::fileExists(*out)) {
+            if(GempyreUtils::file_exists(*out)) {
                  content.set_html("Do not pick existing file:" + *out);
                  return;
             }
@@ -73,7 +73,7 @@ int main(int /*argc*/, char** /*argv*/) {
             f.open (*out);
             f << *content.html();
             f.close();
-            content.set_html("Written in file, size:" + std::to_string(GempyreUtils::fileSize(*out)));
+            content.set_html("Written in file, size:" + std::to_string(GempyreUtils::file_size(*out)));
         }
     });
 

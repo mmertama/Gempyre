@@ -27,7 +27,7 @@ TEST(TestMockUi, openPage_with_page_browser) {
 #ifdef HAS_FS
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
 #else
-    ASSERT_TRUE(GempyreUtils::fileExists(htmlPage));
+    ASSERT_TRUE(GempyreUtils::file_exists(htmlPage));
 #endif
 
     Gempyre::Ui::Filemap map;
@@ -44,7 +44,7 @@ TEST(TestMockUi, openPage_with_page_browser) {
     ui.on_error([](const auto& element, const auto& info) {
         std::cerr << element << " err:" << info; TEST_FAIL;
     });
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -55,7 +55,7 @@ TEST(TestMockUi, openPage_with_page) {
 #ifdef HAS_FS
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
 #else
-    ASSERT_TRUE(GempyreUtils::fileExists(htmlPage));
+    ASSERT_TRUE(GempyreUtils::file_exists(htmlPage));
 #endif
 
     Gempyre::Ui::Filemap map;
@@ -69,7 +69,7 @@ TEST(TestMockUi, openPage_with_page) {
         ui.exit();
     });
     ui.on_error([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -83,7 +83,7 @@ TEST(TestMockUi, openPage_with_browser) {
         ui.exit();
     });
     ui.on_error([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
     ui.run();
     ASSERT_TRUE(ok);
 
@@ -100,7 +100,7 @@ TEST(TestMockUi, openPage_defaults) {
         ui.exit();
     });
     ui.on_error([](const auto& element, const auto& info){std::cerr << element << " err:" << info; TEST_FAIL;});
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -116,7 +116,7 @@ TEST(TestMockUi, onExit) {
         ASSERT_FALSE(ok);
         ok = true;
     });
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -131,7 +131,7 @@ TEST(TestMockUi, close) {
         ASSERT_FALSE(ok);
         ok = true;
     });
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -144,7 +144,7 @@ TEST(TestMockUi, setLogging) {
         ui.set_logging(false);
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
 }
 
@@ -156,7 +156,7 @@ TEST(TestMockUi, debug) {
         ok = true;
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -170,7 +170,7 @@ TEST(TestMockUi, alert) {
         ok = true;
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -185,7 +185,7 @@ TEST(TestMockUi, open) {
         ok = true;
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::waitExpire(WaitExpireTimeout, []() {TEST_FAIL;});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -341,10 +341,10 @@ TEST(TestMockUi, resource) {
 TEST(TestMockUi, addFile) {
      TEST_UI;
     const std::string test = "The quick brown fox jumps over the lazy dog";
-    const auto tempFile = GempyreUtils::writeToTemp(test);
+    const auto tempFile = GempyreUtils::write_to_temp(test);
     const auto ok = ui.add_file("test_data", tempFile);
     ASSERT_TRUE(ok) << "Cannot add file " << tempFile;
-    GempyreUtils::removeFile(tempFile);
+    GempyreUtils::remove_file(tempFile);
     const auto r = ui.resource("test_data");
     const std::string text = GempyreUtils::join(*r);
     const auto p1 = text.find("quick");

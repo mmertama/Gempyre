@@ -87,10 +87,10 @@ static std::string toLower(const std::string& str) {
 
 static unsigned wishAport(unsigned port, unsigned max) {
     auto end = port + max;
-    while(!GempyreUtils::isAvailable(static_cast<unsigned short>(port))) {
+    while(!GempyreUtils::is_available(static_cast<unsigned short>(port))) {
         ++port;
         if(port == end) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error, "wish a port", GempyreUtils::lastError());
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "wish a port", GempyreUtils::last_error());
             return 0;
         }
     }
@@ -344,7 +344,7 @@ void Server::serverThread(unsigned int port) {
                                   req->end(),
                                   ",",
             [](const auto & p) {return std::string(p.first) + " " + std::string(p.second);}));
-            if(page.empty() && GempyreUtils::fileExists(fullPath)) {
+            if(page.empty() && GempyreUtils::file_exists(fullPath)) {
                 page = GempyreUtils::slurp(fullPath);
             } else {
                 GempyreUtils::log(GempyreUtils::LogLevel::Warning, "path:", fullPath, "Not found");
@@ -381,7 +381,7 @@ void Server::serverThread(unsigned int port) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listen ok, wait for event");
             }
         } else {
-            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "try listen on port:", port, "failed", GempyreUtils::lastError());
+            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "try listen on port:", port, "failed", GempyreUtils::last_error());
             m_onClose(CloseStatus::FAIL, -1);
         }
     }).run();
@@ -425,7 +425,7 @@ bool Server::retryStart() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Retry", m_port);
     const auto port = wishAport(m_port, PORT_ATTEMPTS);
     if(port <= 0) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Listen ports:", m_port, "failed", GempyreUtils::lastError());
+        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Listen ports:", m_port, "failed", GempyreUtils::last_error());
         return false;
     }
 
@@ -482,7 +482,7 @@ bool Server::endBatch() {
 bool Server::send(const std::unordered_map<std::string, std::string>& object, const std::any& values) {
     json js;
     if(values.has_value()) {
-        const auto jopt = GempyreUtils::toJsonString(values);
+        const auto jopt = GempyreUtils::to_json_string(values);
         if(jopt.has_value()) {
             js = json::parse(*jopt);
         }

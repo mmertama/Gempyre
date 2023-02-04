@@ -30,7 +30,7 @@ public:
         m_d(static_cast<double>(m_y)) {
     }
     void draw(Gempyre::FrameComposer& fc) const {
-        fc.drawImage("flakes",
+        fc.draw_image("flakes",
                      {ix, iy, Width, Height},
                      {m_x, m_y, m_size, m_size}
                      );
@@ -78,7 +78,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     const auto draw_flakes = [&canvas, &rect, &flakes, &frame_count]() {
         Gempyre::FrameComposer fc;
-        fc.clearRect({0, 0, rect.width, rect.height});
+        fc.clear_rect({0, 0, rect.width, rect.height});
         for(const auto& f : flakes) {
             f.draw(fc);
         }

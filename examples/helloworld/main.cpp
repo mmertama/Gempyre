@@ -30,14 +30,14 @@ int main(int /*argc*/, char** /*argv*/) {
     }, {"value"});
 
     Gempyre::Element(*ui, "open_icon").subscribe("click", [&ui](const auto&)  {
-        const auto icon_name = Gempyre::Dialog::openFileDialog("Open Image");
+        const auto icon_name = Gempyre::Dialog::open_file_dialog("Open Image");
         if(!icon_name)
             return;
         Gempyre::Element(*ui, "icon_label").set_html(*icon_name);
         const auto icon_data = GempyreUtils::slurp<uint8_t>(*icon_name);
         if(icon_data.empty())
             return;
-        const auto& [_, ext] = GempyreUtils::splitName(*icon_name);
+        const auto& [_, ext] = GempyreUtils::split_name(*icon_name);
         ui->set_application_icon(icon_data.data(), icon_data.size(), ext);
     });
 

@@ -95,10 +95,10 @@ std::optional<Element::Rect> Element::rect() const {
     const auto value = m_ui->query<std::unordered_map<std::string, std::string>>(m_id, "bounding_rect");
     if(m_ui->ref() == State::RUNNING && value.has_value()) {
         return Rect{
-            GempyreUtils::toOr<int>(value->at("x")).value(),
-            GempyreUtils::toOr<int>(value->at("y")).value(),
-            GempyreUtils::toOr<int>(value->at("width")).value(),
-            GempyreUtils::toOr<int>(value->at("height")).value()};
+            GempyreUtils::parse<int>(value->at("x")).value(),
+            GempyreUtils::parse<int>(value->at("y")).value(),
+            GempyreUtils::parse<int>(value->at("width")).value(),
+            GempyreUtils::parse<int>(value->at("height")).value()};
     }
     return std::nullopt;
 }

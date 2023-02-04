@@ -43,7 +43,7 @@ extern int androidLoadUi(const std::string&);
 #define CHECK_FATAL(x) if(ec) {error(ec, merge(x, " at ", __LINE__)); return;}  std::cout << x << " - ok" << std::endl;
 
 void Gempyre::set_debug(bool is_debug) {
-    GempyreUtils::setLogLevel(is_debug ? GempyreUtils::LogLevel::Debug : GempyreUtils::LogLevel::Error);
+    GempyreUtils::set_log_level(is_debug ? GempyreUtils::LogLevel::Debug : GempyreUtils::LogLevel::Error);
 }
 
 
@@ -76,7 +76,7 @@ static std::optional<T> getConf(const std::string& key) {
     const auto js_string = std::string(reinterpret_cast<const char*>(js_data.data()),
                                        js_data.size());
                                        
-    const auto js = GempyreUtils::jsonToAny(js_string);
+    const auto js = GempyreUtils::json_to_any(js_string);
     
     gempyre_utils_assert_x(js, "Broken json " + js_string);
        
@@ -95,7 +95,7 @@ static std::optional<T> getConf(const std::string& key) {
 }
 
 static std::string osName() {
-    switch (GempyreUtils::currentOS()) {
+    switch (GempyreUtils::current_os()) {
     case GempyreUtils::OS::WinOs: return "windows";
     case GempyreUtils::OS::LinuxOs: return "linux";
     case GempyreUtils::OS::MacOs: return "macos";
@@ -119,7 +119,7 @@ static std::optional<std::string> python3() {
     const auto  py = GempyreUtils::which("python");
     if(!py)
         return std::nullopt;
-    const auto out = GempyreUtils::readProcess("python", {"--version"});
+    const auto out = GempyreUtils::read_process("python", {"--version"});
     if(!out)
         return std::nullopt;
     const auto pv = GempyreUtils::split<std::vector<std::string>>(*out, ' '); //// Python 2.7.16
@@ -200,7 +200,7 @@ static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexH
     }
 
     const auto params = url + " " + value(param_map, BROWSER_PARAMS_KEY, "");
-    const auto appui = value(param_map, BROWSER_KEY, GempyreUtils::htmlFileLaunchCmd());
+    const auto appui = value(param_map, BROWSER_KEY, GempyreUtils::html_file_launch_cmd());
 #ifndef ANDROID_OS
     gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
 #endif
@@ -245,7 +245,7 @@ Ui::Filemap Ui::to_file_map(const std::vector<std::string>& filenames) {
     for(const auto& filename : filenames) {
         const auto bytes = GempyreUtils::slurp<Base64::Byte>(filename);
         const auto encoded = Base64::encode(bytes);
-        const auto name = GempyreUtils::baseName(filename);
+        const auto name = GempyreUtils::base_name(filename);
         map.emplace('/' + name, encoded);
     }
     return map;
@@ -276,7 +276,7 @@ Ui::Ui(const Filemap& filemap,
     {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},
     {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
     {height > 0 ? HEIGHT_KEY : "", std::to_string(height)},
-    {GempyreUtils::logLevel() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "", "debug=True" }}){}
+    {GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "", "debug=True" }}){}
 
 
 Ui::Ui(const Filemap& filemap,
@@ -386,7 +386,7 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
 #else
 
     const auto on_path = GempyreUtils::which(appui);
-    const auto is_exec = GempyreUtils::isExecutable(appui) || (on_path && GempyreUtils::isExecutable(*on_path));
+    const auto is_exec = GempyreUtils::is_executable(appui) || (on_path && GempyreUtils::is_executable(*on_path));
     const auto result = is_exec ?
             GempyreUtils::execute(appui, cmd_params) :
             GempyreUtils::execute("", appui + " " +  cmd_params);
@@ -395,7 +395,7 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
 
     if(result != 0) {
         //TODO: Change to Fatal
-        GempyreUtils::log(GempyreUtils::LogLevel::Error, "gui cmd Error:", result, GempyreUtils::lastError());
+        GempyreUtils::log(GempyreUtils::LogLevel::Error, "gui cmd Error:", result, GempyreUtils::last_error());
     }
     return true;
 }
@@ -703,11 +703,11 @@ void Ui::eventLoop(bool is_main) {
 
         if(m_ui->has_open() && *m_ui == State::RUNNING && m_ui->is_connected()) {
             const auto fptr = m_ui->take_open();
-            set_timer_hold(true);
+            set_timer_on_hold(true);
             m_ui->addRequest([fptr, this]() {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
                 fptr();
-                set_timer_hold(false);
+                set_timer_on_hold(false);
                 return true;
             }); //we try to keep logic call order
         }
@@ -797,7 +797,7 @@ Element Ui::root() const {
 std::string Ui::address_of(const std::string& filepath) const {
     gempyre_utils_assert_x(m_ui->is_connected(), "Not connected");
     return std::string(SERVER_ADDRESS) + ":" + std::to_string(m_ui->port()) +
-           "?file=" + GempyreUtils::hexify(GempyreUtils::absPath(filepath), R"([^a-zA-Z0-9-,.,_~])");
+           "?file=" + GempyreUtils::hexify(GempyreUtils::abs_path(filepath), R"([^a-zA-Z0-9-,.,_~])");
 }
 
 std::optional<Element::Elements> Ui::by_class(const std::string& className) const {
@@ -825,7 +825,7 @@ std::optional<Element::Elements> Ui::by_name(const std::string& className) const
 }
 
 void Ui::extension_call(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
-    const auto json = GempyreUtils::toJsonString(parameters);
+    const auto json = GempyreUtils::to_json_string(parameters);
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
     m_ui->addRequest([this, callId, json]() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension:", json.value());
@@ -850,7 +850,7 @@ std::optional<std::any> Ui::extension_get(const std::string& callId, const std::
     }
     const auto queryId = m_ui->query_id();
 
-    const auto json = GempyreUtils::toJsonString(parameters);
+    const auto json = GempyreUtils::to_json_string(parameters);
 
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
 
@@ -883,7 +883,7 @@ std::optional<std::vector<uint8_t>> Ui::resource(const std::string& url) const {
 }
 
 bool Ui::add_file(const std::string& url, const std::string& file_name) {
-    if(!GempyreUtils::fileExists(file_name)) {
+    if(!GempyreUtils::file_exists(file_name)) {
         return false;
     }
     const auto file = m_ui->file(url);
@@ -896,7 +896,7 @@ bool Ui::add_file(const std::string& url, const std::string& file_name) {
 
 std::optional<double> Ui::device_pixel_ratio() const {
     const auto value = const_cast<Ui*>(this)->query<std::string>("", "devicePixelRatio");
-    return value.has_value() && *m_ui == State::RUNNING ? GempyreUtils::toOr<double>(value.value()) : std::nullopt;
+    return value.has_value() && *m_ui == State::RUNNING ? GempyreUtils::parse<double>(value.value()) : std::nullopt;
 }
 
 void Ui::set_application_icon(const uint8_t *data, size_t dataLen, const std::string& type) {
@@ -919,7 +919,7 @@ std::string Ui::stdParams(int width, int height, const std::string& title) {
 }
 */
 std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, const std::string& file) {
-    if(!GempyreUtils::fileExists(file)) {
+    if(!GempyreUtils::file_exists(file)) {
         return std::nullopt;
     }
     auto url = GempyreUtils::substitute(file, R"([\/\\])", "_");
@@ -935,11 +935,11 @@ std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, const std::st
     return url;
 }
 
-void Ui::set_timer_hold(bool on_hold) {
+void Ui::set_timer_on_hold(bool on_hold) {
     m_ui->set_hold(on_hold);
     }
 
-bool Ui::is_timer_hold() const {
+bool Ui::is_timer_on_hold() const {
     return m_ui->hold();
     }
 
@@ -970,7 +970,7 @@ GempyreInternal& Ui::ref() {
     // This is executed in m_startup 
     m_server = std::make_unique<Server>(
                    port,
-                   root.empty() ? GempyreUtils::workingDir() : root,
+                   root.empty() ? GempyreUtils::working_dir() : root,
                    [ui](){ui->openHandler();},
                    [ui](const Server::Object& obj){ui->messageHandler(obj);},
                    [ui](CloseStatus status, int code){ui->closeHandler(status, code);},

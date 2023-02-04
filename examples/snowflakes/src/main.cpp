@@ -19,12 +19,12 @@ public:
     void draw(Gempyre::FrameComposer& f) const {
         f.save();
         f.translate(m_x - m_size / 2, m_y - m_size / 2);
-        f.beginPath();
+        f.begin_path();
         auto it = m_vertices.begin();
-        f.moveTo(it->x, it->y);
+        f.move_to(it->x, it->y);
         ++it;
         for(; it != m_vertices.end(); ++it)
-            f.lineTo(it->x, it->y);
+            f.line_to(it->x, it->y);
         f.stroke();
         f.restore();
     }
@@ -61,7 +61,7 @@ int main(int /*argc*/, char** /*argv*/) {
         Flake f(m_cache[iterations], Size);
         f.setPos(rect.width / 2, rect.height / 2);
         Gempyre::FrameComposer fc;
-        fc.clearRect(rect);
+        fc.clear_rect(rect);
         f.draw(fc);
         canvas.draw(fc);
     };
