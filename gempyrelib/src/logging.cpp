@@ -72,7 +72,7 @@ std::string GempyreUtils::to_str(LogLevel l) {
         {LogLevel::Debug_Trace, "TRACE"}
     };
 #else
-        const std::unordered_map<LogLevel, std::string> m = {
+    const std::unordered_map<LogLevel, std::string> m = {
         {LogLevel::None, "NONE"},
         {LogLevel::Error, "\e[1;31mERROR\e[0m"},//Red text
         {LogLevel::Warning, "\e[1;48:5:166mWARNING\e[0m"},//Orange background
