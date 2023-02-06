@@ -61,6 +61,7 @@ GempyreUtils::LogLevel GempyreUtils::log_level() {
 }
 
 std::string GempyreUtils::to_str(LogLevel l) {
+#ifdef WINDOWS_OS
     const std::unordered_map<LogLevel, std::string> m = {
         {LogLevel::None, "NONE"},
         {LogLevel::Error, "ERROR"},
@@ -70,6 +71,17 @@ std::string GempyreUtils::to_str(LogLevel l) {
         {LogLevel::Fatal, "FATAL"},
         {LogLevel::Debug_Trace, "TRACE"}
     };
+#else
+        const std::unordered_map<LogLevel, std::string> m = {
+        {LogLevel::None, "NONE"},
+        {LogLevel::Error, "\e[1;31mERROR\e[0m"},//Red text
+        {LogLevel::Warning, "\e[1;48:5:166mWARNING\e[0m"},//Orange background
+        {LogLevel::Info, "\e[0;106m\e[1;90mINFO\e[0m"},//Cyan background + Black text
+        {LogLevel::Debug, "\e[0;103m\e[1;90mDEBUG\e[0m"},//Yello background + Black text
+        {LogLevel::Fatal, "\e[4;31mFATAL\e[0m"},//Dark red with underline
+        {LogLevel::Debug_Trace, "\e[0;103m\e[1;90mTRACE\e[0m"}//Yello background + Black text
+    };
+#endif
     return m.at(l);
 }
 

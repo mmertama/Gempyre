@@ -17,7 +17,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(USE_PYTHON_UI)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_PYTHON_UI)
+    add_compile_definitions(USE_PYTHON_UI)
 endif()
 
 message("compiler is ${CMAKE_CXX_COMPILER_ID}")
