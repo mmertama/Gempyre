@@ -82,6 +82,7 @@ std::string GempyreUtils::to_str(LogLevel l) {
         {LogLevel::Fatal, "\e[4;31mFATAL\e[0m"},//Dark red with underline
         {LogLevel::Debug_Trace, "\e[0;103m\e[1;90mTRACE\e[0m"}//Yello background + Black text
     };
+    return m.at(l);
 #endif
 }
 
