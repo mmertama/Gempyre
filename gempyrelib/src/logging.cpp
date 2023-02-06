@@ -61,7 +61,6 @@ GempyreUtils::LogLevel GempyreUtils::log_level() {
 }
 
 std::string GempyreUtils::to_str(LogLevel l) {
-    const std::unordered_map<LogLevel, std::string> m = {
 #ifdef WINDOWS_OS
     const std::unordered_map<LogLevel, std::string> m = {
         {LogLevel::None, "NONE"},
