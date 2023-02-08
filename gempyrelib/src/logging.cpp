@@ -42,6 +42,9 @@
 
 using namespace GempyreUtils;
 
+
+static std::atomic<GempyreUtils::LogWriter*> g_logWriter{nullptr};
+
 static GempyreUtils::LogLevel g_serverLogLevel{GempyreUtils::LogLevel::
 #ifdef UTILS_LOGLEVEL
 UTILS_LOGLEVEL
@@ -60,8 +63,15 @@ GempyreUtils::LogLevel GempyreUtils::log_level() {
    return g_serverLogLevel;
 }
 
+#define CLEAR "\e[0m"
+#define RED "\e[1;31m"
+#define ORANGE "\e[1;48:5:166m"
+#define CYAN_TEXT "\e[0;106m\e[1;90m"
+#define YELLOW "\e[0;33m"
+#define DARK_RED_WITH_UNDERLINE "\e[4;31m"
+#define WHITE_BACKGROUND_BLACK_TEXT "\e[0;47m\e[1;90m"
+
 std::string GempyreUtils::to_str(LogLevel l) {
-#ifdef WINDOWS_OS
     const std::unordered_map<LogLevel, std::string> m = {
         {LogLevel::None, "NONE"},
         {LogLevel::Error, "ERROR"},
@@ -71,18 +81,17 @@ std::string GempyreUtils::to_str(LogLevel l) {
         {LogLevel::Fatal, "FATAL"},
         {LogLevel::Debug_Trace, "TRACE"}
     };
-#else
-    const std::unordered_map<LogLevel, std::string> m = {
+
+    const std::unordered_map<LogLevel, std::string> ansi_m = {
         {LogLevel::None, "NONE"},
-        {LogLevel::Error, "\e[1;31mERROR\e[0m"},//Red text
-        {LogLevel::Warning, "\e[1;48:5:166mWARNING\e[0m"},//Orange background
-        {LogLevel::Info, "\e[0;106m\e[1;90mINFO\e[0m"},//Cyan background + Black text
-        {LogLevel::Debug, "\e[0;103m\e[1;90mDEBUG\e[0m"},//Yello background + Black text
-        {LogLevel::Fatal, "\e[4;31mFATAL\e[0m"},//Dark red with underline
-        {LogLevel::Debug_Trace, "\e[0;103m\e[1;90mTRACE\e[0m"}//Yello background + Black text
+        {LogLevel::Error, RED "ERROR" CLEAR},//Red text
+        {LogLevel::Warning, ORANGE "WARNING" CLEAR},//Orange background
+        {LogLevel::Info, CYAN_TEXT "INFO" CLEAR},//Cyan background + Black text
+        {LogLevel::Debug, YELLOW "DEBUG" CLEAR},//Yellow
+        {LogLevel::Fatal, DARK_RED_WITH_UNDERLINE "FATAL" CLEAR},//Dark red with underline
+        {LogLevel::Debug_Trace, WHITE_BACKGROUND_BLACK_TEXT "TRACE" CLEAR}//White background + Black text
     };
-    return m.at(l);
-#endif
+    return g_logWriter && g_logWriter.load()->has_ansi() ? ansi_m.at(l) : m.at(l);
 }
 
 std::string LogWriter::header(LogLevel logLevel) {
@@ -98,6 +107,7 @@ class ErrStream : public LogWriter {
         OutputDebugStringA(bytes);
         return true;
     }
+    bool has_ansi() const override {return false;} 
 };
 #else
 class ErrStream : public LogWriter {
@@ -106,6 +116,7 @@ class ErrStream : public LogWriter {
        std::cerr << bytes;
        return true;
     }
+    bool has_ansi() const override {return true;} 
 };
 #endif
 
@@ -164,12 +175,6 @@ bool StreamLogWriter::do_write(const char* bytes, size_t count) {
         return true;
     }
 
-static std::atomic<GempyreUtils::LogWriter*> g_logWriter{nullptr};
-
-void GempyreUtils::set_log_writer(LogWriter* writer) {
-    g_logWriter = writer;
-}
-
 static ErrStream defaultErrorStream;
 
 std::ostream GempyreUtils::log_stream(LogLevel logLevel) {
@@ -181,4 +186,16 @@ std::ostream GempyreUtils::log_stream(LogLevel logLevel) {
 }
 
 
+LogWriter::LogWriter() : m_previousLogWriter(g_logWriter) 
+{
+    g_logWriter = this;
+}
 
+LogWriter::~LogWriter() 
+{
+    g_logWriter = m_previousLogWriter;
+}
+
+bool LogWriter::has_ansi() const {
+    return false;
+}

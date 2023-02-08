@@ -61,10 +61,16 @@ enum class LogLevel : int {None, Fatal, Error, Warning, Info, Debug, Debug_Trace
 /// Parent class for LogWriters
 class LogWriter {
 public:
+    LogWriter();
+    ~LogWriter();
     /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
     virtual std::string header(LogLevel logLevel);
     /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
     virtual bool do_write(const char* buffer, size_t count) = 0;
+    /// override to return true if this write supports ANSI colors, default false
+    virtual bool has_ansi() const;
+private:
+    LogWriter* m_previousLogWriter;
 };
 
 /// Courtesy class to write log into files, see  setLogWriter
@@ -90,9 +96,6 @@ UTILS_EX void set_log_level(LogLevel level);
 UTILS_EX LogLevel log_level(); 
 UTILS_EX std::string to_str(LogLevel l);
 UTILS_EX std::ostream log_stream(LogLevel logLevel);
-/// Replace the default writer, set nullptr to apply original, not a thread safe.
-UTILS_EX void set_log_writer(LogWriter* writer);
-
 
 template <typename T, typename ...Args>
 inline void log_line(LogLevel level, std::ostream& os, const T& e, Args... args) {

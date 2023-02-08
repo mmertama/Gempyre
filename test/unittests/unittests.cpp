@@ -355,7 +355,6 @@ TEST(Unittests, test_log) {
     const auto temp = GempyreUtils::temp_name();
     do {
     GempyreUtils::FileLogWriter flw(temp);
-    GempyreUtils::set_log_writer(&flw);
     GempyreUtils::set_log_level(GempyreUtils::LogLevel::Debug);
     GempyreUtils::log_debug("foo");
     } while(false);
@@ -364,6 +363,16 @@ TEST(Unittests, test_log) {
     const auto list = GempyreUtils::split<std::vector<std::string>>(content);
     EXPECT_TRUE(std::find(list.begin(), list.end(), "foo") != list.end());
     GempyreUtils::remove_file(temp);
+}
+
+TEST(Unitests, Logs) {
+    GempyreUtils::set_log_level(GempyreUtils::LogLevel::Debug_Trace);
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "White background");
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Yellow");
+    GempyreUtils::log(GempyreUtils::LogLevel::Info, "Cyan");
+    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Orange Black text");
+    GempyreUtils::log(GempyreUtils::LogLevel::Error, "Red Black text");
+    GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Red underscore");
 }
 
 int main(int argc, char **argv) {
