@@ -272,7 +272,7 @@ Ui::Ui(const Filemap& filemap,
        const std::string& root) : Ui(filemap, indexHtml, port, root,
             {
     // add only if valid
-    {!title.empty() ? TITLE_KEY : "", title},
+    {!title.empty() ? TITLE_KEY : "", GempyreUtils::qq(title)},
     {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},
     {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
     {height > 0 ? HEIGHT_KEY : "", std::to_string(height)},
