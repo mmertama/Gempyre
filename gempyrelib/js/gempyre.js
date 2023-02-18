@@ -7,7 +7,7 @@ var uri = "ws://" + gempyreAddress + "/gempyre";
 var socket = new WebSocket(uri);
 socket.binaryType = 'arraybuffer';
 
-var logging = true;
+var logging = false;
 
 var sys_log = console.log;
 var sys_warn = console.warn;
@@ -49,9 +49,9 @@ function g_error(msg) {
 
 
 function log(...logStr) {
-   // if(logging) {
+    if(logging) {
         console.log(...logStr);
- //   }
+    }
 } 
 
 function errlog(source, text) {
@@ -65,6 +65,18 @@ function errlog(source, text) {
 
     console.error("error:" + source + " --> " + text);
     socket.send(JSON.stringify({'type': 'error', 'element': String(source), 'error': text, 'trace': getTrace()}));
+}
+
+function catchLog(error) {
+    source = error.name || "Unknown";
+    console.error("error:" + source + " --> " + error.message);
+    socket.send(JSON.stringify({'type': 'error', 'element': String(source), 'error': error.message , 'trace': error.stack}));
+}
+
+function assert(condition, msg) {
+    if (!condition) {
+        throw Error('assert: ' +  condition + " " + (msg || '""'));
+    }
 }
 
 function createElement(parent, tag, id) {
@@ -159,6 +171,15 @@ function addEvent(el, source, eventname, properties, throttle) {
         console.log("addEventing", "document", source, eventname, throttle);
         document.addEventListener(eventname, usedHandler);
     }
+    else if(eventname === 'load') {
+        console.log("fiifoo", el, source, eventname, throttle);
+        if (el.complete) {
+            socket.send(JSON.stringify({'type': 'event',  'element': el.id, 'event': 'load', 'properties': {}}));
+        } else {
+            console.log("addEventing", el, source, eventname, throttle);
+            el.addEventListener(eventname, usedHandler);
+        }
+    }
     else {
         console.log("addEventing", el, source, eventname, throttle);
         el.addEventListener(eventname, usedHandler);
@@ -167,9 +188,9 @@ function addEvent(el, source, eventname, properties, throttle) {
 
 function sendGempyreEvent(source, eventname, values) {
     if(typeof source !== "string" || typeof eventname !== "string" || typeof values !== "object") {
-        console.assert(typeof source === "string", "source should be string");
-        console.assert(typeof eventname === "string", "eventname should be string");
-        console.assert(typeof values === "object", "values should be object");
+        assert(typeof source === "string", "source should be string");
+        assert(typeof eventname === "string", "eventname should be string");
+        assert(typeof values === "object", "values should be object");
         return false;
     }
     if(!socket) {
@@ -182,7 +203,7 @@ function sendGempyreEvent(source, eventname, values) {
 }
 
 function id(el) {
-    console.assert(el.nodeType === 1, "Shall not get id of non element");
+    assert(el.nodeType === 1, "Shall not get id of non element");
     if(!el.id) {
         el.id = 'gempyre_' + Math.random().toString(32).substr(2,16);
     }
@@ -292,6 +313,7 @@ function handleBinary(buffer) {
     if(type === 0xAAA) {
         const datalen = bytes[1] * 4;
         const idLen = bytes[2];
+        const headerLen = bytes[3];
         let dataOffset = 4 * 4; //id, datalen, idlen, headerlen, data<datalen>, header<headerlen>, id<idlen>
         const data = new Uint8ClampedArray(buffer, dataOffset, datalen);
         const headerOffset = bytes[1] + 4;
@@ -299,27 +321,50 @@ function handleBinary(buffer) {
         const y = bytes[headerOffset + 1];
         const w = bytes[headerOffset + 2];
         const h = bytes[headerOffset + 3];
-        const idOffset = (4 * 4) + dataOffset + datalen;
-        const words = new Uint16Array(buffer, idOffset, idLen * 2);
+        const as_draw = bytes[headerOffset + 4];
+        const idOffset = (5 * 4) + dataOffset + datalen;
+        const words = new Uint16Array(buffer, idOffset, idLen);
         let id = "";
         for(let i = 0 ; i < words.length && words[i] > 0; i++)
             id += String.fromCharCode(words[i]);
         const element = document.getElementById(id);
+
         if(!element) {
-            errlog(id, "element not found");
+            errlog(id, "element not found '" + id + "'");
             return;
         }
-        const ctx = element.getContext("2d", {alpha:false});
-        if(ctx) {
-            const bytesLen = w * h * 4;
-            const imageData = data.length === bytesLen ? new ImageData(data, w, h) : new ImageData(data.slice(0, bytesLen), w, h);
-            ctx.putImageData(imageData, x, y);
-        } else {
-            errlog(id, "has no graphics context");
-            return;
+
+        if (datalen > 0) { // otherwise this is just a tail
+            const ctx = element.getContext("2d", {alpha:false});
+            if(ctx) {
+                const bytesLen = w * h * 4;
+                const imageData = data.length === bytesLen ? new ImageData(data, w, h) : new ImageData(data.slice(0, bytesLen), w, h);
+                ctx.putImageData(imageData, x, y);
+            } else {
+                errlog(id, "has no graphics context");
+                return;
+            }
+        }    
+
+   
+
+        // if as_draw AND there is a notification request - send a notify
+        if ((as_draw != 0) && event_notifiers.has("canvas_draw")) {
+            console.log("fond");
+            socket.send(JSON.stringify({
+                                            'type': 'event',
+                                            'element': id,
+                                            'event': 'event_notify',
+                                            'properties':{
+                                                'name': "canvas_draw",
+                                                'msgid': 0
+                                            }
+                                        }));
+            
         }
+
     } else {
-        errlog("Unknown", "Unknown binary message type", bytes);
+        errlog("Unknown", "Unknown binary message type: " + type.toString(16), bytes);
     }
 }
 
@@ -564,10 +609,15 @@ function handleJsonCommand(msg) {
             alert(msg.alert);
             return;
         case 'eval':
-            eval(msg.eval);
+            try {
+                eval(msg.eval);
+            } catch(ex) {
+                errlog(msg.eval, ex.toString());
+            }
+            return;
             return;
         case 'open':
-            window.open(msg.url, msg.view.lenght > 0 ? msg.view : '_blank');
+            window.open(msg.url, msg.view && msg.view.length > 0 ? msg.view : '_blank');
             return;
         case 'create':
             if(msg.element == undefined || msg.element.length == 0) {
@@ -577,7 +627,7 @@ function handleJsonCommand(msg) {
         case 'query':
             switch(msg.query) {
             case 'exists':
-                socket.send(JSON.stringify({'type': 'query', 'query_id': msg.query_id, 'query_value': 'exists', 'exists': document.getElementById(msg.id) != null}));
+                socket.send(JSON.stringify({'type': 'query', 'query_id': msg.query_id, 'query_value': 'exists', 'exists': msg.element == "" || document.getElementById(msg.element) != null}));
                 return;
             case 'classes':
                 sendCollection(msg.element, msg.query_id, msg.query, function(name) {return document.getElementsByClassName(name);});
@@ -649,8 +699,11 @@ function handleJsonCommand(msg) {
                 el.style[msg.style] = msg.value;
                 break;
             case 'remove_style':
-                el.style[msg.style] = undefined;
+                el.style.removeProperty(msg.style);
                 break;
+            case 'tag_name':
+                sendCollection(msg.element, msg.query_id, msg.query, function(name){return el.getElementsByTagName(name);});
+                return;        
             default:
                 errlog(msg.type, "Unknown type");       
         }
@@ -668,9 +721,16 @@ socket.onopen = function(event) {
 
 socket.onmessage =
         function(event) {
-    if(event.data instanceof ArrayBuffer) {
-        handleBinary(event.data);
-        return;
+        try {        
+        if(event.data instanceof ArrayBuffer) {
+            handleBinary(event.data);
+            return;
+        }
+        const msg = JSON.parse(event.data);
+
+        handleJson(msg);
+    } catch(error) {
+        catchLog(error);
     }
     const msg = JSON.parse(event.data);
 
