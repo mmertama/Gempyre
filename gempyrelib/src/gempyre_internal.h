@@ -49,8 +49,9 @@ public:
     void add_request(std::function<bool()>&& f) {
         std::lock_guard<std::mutex> lock(m_requestMutex);
         m_requestqueue.emplace_back(f);
-        m_sema->signal();
+        signal_pending();
     }
+
 
     std::string state_str() const {
     const std::unordered_map<State, std::string> m{
@@ -102,27 +103,25 @@ public:
     }    
 
 
-    void signal_pending() const {
-        if(m_sema) {
-            m_sema->signal();    // there may be some pending requests
-        }
+    void signal_pending() {
+            m_sema.signal();    // there may be some pending requests
     }
 
     void push_event(Ui::InternalEvent&& event) {
-        m_eventqueue->push(std::move(event));
+        m_eventqueue.push(std::move(event));
     }
 
 
     std::optional<std::any> take_response(const std::string& queryId) {
-         if(m_responsemap->contains(queryId)) {
-            const auto item = m_responsemap->take(queryId);
+         if(m_responsemap.contains(queryId)) {
+            const auto item = m_responsemap.take(queryId);
             return std::make_optional(item);
         }
         return std::nullopt;
     }
 
     void push_response(std::string&& id, std::any&& response) {
-         m_responsemap->push(std::move(id), std::move(response));
+         m_responsemap.push(std::move(id), std::move(response));
     }
 
     void call_error(const std::string src, std::string err) {
@@ -177,9 +176,17 @@ public:
         return std::to_string(m_msgId++);
     }
 
-    TimerMgr& timers() {
-        return *m_timers;
+    void flush_timers(bool do_run) {
+        m_timers.flush(do_run);
     }
+
+    int append_timer(const TimerMgr::TimeType& ms, bool singleShot, TimerMgr::Callback&& cb) {
+        return m_timers.append(ms, singleShot, std::move(cb));        
+    }
+
+    bool remove_timer(int id) {
+        return m_timers.remove(id);
+    } 
 
     void close_server() {
         m_server->close(true);
@@ -203,11 +210,11 @@ public:
     }
 
     bool has_responses() const {
-        return !m_responsemap->empty();
+        return !m_responsemap.empty();
     }
     
     bool has_events() const {
-         return !m_eventqueue->empty();
+         return !m_eventqueue.empty();
     }
 
     void set_on_exit(std::function<void ()>&& onUiExitFunction) {
@@ -278,19 +285,19 @@ public:
         m_server->close(true);
         assert(!m_server->isJoinable());
         m_server.reset(); // so the run can be recalled
-        timers().flush(false);
-    
+        m_timers.flush(false);
+     
         // clear or erase calls destructor and that seems to be issue in raspberry
         while(!m_timerqueue.empty())
             m_timerqueue.pop_front();
     
         assert(m_requestqueue.empty());
-        assert(!timers().isValid());
+        assert(!m_timers.isValid());
     }
 
     void consume_events(Ui& ui) {
         while(has_events() && *this == State::RUNNING) {
-            const auto it = m_eventqueue->take();
+            const auto it = m_eventqueue.take();
             const auto element = m_elements.find(it.element);
             if(element != m_elements.end()) {
                 const auto handlerName = it.handler;
@@ -331,10 +338,10 @@ public:
     }
 
     void wait_events() {
-        if(!m_sema->empty()) {
+        if(!m_sema.empty()) {
             const auto start = std::chrono::steady_clock::now();
 
-            m_sema->wait();
+            m_sema.wait();
 
             const auto end = std::chrono::steady_clock::now();
             const auto duration = end - start;
@@ -342,18 +349,13 @@ public:
         }
     }
 
-    inline void addRequest(std::function<bool()>&& f) {
-        std::lock_guard<std::mutex> lock(m_requestMutex);
-        m_requestqueue.emplace_back(f);
-        m_sema->signal();
-}
 
 private:
         std::atomic<State> m_status = State::NOTSTARTED;
-        std::unique_ptr<EventQueue<Ui::InternalEvent>> m_eventqueue;
-        std::unique_ptr<EventMap<std::string, std::any>> m_responsemap;
-        std::unique_ptr<Semaphore>  m_sema;
-        std::unique_ptr<TimerMgr> m_timers;
+        EventQueue<Ui::InternalEvent> m_eventqueue;
+        EventMap<std::string, std::any> m_responsemap;
+        Semaphore  m_sema;
+        TimerMgr m_timers;
         std::unordered_map<std::string, HandlerMap> m_elements;
         std::deque<std::function<bool ()>> m_requestqueue;
         std::deque<std::function<void ()>> m_timerqueue;
@@ -364,6 +366,7 @@ private:
         Ui::Filemap m_filemap;
         std::function<void ()> m_startup;
         std::unique_ptr<Server> m_server;
+        // protect request_queue
         std::mutex m_requestMutex;
         bool m_hold{false};
         unsigned m_msgId{1};

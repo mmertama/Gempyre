@@ -59,7 +59,7 @@ std::optional<T> Ui::query(const std::string& elId, const std::string& queryStri
     if(*m_ui == State::RUNNING) {
         const auto queryId = m_ui->query_id();
 
-        m_ui->addRequest([this, queryId, elId, queryString, queryParams](){
+        m_ui->add_request([this, queryId, elId, queryString, queryParams](){
             return m_ui->send({{"type", "query"}, {"query_id", queryId}, {"element", elId},{"query", queryString}},
                                   std::unordered_map<std::string, std::any>{{"query_params", queryParams}});
         });
