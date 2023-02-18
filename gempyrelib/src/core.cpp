@@ -5,7 +5,6 @@
 #include <future>
 #include <cassert>
 
-
 #include "semaphore.h"
 
 #include "gempyre.h"
@@ -14,7 +13,7 @@
 #include "eventqueue.h"
 
 #include "base64.h"
-#include "generated/gempyre.js.h"
+#include "gempyre.js.h"
 
 #include "idlist.h"
 #include "timer.h"

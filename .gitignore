@@ -39,14 +39,6 @@ examples/tick/tick
 examples/hello/hello
 examples/treeview/treeview
 build-*
-*.html.h
-*.js.h
-*.css.h
-*.png.h
-*.gif.h
-*.jpg.h
-*.ico.h
-*_resource.h
 
 affiliates/client/client_autogen
 mpfr*

@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
      ../../gempyrelib/include
-    include
 )
 
 #maybe only for msvc, but shall not hurt..

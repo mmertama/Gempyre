@@ -1,6 +1,6 @@
 #include "gempyre_graphics.h"
 #include "gempyre_utils.h"
-#include "framerate_resource.h"
+#include "flakes_resource.h"
 #include <iostream>
 #include <cmath>
 #include <unordered_map>
@@ -63,7 +63,7 @@ private:
 
 int main(int /*argc*/, char** /*argv*/) {
     Gempyre::set_debug(true);
-    Gempyre::Ui ui(Framerate_resourceh, "framerate.html");
+    Gempyre::Ui ui(Flakes_resourceh, "flakes.html");
     Gempyre::CanvasElement canvas(ui, "canvas");
     Gempyre::Element flakes_count(ui, "flakes_count");
     Gempyre::Element flakes_label(ui, "flakes_label");

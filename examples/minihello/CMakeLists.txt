@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
     ../../gempyrelib/include
-    include
 )
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre

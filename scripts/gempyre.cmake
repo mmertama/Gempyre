@@ -1,4 +1,6 @@
+
 set(GEMPYRE_FUNCTION_DIR ${CMAKE_CURRENT_LIST_DIR})
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 function (gempyre_add_resources)
     cmake_parse_arguments(
         ADD_RESOURCE
@@ -27,14 +29,23 @@ function (gempyre_add_resources)
         PATHS "${GEMPYRE_FUNCTION_DIR}" "${CMAKE_SOURCE_DIR}/scripts" "${CMAKE_CURRENT_LIST_DIR}"
         REQUIRED
         )
-      
+
+    if (NOT DEFINED ADD_RESOURCE_PATH)
+        set(ADD_RESOURCE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+        set(INCDIR "${ADD_RESOURCE_PATH}/${ADD_RESOURCE_TARGET}")
+        cmake_path(REMOVE_FILENAME INCDIR)
+        target_include_directories(${ADD_RESOURCE_PROJECT} PRIVATE ${INCDIR})
+    endif()    
+    
+    set(TARGET_FULL "${ADD_RESOURCE_PATH}/${ADD_RESOURCE_TARGET}")
+
     add_custom_command(
-            OUTPUT ${ADD_RESOURCE_TARGET}
-            COMMAND ${PYTHON3} ${GEN_RESOURCE} ${MINIFY} ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES}
+            OUTPUT ${TARGET_FULL}
+            COMMAND ${PYTHON3} ${GEN_RESOURCE} ${MINIFY} ${TARGET_FULL} ${ADD_RESOURCE_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             )
 
-    add_custom_target(${ADD_RESOURCE_PROJECT}_resource DEPENDS ${ADD_RESOURCE_TARGET} ${ADD_RESOURCE_SOURCES})
+    add_custom_target(${ADD_RESOURCE_PROJECT}_resource DEPENDS ${TARGET_FULL} ${ADD_RESOURCE_SOURCES})
     add_dependencies(${ADD_RESOURCE_PROJECT} ${ADD_RESOURCE_PROJECT}_resource)
     
 endfunction()

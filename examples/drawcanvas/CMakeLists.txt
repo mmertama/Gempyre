@@ -8,9 +8,7 @@ include(../../scripts/gempyre.cmake)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
-     ../../gempyrelib/include
-    include
-)
+     ../../gempyrelib/include)
 
 #maybe only for msvc, but shall not hurt..
 add_compile_options(-D_USE_MATH_DEFINES)

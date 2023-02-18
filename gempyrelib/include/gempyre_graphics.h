@@ -100,20 +100,14 @@ public:
     CanvasElement& operator=(CanvasElement&& other) = default;
 
     [[nodiscard]] CanvasDataPtr make_canvas(int width, int height);
-    [[nodiscard, deprecated("use snake")]] CanvasDataPtr makeCanvas(int width, int height) {return make_canvas(width, height);}
     std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
-    [[nodiscard, deprecated("use snake")]]  std::string addImage(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr) {return add_image(url, loaded);}
     std::vector<std::string> add_images(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
-    [[nodiscard, deprecated("use snake")]]  std::vector<std::string> addImages(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr) {return add_images(urls, loaded);}
     void paint_image(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
-    [[deprecated("use snake")]]  void paintImage(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const {paint_image(imageId, x, y, clippingRect);}
     void paint_image(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
-    [[deprecated("use snake")]]void paintImage(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const {paint_image(imageId, targetRect, clippingRect);}
     void draw(const CommandList& canvasCommands) const;
     void draw(const FrameComposer& frameComposer) const;
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
     void draw_completed(const DrawCallback& drawCompletedCallback);
-    [[deprecated("use snake")]] void drawCompleted(const DrawCallback& drawCompletedCallback) {draw_completed(drawCompletedCallback);}
     void erase(bool resized = false) const;
     [[nodiscard]] bool hasCanvas() const {
         return !!m_tile;

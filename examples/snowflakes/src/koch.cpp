@@ -9,7 +9,7 @@ constexpr double sqrt3_2 = 0.86602540378444; // sqrt(3)/2
 static std::vector<point> koch_next(const std::vector<point>& points) {
     const auto size = points.size();
     std::vector<point> output(4 * (size - 1) + 1);
-    double x0, y0, x1, y1;
+    double x0 = 0, y0 = 0, x1 = 0, y1 = 0;
     std::size_t j = 0;
     for (auto i = 0U; i < size - 1U; ++i) {
         x0 = points[i].x;
