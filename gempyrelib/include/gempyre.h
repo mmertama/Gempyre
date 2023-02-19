@@ -157,13 +157,13 @@ namespace Gempyre {
         void close();
 
         ///The callback is called before before the eventloop exit.
-        Ui& on_exit(std::function<void ()> onExitFunction);
+        Ui& on_exit(std::function<void ()>&& onExitFunction);
         ///The callback is called on UI reload.
-        Ui& on_reload(std::function<void ()> onReleadFunction);
+        Ui& on_reload(std::function<void ()>&& onReleadFunction);
         ///The callback is called on UI open.
-        Ui& on_open(std::function<void ()> onOpenFunction);
+        Ui& on_open(std::function<void ()>&& onOpenFunction);
         ///The callback is called on error.
-        Ui& on_error(std::function<void (const std::string& element, const std::string& info)> onErrorFunction);
+        Ui& on_error(std::function<void (const std::string& element, const std::string& info)>&& onErrorFunction);
         ///Starts the event loop.
         void run();
 

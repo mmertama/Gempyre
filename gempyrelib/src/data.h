@@ -30,21 +30,25 @@ class Data {
     public:
         [[nodiscard]] dataT* data();
         [[nodiscard]] const dataT* data() const;
-        [[nodiscard]] size_t size() const;
+        [[nodiscard]] unsigned elements() const;
         [[nodiscard]] Data::iterator begin() {return data();}
-        [[nodiscard]] Data::iterator end() {return data() + size();}
+        [[nodiscard]] Data::iterator end() {return data() + elements();}
         [[nodiscard]] const Data::const_iterator begin() const {return data();}
-        [[nodiscard]] const Data::const_iterator end() const {return data() + size();}
+        [[nodiscard]] const Data::const_iterator end() const {return data() + elements();}
         [[nodiscard]] dataT& operator[](int index) {return (data()[index]);}
         [[nodiscard]] dataT operator[](int index) const {return (data()[index]);}
-        [[nodiscard]] dataT* endPtr() {return data() + size();}
-        [[nodiscard]] const dataT* endPtr() const {return data() + size();}
+        [[nodiscard]] dataT* endPtr() {return data() + elements();}
+        [[nodiscard]] const dataT* endPtr() const {return data() + elements();}
         void writeHeader(const std::vector<dataT>& header);
         [[nodiscard]] std::vector<dataT> header() const;
         [[nodiscard]] std::string owner() const;
         [[nodiscard]] DataPtr clone() const;
+        [[nodiscard]] size_t size() const {return m_data.size() * sizeof(dataT);}
         virtual ~Data() = default;
         Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header);
+#ifdef GEMPYRE_IS_DEBUG
+        std::string dump() const;
+#endif
     private:
         std::tuple<const char*, size_t> payload() const;
         std::vector<dataT> m_data;

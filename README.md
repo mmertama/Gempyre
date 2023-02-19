@@ -95,13 +95,16 @@ Gempyre is a library that is linked with the application, except for Android, se
 * Update / improve documentation (C++ and Python)  
 * Binary releases (Maybe installer / some packet manager support / pip)
 * Support for secure web socket (nice for remote UIs)
-* Flatbuffer/protobuf instead of JSON (perf up)
-* Using WASM instean of JS (perf up)
 * Testing coverage and perf measurements.
 * JS testing  
 * Cleaning code and refactoring (API behind PIMPL?, string_views instead of strings when possible, meaningless std::any for code encapsulation)
 * Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
 * Reconsider libwebsockets instead of uWebsockets.
+* Apply Wpedantic
+
+maybe not
+* Flatbuffer/protobuf instead of JSON
+* Using WASM instean of JS
 * POC of Gempyre-Android style architecture also in core.git
 
 

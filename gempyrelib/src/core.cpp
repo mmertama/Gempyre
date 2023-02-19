@@ -620,22 +620,22 @@ bool Ui::cancel_timer(TimerId id) {
     return m_ui->remove_timer(id);
 }
 
-Ui& Ui::on_exit(std::function<void ()> onUiExitFunction) {
+Ui& Ui::on_exit(std::function<void ()>&& onUiExitFunction) {
     m_ui->set_on_exit(std::move(onUiExitFunction));
     return *this;
 }
 
-Ui& Ui::on_reload(std::function<void ()> onReloadFunction) {
+Ui& Ui::on_reload(std::function<void ()>&& onReloadFunction) {
     m_ui->set_on_reload(std::move(onReloadFunction));
     return *this;
 }
 
-Ui& Ui::on_open(std::function<void ()> onOpenFunction) {
+Ui& Ui::on_open(std::function<void ()>&& onOpenFunction) {
     m_ui->set_on_open(std::move(onOpenFunction));
     return *this;
 }
 
-Ui& Ui::on_error(std::function<void (const std::string&, const std::string&)> onErrorFunction) {
+Ui& Ui::on_error(std::function<void (const std::string&, const std::string&)>&& onErrorFunction) {
     m_ui->set_on_error(std::move(onErrorFunction));
     return *this;
 }

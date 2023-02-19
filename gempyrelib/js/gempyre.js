@@ -330,7 +330,7 @@ function handleBinary(buffer) {
         const element = document.getElementById(id);
 
         if(!element) {
-            errlog(id, "element not found '" + id + "'");
+            errlog(id, "Canvas not found '" + id + "'" + " at: ", idOffset, " len: ", idLen);
             return;
         }
 

@@ -20,7 +20,11 @@ using namespace Gempyre;
 
 constexpr unsigned short DEFAULT_PORT  = 30000;
 constexpr unsigned short PORT_ATTEMPTS = 50;
+
+#ifdef PULL_MODE
 constexpr size_t WS_MAX_LEN = 16 * 1024;
+#endif
+
 constexpr auto SERVICE_NAME = "Gempyre";
 
 static std::string fileToMime(const std::string_view& filename) {
@@ -464,9 +468,12 @@ bool Server::beginBatch() {
 bool Server::endBatch() {
     if(m_batch) {
         const auto str = m_batch->dump();
+#ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
+#endif            
             if(!m_broadcaster->send(str))
                 return false;
+#ifdef PULL_MODE                
         } else {
             const auto pull = addPulled(DataType::Json, str);
             const json obj = {{"type", "pull_json"}, {"id", pull}};
@@ -474,6 +481,7 @@ bool Server::endBatch() {
             if(!m_broadcaster->send(obj.dump()))
                 return false;
         }
+#endif        
         m_batch.reset();
     }
     return true;
@@ -487,7 +495,7 @@ bool Server::send(const std::unordered_map<std::string, std::string>& object, co
             js = json::parse(*jopt);
         }
     }
-    bool is_ext = false;
+    [[maybe_unused]] bool is_ext = false;
     for(const auto& [key, value] : object) {
         js[key] = value;
         if(key == "type" && value == "extension") {
@@ -498,9 +506,12 @@ bool Server::send(const std::unordered_map<std::string, std::string>& object, co
         m_batch->push_back(std::move(js));
     } else {
         const auto str = js.dump();
+#ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
+#endif            
             if(!m_broadcaster->send(str))
                 return false;
+#ifdef PULL_MODE                
         } else {
             const auto pull = addPulled(DataType::Json, str);
             const json obj = {{"type", "pull_json"}, {"id", pull}};
@@ -508,15 +519,18 @@ bool Server::send(const std::unordered_map<std::string, std::string>& object, co
             if(!m_broadcaster->send(obj.dump(), is_ext))
                    return false;
         }
-
+#endif
     }
     return true;
 }
 
 bool Server::send(const char* data, size_t len) {
+#ifdef PULL_MODE    
     if(len < WS_MAX_LEN) {
+#endif        
         if(!m_broadcaster->send(data, len))
             return false;
+#ifdef PULL_MODE            
     } else {
         const auto pull = addPulled(DataType::Bin, {data, len});
         const json obj = {{"type", "pull_binary"}, {"id", pull}};
@@ -524,6 +538,7 @@ bool Server::send(const char* data, size_t len) {
         if(!m_broadcaster->send(obj.dump()))
             return false;
     }
+#endif    
     return true;
 }
 

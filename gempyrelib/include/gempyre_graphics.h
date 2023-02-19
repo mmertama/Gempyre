@@ -38,47 +38,19 @@
 namespace  Gempyre {
 
 class FrameComposer;
-
-class GEMPYRE_EX CanvasData  {
-private:
-    enum DataTypes : dataT {
-      CanvasId = 0xAAA
-    };
-public:
-    ~CanvasData();
-    void put(int x, int y, dataT pixel) {
-        data()[x + y * m_width] = pixel;
-    }
-    [[nodiscard]] dataT get(int x, int y) const {
-        return data()[x + y * m_width];
-    }
-    int width() const {return m_width;}
-    int height() const {return m_height;}
-private:
-    std::shared_ptr<Data> m_data;
-    const int m_width;
-    const int m_height;
-private:
-    CanvasData(int w, int h, const std::string& owner);
-    dataT* data();
-    const dataT* data() const;
-    Data& ref();
-    DataPtr ptr() const;
-    friend class CanvasElement;
-    friend class Graphics;
-};
-
-
+class CanvasData;
 using CanvasDataPtr = std::shared_ptr<CanvasData>;
 
 
 class GEMPYRE_EX CanvasElement : public Element {
-    static constexpr auto TileWidth = 64;  // used for server spesific stuff - bigger than a limit (16384) causes random crashes (There is a issue somewhere, this not really work if something else)
-    static constexpr auto TileHeight = 63; // as there are some header info
 public:
     using Command = std::variant<std::string, double, int>;
     using CommandList = std::vector<Command>;
     using DrawCallback = std::function<void()>;
+    
+    /// set intial draw
+    enum class DrawNotify{NoKick, Kick};
+    
     ~CanvasElement();
     CanvasElement(const CanvasElement& other)
         : Element(other) {
@@ -99,7 +71,6 @@ public:
     CanvasElement& operator=(const CanvasElement& other) = default;
     CanvasElement& operator=(CanvasElement&& other) = default;
 
-    [[nodiscard]] CanvasDataPtr make_canvas(int width, int height);
     std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
     std::vector<std::string> add_images(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
     void paint_image(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
@@ -107,14 +78,15 @@ public:
     void draw(const CommandList& canvasCommands) const;
     void draw(const FrameComposer& frameComposer) const;
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
-    void draw_completed(const DrawCallback& drawCompletedCallback);
+    void draw_completed(DrawCallback&& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
     void erase(bool resized = false) const;
     [[nodiscard]] bool hasCanvas() const {
         return !!m_tile;
     }
 private:
-    friend class Graphics;
-    void paint(const CanvasDataPtr& canvas);
+    friend class Bitmap;
+    void paint(const CanvasDataPtr& canvas, bool as_draw);
+    [[nodiscard]] CanvasDataPtr make_canvas(int width, int height);
 private:
     CanvasDataPtr m_tile;
     mutable int m_width{0};
@@ -170,58 +142,55 @@ using type = Gempyre::dataT;
     return v;
 }
 
-}
-
-
-class GEMPYRE_EX Graphics {
-public:
-    Graphics(const Gempyre::CanvasElement& element, int width, int height);
-    Graphics(const Gempyre::CanvasElement& element);
-    Graphics(Graphics&& other) = default;
-    Graphics(const Graphics& other) = default;
-    Graphics& operator=(const Graphics& other) = default;
-    Graphics& operator=(Graphics&& other) = default;
-    void create(int width, int height) {
-        m_canvas = m_element.make_canvas(width, height);
-    }
-    Graphics clone() const;
-    static constexpr Color::type pix(Color::type r, Color::type g, Color::type b, Color::type a = 0xFF) {return Color::rgba(r, g, b, a);}
     static constexpr Color::type Black = Color::rgba(0, 0, 0, 0xFF);
     static constexpr Color::type White = Color::rgba(0xFF, 0xFF, 0xFF, 0xFF);
     static constexpr Color::type Red = Color::rgba(0xFF, 0, 0, 0xFF);
     static constexpr Color::type Green = Color::rgba(0, 0xFF, 0, 0xFF);
     static constexpr Color::type Blue = Color::rgba(0, 0xFF, 0, 0xFF);
 
-    void set_pixel(int x, int y, Color::type color) {
-        m_canvas->put(x, y, color);
-    }
+}
 
-    void set_alpha(int x, int y, Color::type alpha) {
-        const auto c = m_canvas->get(x, y);
-        m_canvas->put(x, y, pix(Color::r(c), Color::g(c), Color::b(c), alpha));
+
+class GEMPYRE_EX Bitmap {
+public:
+    Bitmap(const Gempyre::CanvasElement& element, int width, int height);
+    Bitmap(const Gempyre::CanvasElement& element);
+    Bitmap(Bitmap&& other) = default;
+    Bitmap(const Bitmap& other) = default;
+    ~Bitmap();
+    Bitmap& operator=(const Bitmap& other) = default;
+    Bitmap& operator=(Bitmap&& other) = default;
+    void create(int width, int height) {
+        m_canvas = m_element.make_canvas(width, height);
     }
-    [[nodiscard]] int width() const {
-        return m_canvas->width();
-    }
-    [[nodiscard]] int height() const {
-        return m_canvas->height();
-    }
+    Bitmap clone() const;
+    static constexpr Color::type pix(Color::type r, Color::type g, Color::type b, Color::type a = 0xFF) {return Color::rgba(r, g, b, a);}
+    [[deprecated("Use Color")]] static constexpr Color::type Black = Color::Black;
+    [[deprecated("Use Color")]] static constexpr Color::type White = Color::White;
+    [[deprecated("Use Color")]] static constexpr Color::type Red = Color::Red;
+    [[deprecated("Use Color")]] static constexpr Color::type Green = Color::Green;
+    [[deprecated("Use Color")]] static constexpr Color::type Blue = Color::Blue;
+
+    void set_pixel(int x, int y, Color::type color);
+    void set_alpha(int x, int y, Color::type alpha);
+    Color::type pixel(int x, int y) const;
+    [[nodiscard]] int width() const;
+    [[nodiscard]] int height() const;
+    void swap(Bitmap& other);
     void draw_rect(const Element::Rect& rect, Color::type color);
-    [[deprecated("Use snake")]]void drawRect(const Element::Rect& rect, Color::type color) {draw_rect(rect, color);}
-    void merge(const Graphics& other);
-    void swap(Graphics& other) {
-        m_canvas.swap(other.m_canvas);
-    }
+    void merge(const Bitmap& other);
     void update();
-    [[nodiscard]] CanvasDataPtr ptr() {
-        return m_canvas;
-    }
-
 private:
     Gempyre::CanvasElement m_element;
     Gempyre::CanvasDataPtr m_canvas;
 };
 
+ class // bw compatibility
+[[deprecated("Use Bitmap")]] Graphics : public Bitmap {
+    public:
+    Graphics(const Gempyre::CanvasElement& element, int width, int height) : Bitmap(element, width, height) {};
+    Graphics(const Gempyre::CanvasElement& element) : Bitmap(element) {};
+};
 
 class FrameComposer {
 public:
