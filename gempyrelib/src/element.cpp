@@ -119,6 +119,7 @@ void Element::remove() {
 }
 
 void Element::send(const DataPtr& data) {
+    assert(data->has_owner()); // the data has to have owner we can optionally tell how is waiting it
     m_ui->send(data);
 }
 
@@ -160,6 +161,10 @@ std::string Data::owner() const {
         out += static_cast<std::string::value_type>(c);
     }
     return out;
+}
+
+bool Data::has_owner() const {
+    return m_data[2] > 0;
 }
 
 std::vector<Gempyre::dataT> Data::header() const {

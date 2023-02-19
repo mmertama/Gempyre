@@ -63,6 +63,7 @@ if(BLEEDING_EDGE)
     set(LIB_WS_VER master)
     set(LIB_ZLIB_VER master)
     set(LIB_PFD_VER main)
+    set(LIB_PNG_VER master)
 else()
     set(LIB_UV_VER  v1.44.0)
     set(LIB_JSON_VER v3.9.0)
@@ -70,6 +71,7 @@ else()
     set(LIB_WS_VER 0b97cc7)
     set(LIB_ZLIB_VER v1.2.11)
     set(LIB_PFD_VER main v0.1.0)
+    set(LIB_PNG_VER master) # no version
 endif()
 
 # todo: use expternalproject_getproperty SOURCE DIR instead to simplify
@@ -303,6 +305,20 @@ else()
     set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")
 endif()
 
+FetchContent_Declare(
+    lodepng
+    GIT_REPOSITORY https://github.com/lvandeve/lodepng.git
+    #GIT_TAG ${LIB_PNG_VER}
+  )
+  
+FetchContent_MakeAvailable(lodepng)
+FetchContent_GetProperties(lodepng SOURCE_DIR srcDirVar)
+
+set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}")
+set(PNG_SRC 
+    ${srcDirVar}/lodepng.cpp
+    ${srcDirVar}/lodepng.h ) 
+
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
 	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -373,6 +389,7 @@ set(GEMPYRE_SRC
     src/data.h
     src/gempyre_internal.h
     src/logging.cpp
+    ${PNG_SRC}
     )
 
 

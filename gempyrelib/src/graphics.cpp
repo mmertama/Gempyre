@@ -3,7 +3,7 @@
 #include "data.h"
 #include <any>
 #include <cassert>
-
+#include <lodepng.h>
 
 using namespace Gempyre;
 
@@ -17,6 +17,9 @@ private:
       CanvasId = 0xAAA
     };
 public:
+    static constexpr auto NO_ID = "";
+    CanvasData(int w, int h, const std::string& owner);
+    CanvasData(int w, int h) : CanvasData(w, h, NO_ID) {}
     ~CanvasData() = default;
     void put(int x, int y, dataT pixel) {
         data()[x + y * m_width] = pixel;
@@ -27,33 +30,23 @@ public:
     int width() const {return m_width;}
     int height() const {return m_height;}
     size_t size() const {return m_data->size();}
+
+
+    dataT* data() {return m_data->data();}
+    const dataT* data() const {return m_data->data();}
+    const Data& ref() const { return *m_data; }
+    Data& ref() { return *m_data; }
+    DataPtr ptr() const {return m_data;}   
+
  #ifdef GEMPYRE_IS_DEBUG
     std::string dump() const {return m_data->dump();}
 #endif
 private:
     std::shared_ptr<Data> m_data;
     const int m_width;
-    const int m_height;
-
-private:
-   
-    dataT* data() {return m_data->data();}
-    const dataT* data() const {return m_data->data();}
-    Data& ref() { return *m_data; }
-    DataPtr ptr() const {return m_data;}    
-private:
-    CanvasData(int w, int h, const std::string& owner);
-    friend class CanvasElement;
-    friend class Bitmap;
+    const int m_height;  
 };
 
-
-
-CanvasDataPtr CanvasElement::make_canvas(int width, int height) { //could be const, but is it sustainable?
-    gempyre_graphics_assert(width > 0 && height > 0, "Graphics size is expected be more than zero");
-    m_tile = std::shared_ptr<CanvasData>(new CanvasData(/*std::min(width,*/ TileWidth/*)*/, /*td::min(height,*/ TileHeight/*)*/, m_id));
-    return std::shared_ptr<CanvasData>(new CanvasData(width, height, m_id)); //private cannot use make_...
-}
 
 CanvasElement::~CanvasElement() {
     m_tile.reset();
@@ -61,29 +54,42 @@ CanvasElement::~CanvasElement() {
 
 
 
-void CanvasElement::paint(const CanvasDataPtr& canvas, bool as_draw) {
+void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, bool as_draw) {
     if(!canvas) {
         GempyreUtils::log(GempyreUtils::LogLevel::Error, "Won't paint as canvas is NULL");
         return;
     }
     if(!m_tile) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Won't paint as buffer is NULL");
-        return;
+        m_tile = std::shared_ptr<CanvasData>(new CanvasData(TileWidth, TileHeight, m_id));
     }
+
     if(canvas->height() <= 0 || canvas->width() <= 0 ) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Won't paint as canvas size is 0");
         return;
     }
+
+    if (y_pos + canvas->height() < 0 || x_pos + canvas->width() < 0) {
+        return; 
+    }
+        
+    const auto canvas_height = y_pos < 0 ? canvas->height() + y_pos : canvas->height();
+    const auto y = y_pos < 0 ? -y_pos : 0;
+    const auto canvas_width = x_pos < 0 ? canvas->width() + x_pos : canvas->width();
+    const auto x = x_pos < 0 ? -x_pos : 0;
+
+    x_pos = std::max(0, x_pos);
+    y_pos = std::max(0, y_pos);
+
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sending canvas data");
 
     bool is_last = false;
 
-    for(auto j = 0 ; j < canvas->height() ; j += TileHeight) {
-        const auto height = std::min(TileHeight, canvas->height() - j);
-        for(auto i = 0 ; i < canvas->width() ; i += TileWidth) {
+    for(auto j = y ; j < canvas_height ; j += TileHeight) {
+        const auto height = std::min(TileHeight, canvas_height - j);
+        for(auto i = x ; i < canvas_width ; i += TileWidth) {
             assert(!is_last);
-            is_last = (canvas->height() - j < TileHeight) && (canvas->width() - i < TileWidth);
-            const auto width = std::min(TileWidth, canvas->width() - i);
+            is_last = (canvas_height - j < TileHeight) && (canvas_width - i < TileWidth);
+            const auto width = std::min(TileWidth, canvas_width - i);
             const auto srcPos = canvas->data() + i + (j * canvas->width());
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Copy canvas frame", i, j, width, height);
             for(int h = 0; h < height; h++) {
@@ -92,8 +98,8 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, bool as_draw) {
                 assert(trgPos < m_tile->data() + m_tile->width() * m_tile->height());
                 std::copy(lineStart, lineStart + width, trgPos);
             }
-            m_tile->ref().writeHeader({static_cast<Gempyre::dataT>(i),
-                                 static_cast<Gempyre::dataT>(j),
+            m_tile->ref().writeHeader({static_cast<Gempyre::dataT>(i + x_pos),
+                                 static_cast<Gempyre::dataT>(j + y_pos),
                                  static_cast<Gempyre::dataT>(width),
                                  static_cast<Gempyre::dataT>(height),
                                  (as_draw && is_last)});
@@ -104,11 +110,11 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, bool as_draw) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, m_tile->dump());                
             }
           //  assert(m_tile->size() == static_cast<size_t>((width * height + 4) * 4 + 20 + 16));
-            #endif           
+            #endif         
             send(m_tile->ptr());
         }
     }
-    assert(is_last);
+    assert(is_last || y >= canvas_height || x >= canvas_width);
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sent canvas data");
 }
 
@@ -168,7 +174,7 @@ void CanvasElement::paint_image(const std::string& imageId, const Rect& targetRe
 }
 
 
-void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands) const {
+void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands)  {
     if(canvasCommands.empty())
         return;
     std::vector<std::string> commandString;
@@ -190,12 +196,12 @@ void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands) const
         auto s = str(cmd);
         commandString.emplace_back(s);
     }
-    auto This = const_cast<CanvasElement*>(this);
-    This->send("canvas_draw", std::unordered_map<std::string, std::any>{
+
+    send("canvas_draw", std::unordered_map<std::string, std::any>{
                    {"commands", commandString}}, true);
 }
 
-void CanvasElement::draw(const FrameComposer& frameComposer) const {
+void CanvasElement::draw(const FrameComposer& frameComposer) {
     draw(frameComposer.composed());
 }
 
@@ -217,7 +223,7 @@ void CanvasElement::draw_completed(DrawCallback&& drawCompletedCallback, DrawNot
 
 }
 
-void CanvasElement::erase(bool resized) const {
+void CanvasElement::erase(bool resized) {
     if(resized || m_width <= 0 || m_height <= 0) {
         const auto rv = rect();
         if(rv) {
@@ -230,18 +236,45 @@ void CanvasElement::erase(bool resized) const {
     draw({"clearRect", 0, 0, m_width, m_height});
 }
 
-Bitmap::Bitmap(const Gempyre::CanvasElement& element, int width, int height) : m_element(element), m_canvas(m_element.make_canvas(width, height)) {
+void CanvasElement::draw(const Gempyre::Bitmap& bmp, int x, int y ) {
+     if(bmp.m_canvas)
+        paint(bmp.m_canvas, x, y, true);
+}
+
+Bitmap::Bitmap(int width, int height)  {
+    create(width, height);
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Graphics consructed", width, height);
 }
+
+
+Bitmap::Bitmap(const std::vector<unsigned char>& image_data)  {
+    unsigned width, height;
+    std::vector<unsigned char> image;
+    const auto error = lodepng::decode(image, width, height, image_data, LCT_RGBA, 8);
+
+    if(error) {
+        throw std::runtime_error(lodepng_error_text(error)); // or use return value as exceptions not used? TODO: Think
+        }
+
+    create(width, height);
+    assert(m_canvas);
+    auto ptr = reinterpret_cast<unsigned char*>(m_canvas->data());
+    std::copy(image.begin(), image.end(), ptr);    
+}
+
+void Bitmap::create(int width, int height) {
+        assert(width > 0);
+        assert(height > 0);
+        m_canvas = std::shared_ptr<CanvasData>(new CanvasData(width, height)); 
+    }
+
 /**
  * @function Graphics
  * @param element
  *
  * Creates a Graphics without a Canvas, call `create` to construct an actual Canvas.
  */
-Bitmap::Bitmap(const Gempyre::CanvasElement& element) : m_element(element) {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Bitmap without canvas created, create() must be called");
-}
+Bitmap::Bitmap() {}
 
 
 Bitmap::~Bitmap() {
@@ -262,28 +295,70 @@ void Bitmap::draw_rect(const Element::Rect& rect, Color::type color) {
     }
 }
 
-void Bitmap::merge(const Bitmap& other) {
-    if(other.m_canvas == m_canvas)
+void Bitmap::merge(const Bitmap& bitmap, int x_pos, int y_pos) {
+    if(bitmap.m_canvas == m_canvas)
         return;
-    gempyre_graphics_assert(other.m_canvas->ref().size() == m_canvas->ref().size(), "Canvas sizes must match")
-    auto pos = m_canvas->data();
-    const auto posOther = other.m_canvas->data();
-    for(auto i = 0U; i < m_canvas->ref().elements(); i++) {
-       const auto p = pos[i];
-       const auto po = posOther[i];
-       const auto ao = Color::alpha(po);
-       const auto a = Color::alpha(p);
-       const auto r = Color::r(p) * (0xFF - ao);
-       const auto g = Color::g(p) * (0xFF - ao);
-       const auto b = Color::b(p) * (0xFF - ao);
 
+    auto width = bitmap.width();
+    auto height = bitmap.height();
+        
+    if (x_pos >= this->width() || x_pos + bitmap.width() < 0)
+        return;
 
-       const auto ro = (Color::r(po) * ao);
-       const auto go = (Color::g(po) * ao);
-       const auto bo = (Color::b(po) * ao);
+    if (y_pos >= this->height() || y_pos + bitmap.height() < 0)
+            return;
+        
+    int x, y, b_x, b_y;
 
-       const auto pix = Color::rgba_clamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a);
-       pos[i] = pix;
+    if (x_pos < 0) {              // if -10 and width 100
+        x = 0;                  // set 0  
+        b_x = (-x_pos);// (-10) => 10
+        width -= b_x;           // 100 + (-10) => 90 
+    } else {
+        x = x_pos;
+    }
+
+    if (y_pos < 0) {
+        y = 0;
+        b_y = (-y_pos);
+        height -= b_y;
+    } else {
+        y = y_pos;
+    }
+
+    if  (x + width >= this->width()) {
+        width = this->width() - x;
+    }
+
+    if  (y + height >= this->height()) {
+        height = this->height() - y;
+    }
+
+    assert(width <= this->width());
+    assert(height <= this->height());
+    assert(width <= bitmap.width());
+    assert(height <= bitmap.height());
+   
+
+    for (auto j = 0; j < height; ++j) {
+        for (auto i = 0; i < width; ++i) {
+            assert(x + i < this->width());
+            assert(y + j < this->height());
+            const auto p = m_canvas->get(x + i, y + j);
+            const auto po = bitmap.m_canvas->get(i, j);
+            const auto ao = Color::alpha(po);
+            const auto a = Color::alpha(p);
+            const auto r = Color::r(p) * (0xFF - ao);
+            const auto g = Color::g(p) * (0xFF - ao);
+            const auto b = Color::b(p) * (0xFF - ao);
+
+            const auto ro = (Color::r(po) * ao);
+            const auto go = (Color::g(po) * ao);
+            const auto bo = (Color::b(po) * ao);
+
+            const auto pix = Color::rgba_clamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a);
+            m_canvas->put(x + i, y + j, pix);
+        }
     }
 }
 
@@ -315,16 +390,12 @@ void Bitmap::swap(Bitmap& other) {
 
 
 Bitmap Bitmap::clone() const {
-        Bitmap other(m_element);
+        Bitmap other;
         other.create(m_canvas->width(), m_canvas->height());
         std::copy(m_canvas->ptr()->begin(), m_canvas->ptr()->end(), other.m_canvas->data());
         return other;
     }
 
-void Bitmap::update() {
-    if(m_canvas)
-        m_element.paint(m_canvas, true);
-}
 
  CanvasData::CanvasData(int w, int h, const std::string& owner) :
     m_data{std::make_shared<Data>(

@@ -4,6 +4,7 @@
 #include "fire_resources.h"
 
 #include <cmath>
+#include <cassert>
 
 /*
 static 
@@ -90,11 +91,13 @@ inline void set_pixel(std::vector<Gempyre::Color::type>& vec, int x, int y, int 
     vec[y * w + x] = col;
 }
 
-void draw_frame(Gempyre::Bitmap& canvas,
+void draw_frame(
+    Gempyre::CanvasElement& canvas,
+    Gempyre::Bitmap& target,
     std::vector<Gempyre::Color::type>& fire,
     const std::array<Gempyre::Color::type, 256>& palette) {
-    const auto h = canvas.height();
-    const auto w = canvas.width();    
+    const auto h = target.height();
+    const auto w = target.width();    
     for(auto y = 1; y < h - 3; y++) {
         for(auto x = 1; x < w - 1; x++) {
             const auto p1 = pixel(fire, (x - 1 + w) % w, (y + 1) % h, w);
@@ -108,31 +111,51 @@ void draw_frame(Gempyre::Bitmap& canvas,
     for(auto y = 0; y < h; y++)
 
         for(auto x = 0; x < w; x++)  {
-            canvas.set_pixel(x, y, palette[pixel(fire, x, y, w)]);
+            target.set_pixel(x, y, palette[pixel(fire, x, y, w)]);
     }
-    canvas.update();
+    canvas.draw(target, 0, 0);
 }
 
-void amain( Gempyre::Ui& ui, Gempyre::CanvasElement& canvas_element) {
+void amain( Gempyre::Ui& ui, Gempyre::CanvasElement& canvas_element, const Gempyre::Bitmap& bmp) {
     const auto rect = canvas_element.rect();
     gempyre_utils_assert(rect);
     auto palette = make_palette();
     auto fire_buffer = std::make_shared<std::vector<Gempyre::Color::type>>(rect->width * rect->height);
-    auto canvas = std::make_shared<Gempyre::Bitmap>(canvas_element, rect->width, rect->height);
-    canvas_element.draw_completed([canvas, fire_buffer, palette = std::move(palette)]() {
-        draw_frame(*canvas, *fire_buffer, palette);
+    auto canvas = std::make_shared<Gempyre::Bitmap>(rect->width, rect->height);
+    canvas_element.draw_completed([canvas_element, canvas, fire_buffer, palette = std::move(palette)]() mutable {
+        draw_frame(canvas_element, *canvas, *fire_buffer, palette);
     }, Gempyre::CanvasElement::DrawNotify::Kick);
-    ui.start_periodic(50ms, [rect, fire_buffer]() {
-        //randomize the bottom row of the fire buffer
+   // canvas_element.draw(bmp, (rect->width - bmp.width()) / 2, (rect->height - bmp.height()) / 2);
+    ui.start_periodic(50ms, [rect, fire_buffer, &bmp, &canvas_element]() {
+        // canvas_element.draw(bmp, (rect->width - bmp.width()) / 2, (rect->height - bmp.height()) / 2);
         auto& fire = *fire_buffer;
-        for(int x = 0; x < rect->width; x++)
-            set_pixel(fire, x, rect->height - 1, rect->width, std::abs(32768 + std::rand()) % 256);
+        const auto left = (rect->width - bmp.width()) / 2;
+        const auto top = (rect->height - bmp.height()) / 2;
+
+        for(int y = 0; y < bmp.height(); ++y)
+            for(int x = 0; x < bmp.width(); ++x) {
+                if (bmp.pixel(x, y) == Gempyre::Color::White) {
+                    set_pixel(fire, left + x, top + y, rect->width,
+                     std::abs(32768 + std::rand()) % 256);
+                }
+            }
         });
 }
+
+// todo resurssit ei päivity! buildissa 
 
 int main(int /*argc*/, char** /*argv*/) {
     Gempyre::Ui ui{Fire_resourcesh, "fire.html"};
     Gempyre::CanvasElement canvas_element{ui, "canvas"};
-    ui.on_open([&ui, &canvas_element](){amain(ui, canvas_element);});
+    const auto image_data = ui.resource("/grunge-skull.png");
+    assert(image_data);
+    Gempyre::Bitmap skull(*image_data);
+    //Gempyre::Bitmap skull(200, 200);
+    Gempyre::Bitmap blue(100, 100);
+    //blue.draw_rect({0, 0, 100, 100}, Gempyre::Color::Yellow);
+    //skull.draw_rect({0, 0, 200, 200}, Gempyre::Color::Magenta);
+    //skull.draw_rect({50, 50, 100, 100}, Gempyre::Color::Green);
+    //skull.merge(blue, 50, 50);
+    ui.on_open([&ui, &canvas_element, &skull](){amain(ui, canvas_element, skull);});
     ui.run();
 }

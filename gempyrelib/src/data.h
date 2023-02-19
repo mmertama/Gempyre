@@ -44,6 +44,7 @@ class Data {
         [[nodiscard]] std::string owner() const;
         [[nodiscard]] DataPtr clone() const;
         [[nodiscard]] size_t size() const {return m_data.size() * sizeof(dataT);}
+        [[nodiscard]] bool has_owner() const;
         virtual ~Data() = default;
         Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header);
 #ifdef GEMPYRE_IS_DEBUG
