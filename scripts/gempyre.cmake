@@ -42,10 +42,14 @@ function (gempyre_add_resources)
     add_custom_command(
             OUTPUT ${TARGET_FULL}
             COMMAND ${PYTHON3} ${GEN_RESOURCE} ${MINIFY} ${TARGET_FULL} ${ADD_RESOURCE_SOURCES}
+            DEPENDS ${ADD_RESOURCE_SOURCES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             )
-
+   
     add_custom_target(${ADD_RESOURCE_PROJECT}_resource DEPENDS ${TARGET_FULL} ${ADD_RESOURCE_SOURCES})
+
     add_dependencies(${ADD_RESOURCE_PROJECT} ${ADD_RESOURCE_PROJECT}_resource)
+    
+
     
 endfunction()
