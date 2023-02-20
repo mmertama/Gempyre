@@ -96,52 +96,58 @@ private:
 };
 
 namespace  Color {
-using type = Gempyre::dataT;
-[[nodiscard]] static constexpr inline type rgba_clamped(type r, type g, type b, type a = 0xFF) {
-    return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
-}
-[[nodiscard, deprecated("Use snake")]] static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {return rgba_clamped(r, g, b, a);}
-[[nodiscard]] static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
-    return r | (g << 8) | (b << 16) | (a << 24);
-}
-[[nodiscard]] static constexpr inline type r(type pixel) {
-    return pixel & static_cast<type>(0xFF);
-}
-[[nodiscard]] static constexpr inline type g(type pixel) {
-    return (pixel & static_cast<type>(0xFF00)) >> 8;
-}
-[[nodiscard]] static constexpr inline type b(type pixel) {
-    return (pixel & static_cast<type>(0xFF0000)) >> 16;
-}
-[[nodiscard]] static constexpr inline type alpha(type pixel) {
-    return (pixel & static_cast<type>(0xFF000000)) >> 24;
-}
+    
+    using type = Gempyre::dataT;
+    [[nodiscard]] static constexpr inline type rgba_clamped(type r, type g, type b, type a = 0xFF) {
+        return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
+    }
 
-[[nodiscard]] static inline std::string rgba(type pixel) {
-    constexpr auto c = "0123456789ABCDEF";
-    std::string v("#RRGGBBAA");
-    v[1] =  c[r(pixel) >> 4];
-    v[2] =  c[r(pixel) & 0xF];
-    v[3] =  c[g(pixel) >> 4];
-    v[4] =  c[g(pixel) & 0xF];
-    v[5] =  c[b(pixel) >> 4];
-    v[6] =  c[b(pixel) & 0xF];
-    v[7] =  c[alpha(pixel) >> 4];
-    v[8] =  c[alpha(pixel) & 0xF];
-    return v;
-}
+    [[nodiscard, deprecated("Use snake")]] static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {return rgba_clamped(r, g, b, a);}
+    [[nodiscard]] static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
+        return r | (g << 8) | (b << 16) | (a << 24);
+    }
 
-[[nodiscard]] static inline std::string rgb(type pixel) {
-    constexpr auto c = "0123456789ABCDEF";
-    std::string v("#RRGGBB");
-    v[1] =  c[r(pixel) >> 4];
-    v[2] =  c[r(pixel) & 0xF];
-    v[3] =  c[g(pixel) >> 4];
-    v[4] =  c[g(pixel) & 0xF];
-    v[5] =  c[b(pixel) >> 4];
-    v[6] =  c[b(pixel) & 0xF];
+    [[nodiscard]] static constexpr inline type r(type pixel) {
+        return pixel & static_cast<type>(0xFF);
+    }
+
+    [[nodiscard]] static constexpr inline type g(type pixel) {
+        return (pixel & static_cast<type>(0xFF00)) >> 8;
+    }
+
+    [[nodiscard]] static constexpr inline type b(type pixel) {
+        return (pixel & static_cast<type>(0xFF0000)) >> 16;
+    }
+
+    [[nodiscard]] static constexpr inline type alpha(type pixel) {
+        return (pixel & static_cast<type>(0xFF000000)) >> 24;
+    }
+
+    [[nodiscard]] static inline std::string rgba(type pixel) {
+        constexpr auto c = "0123456789ABCDEF";
+        std::string v("#RRGGBBAA");
+        v[1] =  c[r(pixel) >> 4];
+        v[2] =  c[r(pixel) & 0xF];
+        v[3] =  c[g(pixel) >> 4];
+        v[4] =  c[g(pixel) & 0xF];
+        v[5] =  c[b(pixel) >> 4];
+        v[6] =  c[b(pixel) & 0xF];
+        v[7] =  c[alpha(pixel) >> 4];
+        v[8] =  c[alpha(pixel) & 0xF];
+        return v;
+    }
+
+    [[nodiscard]] static inline std::string rgb(type pixel) {
+        constexpr auto c = "0123456789ABCDEF";
+        std::string v("#RRGGBB");
+        v[1] =  c[r(pixel) >> 4];
+        v[2] =  c[r(pixel) & 0xF];
+        v[3] =  c[g(pixel) >> 4];
+        v[4] =  c[g(pixel) & 0xF];
+        v[5] =  c[b(pixel) >> 4];
+        v[6] =  c[b(pixel) & 0xF];
     return v;
-}
+    }
 
     static constexpr Color::type Black      = Color::rgba(0, 0, 0, 0xFF);
     static constexpr Color::type White      = Color::rgba(0xFF, 0xFF, 0xFF, 0xFF);

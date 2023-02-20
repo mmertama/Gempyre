@@ -122,7 +122,8 @@ std::string CanvasElement::add_image(const std::string& url, const std::function
     const auto name = generateId("image");
     Gempyre::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
-        imageElement.subscribe("load", [loaded, name](const Gempyre::Event&) {
+        imageElement.subscribe("load", [loaded, name, imageElement, url](const Gempyre::Event&) {
+            // image is loaded
             loaded(name);
         });
     imageElement.set_attribute("style", "display:none");

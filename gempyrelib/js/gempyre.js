@@ -7,7 +7,7 @@ var uri = "ws://" + gempyreAddress + "/gempyre";
 var socket = new WebSocket(uri);
 socket.binaryType = 'arraybuffer';
 
-var logging = false;
+var logging = true;
 
 var sys_log = console.log;
 var sys_warn = console.warn;
@@ -80,6 +80,7 @@ function assert(condition, msg) {
 }
 
 function createElement(parent, tag, id) {
+    
     if(document.getElementById(id) == null) {
         const el = document.createElement(tag);
         if(!el) {
@@ -621,6 +622,7 @@ function handleJsonCommand(msg) {
             return;
         case 'create':
             if(msg.element == undefined || msg.element.length == 0) {
+                console.debug("create", "??", msg.html_element, msg.new_id);
                 createElement(null, msg.html_element, msg.new_id);
                 return;
             } break;
@@ -678,6 +680,7 @@ function handleJsonCommand(msg) {
                 el[msg.attribute] = val;              //...and this in some :-D
                 break;
             case 'create':
+                console.debug("create", el, msg.html_element, msg.new_id);
                 createElement(el, msg.html_element, msg.new_id);
                 break;
             case 'remove':
@@ -722,19 +725,15 @@ socket.onopen = function(event) {
 socket.onmessage =
         function(event) {
         try {        
-        if(event.data instanceof ArrayBuffer) {
-            handleBinary(event.data);
-            return;
+            if(event.data instanceof ArrayBuffer) {
+                handleBinary(event.data);
+                return;
+            }
+            const msg = JSON.parse(event.data);
+            handleJson(msg);
+        } catch(error) {
+            catchLog(error);
         }
-        const msg = JSON.parse(event.data);
-
-        handleJson(msg);
-    } catch(error) {
-        catchLog(error);
-    }
-    const msg = JSON.parse(event.data);
-
-    handleJson(msg);
  }
 
 socket.onerror = function(event) {

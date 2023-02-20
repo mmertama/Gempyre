@@ -5,6 +5,10 @@
 
 using namespace std::chrono_literals;
 
+#define _STR(s) #s
+#define STR(x) _STR(x)
+
+
 void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el) {
     el.ui().begin_batch();
     const auto width = 1000. / 9.;
@@ -30,15 +34,20 @@ void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el
 }
 
 int main(int argc, char** argv) {
-   // Gempyre::set_debug();
+    Gempyre::set_debug();
     const auto args = GempyreUtils::parse_args(argc, argv, {{"resources", 'r', GempyreUtils::ArgType::REQ_ARG}});
     const auto options = std::get<GempyreUtils::Options>(args);
     const auto it = options.find("resources");
-    const auto root = (it != options.end()) ? (it->second + "/") : std::string("");
+    const auto root = (it != options.end()) ? (it->second + "/") : (std::string(STR(IMAGE_FOLDER)) + "/");
 
-    Gempyre::Ui ui({{"/imageblit.html", Imageblithtml}, {"/owl.png", Owlpng}}, "imageblit.html", "", "", Gempyre::Ui::UseDefaultPort, root);
+    Gempyre::Ui ui(Imageblit_resourceh, "imageblit.html", "", "", Gempyre::Ui::UseDefaultPort, root);
 
     Gempyre::CanvasElement canvas(ui, "canvas");
+
+    ui.on_error([&ui](const std::string& element_name, const std::string& err) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Error", element_name, err);
+        ui.exit();
+    });
 
     //Five ways to load image
 
@@ -48,9 +57,11 @@ int main(int argc, char** argv) {
     });
 
     //2) via baked in resource (this image is added in above)
-    canvas.add_image("/owl.png", [&canvas](const auto id){
+    const auto owl_id = canvas.add_image("/owl.png", [&canvas](const auto id){
         canvas.paint_image(id, {200, 0, 200, 200});
     });
+    GempyreUtils::log(GempyreUtils::LogLevel::Info, "Owl", owl_id);
+
 
 
     //3). via page and add as a resources
@@ -68,10 +79,12 @@ int main(int argc, char** argv) {
             std::cerr << "Cannot load " << simage1 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
             return -1;
         }
-    } else ui.alert(simage1 + " not found!");
+    } else
+     ui.alert(simage1 + " not found!");
+
 
     //4) add as resource and image
-    const auto simage2 = root + "tom-hanssens-shot-01.jpg";
+    const auto simage2 = root + "hiclipart.com.png";
     if(GempyreUtils::file_exists(simage2)) {
         if(!ui.add_file("/scene2.jpg", simage2)) {
             std::cerr << "Cannot load " << simage2 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
@@ -90,8 +103,8 @@ int main(int argc, char** argv) {
 
     auto frame = 0U;
 
-    canvas.add_image("leigh-kellogg-captainamerica-poseframes-2.jpg", [&canvas, &ui, &frame](const auto& marica){
-        ui.start_periodic(50ms, [&canvas, &frame, marica]{
+    canvas.add_image("/captainamerica.jpg", [&canvas, &ui, &frame](const auto& marica){
+        ui.start_periodic(200ms, [&canvas, &frame, marica]{
             const std::vector<Gempyre::Element::Rect> frames{
                 {100, 300, 248, 344},
                 {348, 300, 282, 344},
