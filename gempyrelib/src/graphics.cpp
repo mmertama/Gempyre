@@ -122,10 +122,9 @@ std::string CanvasElement::add_image(const std::string& url, const std::function
     const auto name = generateId("image");
     Gempyre::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
-        imageElement.subscribe("load", [loaded, name, imageElement, url](const Gempyre::Event&) {
-            // image is loaded
+        imageElement.subscribe("load", [this, loaded, name, url](const Gempyre::Event& ev) {
             loaded(name);
-        });
+        }, {"complete"});
     imageElement.set_attribute("style", "display:none");
     imageElement.set_attribute("src", url);
     return name;
@@ -135,12 +134,14 @@ std::vector<std::string> CanvasElement::add_images(const std::vector<std::string
     std::vector<std::string> names;
     auto result = std::make_shared<std::map<std::string, bool>>();
     std::for_each(urls.begin(), urls.end(), [this, &names, loaded, &result](const auto& url){
-        const auto name = add_image(url, [loaded, result](const std::string& id) {
+        const auto name = add_image(url, [this, loaded, result](const std::string& id) {
             (*result)[id] = true;
             if(loaded && std::find_if(result->begin(), result->end(), [](const auto& r){return !r.second;}) == result->end()) {
                 std::vector<std::string> keys;
                 std::transform(result->begin(), result->end(), std::back_inserter(keys), [](const auto& it){return it.first;});
-                loaded(keys);
+                ui().after(0ms, [loaded, keys = std::move(keys)] {
+                    loaded(keys);
+                 });
             }
         });
         result->emplace(name, false);

@@ -173,13 +173,26 @@ function addEvent(el, source, eventname, properties, throttle) {
         document.addEventListener(eventname, usedHandler);
     }
     else if(eventname === 'load') {
-        console.log("fiifoo", el, source, eventname, throttle);
+        let on_complete = function() {
+            if(properties.includes('complete') && (!el.complete || (0 == el.width && 0 == el.height))) {
+                log("Element ", el.id, "is not ready....wait");
+                setTimeout(on_complete, 500);
+            } else {
+                log("Element ", el.id, "is ready...send", el.complete, el.width, el.height);
+                socket.send(JSON.stringify({'type': 'event',  'element': el.id, 'event': 'load', 'properties': {
+                    'complete': el.complete,
+                    'width': el.width,
+                    'height': el.height
+                }}));
+            }
+        };
         if (el.complete) {
-            socket.send(JSON.stringify({'type': 'event',  'element': el.id, 'event': 'load', 'properties': {}}));
+            on_complete();
         } else {
             console.log("addEventing", el, source, eventname, throttle);
-            el.addEventListener(eventname, usedHandler);
-        }
+             // addEventListener(eventname, usedHandler); works only with window
+            el.onload = on_complete;
+            }
     }
     else {
         console.log("addEventing", el, source, eventname, throttle);

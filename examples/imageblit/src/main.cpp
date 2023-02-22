@@ -49,6 +49,9 @@ int main(int argc, char** argv) {
         ui.exit();
     });
 
+    ui.on_open([](){
+         GempyreUtils::log(GempyreUtils::LogLevel::Info, "Open");
+    });
     //Five ways to load image
 
     //1) external resource using http/https from somewhere
@@ -57,27 +60,20 @@ int main(int argc, char** argv) {
     });
 
     //2) via baked in resource (this image is added in above)
-    const auto owl_id = canvas.add_image("/owl.png", [&canvas](const auto id){
-        canvas.paint_image(id, {200, 0, 200, 200});
+    const auto owl_id = canvas.add_image("/owl.png", [&canvas, &ui](const auto id){
+        canvas.paint_image(id, {400, 0, 200, 200});
     });
     GempyreUtils::log(GempyreUtils::LogLevel::Info, "Owl", owl_id);
 
-
-
     //3). via page and add as a resources
     ui.after(2000ms, [&canvas]() {
-        canvas.paint_image("some_sceneid", {0, 200, 200, 200});
+        canvas.paint_image("some_sceneid", {400, 200, 200, 200});
     });
-    /* This does not work
-    Gempyre::Element(ui, "some_sceneid").subscribe("load", [&canvas] (const Gempyre::Element::Event&){
-         canvas.paint_image("some_sceneid", {0, 200, 200, 200});
-    });
-    */
+
     const auto simage1 = root + "free-scenery-7.jpg";
     if(GempyreUtils::file_exists(simage1)) {
         if(!ui.add_file("/scene.jpg", simage1)) {
-            std::cerr << "Cannot load " << simage1 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
-            return -1;
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot load ", simage1);
         }
     } else
      ui.alert(simage1 + " not found!");
@@ -87,13 +83,15 @@ int main(int argc, char** argv) {
     const auto simage2 = root + "hiclipart.com.png";
     if(GempyreUtils::file_exists(simage2)) {
         if(!ui.add_file("/scene2.jpg", simage2)) {
-            std::cerr << "Cannot load " << simage2 << " (try: -r <PATH TO>/Gempyre-framework/test/imageblit/stuff)" << std::endl;
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Cannot load ", simage2);
             return -1;
         }
     } else ui.alert(simage2 + " not found!");
 
-    canvas.add_image("/scene2.jpg", [&canvas](const auto& scene){
-         canvas.paint_image(scene, {200, 200, 200, 200});
+    canvas.add_image("/scene2.jpg", [&ui, &canvas](const auto& scene ) {
+        ui.after(1000ms, [&ui, &canvas, scene](){
+         canvas.paint_image(scene, {0, 200, 200, 200});
+        });
     });
 
     //5) local file - see root parameter in constructor (assuming it is set correctly here to imageblit/stuff folder)
@@ -130,27 +128,11 @@ int main(int argc, char** argv) {
                 {964, 1832, 320, 344},
                 {1295, 1832, 320, 344},
             };
-       /*     for(int i = 0; i < 6; i++){
-                canvas.paint_image(marica, {i * 50, 0, 49, 49}, frames.at(i));
-            }
-            for(int i = 0; i < 4; i++){
-                canvas.paint_image(marica, {i * 50, 50, 49, 49}, frames.at(i + 6));
-            }
-            for(int i = 0; i < 5; i++){
-                canvas.paint_image(marica, {i * 50, 100, 49, 49}, frames.at(i + 10));
-            }
-            for(int i = 0; i < 5; i++){
-                canvas.paint_image(marica, {i * 50, 150, 49, 49}, frames.at(i + 15));
-            }
-*/
-
-
-
+  
             if(frame >= frames.size())
                 frame = 0;
             canvas.paint_image(marica, {200, 400, 200, 200}, frames.at(frame));
             ++frame;
-  //          std::cout << "frame" << frame << std::endl;
         });
     });
 
