@@ -23,7 +23,7 @@ set(STUFF
 
 set(RES
     stuff/owl.png
-    stuff/numbers.png
+    stuff/alpha.png
     stuff/captainamerica.jpg
 )
 

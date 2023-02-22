@@ -9,26 +9,27 @@ using namespace std::chrono_literals;
 #define STR(x) _STR(x)
 
 
-void writeText(int x, int y, const std::string& text, Gempyre::CanvasElement& el) {
+void writeText(Gempyre::CanvasElement& el, const std::string& img, int x, int y, const std::string& text) {
     el.ui().begin_batch();
-    const auto width = 1000. / 9.;
-    const auto height = 1000. / 9.;
+    const auto width = 19.5;
+    const auto height = 38.;
     auto caret = x;
     for(const auto& c : text) {
         if(c >= 'a' && c <=  'z') {
-            const int row = (c - 'a') % 9;
-            const int col = (c - 'a') / 9;
-            el.paint_image("salcat", {caret, y, 20, 20}, {
+            const auto ascii_offset = c - 'a';
+            const int row = ascii_offset % 10;
+            const int col = ascii_offset / 10;
+            el.paint_image(img, {caret, y, width, height}, {
                               static_cast<int>(row * width),
                               static_cast<int>(col * height),
                               static_cast<int>(width),
                               static_cast<int>(height)});
         }
         if(c == '\n') {
-            y += 20;
+            y += height;
             caret = x;
         } else
-            caret += 20;
+            caret += width + 1;
     }
     el.ui().end_batch();
 }
@@ -55,9 +56,10 @@ int main(int argc, char** argv) {
     //Five ways to load image
 
     //1) external resource using http/https from somewhere
-    ui.after(2000ms, [&canvas]() {
-        writeText(0, 40, "the beach\nis place\nto be\npalm to\nstay under\nthe sea\nand sand", canvas);
-    });
+    Gempyre::Element(ui, "salcat").subscribe("load", [&canvas](const auto&) {
+        canvas.paint_image("salcat",  {400, 400, 200, 200});
+    }, {"complete"}); // with images its good to wait complete need complate 
+   
 
     //2) via baked in resource (this image is added in above)
     const auto owl_id = canvas.add_image("/owl.png", [&canvas, &ui](const auto id){
@@ -97,6 +99,10 @@ int main(int argc, char** argv) {
     //5) local file - see root parameter in constructor (assuming it is set correctly here to imageblit/stuff folder)
     ui.after(3000ms, [&canvas]() {
         canvas.paint_image("huld", {0, 400, 200, 200});
+    });
+
+    canvas.add_image("/alpha.png", [&canvas](const auto& alpha) {
+        writeText(canvas, alpha, 0, 40, "hulk says\nnay to cry\nand smash\nworries\naway\nhappiness stays\non beach");
     });
 
     auto frame = 0U;
