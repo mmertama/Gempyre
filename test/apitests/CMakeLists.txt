@@ -16,6 +16,9 @@ link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
 add_executable(${PROJECT_NAME}
     ui_tests.cpp
     core_tests.cpp
+    graphics_test.cpp
+    gempyre_test.h
+    gempyre_test.cpp
     gui/${PROJECT_NAME}.html
     )
 

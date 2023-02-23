@@ -122,7 +122,7 @@ std::string CanvasElement::add_image(const std::string& url, const std::function
     const auto name = generateId("image");
     Gempyre::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
-        imageElement.subscribe("load", [this, loaded, name, url](const Gempyre::Event& ev) {
+        imageElement.subscribe("load", [this, loaded, name, url](const Gempyre::Event&) {
             loaded(name);
         }, {"complete"});
     imageElement.set_attribute("style", "display:none");
@@ -394,10 +394,17 @@ void Bitmap::swap(Bitmap& other) {
 Bitmap Bitmap::clone() const {
         Bitmap other;
         other.create(m_canvas->width(), m_canvas->height());
-        std::copy(m_canvas->ptr()->begin(), m_canvas->ptr()->end(), other.m_canvas->data());
+        other.copy(*this);
         return other;
     }
 
+void Bitmap::copy(const Bitmap& other) {
+    assert(other.width() == width());
+    assert(other.height() == height());
+    if(m_canvas == other.m_canvas)
+        return;
+    std::copy(m_canvas->ptr()->begin(), m_canvas->ptr()->end(), other.m_canvas->data());
+}
 
  CanvasData::CanvasData(int w, int h, const std::string& owner) :
     m_data{std::make_shared<Data>(

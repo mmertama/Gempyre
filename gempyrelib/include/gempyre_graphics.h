@@ -193,6 +193,8 @@ public:
     void draw_rect(const Element::Rect& rect, Color::type color);
     [[deprecated("use merge(other, x, y)")]] void merge(const Bitmap& other) {merge(other, 0, 0);}
     void merge(const Bitmap& other, int x, int y);
+protected:
+    void copy(const Bitmap& other);
 private:
     friend class Gempyre::CanvasElement;
     Gempyre::CanvasDataPtr m_canvas;
@@ -204,6 +206,10 @@ public:
     Graphics(const Gempyre::CanvasElement& element, int width, int height) : Bitmap(width, height), m_element(element) {};
     Graphics(const Gempyre::CanvasElement& element) : m_element(element) {};
     void update() {m_element.draw(*this, 0, 0);}
+    Graphics clone() const {Graphics other(m_element, width(), height());
+        other.copy(*this);
+        return other;
+    }
 private:
     Gempyre::CanvasElement m_element;
 

@@ -19,7 +19,7 @@ void writeText(Gempyre::CanvasElement& el, const std::string& img, int x, int y,
             const auto ascii_offset = c - 'a';
             const int row = ascii_offset % 10;
             const int col = ascii_offset / 10;
-            el.paint_image(img, {caret, y, width, height}, {
+            el.paint_image(img, {caret, y, static_cast<int>(width), static_cast<int>(height)}, {
                               static_cast<int>(row * width),
                               static_cast<int>(col * height),
                               static_cast<int>(width),
