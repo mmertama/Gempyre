@@ -217,22 +217,30 @@ public:
          return !m_eventqueue.empty();
     }
 
-    void set_on_exit(std::function<void ()>&& onUiExitFunction) {
+    Gempyre::Ui::ExitFunction set_on_exit(Gempyre::Ui::ExitFunction&& onUiExitFunction) {
+        auto old = std::move(m_onUiExit);
         m_onUiExit = std::move(onUiExitFunction);
+        return old;
     }
 
-    void set_on_reload(std::function<void ()>&& onReloadFunction) {
+    Gempyre::Ui::ReloadFunction set_on_reload(Gempyre::Ui::ReloadFunction&& onReloadFunction) {
+        auto old = std::move(m_onReload);
         m_onReload = std::move(onReloadFunction);
+        return old;
     }
 
 
-    void set_on_error(std::function<void (const std::string&, const std::string&)>&& onErrorFunction) {
+    Gempyre::Ui::ErrorFunction set_on_error(Gempyre::Ui::ErrorFunction&& onErrorFunction) {
+        auto old = std::move(m_onError);
         m_onError = std::move(onErrorFunction);
+        return old;
     }
 
 
-    void set_on_open(std::function<void ()>&& onOpenFunction) {
+    Gempyre::Ui::OpenFunction set_on_open(Gempyre::Ui::OpenFunction&& onOpenFunction) {
+        auto old = std::move(m_onOpen);
         m_onOpen = std::move(onOpenFunction);
+        return old;
     }
 
 

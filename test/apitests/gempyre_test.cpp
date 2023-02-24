@@ -72,42 +72,68 @@ void GempyreTest::killHeadless() {
 }
 
 
-void TestUi::SetUpTestSuite() {
+enum State : unsigned {
+    WAIT = 0x1,
+    TEST = 0x2
+};
+
+void TestUi::SetUp() {
     const auto chrome = systemChrome();
     m_ui = std::make_unique<Gempyre::Ui>(
                 Apitests_resourceh,
                 "apitests.html",
                     chrome ? chrome.value() : "",
                     headlessParams());
-    m_ui->on_error([](const auto& element, const auto& info) {
+    m_ui->on_error([this](const auto& element, const auto& info) {
         std::cerr << element << " err:" << info;
         EXPECT_TRUE(false);
-        m_ui->exit();});
-}
+        std::exit(1);
+    });
+    m_ui->on_open([](){
+        GEM_DEBUG("test ui on");
+    });    
 
-void TestUi::SetUp() {
     const auto test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     m_current_test = test_name;
     GEM_DEBUG("Setup", test_name);
+    m_state = 0;
+    m_postFunc = nullptr;
 }
+
+void TestUi::test_wait() {
+    m_state |= WAIT;
+    m_ui->run();
+}
+
 
 void TestUi::TearDown() {
     const auto test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     assert(test_name == m_current_test);
     GEM_DEBUG("Teardown", test_name);
-    m_ui->run();
+    if((! (m_state & WAIT)) && m_state & TEST)
+        m_ui->run();
+    if(m_postFunc)
+        m_postFunc();
+    m_postFunc = nullptr;
+    m_ui.reset();
+    killHeadless();    
 }
 
 void TestUi::test(const std::function<void () >& f) {
     GEM_DEBUG("after", m_current_test);
+    m_state |= TEST;
     m_ui->after(0s, [f, this]() {
         GEM_DEBUG("test exit in", m_current_test);
-        m_ui->exit();
-        GEM_DEBUG("test exit out", m_current_test);
+        if(f)
+            f();
+        if(! (m_state & WAIT)) {
+            m_ui->exit();
+            GEM_DEBUG("test exit out", m_current_test);
+        }
     });
 }
 
-void TestUi::TearDownTestSuite()  {
-    m_ui.reset();
-    killHeadless();
-}
+ void TestUi::post_test(const std::function<void () >& f) {
+        m_postFunc = f;
+ }
+

@@ -620,24 +620,20 @@ bool Ui::cancel_timer(TimerId id) {
     return m_ui->remove_timer(id);
 }
 
-Ui& Ui::on_exit(std::function<void ()>&& onUiExitFunction) {
-    m_ui->set_on_exit(std::move(onUiExitFunction));
-    return *this;
+Gempyre::Ui::ExitFunction Ui::on_exit(ExitFunction&& onUiExitFunction) {
+    return m_ui->set_on_exit(std::move(onUiExitFunction));
 }
 
-Ui& Ui::on_reload(std::function<void ()>&& onReloadFunction) {
-    m_ui->set_on_reload(std::move(onReloadFunction));
-    return *this;
+Gempyre::Ui::ReloadFunction Ui::on_reload(ReloadFunction&& onReloadFunction) {
+    return m_ui->set_on_reload(std::move(onReloadFunction));
 }
 
-Ui& Ui::on_open(std::function<void ()>&& onOpenFunction) {
-    m_ui->set_on_open(std::move(onOpenFunction));
-    return *this;
+Gempyre::Ui::OpenFunction Ui::on_open(OpenFunction&& onOpenFunction) {
+    return m_ui->set_on_open(std::move(onOpenFunction));
 }
 
-Ui& Ui::on_error(std::function<void (const std::string&, const std::string&)>&& onErrorFunction) {
-    m_ui->set_on_error(std::move(onErrorFunction));
-    return *this;
+Gempyre::Ui::ErrorFunction Ui::on_error(ErrorFunction&& onErrorFunction) {
+    return m_ui->set_on_error(std::move(onErrorFunction));
 }
 
 void Ui::run() {

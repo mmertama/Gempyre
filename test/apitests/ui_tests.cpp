@@ -9,7 +9,6 @@
 #ifdef HAS_FS
 #include <filesystem>
 #endif
-#include "apitests_resource.h"
 #include <cassert>
 
 
@@ -41,7 +40,7 @@ TEST_F(TestUi, onReload) {
 
 TEST_F(TestUi, eval) {
         m_ui->eval("document.write('<h3 id=\\\"foo\\\">Bar</h3>')");
-        test([]() {
+        test([this]() {
             Gempyre::Element el(*m_ui, "foo");
             const auto html = el.html();
             EXPECT_TRUE(html);
@@ -57,13 +56,13 @@ TEST_F(TestUi, addressOf) {
 #else
     ASSERT_TRUE(GempyreUtils::file_exists(htmlPage));
 #endif
-    test([htmlPage]() {
+    test([htmlPage, this]() {
         ASSERT_TRUE(m_ui->address_of(htmlPage).length() > 0); //TODO better test would be write this as html and open it
     });
 }
 
 TEST_F(TestUi, byClass) {
-    test([]() {
+    test([this]() {
         const auto classes = m_ui->by_class("test-class");
         ASSERT_TRUE(classes);
         ASSERT_EQ(classes->size(), 4); //4 test-classes
@@ -71,7 +70,7 @@ TEST_F(TestUi, byClass) {
 }
 
 TEST_F(TestUi, byName) {
-    test([]() {
+    test([this]() {
         const auto names = m_ui->by_name("test-name");
         ASSERT_TRUE(names.has_value());
         ASSERT_EQ(names->size(), 5); //5 test-classes
@@ -79,7 +78,7 @@ TEST_F(TestUi, byName) {
 }
 
 TEST_F(TestUi, devicePixelRatio) {
-    test([]() {
+    test([this]() {
         const auto dr = m_ui->device_pixel_ratio();
         ASSERT_TRUE(dr);
         ASSERT_GT(*dr, 0);
@@ -97,7 +96,7 @@ TEST_F(TestUi, ElementCreate) {
 }
 
 TEST_F(TestUi, ElementCreateLater) {
-    test([]() {
+    test([this]() {
         Gempyre::Element parent(*m_ui, "test-1");
         Gempyre::Element(*m_ui, "boing", "div", parent);
         const auto cop = parent.children();
@@ -121,15 +120,16 @@ TEST_F(TestUi, subscribe) {
     m_ui->after(2s, [&]()  {
           el.set_attribute("style", "color:green");
        });
-    test([&]() {
+    post_test([&]() {
         ASSERT_TRUE(is_open);
     });
+    test_wait();
 }
 
 TEST_F(TestUi, setHTML) {
     Gempyre::Element el(*m_ui, "test-1");
     el.set_html("Test-dyn");
-    test([&]() {
+    test([el]() {
         const auto html = el.html();
         ASSERT_TRUE(html.has_value());
         ASSERT_EQ(html.value(), "Test-dyn");
@@ -139,7 +139,7 @@ TEST_F(TestUi, setHTML) {
 TEST_F(TestUi, setAttribute) {
     Gempyre::Element el(*m_ui, "test-1");
     el.set_attribute("value", "Test-attr-dyn");
-    test([&]() {
+    test([el]() {
         const auto attrs = el.attributes();
         ASSERT_TRUE(attrs.has_value());
         ASSERT_NE(attrs->find("value"), attrs->end());
@@ -148,7 +148,7 @@ TEST_F(TestUi, setAttribute) {
 }
 
 TEST_F(TestUi, attributes) {
-   test([]() {
+   test([this]() {
         Gempyre::Element el(*m_ui, "test-1");
         const auto attrs = el.attributes();
         ASSERT_TRUE(attrs.has_value());
@@ -158,7 +158,7 @@ TEST_F(TestUi, attributes) {
 }
 
 TEST_F(TestUi, children) {
-   test([]() {
+   test([this]() {
         Gempyre::Element el(*m_ui, "test-1");
         const auto chlds = el.children();
         ASSERT_TRUE(chlds.has_value());
@@ -168,7 +168,7 @@ TEST_F(TestUi, children) {
 }
 
 TEST_F(TestUi, values) {
-    test([]() {
+    test([this]() {
         Gempyre::Element el(*m_ui, "checkbox-1");
         const auto values = el.values();
         ASSERT_TRUE(values.has_value());
@@ -178,7 +178,7 @@ TEST_F(TestUi, values) {
 }
 
 TEST_F(TestUi, html) {
-    test([]() {
+    test([this]() {
         Gempyre::Element el(*m_ui, "test-1");
         const auto html = el.html();
         ASSERT_TRUE(html.has_value());
@@ -187,7 +187,7 @@ TEST_F(TestUi, html) {
 }
 
 TEST_F(TestUi, remove) {
-    test([]() {
+    test([this]() {
         Gempyre::Element el(*m_ui, "test-1");
         const auto chlds = el.children();
         ASSERT_TRUE(chlds.has_value());
@@ -202,7 +202,7 @@ TEST_F(TestUi, remove) {
 }
 
 TEST_F(TestUi, removeAttribute) {
-    test([]() {
+    test([this]() {
         Gempyre::Element el(*m_ui, "hidden");
         auto attrs0 = el.attributes();
         ASSERT_NE(attrs0->find("hidden"), attrs0->end());
@@ -230,7 +230,7 @@ TEST_F(TestUi, removeStyle) {
 */
 
 TEST_F(TestUi, setStyle) {
-    test([]() {
+    test([this]() {
         Gempyre::Element el(*m_ui, "test-1");
         el.set_style("color", "blue");
         const auto style = el.styles({"color"});
@@ -239,7 +239,7 @@ TEST_F(TestUi, setStyle) {
 }
 
 TEST_F(TestUi, styles) {
-    test([]() {
+    test([this]() {
         Gempyre::Element el(*m_ui, "styled");
         const auto style0 = el.styles({"color", "font-size"}).value();
         const auto it = style0.find("color");
@@ -250,7 +250,7 @@ TEST_F(TestUi, styles) {
 }
 
 TEST_F(TestUi, type) {
-      test([]() {
+      test([this]() {
           Gempyre::Element el(*m_ui, "test-1");
           const auto t = el.type();
           ASSERT_TRUE(t);
@@ -259,7 +259,7 @@ TEST_F(TestUi, type) {
 }
 
 TEST_F(TestUi, rect) {
-      test([]() {
+      test([this]() {
           Gempyre::Element el(*m_ui, "test-1");
           const auto r = el.rect();
           ASSERT_TRUE(r);

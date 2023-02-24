@@ -20,6 +20,8 @@ add_executable(${PROJECT_NAME}
     gempyre_test.h
     gempyre_test.cpp
     gui/${PROJECT_NAME}.html
+    gui/spiderman1.png
+    gui/spiderman2.jpg
     )
 
 gtest_discover_tests(${PROJECT_NAME})
@@ -27,7 +29,9 @@ gtest_discover_tests(${PROJECT_NAME})
 # add HTML into resources
 gempyre_add_resources(PROJECT ${PROJECT_NAME}
     TARGET include/${PROJECT_NAME}_resource.h
-    SOURCES gui/${PROJECT_NAME}.html)
+    SOURCES gui/${PROJECT_NAME}.html
+    gui/spiderman1.png
+    gui/spiderman2.jpg)
 
 # copy HTML to binary for tests
 add_compile_definitions(TEST_HTML="${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html")

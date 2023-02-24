@@ -12,14 +12,18 @@ namespace GempyreTest {
     class TestUi : public testing::Test {
 public:
     void test(const std::function<void () >& f);
-    static void SetUpTestSuite();
-    static void TearDownTestSuite();
+    void post_test(const std::function<void () >& f);
+    void test_wait();
 private:
     void SetUp() override;
     void TearDown() override;
 public:
-    static inline std::unique_ptr<Gempyre::Ui> m_ui;
+    std::unique_ptr<Gempyre::Ui> m_ui;
     std::string m_current_test;
+private:
+    std::function<void()> m_postFunc = nullptr;
+    std::function<void()> m_testFunc = nullptr;
+    unsigned m_state;
     };
 }
 

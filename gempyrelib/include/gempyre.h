@@ -156,14 +156,20 @@ namespace Gempyre {
         ///Requires Client window to close (that cause the application to close).
         void close();
 
+        using ExitFunction = std::function<void ()>;
+        using ReloadFunction = std::function<void ()>;
+        using OpenFunction = std::function<void ()>;
+        using ErrorFunction = std::function<void (const std::string& element, const std::string& info)>;
+
+
         ///The callback is called before before the eventloop exit.
-        Ui& on_exit(std::function<void ()>&& onExitFunction);
+        ExitFunction on_exit(ExitFunction&& onExitFunction);
         ///The callback is called on UI reload.
-        Ui& on_reload(std::function<void ()>&& onReleadFunction);
+        ReloadFunction on_reload(ReloadFunction&& onReleadFunction);
         ///The callback is called on UI open.
-        Ui& on_open(std::function<void ()>&& onOpenFunction);
+        OpenFunction on_open(OpenFunction&& onOpenFunction);
         ///The callback is called on error.
-        Ui& on_error(std::function<void (const std::string& element, const std::string& info)>&& onErrorFunction);
+        ErrorFunction on_error(ErrorFunction&& onErrorFunction);
         ///Starts the event loop.
         void run();
 

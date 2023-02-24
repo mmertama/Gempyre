@@ -21,7 +21,10 @@ if(gempyre_FOUND)
       gui/favicon.ico
       )
 
-   gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET ${CMAKE_CURRENT_BINARY_DIR}/include/hello.html.h SOURCES gui/hello.html gui/favicon.ico)
+   gempyre_add_resources(PROJECT ${PROJECT_NAME} 
+   TARGET ${CMAKE_CURRENT_BINARY_DIR}/include/hello.html.h 
+   SOURCES gui/hello.html
+      gui/favicon.ico)
 
    target_link_libraries (${PROJECT_NAME}  gempyre::gempyre)
 else()
