@@ -146,10 +146,10 @@ Data::Data(size_t sz, dataT type, const std::string& owner, const std::vector<da
             idData[i] = static_cast<uint16_t>(c);
         }
         assert(header.size() == 5);
-#ifdef GEMPYRE_IS_DEBUG
+/*#ifdef GEMPYRE_IS_DEBUG
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send-data_buffer", owner,
-         reinterpret_cast<uint64_t>(idData) - reinterpret_cast<uint64_t>(&m_data[0]), owner.size(), dump());
-#endif          
+        reinterpret_cast<uint64_t>(idData) - reinterpret_cast<uint64_t>(&m_data[0]), owner.size(), dump());
+#endif*/          
 }
 
 std::string Data::owner() const {

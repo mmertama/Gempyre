@@ -87,3 +87,4 @@ GPUCache
 Testing
 .idea
 cmake-build-*
+build_release

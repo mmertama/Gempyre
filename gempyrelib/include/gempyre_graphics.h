@@ -73,7 +73,7 @@ public:
     CanvasElement& operator=(CanvasElement&& other) = default;
 
     std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
-    std::vector<std::string> add_images(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
+    [[deprecated]] std::vector<std::string> add_images(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
     void paint_image(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
     void paint_image(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
     void draw(const CommandList& canvasCommands);
@@ -82,9 +82,7 @@ public:
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
     void draw_completed(DrawCallback&& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
     void erase(bool resized = false);
-    [[nodiscard]] bool hasCanvas() const {
-        return !!m_tile;
-    }
+    [[nodiscard, deprecated]] bool has_canvas() const {return !!m_tile;}
 private:
     friend class Bitmap;
     void paint(const CanvasDataPtr& canvas, int x, int y, bool as_draw);
@@ -171,7 +169,7 @@ public:
     Bitmap(Bitmap&& other) = default;
     Bitmap(const Bitmap& other) = default;
     ~Bitmap();
-    Bitmap(const std::vector<unsigned char>& image_data);
+    Bitmap(const std::vector<uint8_t>& image_data);
 
     Bitmap& operator=(const Bitmap& other) = default;
     Bitmap& operator=(Bitmap&& other) = default;

@@ -7,7 +7,7 @@ var uri = "ws://" + gempyreAddress + "/gempyre";
 var socket = new WebSocket(uri);
 socket.binaryType = 'arraybuffer';
 
-var logging = true;
+var logging = false;
 
 var sys_log = console.log;
 var sys_warn = console.warn;
@@ -165,11 +165,11 @@ function addEvent(el, source, eventname, properties, throttle) {
 
     const usedHandler = throttle && throttle > 0 ? throttled(throttle, handler) : handler;
     if(eventname === 'resize') { //Only window supports the resize event
-        console.log("addEventing", "window", source, eventname, throttle);
+        log("addEventing", "window", source, eventname, throttle);
         window.addEventListener(eventname, usedHandler);
     }
     else if(el === document.body && eventname === 'scroll' ) { //root == document.body, document listens scroll
-        console.log("addEventing", "document", source, eventname, throttle);
+        log("addEventing", "document", source, eventname, throttle);
         document.addEventListener(eventname, usedHandler);
     }
     else if(eventname === 'load') {
@@ -189,13 +189,13 @@ function addEvent(el, source, eventname, properties, throttle) {
         if (el.complete) {
             on_complete();
         } else {
-            console.log("addEventing", el, source, eventname, throttle);
+            log("addEventing", el, source, eventname, throttle);
              // addEventListener(eventname, usedHandler); works only with window
             el.onload = on_complete;
             }
     }
     else {
-        console.log("addEventing", el, source, eventname, throttle);
+        log("addEventing", el, source, eventname, throttle);
         el.addEventListener(eventname, usedHandler);
     }
 }
@@ -319,6 +319,7 @@ function sendCollection(name, query_id, query, collectionFunction) {
 
 function handleBinary(buffer) {
     const bytes = new Uint32Array(buffer);
+    log("addEvhandleBinaryenting");
     if(!bytes || bytes.length === 0) {
         errlog("Binary", "Invalid buffer", buffer);
         return;
@@ -360,11 +361,11 @@ function handleBinary(buffer) {
             }
         }    
 
-   
+        log("as_draw", as_draw, event_notifiers.has("canvas_draw"));
 
         // if as_draw AND there is a notification request - send a notify
         if ((as_draw != 0) && event_notifiers.has("canvas_draw")) {
-            console.log("fond");
+            log("notify canvas draw");
             socket.send(JSON.stringify({
                                             'type': 'event',
                                             'element': id,
@@ -635,7 +636,6 @@ function handleJsonCommand(msg) {
             return;
         case 'create':
             if(msg.element == undefined || msg.element.length == 0) {
-                console.debug("create", "??", msg.html_element, msg.new_id);
                 createElement(null, msg.html_element, msg.new_id);
                 return;
             } break;
@@ -693,7 +693,7 @@ function handleJsonCommand(msg) {
                 el[msg.attribute] = val;              //...and this in some :-D
                 break;
             case 'create':
-                console.debug("create", el, msg.html_element, msg.new_id);
+                log("create", el, msg.html_element, msg.new_id);
                 createElement(el, msg.html_element, msg.new_id);
                 break;
             case 'remove':

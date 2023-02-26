@@ -12,7 +12,9 @@
 #include <string>
 #include <atomic>
 
+
 #include "semaphore.h"
+#include "data.h"
 
 struct us_listen_socket_t;
 using ListenSocket = std::atomic<us_listen_socket_t*>;
@@ -51,7 +53,7 @@ public:
     void close(bool wait = false);
    // void send(const std::unordered_map<std::string, std::string>& object);
     bool send(const std::unordered_map<std::string, std::string>& object, const std::any& values = std::any());
-    bool send(const char* data, size_t len);
+    bool send(const Gempyre::Data& data);
     int queryId() const {return ++m_queryId;}
     unsigned int port() const {return m_port;}
     std::function<std::string (const std::string&)> onFile(const std::function<std::string (const std::string&)>&f );

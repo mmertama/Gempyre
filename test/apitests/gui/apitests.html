@@ -36,16 +36,13 @@
     <input type="checkbox" name="scales" id="checkbox-1" checked />
     <label for="scales">Scales</label>
     <script>
-        console.info("Add Mutation lists CB to test-1");
         const targetNode = document.getElementById("test-1");
         console.assert(targetNode, "test-1 not found");
         // Options for the observer (which mutations to observe)
         const config = {attributes: true};
         const callback = function(mutationsList, observer) {
-            console.info("Mutation lists CB");
             for(let mutation of mutationsList) {
                 if (mutation.type === 'attributes') {
-                    console.info("Send sendGempyreEvent", 'test_event', mutation.target);
                     sendGempyreEvent('test-1', 'test_event', mutation.target);
                 }
             }

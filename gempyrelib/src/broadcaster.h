@@ -3,6 +3,7 @@
 
 #include "gempyre.h"
 #include "gempyre_utils.h"
+#include "data.h"
 
 #define UWS_NO_ZLIB
 #include <App.h>
@@ -28,11 +29,10 @@ public:
         for(auto& [s, type] : m_sockets) {
             if((type == Type::Ui && is_ext) || (type == Type::Extension && !is_ext))
                 continue;
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket txt buffer", s->getBufferedAmount());
             const auto success = s->send(text, uWS::OpCode::TEXT);
-            if(!success) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket t2 buffer", s->getBufferedAmount());
-                if(!m_backPressureMutex.try_lock_for(DELAY))
+            if(success != WSSocket::SendStatus::SUCCESS) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket t2 fail", s->getBufferedAmount());
+                if(success == WSSocket::SendStatus::BACKPRESSURE && !m_backPressureMutex.try_lock_for(DELAY))
                     GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
                 return false;
             }
@@ -40,20 +40,21 @@ public:
         return !m_sockets.empty();
     }
 
-    bool send(const char* data, size_t len) {
+    bool send(const Data& ptr) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         for(auto& [s, type] : m_sockets) {
             if(type == Type::Ui) { // extension is not expected to handle binary messages
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket bin buffer", s->getBufferedAmount());
+                const auto& [data, len] = ptr.payload();
                 const auto success = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
-                if(!success) {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket b2 buffer", s->getBufferedAmount());
-                    if(!m_backPressureMutex.try_lock_for(DELAY))
+                if(success != WSSocket::SendStatus::SUCCESS) {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket b2 fail", s->getBufferedAmount());
+                    if(success == WSSocket::SendStatus::BACKPRESSURE && !m_backPressureMutex.try_lock_for(DELAY))
                            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
                     return false;
                 }
             }
         }
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "sent bin", !m_sockets.empty());
         return !m_sockets.empty();
     }
 

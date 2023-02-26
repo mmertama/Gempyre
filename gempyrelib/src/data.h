@@ -1,3 +1,6 @@
+#ifndef __DATA_H__
+#define __DATA_H__
+
 #include <iterator>
 #include <vector>
 #include "gempyre.h"
@@ -47,13 +50,15 @@ class Data {
         [[nodiscard]] bool has_owner() const;
         virtual ~Data() = default;
         Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header);
+        std::tuple<const char*, size_t> payload() const; // char* ?? todo
 #ifdef GEMPYRE_IS_DEBUG
         std::string dump() const;
 #endif
     private:
-        std::tuple<const char*, size_t> payload() const;
         std::vector<dataT> m_data;
         friend class Element;
         friend class Ui;
     };
 }
+
+#endif

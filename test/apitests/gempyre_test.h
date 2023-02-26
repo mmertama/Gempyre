@@ -6,6 +6,9 @@
 #include <memory>
 #include <string>
 #include <functional>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 namespace GempyreTest {
     void killHeadless();
@@ -13,7 +16,8 @@ namespace GempyreTest {
 public:
     void test(const std::function<void () >& f);
     void post_test(const std::function<void () >& f);
-    void test_wait();
+    void test_wait(std::chrono::milliseconds wait = std::chrono::milliseconds::max());
+    void timeout(std::chrono::milliseconds wait);
 private:
     void SetUp() override;
     void TearDown() override;

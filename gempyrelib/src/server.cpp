@@ -524,11 +524,12 @@ bool Server::send(const std::unordered_map<std::string, std::string>& object, co
     return true;
 }
 
-bool Server::send(const char* data, size_t len) {
+bool Server::send(const Gempyre::Data& ptr) {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send bin", ptr.size());
 #ifdef PULL_MODE    
     if(len < WS_MAX_LEN) {
 #endif        
-        if(!m_broadcaster->send(data, len))
+        if(!m_broadcaster->send(ptr))
             return false;
 #ifdef PULL_MODE            
     } else {

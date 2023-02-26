@@ -156,8 +156,8 @@ public:
     }
 
     
-    bool send(const char* data, size_t len) {
-        return m_server->send(data, len);
+    bool send(const Data& ptr) {
+        return m_server->send(ptr);
     }
 
     unsigned port() const {

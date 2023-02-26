@@ -522,16 +522,16 @@ void Ui::send(const DataPtr& data) {
 #ifndef DIRECT_DATA
     const auto clonedBytes = data->clone();
     m_ui->add_request([this, clonedBytes]() {
-        const auto [bytes, len] = clonedBytes->payload();
 #else
     const auto [bytes, len] = data->payload();
 #endif
-        const auto ok = m_ui->send(bytes, len);
-        if(ok && len > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
+        const auto ok = m_ui->send(*clonedBytes);
+            
+        if(ok && clonedBytes->size() > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
             send(root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
         }                                        //multiple tiles
-        return ok;
 #ifndef DIRECT_DATA
+    return ok;
     });
 #endif
 }
@@ -716,8 +716,14 @@ void Ui::eventLoop(bool is_main) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "do request");
             auto topRequest = m_ui->take_request();
             if(!topRequest()) { //yes I wanna  mutex to be unlocked
+                if(!m_ui->has_requests())
+                    std::this_thread::sleep_for(10ms); // busyness
                 m_ui->put_request(std::move(topRequest));
             }
+        }
+
+        if(m_ui->has_requests()) {
+             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "unfinished business", m_ui->state_str(), m_ui->is_connected());
         }
 
         //if there are responses they must be handled

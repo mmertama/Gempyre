@@ -43,6 +43,6 @@ int App::received(const char* cstr)
             send_message(msg.c_str());
         }
     }
-    std::cout << "Received " << js << std::endl;
+    //std::cout << "Received " << js << std::endl;
     return 0;
 }

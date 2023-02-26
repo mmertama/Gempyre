@@ -55,6 +55,7 @@ CanvasElement::~CanvasElement() {
 
 
 void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, bool as_draw) {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "paint", x_pos, y_pos, as_draw);
     if(!canvas) {
         GempyreUtils::log(GempyreUtils::LogLevel::Error, "Won't paint as canvas is NULL");
         return;

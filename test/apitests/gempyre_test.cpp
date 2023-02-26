@@ -13,20 +13,29 @@ const std::vector<std::string_view> speed_params  = {
         "--disable-dev-shm-usage", // ???
         "--no-zygote", // wtf does that mean ?
         "--use-gl=swiftshader", // better cpu usage with --use-gl=desktop rather than --use-gl=swiftshader, still needs more testing.
-        "--enable-webgl",
-        "--hide-scrollbars",
-        "--mute-audio",
-        "--no-first-run",
-        "--disable-infobars",
-        "--disable-breakpad",
-        "--window-size=1280,1024", // see defaultViewport
+        "--enable-webgl"
+    };
+
+const std::vector<std::string_view> common_params  = {
+    "--window-size=1280,1024", // see defaultViewport
         "--no-sandbox", // meh but better resource comsuption
         "--disable-setuid-sandbox",
         "--ignore-certificate-errors",
         "--disable-extensions",
         "--disable-gpu",
-        "--no-sandbox"
-    };
+        "--no-sandbox",
+        "--disable-software-rasterizer",
+        "--disable-features=DefaultPassthroughCommandDecoder",
+        "--disable-extensions",
+        "--disable-translate",
+        "--disable-sync",
+        "--use-angle=swiftshader",
+        "--hide-scrollbars",
+        "--mute-audio",
+        "--no-first-run",
+        "--disable-infobars",
+        "--disable-breakpad"
+};
 
 static
 std::string headlessParams(bool log = false) {
@@ -35,13 +44,13 @@ std::string headlessParams(bool log = false) {
 #else
     const auto temp = GempyreUtils::path_pop(GempyreUtils::temp_name());
 #endif
-    return GempyreUtils::join(speed_params, " ") +  R"( --headless --remote-debugging-port=9222 --user-data-dir=)" +
+    return GempyreUtils::join(common_params, " ")  + " " + GempyreUtils::join(speed_params, " ") +  R"( --headless --remote-debugging-port=9222 --user-data-dir=)" +
 #ifdef WINDOWS_OS
             GempyreUtils::substitute(temp, "/", "\\") + " --no-sandbox --disable-gpu "
 #else
             temp
 #endif
-            + (log ? R"( --enable-logging --v=0)" : " --disable-logging ");
+            + (log ? R"( --enable-logging --v=0 )" :  R"( --disable-logging --log-level=3 --log-path=/dev/null )");
 
 }
 
@@ -100,8 +109,22 @@ void TestUi::SetUp() {
     m_postFunc = nullptr;
 }
 
-void TestUi::test_wait() {
+void TestUi::test_wait(std::chrono::milliseconds wait) {
     m_state |= WAIT;
+    m_ui->after(wait, [this]() {
+        m_ui->exit();
+    });
+    m_ui->run();
+}
+
+
+void TestUi::timeout(std::chrono::milliseconds wait) {
+    m_state |= WAIT;
+    m_ui->after(wait, [this, wait]() {
+        m_ui->exit();
+        // FAIL do return this function
+        FAIL() << "Timeout in " << m_current_test << " waited: " << wait.count() << "ms";
+    });
     m_ui->run();
 }
 
