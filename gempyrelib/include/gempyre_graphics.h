@@ -78,7 +78,7 @@ public:
     void paint_image(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
     void draw(const CommandList& canvasCommands);
     void draw(const FrameComposer& frameComposer);
-    void draw(const Bitmap& bmp, int x, int y);
+    void draw(int x, int y, const Bitmap& bmp);
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
     void draw_completed(DrawCallback&& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
     void erase(bool resized = false);
@@ -100,9 +100,15 @@ namespace  Color {
         return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
     }
 
+
     [[nodiscard, deprecated("Use snake")]] static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {return rgba_clamped(r, g, b, a);}
+    
     [[nodiscard]] static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
         return r | (g << 8) | (b << 16) | (a << 24);
+    }
+
+    [[nodiscard]] static constexpr inline type rgb(type r, type g, type b) {
+        return r | (g << 8) | (b << 16) | (0xFF << 24);
     }
 
     [[nodiscard]] static constexpr inline type r(type pixel) {
@@ -189,10 +195,10 @@ public:
     [[nodiscard]] int height() const;
     void swap(Bitmap& other);
     void draw_rect(const Element::Rect& rect, Color::type color);
-    [[deprecated("use merge(other, x, y)")]] void merge(const Bitmap& other) {merge(other, 0, 0);}
-    void merge(const Bitmap& other, int x, int y);
+    [[deprecated("use merge(other, x, y)")]] void merge(const Bitmap& other) {merge(0, 0, other);}
+    void merge(int x, int y, const Bitmap& other);
 protected:
-    void copy(const Bitmap& other);
+    void copy_from(const Bitmap& other);
 private:
     friend class Gempyre::CanvasElement;
     Gempyre::CanvasDataPtr m_canvas;
@@ -203,9 +209,9 @@ private:
 public:
     Graphics(const Gempyre::CanvasElement& element, int width, int height) : Bitmap(width, height), m_element(element) {};
     Graphics(const Gempyre::CanvasElement& element) : m_element(element) {};
-    void update() {m_element.draw(*this, 0, 0);}
+    void update() {m_element.draw(0, 0, *this);}
     Graphics clone() const {Graphics other(m_element, width(), height());
-        other.copy(*this);
+        other.copy_from(*this);
         return other;
     }
 private:

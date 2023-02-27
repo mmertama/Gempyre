@@ -521,12 +521,13 @@ void Ui::exit() {
 void Ui::send(const DataPtr& data) {
 #ifndef DIRECT_DATA
     const auto clonedBytes = data->clone();
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send ui_bin", clonedBytes->size());
     m_ui->add_request([this, clonedBytes]() {
 #else
     const auto [bytes, len] = data->payload();
 #endif
         const auto ok = m_ui->send(*clonedBytes);
-            
+        // not sure if this is needed any more as there are other fixes that has potentially fixed this
         if(ok && clonedBytes->size() > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
             send(root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
         }                                        //multiple tiles

@@ -20,6 +20,8 @@ using namespace Gempyre;
 
 constexpr unsigned short DEFAULT_PORT  = 30000;
 constexpr unsigned short PORT_ATTEMPTS = 50;
+constexpr unsigned PAYLOAD_SIZE = 4 * 1024 * 1024;
+constexpr unsigned BACKPRESSURE_SIZE = 4 * 1024 * 1024;
 
 #ifdef PULL_MODE
 constexpr size_t WS_MAX_LEN = 16 * 1024;
@@ -286,7 +288,8 @@ void Server::serverThread(unsigned int port) {
     behavior.close = [this](auto ws, auto code, auto message) {
         Gempyre::SocketHandler(*this).closeHandler(ws, code, message);
     };
-    //  bh.maxPayloadLength = 1024 * 1024;
+    behavior.maxPayloadLength =  PAYLOAD_SIZE;
+    behavior.maxBackpressure = BACKPRESSURE_SIZE;
     behavior.drain = [this](auto ws) {
         GempyreUtils::log(GempyreUtils::LogLevel::Warning, "drain", ws->getBufferedAmount());
         m_broadcaster->unlock(); //release backpressure wait
@@ -525,7 +528,6 @@ bool Server::send(const std::unordered_map<std::string, std::string>& object, co
 }
 
 bool Server::send(const Gempyre::Data& ptr) {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send bin", ptr.size());
 #ifdef PULL_MODE    
     if(len < WS_MAX_LEN) {
 #endif        

@@ -72,7 +72,7 @@ void draw_frame(
                 target.set_pixel(x, y, palette[pixel(fire, x, y, w)]);
             }
         }
-    canvas.draw(target, 0, 0);
+    canvas.draw(0, 0, target);
 }
 
 void draw_fps(Gempyre::Ui& ui, unsigned& fps_count, Time& start) {
@@ -116,6 +116,7 @@ void amain( Gempyre::Ui& ui, Gempyre::CanvasElement& canvas_element, const Gempy
 }
 
 int main(int /*argc*/, char** /*argv*/) {
+    Gempyre::set_debug(true);
     Gempyre::Ui ui{Fire_resourcesh, "fire.html"};
     Gempyre::CanvasElement canvas_element{ui, "canvas"};
     const auto image_data = ui.resource("/grunge-skull.png");

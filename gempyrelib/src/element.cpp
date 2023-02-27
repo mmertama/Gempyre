@@ -180,7 +180,7 @@ void Data::writeHeader(const std::vector<dataT>& header) {
 }
 
 std::tuple<const char*, size_t> Data::payload() const {
-    return {reinterpret_cast<const char*>(m_data.data()), m_data.size() * sizeof(dataT)};
+    return {reinterpret_cast<const char*>(m_data.data()), size()};
 }
 
 dataT* Data::data() {
@@ -196,7 +196,7 @@ unsigned Data::elements() const {
 }
 
 DataPtr Data::clone() const {
-    auto ptr = std::shared_ptr<Data>(new Data(size(), m_data[0], owner(), header()));
+    auto ptr = std::shared_ptr<Data>(new Data(elements(), m_data[0], owner(), header()));
     std::copy(begin(), end(), ptr->begin());
     return ptr;
 }

@@ -85,11 +85,14 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
 
     bool is_last = false;
 
+    assert(y < canvas_height);
+    assert(x < canvas_width);
+
     for(auto j = y ; j < canvas_height ; j += TileHeight) {
         const auto height = std::min(TileHeight, canvas_height - j);
         for(auto i = x ; i < canvas_width ; i += TileWidth) {
             assert(!is_last);
-            is_last = (canvas_height - j < TileHeight) && (canvas_width - i < TileWidth);
+            is_last = (canvas_height - j <= TileHeight) && (canvas_width - i <= TileWidth);
             const auto width = std::min(TileWidth, canvas_width - i);
             const auto srcPos = canvas->data() + i + (j * canvas->width());
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Copy canvas frame", i, j, width, height);
@@ -115,7 +118,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
             send(m_tile->ptr());
         }
     }
-    assert(is_last || y >= canvas_height || x >= canvas_width);
+    assert(is_last);
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sent canvas data");
 }
 
@@ -239,7 +242,7 @@ void CanvasElement::erase(bool resized) {
     draw({"clearRect", 0, 0, m_width, m_height});
 }
 
-void CanvasElement::draw(const Gempyre::Bitmap& bmp, int x, int y ) {
+void CanvasElement::draw(int x, int y, const Gempyre::Bitmap& bmp) {
      if(bmp.m_canvas)
         paint(bmp.m_canvas, x, y, true);
 }
@@ -298,7 +301,7 @@ void Bitmap::draw_rect(const Element::Rect& rect, Color::type color) {
     }
 }
 
-void Bitmap::merge(const Bitmap& bitmap, int x_pos, int y_pos) {
+void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
     if(bitmap.m_canvas == m_canvas)
         return;
 
@@ -395,17 +398,19 @@ void Bitmap::swap(Bitmap& other) {
 Bitmap Bitmap::clone() const {
         Bitmap other;
         other.create(m_canvas->width(), m_canvas->height());
-        other.copy(*this);
+        other.copy_from(*this);
         return other;
     }
 
-void Bitmap::copy(const Bitmap& other) {
+
+void Bitmap::copy_from(const Bitmap& other) {
     assert(other.width() == width());
     assert(other.height() == height());
     if(m_canvas == other.m_canvas)
         return;
-    std::copy(m_canvas->ptr()->begin(), m_canvas->ptr()->end(), other.m_canvas->data());
+    std::copy(other.m_canvas->ptr()->begin(), other.m_canvas->ptr()->end(), m_canvas->data());
 }
+
 
  CanvasData::CanvasData(int w, int h, const std::string& owner) :
     m_data{std::make_shared<Data>(
