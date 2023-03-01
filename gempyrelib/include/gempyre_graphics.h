@@ -182,12 +182,6 @@ public:
     void create(int width, int height);
     Bitmap clone() const;
     static constexpr Color::type pix(Color::type r, Color::type g, Color::type b, Color::type a = 0xFF) {return Color::rgba(r, g, b, a);}
-    [[deprecated("Use Color")]] static constexpr Color::type Black = Color::Black;
-    [[deprecated("Use Color")]] static constexpr Color::type White = Color::White;
-    [[deprecated("Use Color")]] static constexpr Color::type Red = Color::Red;
-    [[deprecated("Use Color")]] static constexpr Color::type Green = Color::Green;
-    [[deprecated("Use Color")]] static constexpr Color::type Blue = Color::Blue;
-
     void set_pixel(int x, int y, Color::type color);
     void set_alpha(int x, int y, Color::type alpha);
     Color::type pixel(int x, int y) const;
@@ -195,7 +189,6 @@ public:
     [[nodiscard]] int height() const;
     void swap(Bitmap& other);
     void draw_rect(const Element::Rect& rect, Color::type color);
-    [[deprecated("use merge(other, x, y)")]] void merge(const Bitmap& other) {merge(0, 0, other);}
     void merge(int x, int y, const Bitmap& other);
 protected:
     void copy_from(const Bitmap& other);
@@ -207,9 +200,15 @@ private:
  class // bw compatibility
 [[deprecated("Use Bitmap")]] Graphics : public Bitmap {
 public:
+    [[deprecated("Use Color")]] static constexpr Color::type Black = Color::Black;
+    [[deprecated("Use Color")]] static constexpr Color::type White = Color::White;
+    [[deprecated("Use Color")]] static constexpr Color::type Red = Color::Red;
+    [[deprecated("Use Color")]] static constexpr Color::type Green = Color::Green;
+    [[deprecated("Use Color")]] static constexpr Color::type Blue = Color::Blue;
     Graphics(const Gempyre::CanvasElement& element, int width, int height) : Bitmap(width, height), m_element(element) {};
     Graphics(const Gempyre::CanvasElement& element) : m_element(element) {};
     void update() {m_element.draw(0, 0, *this);}
+    void merge(const Graphics& other) {Bitmap::merge(0, 0, other);}
     Graphics clone() const {Graphics other(m_element, width(), height());
         other.copy_from(*this);
         return other;
