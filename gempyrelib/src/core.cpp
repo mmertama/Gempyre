@@ -740,11 +740,12 @@ void Ui::eventLoop(bool is_main) {
 
         //events must be last as they may generate more requests or responses
         m_ui->consume_events(*this);
-
+#if 0
         // Todo: Here all pending tasks are done, but this starts a loop again. I.e. make a busy loop. Therefore in NEXT version 
         // this thread should hold here either for a timer thread or a service thread wakeup. For timebeing just add miniscle sleep
         // that is really a poor solution, but avoids CPU 100%
         std::this_thread::sleep_for(10ms);
+#endif
 
     }
     GEM_DEBUG("Eventloop exit");

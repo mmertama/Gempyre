@@ -346,15 +346,11 @@ public:
     }
 
     void wait_events() {
-        if(!m_sema.empty()) {
-            const auto start = std::chrono::steady_clock::now();
-
-            m_sema.wait();
-
-            const auto end = std::chrono::steady_clock::now();
-            const auto duration = end - start;
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
-        }
+        const auto start = std::chrono::steady_clock::now();
+        m_sema.wait();
+        const auto end = std::chrono::steady_clock::now();
+        const auto duration = end - start;
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
     }
 
 
