@@ -1,5 +1,6 @@
 #include "gempyre_test.h"
 #include "gempyre_graphics.h"
+#include <array>
 
 using namespace std::chrono_literals;
 using namespace GempyreTest;

@@ -18,7 +18,7 @@ Gempyre itself does not contain an application window. The UI is drawn using ext
 Gempyre is a library that is linked with the application, except for Android, see [Gempyre-Android](https://github.com/mmertama/Gempyre-Android). For Python, install [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) on top of Gempyre library.
 
 
-### Gempyre API has few headers
+### Gempyre API has few headers (deprecated)
 
 * [Gempyre core in _gempyre.h_](gempyre.md), everything that basic application needs.
 * [Gempyre Utils in _gempyre_utils.h_](gempyre_utils.md), miscellaneous collection or function that helps writing applications. 
@@ -97,7 +97,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 * Support for secure web socket (nice for remote UIs)
 * Testing coverage and perf measurements.
 * JS testing  
-* Cleaning code and refactoring (API behind PIMPL?, string_views instead of strings when possible, meaningless std::any for code encapsulation)
+* String_views instead of strings when possible, meaningless std::any for code encapsulation)
 * Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
 * Reconsider libwebsockets instead of uWebsockets.
 * Apply Wpedantic
@@ -131,6 +131,11 @@ Late updates
 
 * Lot of fixes
 * Raspberry, and imporoved MinGW support
+
+## 2023
+* Lot of fixed
+* API changes and harmonize with GemGui-rs
+* Testing coverage
 
 Copyright Markus Mertama 2020, 2021, 2022
 

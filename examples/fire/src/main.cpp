@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cmath>
 #include <cassert>
+#include <array>
 
 using Time = decltype(std::chrono::steady_clock::now());
 
@@ -96,7 +97,7 @@ void amain( Gempyre::Ui& ui, Gempyre::CanvasElement& canvas_element, const Gempy
         draw_frame(canvas_element, *canvas, *fire_buffer, palette);
         ++fps_count;
     }, Gempyre::CanvasElement::DrawNotify::Kick);
-    ui.start_periodic(50ms, [&ui, rect, fire_buffer, &bmp, &canvas_element, canvas, &start, &fps_count]() {
+    ui.start_periodic(50ms, [&ui, rect, fire_buffer, &bmp, canvas, &start, &fps_count]() {
         auto& fire = *fire_buffer;
         draw_fire(*canvas, fire);
         const auto left = (rect->width - bmp.width()) / 2;
