@@ -126,7 +126,7 @@ std::string CanvasElement::add_image(const std::string& url, const std::function
     const auto name = generateId("image");
     Gempyre::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
-        imageElement.subscribe("load", [this, loaded, name, url](const Gempyre::Event&) {
+        imageElement.subscribe("load", [loaded, name](const Gempyre::Event&) {
             loaded(name);
         }, {"complete"});
     imageElement.set_attribute("style", "display:none");
@@ -212,20 +212,25 @@ void CanvasElement::draw(const FrameComposer& frameComposer) {
 }
 
 
-void CanvasElement::draw_completed(DrawCallback&& drawCompletedCallback, DrawNotify kick) {
-    subscribe("event_notify", [this](const Event& ev) {
-        if(m_drawCallback && ev.properties.at("name") == "canvas_draw") {
-            m_drawCallback();
-        }
-    });
-    m_drawCallback = std::move(drawCompletedCallback);
+void CanvasElement::draw_completed(const DrawCallback& drawCallback, DrawNotify kick) {
+    
     send("event_notify", std::unordered_map<std::string, std::any>{
-                   {"name", "canvas_draw"},
-                   {"add", m_drawCallback != nullptr}
-               });
-    if(kick == DrawNotify::Kick) {
-        ui().after(0ms, m_drawCallback);
-    }
+        {"name", "canvas_draw"},
+        {"add", drawCallback != nullptr}});
+
+    if (drawCallback) {
+
+        if(kick == DrawNotify::Kick) {
+            ui().after(0ms, drawCallback);
+        }
+
+        subscribe("event_notify", [drawCallback](const Event& ev) {
+
+            if(ev.properties.at("name") == "canvas_draw") {
+                drawCallback();
+            }
+        });  
+    }         
 
 }
 
@@ -262,7 +267,7 @@ Bitmap::Bitmap(const std::vector<unsigned char>& image_data)  {
         throw std::runtime_error(lodepng_error_text(error)); // or use return value as exceptions not used? TODO: Think
         }
 
-    create(width, height);
+    create(static_cast<int>(width), static_cast<int>(height));
     assert(m_canvas);
     auto ptr = reinterpret_cast<unsigned char*>(m_canvas->data());
     std::copy(image.begin(), image.end(), ptr);    

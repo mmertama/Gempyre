@@ -5,6 +5,8 @@
 
 using namespace GempyreTest;
 
+#define FAST
+
 // collection of parameters that may speed up the chromium perf on headless
 const std::vector<std::string_view> speed_params  = {
         "--disable-canvas-aa", // Disable antialiasing on 2d canvas
@@ -86,21 +88,59 @@ enum State : unsigned {
     TEST = 0x2
 };
 
+TestUi::TestUi() {
+    GempyreUtils::set_log_level(GempyreUtils::LogLevel::Info);
+}
+
+TestUi::~TestUi() {
+}
+
+void TestUi::SetUpTestSuite() {
+}
+
+void TestUi::TearDownTestSuite() {
+    if(m_ui) {
+        m_ui->after(0s, [](){
+            m_ui->exit();
+        });
+        m_ui->resume();
+    }
+    m_ui.reset();
+}
+
 void TestUi::SetUp() {
-    const auto chrome = systemChrome();
-    m_ui = std::make_unique<Gempyre::Ui>(
-                Apitests_resourceh,
-                "apitests.html",
-                    chrome ? chrome.value() : "",
+    if(!m_ui) {
+        const auto chrome = systemChrome();
+        if(!chrome) {
+             GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chrome not found!");
+            FAIL() <<"Chrome not found!";
+            std::exit(1);
+        }
+        m_ui = std::make_unique<Gempyre::Ui>(
+                    Apitests_resourceh,
+                    "apitests.html",
+                    *chrome,
                     headlessParams());
-    m_ui->on_error([this](const auto& element, const auto& info) {
-        std::cerr << element << " err:" << info;
-        EXPECT_TRUE(false);
-        std::exit(1);
-    });
-    m_ui->on_open([](){
-        GEM_DEBUG("test ui on");
-    });    
+        m_ui->on_error([](const auto& element, const auto& info) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, element, "err:", info);
+            EXPECT_TRUE(false);
+            std::exit(1);
+        });
+        const auto wait_start = GempyreUtils::wait_expire(10s, []() {
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chorome not start");
+            FAIL() <<"Chrome not start!";
+            std::exit(2);
+            });
+        m_ui->on_open([wait_start](){
+            GEM_DEBUG("test ui on");
+        });
+#ifdef FAST
+        m_ui->after(0ms, []() {
+            m_ui->suspend();
+        });
+        m_ui->run();
+#endif
+    }
 
     const auto test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     m_current_test = test_name;
@@ -109,37 +149,62 @@ void TestUi::SetUp() {
     m_postFunc = nullptr;
 }
 
+void TestUi::exit() {
+#ifdef FAST
+    m_ui->suspend();
+#else
+    m_ui->exit();
+#endif
+}
+
+void TestUi::run() {
+ #ifdef FAST
+    m_ui->resume();
+ #else   
+    m_ui->run();
+#endif
+}
+
+void TestUi::finish() {
+#ifndef FAST
+    m_ui.reset();
+    killHeadless(); 
+#endif     
+}
+
 void TestUi::test_wait(std::chrono::milliseconds wait) {
     m_state |= WAIT;
     m_ui->after(wait, [this]() {
-        m_ui->exit();
+        exit();
     });
-    m_ui->run();
+    run();
 }
+
 
 
 void TestUi::timeout(std::chrono::milliseconds wait) {
     m_state |= WAIT;
-    m_ui->after(wait, [this, wait]() {
-        m_ui->exit();
+    ui().after(wait, [this, wait]([[maybe_unused]] const auto tid) {
+        exit();
         // FAIL do return this function
-        FAIL() << "Timeout in " << m_current_test << " waited: " << wait.count() << "ms";
+        FAIL() << "Timeout in " << m_current_test << " waited: " << wait.count() << "ms ";
     });
-    m_ui->run();
+    run();
 }
 
 
 void TestUi::TearDown() {
     const auto test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     assert(test_name == m_current_test);
-    GEM_DEBUG("Teardown", test_name);
-    if((! (m_state & WAIT)) && m_state & TEST)
-        m_ui->run();
+    if((! (m_state & WAIT)) && m_state & TEST) {
+        run();
+
+    }  
     if(m_postFunc)
         m_postFunc();
     m_postFunc = nullptr;
-    m_ui.reset();
-    killHeadless();    
+
+    finish();
 }
 
 void TestUi::test(const std::function<void () >& f) {
@@ -150,7 +215,7 @@ void TestUi::test(const std::function<void () >& f) {
         if(f)
             f();
         if(! (m_state & WAIT)) {
-            m_ui->exit();
+            exit();
             GEM_DEBUG("test exit out", m_current_test);
         }
     });
@@ -160,3 +225,23 @@ void TestUi::test(const std::function<void () >& f) {
         m_postFunc = f;
  }
 
+void TestUi::test_exit() {
+    exit();
+}
+
+Gempyre::Ui& TestUi::ui() {
+    return *m_ui;
+}
+
+std::string_view TestUi::current_test() const {
+    return m_current_test;
+}
+
+int main(int argc, char **argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+   for(int i = 1 ; i < argc; ++i)
+       if(argv[i] == std::string_view("--verbose"))
+            Gempyre::set_debug();
+  killHeadless(); // there may be unwanted processes
+  return RUN_ALL_TESTS();
+}

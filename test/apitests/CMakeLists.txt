@@ -19,10 +19,12 @@ add_executable(${PROJECT_NAME}
     graphics_test.cpp
     gempyre_test.h
     gempyre_test.cpp
-    gui/${PROJECT_NAME}.html
-    gui/spiderman1.png
-    gui/spiderman2.jpg
     )
+
+if(ASAN)    
+    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    target_link_options(${PROJECT_NAME} PRIVATE  -fsanitize=address)  
+endif()     
 
 gtest_discover_tests(${PROJECT_NAME})
 
@@ -40,8 +42,12 @@ configure_file(gui/${PROJECT_NAME}.html ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NA
 # set test app name
 add_compile_definitions(TEST_BINARY="${TEST_PROXY_BINARY}")
 
+add_custom_target(gui_src DEPENDS
+    gui/${PROJECT_NAME}.html
+    gui/spiderman1.png
+    gui/spiderman2.jpg)
 
-add_dependencies (${PROJECT_NAME} gempyre)
+add_dependencies (${PROJECT_NAME} gempyre gui_src)
 find_library(gtest PATHS ${TEST_LIBRARY_DIR})
 
 target_link_libraries (${PROJECT_NAME}

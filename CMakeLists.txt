@@ -75,6 +75,12 @@ option(HAS_EXAMPLES "Examples are built" ON)
 option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" OFF)
 
 
+# Google actions uses GCC version that have issue: https://stackoverflow.com/questions/12523122/what-is-glibcxx-use-nanosleep-all-about
+#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#  #add_compile_options(--enable-libstdcxx-time)
+#  add_compile_definitions(_GLIBCXX_USE_NANOSLEEP)
+#endif()
+
 if(HAS_AFFILIATES)
     add_subdirectory(affiliates)
 endif()

@@ -11,6 +11,7 @@
 #include <string_view>
 #include <string>
 #include <atomic>
+#include <cassert>
 
 
 #include "semaphore.h"
@@ -44,7 +45,8 @@ public:
            const MessageFunction& onMessage,
            const CloseFunction& onClose,
            const GetFunction& onGet,
-           const ListenFunction& onListen);
+           const ListenFunction& onListen,
+           int querIdBase);
     bool isJoinable() const {return m_serverThread && m_serverThread->joinable();}
     // joinable does not mean it is running, and not running does not mean it soon wont :-)
     bool isRunning() const {return isJoinable() && m_isRunning;}
@@ -82,7 +84,7 @@ private:
     const ListenFunction m_onListen;
     ListenSocket m_closeData = nullptr; //arbitrary
     bool m_uiready = false;
-    mutable int m_queryId = 0;
+    mutable int m_queryId;
     std::unique_ptr<Batch> m_batch;
     std::unordered_map<std::string, std::pair<DataType, std::string>> m_pulled;
     int m_pulledId = 0;

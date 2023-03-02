@@ -80,7 +80,7 @@ public:
     void draw(const FrameComposer& frameComposer);
     void draw(int x, int y, const Bitmap& bmp);
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
-    void draw_completed(DrawCallback&& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
+    void draw_completed(const DrawCallback& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
     void erase(bool resized = false);
     [[nodiscard, deprecated]] bool has_canvas() const {return !!m_tile;}
 private:
@@ -90,7 +90,6 @@ private:
     CanvasDataPtr m_tile;
     int m_width{0};
     int m_height{0};
-    DrawCallback m_drawCallback{nullptr};
 };
 
 namespace  Color {
@@ -108,7 +107,7 @@ namespace  Color {
     }
 
     [[nodiscard]] static constexpr inline type rgb(type r, type g, type b) {
-        return r | (g << 8) | (b << 16) | (0xFF << 24);
+        return r | (g << 8) | (b << 16) | (static_cast<type>(0xFF) << 24);
     }
 
     [[nodiscard]] static constexpr inline type r(type pixel) {

@@ -120,6 +120,7 @@ class ErrStream : public LogWriter {
 };
 #endif
 
+
 template <size_t SZ>
 class LogStream : public std::streambuf {
 public:
@@ -152,8 +153,18 @@ private:
         pbump(static_cast<int>(-n));
     }
 private:
-    char m_buffer[SZ + 1];
-    LogWriter* m_logWriter;
+    char m_buffer[SZ + 1] = {'\0'};
+    LogWriter* m_logWriter = nullptr;
+};
+
+
+class DevNull : public LogWriter {
+    bool do_write(const char* bytes, size_t count) override {
+       (void) count;
+       (void) bytes;
+       return true;
+    }
+    bool has_ansi() const override {return true;} 
 };
 
 
@@ -186,6 +197,7 @@ std::ostream GempyreUtils::log_stream(LogLevel logLevel) {
 }
 
 
+
 LogWriter::LogWriter() : m_previousLogWriter(g_logWriter) 
 {
     g_logWriter = this;
@@ -195,6 +207,13 @@ LogWriter::~LogWriter()
 {
     g_logWriter = m_previousLogWriter;
 }
+
+/* not needed ?
+void LogWriter::set_none() {
+    static DevNull dev_null;
+    g_logWriter = &dev_null;
+}
+*/
 
 bool LogWriter::has_ansi() const {
     return false;

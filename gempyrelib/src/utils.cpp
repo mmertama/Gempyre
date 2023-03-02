@@ -1014,6 +1014,7 @@ std::string GempyreUtils::root_dir() {
 }
 
 void GempyreUtils::process_exit(int exitCode) {
+    set_log_level(GempyreUtils::LogLevel::None); // There is something gone and logs do dangling
 #ifdef WINDOWS_OS
     PostQuitMessage(exitCode); // try to flush buffers
     Sleep(20); //20ms

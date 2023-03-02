@@ -1,7 +1,7 @@
 #cmake_minimum_required (VERSION 3.18)
 
 
-project (gempyre VERSION 1.0.0 LANGUAGES CXX C)
+project (gempyre VERSION 1.0.1 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -32,6 +32,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 else()
     message(FATAL_ERROR "Cannot identify compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
+
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER)
 if (${LOWER} STREQUAL debug)
@@ -67,8 +68,8 @@ if(BLEEDING_EDGE)
 else()
     set(LIB_UV_VER  v1.44.2)
     set(LIB_JSON_VER v3.9.0)
-    set(LIB_SOCKETS_VER v0.8.5)
-    set(LIB_WS_VER v20.36.0)
+    set(LIB_SOCKETS_VER v0.7.1)
+    set(LIB_WS_VER v20.13.0)
     set(LIB_ZLIB_VER v1.2.11)
     set(LIB_PFD_VER main v0.1.0)
     set(LIB_PNG_VER master) # no version

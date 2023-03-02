@@ -70,6 +70,17 @@ public:
         return m_events.size();
     }
 
+    void clear() {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        m_events.clear();
+    }
+
+    auto keys() const {
+        std::vector<std::string> k;
+        std::transform(m_events.begin(), m_events.end(), std::back_inserter(k), [](const auto& v) {return v.first;});
+        return k;
+    }
+
 private:
     std::unordered_map<Key, Event> m_events;
     mutable std::mutex m_mutex;

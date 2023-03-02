@@ -116,8 +116,8 @@ public:
             if(it == m_sockets.end())
                 return;
             auto ws = it->first;
-            ws->close();
             remove(ws);
+            ws->close();
         }
     }
 

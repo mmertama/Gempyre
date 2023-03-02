@@ -67,6 +67,7 @@ namespace Gempyre {
         using Attributes = std::unordered_map<std::string, std::string>;
         using Values = std::unordered_map<std::string, std::string>;
         using Elements = std::vector<Element>;
+        using SubscribeFunction = std::function<void(const Event&)>;
         struct Rect {
             int x;
             int y;
@@ -85,12 +86,12 @@ namespace Gempyre {
         Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent);
         Element(Ui& ui, const std::string& htmlElement, const Element& parent);
 
-        virtual ~Element() = default;
+        virtual ~Element();
         [[nodiscard]] const Ui& ui() const { return *m_ui; }
         [[nodiscard]] Ui& ui() { return *m_ui;}
 
         [[nodiscard]] std::string id() const {return m_id;}
-        Element& subscribe(const std::string& name, std::function<void(const Event& ev)> handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
+        Element& subscribe(const std::string& name, const SubscribeFunction& handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
         Element& set_html(const std::string& htmlText);
         Element& set_attribute(const std::string& attr, const std::string& value = "");
         std::optional<Attributes> attributes() const;
@@ -163,13 +164,13 @@ namespace Gempyre {
 
 
         ///The callback is called before before the eventloop exit.
-        ExitFunction on_exit(ExitFunction&& onExitFunction);
+        ExitFunction on_exit(const ExitFunction& onExitFunction);
         ///The callback is called on UI reload.
-        ReloadFunction on_reload(ReloadFunction&& onReleadFunction);
+        ReloadFunction on_reload(const ReloadFunction& onReleadFunction);
         ///The callback is called on UI open.
-        OpenFunction on_open(OpenFunction&& onOpenFunction);
+        OpenFunction on_open(const OpenFunction& onOpenFunction);
         ///The callback is called on error.
-        ErrorFunction on_error(ErrorFunction&& onErrorFunction);
+        ErrorFunction on_error(const ErrorFunction& onErrorFunction);
         ///Starts the event loop.
         void run();
 
@@ -188,7 +189,6 @@ namespace Gempyre {
         TimerId start_periodic(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
         ///Starts a perdiodic timer.
         TimerId start_periodic(const std::chrono::milliseconds& ms, const std::function<void ()>& timerFunc);
-
 
         ///Starts a single shot timer.
         TimerId after(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
@@ -239,6 +239,12 @@ namespace Gempyre {
         void set_title(const std::string& name);
         /// load file as a maps
         static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
+
+        // for testing
+        void resume();
+        // for testing
+        void suspend();
+        
     private:
         Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root, const std::unordered_map<std::string, std::string>& parameters);
         void send(const DataPtr& data);
@@ -246,7 +252,6 @@ namespace Gempyre {
         template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
         void pendingClose();
         void eventLoop(bool is_main);
-        //inline void addRequest(std::function<bool()>&&);
         std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
         
         void openHandler();
