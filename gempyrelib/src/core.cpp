@@ -275,7 +275,8 @@ Ui::Ui(const Filemap& filemap,
     {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},
     {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
     {height > 0 ? HEIGHT_KEY : "", std::to_string(height)},
-    {GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "", "debug=True" }}){}
+    {GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "",
+    "" }}){}
 
 
 Ui::Ui(const Filemap& filemap,
@@ -355,7 +356,7 @@ void Ui::closeHandler(Gempyre::CloseStatus closeStatus, int code) { //close
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Gempyre close",  m_ui->state_str(),
                       static_cast<int>(closeStatus), m_ui->is_connected(), code);
 
-    if(*m_ui != State::EXIT && (closeStatus != CloseStatus::EXIT  && (closeStatus == CloseStatus::CLOSE && m_ui->is_connected()))) {
+    if(*m_ui != State::EXIT && (closeStatus != CloseStatus::EXIT  && (closeStatus == CloseStatus::CLOSE /*&& m_ui->is_connected()*/))) {
         pendingClose();
     } else if(closeStatus == CloseStatus::FAIL) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Fail, Status change --> Retry");
@@ -377,7 +378,7 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
 
     const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
 
-     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
 
 
 #if defined (ANDROID_OS)
@@ -393,8 +394,7 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
 #endif
 
     if(result != 0) {
-        //TODO: Change to Fatal
-        GempyreUtils::log(GempyreUtils::LogLevel::Error, "gui cmd Error:", result, GempyreUtils::last_error());
+        GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "gui cmd Error:", result, GempyreUtils::last_error());
     }
     return true;
 }
@@ -442,9 +442,21 @@ Ui::Ui(const Filemap& filemap,
         set_application_icon(icon->data(), icon->size(), "ico");
 }
 
+// destoructor is slow due server thread close is slow (join) - to be fixed (?) when uwebsocket will be ditched
 Ui::~Ui() {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ui Destructor");
-    exit();
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ui Destructor", m_ui ? m_ui->state_str() : "N/A");
+    if(m_ui) {
+        if(*m_ui == State::SUSPEND) {
+            m_ui->do_exit();
+        }
+        else if(*m_ui == State::RUNNING) {
+            exit();
+        }
+        else if (*m_ui != State::NOTSTARTED && *m_ui != State::EXIT) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Strange state", m_ui->state_str());
+        }
+    }
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ui Destroyed"); 
 }
 
 void Ui::pendingClose() {
@@ -452,7 +464,7 @@ void Ui::pendingClose() {
     m_ui->set(State::PENDING);
     m_ui->flush_timers(false); //all timers are run here
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start 1s wait for pending");
-    after(1000ms, [this]() { //delay as a get may come due page chage
+  //  after(1000ms, [this]() { //delay as a get may come due page chage
         if(*m_ui == State::PENDING) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending close, Status change --> Exit");
             m_ui->set(State::CLOSE);
@@ -460,7 +472,7 @@ void Ui::pendingClose() {
         } else {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending cancelled", m_ui->state_str());
         }
-    });
+   // });
 }
 
 void Ui::close() {
@@ -621,20 +633,20 @@ bool Ui::cancel_timer(TimerId id) {
     return m_ui->remove_timer(id);
 }
 
-Gempyre::Ui::ExitFunction Ui::on_exit(ExitFunction&& onUiExitFunction) {
-    return m_ui->set_on_exit(std::move(onUiExitFunction));
+Gempyre::Ui::ExitFunction Ui::on_exit(const ExitFunction& onUiExitFunction) {
+    return m_ui->set_on_exit(onUiExitFunction);
 }
 
-Gempyre::Ui::ReloadFunction Ui::on_reload(ReloadFunction&& onReloadFunction) {
-    return m_ui->set_on_reload(std::move(onReloadFunction));
+Gempyre::Ui::ReloadFunction Ui::on_reload(const ReloadFunction& onReloadFunction) {
+    return m_ui->set_on_reload(onReloadFunction);
 }
 
-Gempyre::Ui::OpenFunction Ui::on_open(OpenFunction&& onOpenFunction) {
-    return m_ui->set_on_open(std::move(onOpenFunction));
+Gempyre::Ui::OpenFunction Ui::on_open(const OpenFunction& onOpenFunction) {
+    return m_ui->set_on_open(onOpenFunction);
 }
 
-Gempyre::Ui::ErrorFunction Ui::on_error(ErrorFunction&& onErrorFunction) {
-    return m_ui->set_on_error(std::move(onErrorFunction));
+Gempyre::Ui::ErrorFunction Ui::on_error(const ErrorFunction& onErrorFunction) {
+    return m_ui->set_on_error(onErrorFunction);
 }
 
 void Ui::run() {
@@ -642,9 +654,9 @@ void Ui::run() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "run, Status change --> RUNNING");
     m_ui->set(State::RUNNING);
     eventLoop(true);
-    m_ui->do_exit();
+    if(*m_ui != State::SUSPEND)
+        m_ui->do_exit();
 }
-
 
 void Ui::eventLoop(bool is_main) {
     GEM_DEBUG("enter", is_main, m_ui->is_running());
@@ -655,6 +667,12 @@ void Ui::eventLoop(bool is_main) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is exiting");
             break;
         }
+
+         if(*m_ui == State::SUSPEND) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is suspend");
+            break;
+        }
+
 
         if(*m_ui == State::RETRY) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop will retry");
@@ -689,8 +707,8 @@ void Ui::eventLoop(bool is_main) {
         }
 
 
-        //shoot pending requests
-        m_ui->handle_requests();
+        if(m_ui->is_connected())  
+            m_ui->handle_requests();
         
 
         if(*m_ui == State::PENDING) {
@@ -862,7 +880,7 @@ std::optional<std::any> Ui::extension_get(const std::string& callId, const std::
         return m_ui->send({{"type", "extension"}, {"extension_id", queryId}, {"extension_call", callId}, {"extension_parameters", json.value()}});
     });
 
-    for(;;) {   //start waiting the response
+    while(m_ui->is_running()) {   //start waiting the response
         eventLoop(false);
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension - wait in eventloop done, back in mainloop", m_ui->state_str());
         if(*m_ui != State::RUNNING) {
@@ -946,6 +964,27 @@ bool Ui::is_timer_on_hold() const {
     return m_ui->hold();
     }
 
+
+void Ui::suspend() {
+    gempyre_utils_assert_x(*m_ui == State::RUNNING, "State is " + std::string(m_ui->state_str()));
+    gempyre_utils_assert(!is_timer_on_hold());
+    set_timer_on_hold(true);
+    m_ui->set(State::SUSPEND);
+    m_ui->clear_handlers();
+    m_ui->flush_timers(false);
+    m_ui->signal_pending();
+}
+
+void Ui::resume() {
+    if(*m_ui == State::SUSPEND) {
+        m_ui->set(State::RUNNING);
+        set_timer_on_hold(false);
+        eventLoop(true);
+    } else {
+        exit();
+    }
+}
+
 const GempyreInternal& Ui::ref() const {
     return *m_ui;
 }
@@ -965,6 +1004,14 @@ GempyreInternal& Ui::ref() {
     m_filemap(normalizeNames(filemap)),
     m_startup{[this, ui, port, indexHtml, parameters, root]() {
 
+    auto last_query_id  = 0;
+    for(const auto& id_string : m_responsemap.keys()) {
+        const auto id = GempyreUtils::convert<int>(id_string);
+        if(id > last_query_id)
+            last_query_id = id;
+    }
+
+    m_responsemap.clear();
     
     // This is executed in m_startup 
     m_server = std::make_unique<Server>(
@@ -974,6 +1021,7 @@ GempyreInternal& Ui::ref() {
                    [ui](const Server::Object& obj){ui->messageHandler(obj);},
                    [ui](CloseStatus status, int code){ui->closeHandler(status, code);},
                    [ui](const std::string_view& name){return ui->getHandler(name);},
-                   [indexHtml, parameters, ui](int listen_port){return ui->startListen(indexHtml, parameters, listen_port);}
+                   [indexHtml, parameters, ui](int listen_port){return ui->startListen(indexHtml, parameters, listen_port);},
+                   last_query_id + 1 // if m_server is created second time it is good that this is > as 1st as pending queries may cause confusion
                 );
     }} {}

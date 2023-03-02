@@ -630,15 +630,16 @@ function handleJsonCommand(msg) {
                 errlog(msg.eval, ex.toString());
             }
             return;
-            return;
         case 'open':
+            ///socket.close(); // close current if new (or reload) establish a new connection
             window.open(msg.url, msg.view && msg.view.length > 0 ? msg.view : '_blank');
             return;
         case 'create':
             if(msg.element == undefined || msg.element.length == 0) {
                 createElement(null, msg.html_element, msg.new_id);
                 return;
-            } break;
+            }
+            break;
         case 'query':
             switch(msg.query) {
             case 'exists':

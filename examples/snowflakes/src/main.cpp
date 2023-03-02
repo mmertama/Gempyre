@@ -56,7 +56,11 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto draw_a_flake = [&canvas, &rect, &m_cache](int iterations) {
         if(m_cache.find(iterations) == m_cache.end()) {
             m_cache.emplace(iterations, Koch::koch_points(Size, iterations));
-            std::cout << "snow flake with " << m_cache[iterations].size() << " vertices on " << iterations << " iterations." << std::endl;
+            GempyreUtils::log(GempyreUtils::LogLevel::Info,
+                "snow flake with",
+                m_cache[iterations].size(),
+                "vertices on", iterations,
+                "iterations.");
         }
         Flake f(m_cache[iterations], Size);
         f.setPos(rect.width / 2, rect.height / 2);

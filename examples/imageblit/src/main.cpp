@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
    
 
     //2) via baked in resource (this image is added in above)
-    const auto owl_id = canvas.add_image("/owl.png", [&canvas, &ui](const auto id){
+    const auto owl_id = canvas.add_image("/owl.png", [&canvas](const auto id){
         canvas.paint_image(id, {400, 0, 200, 200});
     });
     GempyreUtils::log(GempyreUtils::LogLevel::Info, "Owl", owl_id);
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     } else ui.alert(simage2 + " not found!");
 
     canvas.add_image("/scene2.jpg", [&ui, &canvas](const auto& scene ) {
-        ui.after(1000ms, [&ui, &canvas, scene](){
+        ui.after(1000ms, [&canvas, scene](){
          canvas.paint_image(scene, {0, 200, 200, 200});
         });
     });

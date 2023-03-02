@@ -64,7 +64,7 @@ std::optional<T> Ui::query(const std::string& elId, const std::string& queryStri
                                   std::unordered_map<std::string, std::any>{{"query_params", queryParams}});
         });
 
-        for(;;) {   //start waiting the response
+        while(m_ui->is_running()) {   //start waiting the response
             eventLoop(false);
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", m_ui->state_str());
             if(*m_ui != State::RUNNING) {

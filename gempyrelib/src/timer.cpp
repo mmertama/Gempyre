@@ -55,10 +55,10 @@ void TimerMgr::start() {
                 std::unique_lock<std::mutex> lock(m_waitMutex);
                 const auto begin = std::chrono::steady_clock::now();
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer wait now:", data.id());
-                m_cv.wait_for(lock, std::chrono::duration(currentSleep)); // do actual wait
+                const auto status = m_cv.wait_for(lock, std::chrono::duration(currentSleep)); // do actual wait
                 const auto end = std::chrono::steady_clock::now(); //we may have had an early  wakeup
                 const auto actualWait = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer awake id:", data.id() , currentSleep.count(), actualWait.count(), m_queue->size());
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer awake id:", data.id() , currentSleep.count(), actualWait.count(), m_queue->size(), (int)status);
                 m_queue->reduce(actualWait);  //so we see if we are still there, and restart
                 continue; //find a new
             } else {  // no wait is <= 0

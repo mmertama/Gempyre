@@ -33,7 +33,7 @@ Element::Element(Ui& ui, const std::string& htmlElement, const Element& parent) 
 }
 
 
-Element& Element::subscribe(const std::string& name, std::function<void(const Event&)> handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
+Element& Element::subscribe(const std::string& name, const SubscribeFunction& handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
    
     m_ui->ref().add_handler(m_id, name, handler);
     m_ui->send(*this, "event", std::unordered_map<std::string, std::any>{
@@ -127,6 +127,7 @@ void Element::send(const std::string& type, const std::any& data, bool unique) {
     m_ui->send(*this, type, data, unique);
 }
 
+Element::~Element() {}
 
 template <typename T> T align(T a) {return (a + 3U) & ~3U;}
 

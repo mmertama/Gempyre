@@ -109,7 +109,7 @@ template<typename T>
 inline void log_line(LogLevel level, std::ostream& os, const T& e) {
     os << e << std::endl;
     if(level == LogLevel::Fatal)  {
-        process_exit(999);
+        process_exit(99);
     }
 }
 
@@ -133,7 +133,7 @@ inline void log_debug(const T& e, Args... args) {
 }
 
 
-inline bool do_fatal(const std::string& txt, std::function<void()> f, const char* file, int line) {
+inline bool do_fatal(const std::string_view txt, std::function<void()> f, const char* file, int line) {
     if(f) f();
     log(LogLevel::Fatal, txt, "at", file, "line:", line);
     return false;

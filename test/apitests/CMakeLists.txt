@@ -19,10 +19,12 @@ add_executable(${PROJECT_NAME}
     graphics_test.cpp
     gempyre_test.h
     gempyre_test.cpp
-    gui/${PROJECT_NAME}.html
-    gui/spiderman1.png
-    gui/spiderman2.jpg
     )
+
+if(ASAN)    
+    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    target_link_options(${PROJECT_NAME} PRIVATE  -fsanitize=address)  
+endif()     
 
 gtest_discover_tests(${PROJECT_NAME})
 
@@ -33,13 +35,20 @@ gempyre_add_resources(PROJECT ${PROJECT_NAME}
     gui/spiderman1.png
     gui/spiderman2.jpg)
 
+# in windows environment adding non-source code targets with gtest
+# ends up issues. This would do    
+set_source_files_properties(graphics_test.cpp PROPERTIES OBJECT_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/gui/${PROJECT_NAME}.html
+    ${CMAKE_CURRENT_SOURCE_DIR}/gui/spiderman1.png
+    ${CMAKE_CURRENT_SOURCE_DIR}/gui/spiderman2.jpg
+    )    
+
 # copy HTML to binary for tests
 add_compile_definitions(TEST_HTML="${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html")
 configure_file(gui/${PROJECT_NAME}.html ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html COPYONLY)
 
 # set test app name
 add_compile_definitions(TEST_BINARY="${TEST_PROXY_BINARY}")
-
 
 add_dependencies (${PROJECT_NAME} gempyre)
 find_library(gtest PATHS ${TEST_LIBRARY_DIR})

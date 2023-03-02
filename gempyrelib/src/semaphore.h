@@ -37,6 +37,14 @@ public:
         return true;
     }
 
+    bool undo() {
+        std::unique_lock<std::mutex> lock(m_mtx);
+        if(m_count < 0)
+            return true;
+        m_count = 0;
+        return false;
+    }
+
     bool empty() const {
         std::unique_lock<std::mutex> lock(m_mtx);
         return m_count == 0;

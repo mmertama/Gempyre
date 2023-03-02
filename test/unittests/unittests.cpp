@@ -365,14 +365,18 @@ TEST(Unittests, test_log) {
     GempyreUtils::remove_file(temp);
 }
 
-TEST(Unitests, Logs) {
+TEST(Unitests, logs) {
     GempyreUtils::set_log_level(GempyreUtils::LogLevel::Debug_Trace);
     GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "White background");
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Yellow");
     GempyreUtils::log(GempyreUtils::LogLevel::Info, "Cyan");
     GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Orange Black text");
     GempyreUtils::log(GempyreUtils::LogLevel::Error, "Red Black text");
-    GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Red underscore");
+}
+
+TEST(Unitests, fatal_logs) {
+    EXPECT_EXIT(GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Red underscore"),
+     testing::ExitedWithCode(99), "");
 }
 
 int main(int argc, char **argv) {

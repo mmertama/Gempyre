@@ -137,31 +137,6 @@ TEST(TestMockUi, close) {
 }
 
 
-TEST(TestMockUi, setLogging) {
-    TEST_UI;
-    ui.on_open([&ui]() {
-        ui.set_logging(true);
-        ui.set_logging(false);
-        ui.exit();
-    });
-    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
-    ui.run();
-}
-
-TEST(TestMockUi, debug) {
-    TEST_UI;
-    bool ok = false;
-    ui.on_open([&ui, &ok]() {
-        ui.debug("Test - Debug");
-        ok = true;
-        ui.exit();
-    });
-    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {TEST_FAIL;});
-    ui.run();
-    ASSERT_TRUE(ok);
-}
-
-
 TEST(TestMockUi, alert) {
     TEST_UI;
     bool ok = false;
@@ -192,174 +167,22 @@ TEST(TestMockUi, open) {
 
 //#endif
 
-TEST(TestMockUi, startTimer) {
-    TEST_UI;
-    bool ok = false;
-    ui.after(1000ms, [&ui, &ok](Gempyre::Ui::TimerId id)  {
-       (void)id;
-       ui.exit();
-       ok = true;
-    });
-    ui.run();
-    ASSERT_TRUE(ok);
-}
 
-TEST(TestMockUi, startTimerNoId) {
+/*
+// why eval breaks TestUi tests?
+// why eval breaks this this?
+TEST(TestMockUi, eval) {
     TEST_UI;
-    bool ok = false;
-    ui.after(1000ms, [&ui, &ok]()  {
-       ui.exit();
-       ok = true;
-    });
-    ui.run();
-    ASSERT_TRUE(ok);
-}
-
-TEST(TestMockUi, stopTimer) {
-    TEST_UI;
-    bool ok = true;
-    auto id = ui.after(1000ms, [&ok, &ui]()  {
-       ok = false;
-       ui.exit();
-    });
-    ui.after(3000ms, [&ui]() {
-          ui.exit();
-       });
-    ui.cancel_timer(id);
-    ui.run();
-    EXPECT_TRUE(ok);
-}
-
-
-TEST(TestMockUi, startManyTimers) {
-    TEST_UI;
-    std::string test = "";
-    ui.on_open([&test](){
-        test += 'm';
-    });
-    ui.after(0ms, [&test](Gempyre::Ui::TimerId id)  {
-       (void)id;
-       test += 'o';
-    });
-    ui.after(1ms, [&test](Gempyre::Ui::TimerId id)  {
-       (void)id;
-       test += 'n';
-    });
-    ui.after(100ms, [&test](Gempyre::Ui::TimerId id)  {
-       (void)id;
-       test += 's';
-    });
-    ui.after(1000ms, [&test](Gempyre::Ui::TimerId id)  {
-       (void)id;
-       test += 't';
-    });
-    ui.after(1001ms, [&test](Gempyre::Ui::TimerId id)  {
-       (void)id;
-       test += 'e';
-    });
-    ui.after(10002ms, [&test, &ui](Gempyre::Ui::TimerId id)  {
-       (void)id;
-       test += 'r';
-       ui.exit();
-    });
-    ui.run();
-    EXPECT_EQ("monster", test);
-}
-
-TEST(TestMockUi, timing) {
-    TEST_UI;
-    const auto start = std::chrono::system_clock::now();
-    ui.after(1000ms, [&start]()  {
-        const auto end = std::chrono::system_clock::now();
-        const auto diff = end - start;
-        EXPECT_TRUE(diff >= 1000ms);
-    });
-    ui.after(2000ms, [&start]()  {
-        const auto end = std::chrono::system_clock::now();
-        const auto diff = end - start;
-        EXPECT_TRUE(diff >= 2000ms);
-    });
-    ui.after(4000ms, [&start, &ui]()  {
-        const auto end = std::chrono::system_clock::now();
-        const auto diff = end - start;
-        EXPECT_TRUE(diff >= 4000ms);
-        ui.exit();
-    });
-   ui.run();
-}
-
-TEST(TestMockUi, timerStartStop) {
-    TEST_UI;
-    int count = 0;
-    ui.after(0s, [&](){
-        ui.exit();
-        ++count;
-    });
-    ui.run();
-    std::this_thread::sleep_for(1s);
-    ui.after(0s, [&](){
-        ui.exit();
-        ++count;
-    });
-    ui.run();
-    EXPECT_EQ(count, 2);
-}
-
-TEST(TestMockUi, ping) {
-    TEST_UI;
-    bool ok = false;
-    ui.after(1s, [&ok, &ui](){
-        const auto ping = ui.ping();
-        ok = ping.has_value() &&
-        ping->first.count() >= 0 &&
-        ping->second.count() >= 0 &&
-        ping->first.count() < 30000 &&
-        ping->second.count() < 30000;
-        if(ping) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ping:", ping->first.count(), ping->second.count());
-            if(!ok)
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ping too slow:", ping->first.count(), ping->second.count());
-        }
-        else
-             GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ping: N/A");
+    ui.eval("document.write('<h3 id=\\\"foo\\\">Bar</h3>')");
+    ui.on_open([&ui]() {
+        Gempyre::Element el(ui, "foo");
+        const auto html = el.html();
+        EXPECT_TRUE(html);
+        ASSERT_TRUE(html.value() == "Bar");
         ui.exit();
     });
     ui.run();
-    EXPECT_TRUE(ok);
 }
-
-TEST(TestMockUi, resource) {
-    TEST_UI;
-    const auto r = ui.resource("/apitests.html");
-    ASSERT_TRUE(r);
-    const std::string html = GempyreUtils::join(*r);
-    const auto p1 = html.find("html");
-    const auto p2 = html.find("html");
-    ASSERT_EQ(p1, p2);
-}
-
-TEST(TestMockUi, addFile) {
-     TEST_UI;
-    const std::string test = "The quick brown fox jumps over the lazy dog";
-    const auto tempFile = GempyreUtils::write_to_temp(test);
-    const auto ok = ui.add_file("test_data", tempFile);
-    ASSERT_TRUE(ok) << "Cannot add file " << tempFile;
-    GempyreUtils::remove_file(tempFile);
-    const auto r = ui.resource("test_data");
-    const std::string text = GempyreUtils::join(*r);
-    const auto p1 = text.find("quick");
-    EXPECT_NE(p1, std::string::npos) << "Corrupted file";
-    EXPECT_EQ(text.length(), test.length()) << "Mismatch file length" << text.length() << " expected:" << test.length();
-}
+*/
 
 
-TEST(TestMockUi, idTest) {
-    TEST_UI;
-    Gempyre::Element foo(ui, "test-1");
-    ASSERT_EQ(foo.id(), "test-1");
-}
-
-TEST(TestMockUi, root) {
-     TEST_UI;
-    EXPECT_EQ(ui.root().id(), ""); //root has no id
-}

@@ -211,6 +211,7 @@ class Gempyre::SocketHandler {
                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "WS", "closed on error", code, message);
             }   else if(code != 0) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "Non closing error", code, message);
+                m_s.m_broadcaster->remove(ws);
                 return;
             }
         }
@@ -235,7 +236,8 @@ Server::Server(
     const MessageFunction& onMessage,
     const CloseFunction& onClose,
     const GetFunction& onGet,
-    const ListenFunction& onListen) :
+    const ListenFunction& onListen,
+    int queryIdBase) :
     m_port(port == 0 ? wishAport(DEFAULT_PORT, PORT_ATTEMPTS) : port),
     m_rootFolder(root),
     m_broadcaster(std::make_unique<Broadcaster>()),
@@ -244,6 +246,7 @@ Server::Server(
     m_onClose(onClose),
     m_onGet(onGet),
     m_onListen(onListen),
+    m_queryId{queryIdBase},
     //mStartFunction([this]()->std::unique_ptr<std::thread> {
 //   return makeServer();
 //}),
@@ -406,8 +409,8 @@ void Server::serverThread(unsigned int port) {
 
 
 Server::~Server() {
-    assert(!m_broadcaster ||  m_broadcaster->empty());
     close(true);
+    assert(!m_broadcaster ||  m_broadcaster->empty());
 }
 
 int Server::addPulled(DataType type, const std::string_view& data) {
@@ -552,9 +555,10 @@ void Server::doClose() {
 }
 
 void Server::close(bool wait) {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server - going");
     int attempts = 20;
     while(!m_broadcaster->empty() && --attempts > 0) {
-        std::this_thread::sleep_for(200ms);
+        std::this_thread::sleep_for(100ms);
     }
     m_broadcaster->forceClose();
     doClose();
@@ -563,4 +567,5 @@ void Server::close(bool wait) {
         m_serverThread->join();
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server close");
     }
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server - gone");
 }

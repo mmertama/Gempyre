@@ -14,11 +14,11 @@
 
 namespace Gempyre {
 
-  enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING};
+  enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING, SUSPEND};
   inline
   std::string_view str(State state) {
     const char* s[] = 
-    {"NOTSTARTED", "RUNNING", "RETRY", "EXIT", "CLOSE", "RELOAD", "PENDING"};
+    {"NOTSTARTED", "RUNNING", "RETRY", "EXIT", "CLOSE", "RELOAD", "PENDING", "SUSPEND"};
     return s[static_cast<unsigned>(state)]; 
   } 
 
@@ -53,17 +53,9 @@ public:
     }
 
 
-    std::string state_str() const {
-    const std::unordered_map<State, std::string> m{
-        {State::NOTSTARTED, "NOTSTARTED"},
-        {State::RUNNING, "RUNNING"},
-        {State::RETRY, "RETRY"},
-        {State::EXIT, "EXIT"},
-        {State::CLOSE, "CLOSE"},
-        {State::RELOAD, "RELOAD"},
-        {State::PENDING, "PENDING"}};
-    return m.at(m_status.load());
-}
+    std::string_view state_str() const {
+        return str(m_status.load());
+    }
 
     void set(State state) {
         //TODO non-execute logging
@@ -84,7 +76,7 @@ public:
     }
 
 
-    void add_handler(const std::string& id, const std::string& name, std::function<void(const Gempyre::Event&)> handler) {
+    void add_handler(const std::string& id, const std::string& name, const Element::SubscribeFunction& handler) {
         HandlerFunction hf = [handler](const Event& event) {
             std::unordered_map<std::string, std::string> property_map;
             for(const auto& [k, v] : event.properties)
@@ -96,6 +88,9 @@ public:
         m_elements[id].emplace(name, std::move(hf));
     }
 
+    void clear_handlers() {
+        m_elements.clear();
+    }
 
     void ensure_element_exists(const std::string& id) {
         if(m_elements.find(id) == m_elements.end())
@@ -189,7 +184,8 @@ public:
     } 
 
     void close_server() {
-        m_server->close(true);
+        if(m_server)
+            m_server->close(true);
     }
 
 
@@ -217,29 +213,29 @@ public:
          return !m_eventqueue.empty();
     }
 
-    Gempyre::Ui::ExitFunction set_on_exit(Gempyre::Ui::ExitFunction&& onUiExitFunction) {
+    Gempyre::Ui::ExitFunction set_on_exit(const Gempyre::Ui::ExitFunction& onUiExitFunction) {
         auto old = std::move(m_onUiExit);
-        m_onUiExit = std::move(onUiExitFunction);
+        m_onUiExit = onUiExitFunction;
         return old;
     }
 
-    Gempyre::Ui::ReloadFunction set_on_reload(Gempyre::Ui::ReloadFunction&& onReloadFunction) {
+    Gempyre::Ui::ReloadFunction set_on_reload(const Gempyre::Ui::ReloadFunction& onReloadFunction) {
         auto old = std::move(m_onReload);
-        m_onReload = std::move(onReloadFunction);
+        m_onReload = onReloadFunction;
         return old;
     }
 
 
-    Gempyre::Ui::ErrorFunction set_on_error(Gempyre::Ui::ErrorFunction&& onErrorFunction) {
+    Gempyre::Ui::ErrorFunction set_on_error(const Gempyre::Ui::ErrorFunction& onErrorFunction) {
         auto old = std::move(m_onError);
-        m_onError = std::move(onErrorFunction);
+        m_onError = onErrorFunction;
         return old;
     }
 
 
-    Gempyre::Ui::OpenFunction set_on_open(Gempyre::Ui::OpenFunction&& onOpenFunction) {
+    Gempyre::Ui::OpenFunction set_on_open(const Gempyre::Ui::OpenFunction& onOpenFunction) {
         auto old = std::move(m_onOpen);
-        m_onOpen = std::move(onOpenFunction);
+        m_onOpen = onOpenFunction;
         return old;
     }
 
@@ -285,7 +281,7 @@ public:
 
     void do_exit() {
         if(m_onUiExit) { // what is point? Should this be here
-        m_onUiExit();
+            m_onUiExit();
         }
         GEM_DEBUG("requests:", m_requestqueue.size(), "timers:", m_timerqueue.size());
         m_requestqueue.clear(); // we have exit, rest of requests get ignored
@@ -298,9 +294,23 @@ public:
         // clear or erase calls destructor and that seems to be issue in raspberry
         while(!m_timerqueue.empty())
             m_timerqueue.pop_front();
+
+        m_sema.undo();    
     
+        while (!m_sema.empty()) {
+            m_sema.signal();
+        }
+  //      assert(m_eventqueue.empty());
         assert(m_requestqueue.empty());
         assert(!m_timers.isValid());
+        assert(!m_server);
+        if(!m_sema.empty()) {
+            [[maybe_unused]] auto wait_ok = m_sema.wait(500ms);
+            assert(wait_ok);
+        }
+        assert(m_sema.empty());
+        m_elements.clear();
+        m_status = State::NOTSTARTED; // reset the state
     }
 
     void consume_events(Ui& ui) {
@@ -352,7 +362,6 @@ public:
         const auto duration = end - start;
         GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
     }
-
 
 private:
         std::atomic<State> m_status = State::NOTSTARTED;

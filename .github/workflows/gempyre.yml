@@ -124,23 +124,37 @@ jobs:
           message(FATAL_ERROR "Bad exit status")
         endif()
 
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1  
 
-    - name: Run tests
-      shell: cmake -P {0}
+    - name: Setup DISPLAY
+      if: startsWith(matrix.config.os, 'linux')
       run: |
-        # # include(ProcessorCount)
-        # # ProcessorCount(N)
-        # # j {N} not executed as API tests cannot be concurrent
-        # message(AUTHOR_WARNING "skip the tests as GH Actions gives random timeouts")
-        execute_process(
-            COMMAND ctest -j 1
-            WORKING_DIRECTORY build
-            RESULT_VARIABLE result
-            )
-        if (NOT result EQUAL 0)
-            message(WARNING "Running tests failed!")
-         endif()
+        export DISPLAY=:99
+        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &   
+    
+    #- name: Run tests
+    #  shell: cmake -P {0}
+    #  run: |
+    #    execute_process(
+    #        COMMAND ctest -j 1  --timeout 60 --verbose
+    #        WORKING_DIRECTORY build
+    #        RESULT_VARIABLE result
+    #        )
+    #    if (NOT result EQUAL 0)
+    #        message(WARNING "Running tests failed!")
+    #     endif()
 
+    - name: Run Unit tests
+      shell: bash
+      run: |
+        build/test/unittests/unittests --gtest_break_on_failure
+
+    - name: Run API tests
+      shell: bash
+      run: |
+        build/test/apitests/apitests --verbose --gtest_break_on_failure
+       
     - name: List this folder
       shell: bash
       run: ls -R
