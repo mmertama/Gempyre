@@ -132,8 +132,12 @@ Element::~Element() {}
 template <typename T> T align(T a) {return (a + 3U) & ~3U;}
 
 constexpr auto fixedDataSize = 4;
+
+// all Data is indexed so send can keep their order in broadcaster
+static unsigned g_index_couter = 0;
+
 Data::Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header) :
-    m_data(sz + (fixedDataSize + header.size()) + align(owner.size())) {
+    m_data(sz + (fixedDataSize + header.size()) + align(owner.size())), m_index(g_index_couter++) {
         m_data[0] = type;
         m_data[1] = static_cast<dataT>(sz);
         m_data[2] = align(static_cast<dataT>(owner.size()));

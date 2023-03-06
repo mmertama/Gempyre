@@ -11,7 +11,7 @@ add_executable(${PROJECT_NAME}
     ws.cpp)
 
 target_compile_definitions(${PROJECT_NAME}
-    PRIVATE WS_LOG_LEVEL=0)
+    PRIVATE WS_LOG_LEVEL=1)
 
 # dependency so that JSON_DIR would be there
 add_dependencies(${PROJECT_NAME} gempyre)
@@ -24,6 +24,7 @@ endif()
 
 include_directories("${JSON_DIR}")
 
+#set(TEST_PROXY_BINARY "gdb -batch -ex run -ex bt --args $<TARGET_FILE:${PROJECT_NAME}>" PARENT_SCOPE)
 set(TEST_PROXY_BINARY "$<TARGET_FILE:${PROJECT_NAME}>" PARENT_SCOPE)
 
 if(RASPBERRY)

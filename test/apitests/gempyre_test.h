@@ -21,7 +21,7 @@ namespace GempyreTest {
         void test(const std::function<void () >& f);
         void post_test(const std::function<void () >& f);
         void test_wait(std::chrono::milliseconds wait = 99h); // most compilers cannot wait std::hours/milli/seconds::max() due overflow!
-        void timeout(std::chrono::milliseconds wait);
+        std::chrono::milliseconds timeout(std::chrono::milliseconds wait);
         void test_exit();
         Gempyre::Ui& ui();
         std::string_view current_test() const;

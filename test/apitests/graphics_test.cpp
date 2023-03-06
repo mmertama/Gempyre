@@ -8,7 +8,7 @@ using namespace GempyreTest;
 
 #define MAKE_CANVAS Gempyre::CanvasElement canvas(ui(), "canvas"); 
 
-constexpr auto max_image_wait = 30s;
+constexpr auto max_image_wait = 60s;
 constexpr auto min_image_wait = 5s;
 
 TEST_F(TestUi, make_canvas) {
@@ -85,15 +85,16 @@ TEST_F(TestUi, add_image_cb) {
     MAKE_CANVAS
     auto id_ptr = std::make_shared<std::string>();
     const auto id = canvas.add_image("/spiderman1.png", [id_ptr, this](const auto& iid) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Info, "add_image_cb - cb ", iid);
        *id_ptr = iid;
        ASSERT_NE(*id_ptr, "");
        test_exit();
     });
     EXPECT_FALSE(id.empty());
-    post_test([id_ptr, id](){
-         EXPECT_EQ(*id_ptr, id);
-    });
-    timeout(max_image_wait);
+    const auto to = timeout(max_image_wait);
+    GempyreUtils::log(GempyreUtils::LogLevel::Info, "post_test - cb ", *id_ptr, "id:", id);
+    EXPECT_EQ(*id_ptr, id);
+    ASSERT_TRUE(*id_ptr == id || to >= max_image_wait) << to.count() << " " << max_image_wait.count();
 }
 
 

@@ -34,6 +34,20 @@ class GempyreInternal {
     using HandlerMap = std::unordered_map<std::string, HandlerFunction>;
 
 public:
+    class LoopWatch {
+        public:
+        LoopWatch(GempyreInternal& gi, bool is_main) : m_gi(gi) {
+            gempyre_utils_assert_x(!is_main || m_gi.m_loop == 0,
+             std::to_string(is_main) + " " + std::to_string(m_gi.m_loop));
+            m_gi.m_loop++;
+        }
+        ~LoopWatch() {
+            m_gi.m_loop--;
+            gempyre_utils_assert(m_gi.m_loop >= 0);
+        }
+        private:
+        GempyreInternal& m_gi;
+    };
     GempyreInternal(
         Ui* ui, 
         const Ui::Filemap& filemap,
@@ -363,6 +377,16 @@ public:
         GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
     }
 
+    void clear() {
+        m_eventqueue.clear();
+        m_requestqueue.clear();
+        m_timerqueue.clear();
+    }
+
+    bool loop() const {
+        return m_loop;
+    }
+
 private:
         std::atomic<State> m_status = State::NOTSTARTED;
         EventQueue<Ui::InternalEvent> m_eventqueue;
@@ -383,6 +407,7 @@ private:
         std::mutex m_requestMutex;
         bool m_hold{false};
         unsigned m_msgId{1};
+        int m_loop = 0;
 };
 }
 

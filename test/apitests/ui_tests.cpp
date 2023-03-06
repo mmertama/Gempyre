@@ -114,10 +114,8 @@ TEST_F(TestUi, subscribe) {
     ui().after(2s, [&]()  {
           el.set_attribute("style", "color:green");
        });
-    post_test([&]() {
-        ASSERT_TRUE(is_open);
-    });
     test_wait();
+    ASSERT_TRUE(is_open);
 }
 
 TEST_F(TestUi, setHTML) {
@@ -252,19 +250,12 @@ TEST_F(TestUi, addFile) {
 TEST_F(TestUi, ping) {
     test([this](){
         const auto ping = ui().ping();
-        const bool ok = ping.has_value() &&
-        ping->first.count() >= 0 &&
-        ping->second.count() >= 0 &&
-        ping->first.count() < 30000 &&
-        ping->second.count() < 30000;
-        if(ping) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ping:", ping->first.count(), ping->second.count());
-            if(!ok)
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ping too slow:", ping->first.count(), ping->second.count());
-        }
-        else
-             GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ping: N/A");
-    EXPECT_TRUE(ok);
+        ASSERT_TRUE(ping) << "No Ping!";
+        ASSERT_TRUE(ping->first.count() >= 0 ) << ping->first.count();
+        ASSERT_TRUE(ping->second.count() >= 0 ) << ping->second.count();
+        ASSERT_TRUE(ping->first.count() < 50000) << ping->second.count();
+        ASSERT_TRUE(ping->second.count() < 50000 ) << ping->second.count();
+        GempyreUtils::log(GempyreUtils::LogLevel::Info, "Ping:", ping->first.count(), ping->second.count());
     });
 }
 

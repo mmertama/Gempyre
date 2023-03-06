@@ -60,7 +60,11 @@ static
 std::optional<std::string> systemChrome() {
     switch(GempyreUtils::current_os()) {
     case GempyreUtils::OS::MacOs: return R"(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome)";
-    case GempyreUtils::OS::WinOs: return R"(start "_" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")";
+    case GempyreUtils::OS::WinOs: {
+            auto browser = GempyreUtils::which(R"(chrome)");
+            return std::string(R"(start "_" )") + (browser ? GempyreUtils::qq(*browser) : 
+            std::string(R"("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")"));
+    }
     case GempyreUtils::OS::RaspberryOs: [[fallthrough]];
     case GempyreUtils::OS::LinuxOs: {
         auto browser = GempyreUtils::which(R"(chromium-browser)");
@@ -105,14 +109,13 @@ void TestUi::TearDownTestSuite() {
         m_ui->resume();
     }
     m_ui.reset();
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Teared down"); 
 }
 
 void TestUi::SetUp() {
     if(!m_ui) {
         const auto chrome = systemChrome();
         if(!chrome) {
-             GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chrome not found!");
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chrome not found!");
             FAIL() <<"Chrome not found!";
             std::exit(1);
         }
@@ -144,7 +147,6 @@ void TestUi::SetUp() {
 
     const auto test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     m_current_test = test_name;
-    GEM_DEBUG("Setup", test_name);
     m_state = 0;
     m_postFunc = nullptr;
 }
@@ -182,7 +184,9 @@ void TestUi::test_wait(std::chrono::milliseconds wait) {
 
 
 
-void TestUi::timeout(std::chrono::milliseconds wait) {
+std::chrono::milliseconds TestUi::timeout(std::chrono::milliseconds wait) {
+    const auto start = std::chrono::high_resolution_clock::now();
+    [[maybe_unused]] const auto test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     m_state |= WAIT;
     ui().after(wait, [this, wait]([[maybe_unused]] const auto tid) {
         exit();
@@ -190,6 +194,9 @@ void TestUi::timeout(std::chrono::milliseconds wait) {
         FAIL() << "Timeout in " << m_current_test << " waited: " << wait.count() << "ms ";
     });
     run();
+    auto end = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>
+    (std::chrono::duration<double, std::milli>(end - start));
 }
 
 
@@ -198,25 +205,20 @@ void TestUi::TearDown() {
     assert(test_name == m_current_test);
     if((! (m_state & WAIT)) && m_state & TEST) {
         run();
-
-    }  
+    }
     if(m_postFunc)
         m_postFunc();
     m_postFunc = nullptr;
-
     finish();
 }
 
 void TestUi::test(const std::function<void () >& f) {
-    GEM_DEBUG("after", m_current_test);
     m_state |= TEST;
     m_ui->after(0s, [f, this]() {
-        GEM_DEBUG("test exit in", m_current_test);
         if(f)
             f();
         if(! (m_state & WAIT)) {
             exit();
-            GEM_DEBUG("test exit out", m_current_test);
         }
     });
 }
@@ -241,7 +243,7 @@ int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
    for(int i = 1 ; i < argc; ++i)
        if(argv[i] == std::string_view("--verbose"))
-            Gempyre::set_debug();
+            Gempyre::set_debug();       
   killHeadless(); // there may be unwanted processes
   return RUN_ALL_TESTS();
 }

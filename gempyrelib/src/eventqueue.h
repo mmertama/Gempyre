@@ -35,6 +35,11 @@ public:
         return m_events.size();
     }
 
+    void clear() {
+         std::lock_guard<std::mutex> guard(m_mutex);
+         m_events.clear();
+    }
+
 
 private:
     std::deque<Event> m_events;

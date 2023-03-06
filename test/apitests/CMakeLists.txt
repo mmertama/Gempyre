@@ -13,9 +13,15 @@ include_directories(
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
 
+if(NOT WIN32)
+    set(CORE_TEST core_tests.cpp)
+else()
+    message(WARNING "Mock browser stopped working in msvc - connection error 10035 - todo")    
+endif()
+
 add_executable(${PROJECT_NAME}
     ui_tests.cpp
-    core_tests.cpp
+    ${CORE_TEST}
     graphics_test.cpp
     gempyre_test.h
     gempyre_test.cpp

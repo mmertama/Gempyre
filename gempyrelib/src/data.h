@@ -48,6 +48,7 @@ class Data {
         [[nodiscard]] DataPtr clone() const;
         [[nodiscard]] size_t size() const {return m_data.size() * sizeof(dataT);}
         [[nodiscard]] bool has_owner() const;
+        [[nodiscard]] auto index() const {return m_index;}
         virtual ~Data() = default;
         Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header);
         std::tuple<const char*, size_t> payload() const; // char* ?? todo
@@ -56,6 +57,7 @@ class Data {
 #endif
     private:
         std::vector<dataT> m_data;
+        const unsigned m_index;
         friend class Element;
         friend class Ui;
     };

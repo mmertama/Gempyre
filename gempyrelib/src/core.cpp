@@ -508,7 +508,7 @@ void Ui::exit() {
         });
         m_ui->flush_timers(true);
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop", m_ui->state_str());
-        eventLoop(true);
+        eventLoop(false);
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - wait in eventloop done, back in mainloop", m_ui->state_str());
         }
 
@@ -658,8 +658,11 @@ void Ui::run() {
         m_ui->do_exit();
 }
 
+
+
 void Ui::eventLoop(bool is_main) {
     GEM_DEBUG("enter", is_main, m_ui->is_running());
+    const GempyreInternal::LoopWatch loop_watch (*m_ui, is_main);
     while(m_ui->is_running()) {
         m_ui->wait_events();
 
@@ -677,6 +680,7 @@ void Ui::eventLoop(bool is_main) {
         if(*m_ui == State::RETRY) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop will retry");
             if(! m_ui->retry_start()) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "retry failed --> Status change Exit");
                 m_ui->set(State::EXIT);
                 break;
             }
@@ -747,7 +751,7 @@ void Ui::eventLoop(bool is_main) {
 
         //if there are responses they must be handled
         if(m_ui->has_responses()) {
-            if(!is_main)
+            if(!is_main) // this was eventloop(true) in exit, changed to false for logic...still works...
                 return; //handle query elsewhere, hopefully some one is pending
            // TODO: looks pretty busy (see calc) GempyreUtils::log(GempyreUtils::LogLevel::Warning, "There are unhandled responses on main");
         }
@@ -966,21 +970,36 @@ bool Ui::is_timer_on_hold() const {
 
 
 void Ui::suspend() {
-    gempyre_utils_assert_x(*m_ui == State::RUNNING, "State is " + std::string(m_ui->state_str()));
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "suspend state is " + std::string(m_ui->state_str()));
+    gempyre_utils_assert(m_ui->loop() == 1);
+
+    if(*m_ui != State::RUNNING) { // maybe for ealier error
+        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "suspend state is " + std::string(m_ui->state_str()));
+        return;
+    }
+
     gempyre_utils_assert(!is_timer_on_hold());
     set_timer_on_hold(true);
     m_ui->set(State::SUSPEND);
     m_ui->clear_handlers();
     m_ui->flush_timers(false);
+    m_ui->clear();
     m_ui->signal_pending();
+    std::this_thread::sleep_for(200ms); // uws has strange corking problem
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "suspend exit is " + std::string(m_ui->state_str()));
+ 
 }
 
 void Ui::resume() {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "resume state is " + std::string(m_ui->state_str()));
+    gempyre_utils_assert(m_ui->loop() == 0);
     if(*m_ui == State::SUSPEND) {
         m_ui->set(State::RUNNING);
         set_timer_on_hold(false);
         eventLoop(true);
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "resumed exit " + std::string(m_ui->state_str()));  
     } else {
+        gempyre_utils_assert(*m_ui != State::EXIT);  
         exit();
     }
 }

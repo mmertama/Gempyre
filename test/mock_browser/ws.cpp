@@ -57,6 +57,8 @@ struct Connection {
 
 static void
 connect_client(lws_sorted_usec_list_t *sul) {
+    lwsl_user("connect_client");
+
     Connection* c = lws_container_of(sul, struct Connection, sul);
     assert(c);
     struct lws_client_connect_info i;
@@ -177,6 +179,8 @@ int websocket::start_ws(const std::string& address, int port, const std::string&
     logs |= LLL_INFO | LLL_DEBUG;
     lws_set_log_level(logs, websocket::debug_print);
 
+    lwsl_user("start_ws");
+
     assert(protocol == "gempyre"); // only supported now
 
     struct lws_context_creation_info info;
@@ -219,6 +223,7 @@ int websocket::start_ws(const std::string& address, int port, const std::string&
          return !mco->m_connections->empty();
     };
 
+    websocket::debug_print(LLL_NOTICE, "Startup!");
 
     int n = 0;
     while (n >= 0 && mco->interrupted == 0)

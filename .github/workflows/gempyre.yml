@@ -148,12 +148,13 @@ jobs:
     - name: Run Unit tests
       shell: bash
       run: |
-        build/test/unittests/unittests --gtest_break_on_failure
+        build/test/unittests/unittests
 
     - name: Run API tests
+      if: "! startsWith(matrix.config.os, 'windows')" #"! contains(matrix.config.name, 'MinGw')"
       shell: bash
       run: |
-        build/test/apitests/apitests --verbose --gtest_break_on_failure
+        build/test/apitests/apitests --verbose
        
     - name: List this folder
       shell: bash

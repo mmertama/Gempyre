@@ -43,6 +43,7 @@ int App::received(const char* cstr)
             send_message(msg.c_str());
         }
     }
-    //std::cout << "Received " << js << std::endl;
+   if((1 << 3) <= WS_LOG_LEVEL)
+        std::cout << (1 << 3) << ": app-received: " << cstr << std::endl;
     return 0;
 }

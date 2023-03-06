@@ -113,7 +113,7 @@ class ErrStream : public LogWriter {
 class ErrStream : public LogWriter {
     bool do_write(const char* bytes, size_t count) override {
        (void) count;
-       std::cerr << bytes;
+       std::cerr << bytes << std::flush;
        return true;
     }
     bool has_ansi() const override {return true;} 

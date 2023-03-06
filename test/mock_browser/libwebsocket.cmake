@@ -3,7 +3,7 @@ include(FetchContent)
 FetchContent_Declare(
   libwebsockets
   GIT_REPOSITORY https://libwebsockets.org/repo/libwebsockets
-  GIT_TAG "v4.2.1"
+  GIT_TAG "v4.3.2"
   GIT_PROGRESS TRUE
 )
 

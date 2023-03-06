@@ -18,11 +18,14 @@ using WSSocket = uWS::WebSocket<false, true, ExtraSocketData>;
 
 class Broadcaster {
     static constexpr auto DELAY = 100ms;
+    static constexpr auto BACKPRESSURE_DELAY = 100ms;
+    static constexpr unsigned SEND_SUCCESS = 0xFFFFFFFF;
     enum class SType {Bin, Txt};
     template<SType T, class S>
     void socket_error(Gempyre::WSSocket::SendStatus status, S& s) {
         constexpr auto type = T == SType::Bin ? "Bin" : "Txt";
         if(status == WSSocket::SendStatus::BACKPRESSURE) {
+            std::this_thread::sleep_for(BACKPRESSURE_DELAY);
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket", type, "backpressure", s.getBufferedAmount());
             if(!m_backPressureMutex.try_lock_for(DELAY)) {
                 GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
@@ -46,7 +49,10 @@ class Broadcaster {
         }
         if(len > free_space) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "buf full", free_space, len);
-            std::this_thread::sleep_for(100ms);
+            std::this_thread::sleep_for(BACKPRESSURE_DELAY);
+            if(!m_backPressureMutex.try_lock_for(DELAY)) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Cannot lock backpressure mutex");
+            }
             return true;
             }
         return false;    
@@ -79,18 +85,24 @@ public:
     bool send(const Data& ptr) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send bin", ptr.size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
+        if(ptr.index() > m_lastResend )
+            return false; // re-queue to keep order
         for(auto& [s, type] : m_sockets) {
             if(type == Type::Ui) { // extension is not expected to handle binary messages
                 const auto& [data, len] = ptr.payload();
-                if(check_backpressure(len, *s))
+                if(check_backpressure(len, *s)) {
+                    m_lastResend = ptr.index();
                     return false;
+                }
                 const auto success = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
                 if(success != WSSocket::SendStatus::SUCCESS) {
                     socket_error<SType::Bin>(success, *s);
+                    m_lastResend = ptr.index();
                     return false;
                 }
             }
         }
+        m_lastResend = SEND_SUCCESS;
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "sent bin", !m_sockets.empty());
         return !m_sockets.empty();
     }
@@ -148,11 +160,12 @@ public:
 
     void unlock() {
         m_backPressureMutex.unlock();
-    }
+    } 
 private:
     std::unordered_map<WSSocket*, Type> m_sockets;
     std::timed_mutex m_backPressureMutex;
     mutable std::mutex m_socketMutex;
+    unsigned m_lastResend = SEND_SUCCESS; 
     };
 }
 
