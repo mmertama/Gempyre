@@ -377,9 +377,11 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
     m_ui->set(State::RUNNING);
 
     const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
-
+#ifdef USE_PYTHON_UI
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Python gui started with these parameters: ", cmd_params);
+#else
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
-
+#endif
 
 #if defined (ANDROID_OS)
     const auto result = androidLoadUi(appui + " " + cmd_params);
