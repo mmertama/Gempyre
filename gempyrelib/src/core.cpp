@@ -184,9 +184,8 @@ static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexH
             if(py_data != Gempyrejsh.end()) {
                 const auto py_code = Base64::decode(py_data->second);
                 const std::string py = GempyreUtils::join(py_code);
-                const auto call_param = std::string("-c \"") + py + "\" ";
-                return {*py3, call_param
-                            + GempyreUtils::join<std::vector<std::string>>({
+                const auto call_param = " -c \"" + py + "\" ";
+                return {*py3 + call_param, GempyreUtils::join<std::vector<std::string>>({
                                      "--gempyre-url=" + url,
                                      join(param_map, WIDTH_KEY, "--gempyre-width="),
                                      join(param_map, HEIGHT_KEY,"--gempyre-height="),
@@ -378,7 +377,7 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
 
     const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
 #ifdef USE_PYTHON_UI
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Python gui started with these parameters: ", cmd_params);
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Python gui started with these parameters:", cmd_params);
 #else
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
 #endif
