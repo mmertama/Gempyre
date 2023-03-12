@@ -69,13 +69,17 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
         return;
     }
 
-    if (y_pos + canvas->height() < 0 || x_pos + canvas->width() < 0) {
-        return; 
-    }
+    // This is not ok - as we dont know all extents
+    // if (y_pos + canvas->height() < 0 || x_pos + canvas->width() < 0) {
+    //    return; 
+    //}
         
-    const auto canvas_height = y_pos < 0 ? canvas->height() + y_pos : canvas->height();
+    //const auto canvas_height = y_pos < 0 ? canvas->height() + y_pos : canvas->height();
+    const auto canvas_height =  canvas->height();
+
     const auto y = y_pos < 0 ? -y_pos : 0;
-    const auto canvas_width = x_pos < 0 ? canvas->width() + x_pos : canvas->width();
+    //const auto canvas_width = x_pos < 0 ? canvas->width() + x_pos : canvas->width();
+    const auto canvas_width =  canvas->width();
     const auto x = x_pos < 0 ? -x_pos : 0;
 
     x_pos = std::max(0, x_pos);
@@ -85,37 +89,47 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
 
     bool is_last = false;
 
-    assert(y < canvas_height);
-    assert(x < canvas_width);
+    if(y < canvas_height && x < canvas_width) {
 
-    for(auto j = y ; j < canvas_height ; j += TileHeight) {
-        const auto height = std::min(TileHeight, canvas_height - j);
-        for(auto i = x ; i < canvas_width ; i += TileWidth) {
-            assert(!is_last);
-            is_last = (canvas_height - j <= TileHeight) && (canvas_width - i <= TileWidth);
-            const auto width = std::min(TileWidth, canvas_width - i);
-            const auto srcPos = canvas->data() + i + (j * canvas->width());
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Copy canvas frame", i, j, width, height);
-            for(int h = 0; h < height; h++) {
-                const auto lineStart = srcPos + (h * canvas->width());
-                auto trgPos = m_tile->data() + width * h;
-                assert(trgPos < m_tile->data() + m_tile->width() * m_tile->height());
-                std::copy(lineStart, lineStart + width, trgPos);
+        for(auto j = y ; j < canvas_height ; j += TileHeight) {
+            const auto height = std::min(TileHeight, canvas_height - j);
+            for(auto i = x ; i < canvas_width ; i += TileWidth) {
+                assert(!is_last);
+                is_last = (canvas_height - j <= TileHeight) && (canvas_width - i <= TileWidth);
+                const auto width = std::min(TileWidth, canvas_width - i);
+                const auto srcPos = canvas->data() + i + (j * canvas->width());
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Copy canvas frame", i, j, width, height);
+                for(int h = 0; h < height; h++) {
+                    const auto lineStart = srcPos + (h * canvas->width());
+                    auto trgPos = m_tile->data() + width * h;
+                    assert(trgPos < m_tile->data() + m_tile->width() * m_tile->height());
+                    std::copy(lineStart, lineStart + width, trgPos);
+                }
+                m_tile->ref().writeHeader({static_cast<Gempyre::dataT>(i + x_pos),
+                                    static_cast<Gempyre::dataT>(j + y_pos),
+                                    static_cast<Gempyre::dataT>(width),
+                                    static_cast<Gempyre::dataT>(height),
+                                    (as_draw && is_last)});
+                
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sending canvas frame", i, j, width, height, m_tile->size(),  (width * height + 4) * 4 + 20 + 16);
+                #ifdef GEMPYRE_IS_DEBUG
+                if (m_tile->size() != static_cast<size_t>((width * height + 4) * 4 + 20 + 16)) {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, m_tile->dump());                
+                }
+            //  assert(m_tile->size() == static_cast<size_t>((width * height + 4) * 4 + 20 + 16));
+                #endif         
+                send(m_tile->ptr());
             }
-            m_tile->ref().writeHeader({static_cast<Gempyre::dataT>(i + x_pos),
-                                 static_cast<Gempyre::dataT>(j + y_pos),
-                                 static_cast<Gempyre::dataT>(width),
-                                 static_cast<Gempyre::dataT>(height),
-                                 (as_draw && is_last)});
-            
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sending canvas frame", i, j, width, height, m_tile->size(),  (width * height + 4) * 4 + 20 + 16);
-            #ifdef GEMPYRE_IS_DEBUG
-            if (m_tile->size() != static_cast<size_t>((width * height + 4) * 4 + 20 + 16)) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, m_tile->dump());                
-            }
-          //  assert(m_tile->size() == static_cast<size_t>((width * height + 4) * 4 + 20 + 16));
-            #endif         
-            send(m_tile->ptr());
+        }
+    } else {
+        is_last = true;
+        if (as_draw) {
+            m_tile->ref().writeHeader({static_cast<Gempyre::dataT>(x_pos),
+                                        static_cast<Gempyre::dataT>(y_pos),
+                                        static_cast<Gempyre::dataT>(0),
+                                        static_cast<Gempyre::dataT>(0),
+                                        static_cast<Gempyre::dataT>(is_last)});
+            send(m_tile->ptr());                            
         }
     }
     assert(is_last);

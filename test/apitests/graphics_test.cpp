@@ -62,6 +62,122 @@ TEST_F(TestUi, make_canvas4) {
     timeout(max_image_wait);
 }
 
+TEST_F(TestUi, make_canvas5) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(-1, 10, g);
+    timeout(max_image_wait);
+}
+
+TEST_F(TestUi, make_canvas6) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(10, -10, g);
+    timeout(max_image_wait);
+}
+
+TEST_F(TestUi, make_canvas7) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(15, -15, g);
+    timeout(max_image_wait);
+}
+
+TEST_F(TestUi, make_canvas8) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(-15, -15, g);
+    timeout(max_image_wait);
+}
+
+TEST_F(TestUi, make_canvas9) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(15, 635, g);
+    timeout(max_image_wait);
+}
+
+TEST_F(TestUi, make_canvas10) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(635, 635, g);
+    timeout(max_image_wait);
+}
+
+TEST_F(TestUi, make_canvas11) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(650, 650, g);
+    timeout(max_image_wait);
+}
+
+
+TEST_F(TestUi, make_canvas12) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(630, 650, g);
+    timeout(max_image_wait);
+}
+
+
+
+TEST_F(TestUi, make_canvas13) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(650, 600, g);
+    timeout(max_image_wait);
+}
+
+
+TEST_F(TestUi, make_canvas14) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(650, -6, g);
+    timeout(max_image_wait);
+}
+
+TEST_F(TestUi, make_canvas15) {
+    MAKE_CANVAS
+    canvas.draw_completed([this]() {
+        test_exit();
+    });
+    Gempyre::Bitmap g(10, 10);
+    canvas.draw(650, -6, g);
+    timeout(max_image_wait);
+}
+
+
+
 TEST_F(TestUi, add_image) {
     MAKE_CANVAS
     const auto id = canvas.add_image("/spiderman1.png");

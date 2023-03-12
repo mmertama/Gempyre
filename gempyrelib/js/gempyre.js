@@ -319,7 +319,6 @@ function sendCollection(name, query_id, query, collectionFunction) {
 
 function handleBinary(buffer) {
     const bytes = new Uint32Array(buffer);
-    log("addEvhandleBinaryenting");
     if(!bytes || bytes.length === 0) {
         errlog("Binary", "Invalid buffer", buffer);
         return;
@@ -352,16 +351,17 @@ function handleBinary(buffer) {
         if (datalen > 0) { // otherwise this is just a tail
             const ctx = element.getContext("2d", {alpha:false});
             if(ctx) {
-                const bytesLen = w * h * 4;
-                const imageData = data.length === bytesLen ? new ImageData(data, w, h) : new ImageData(data.slice(0, bytesLen), w, h);
-                ctx.putImageData(imageData, x, y);
+                if(w > 0 && h > 0) {
+                    const bytesLen = w * h * 4;
+                    const imageData = data.length === bytesLen ? new ImageData(data, w, h) : new ImageData(data.slice(0, bytesLen), w, h);
+                    ctx.putImageData(imageData, x, y);
+                }
             } else {
                 errlog(id, "has no graphics context");
                 return;
             }
         }    
 
-        log("as_draw", as_draw, event_notifiers.has("canvas_draw"));
 
         // if as_draw AND there is a notification request - send a notify
         if ((as_draw != 0) && event_notifiers.has("canvas_draw")) {
