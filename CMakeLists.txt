@@ -33,28 +33,29 @@ endif()
 # maybe use Fetch command instead of Externalproject add and then override flags
 
 if(WIN32)
-    set(CMAKE_CXX_FLAGS "-DWINDOWS_OS ${CMAKE_CXX_FLAGS}")
+    add_compile_definitions(WINDOWS_OS)
     add_compile_options(-D_WIN32)
     add_compile_options(-DWINDOWS_OS)
     add_compile_options(-DLIBUS_NO_SSL)
     add_compile_options(-DNOMINMAX)
     set(CMAKE_DEBUG_POSTFIX d)
 else()
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
+    add_compile_options(-Wall -Wextra)
 endif()
 
 if(APPLE)
-    set(CMAKE_CXX_FLAGS "-DMAC_OS ${CMAKE_CXX_FLAGS}")
+    add_compile_definitions(MAC_OS)
 elseif(RASPBERRY)
-    set(CMAKE_CXX_FLAGS "-DUNIX_OS -DRASPBERRY_OS -Wno-psabi ${CMAKE_CXX_FLAGS}")
+    add_compile_definitions(UNIX_OS DRASPBERRY_OS)
+    add_compile_options(-Wno-psabi)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     add_compile_options(-fPIC)
 elseif(ANDROID)
-     set(CMAKE_CXX_FLAGS "-DANDROID_OS ${CMAKE_CXX_FLAGS}")
+    add_compile_definitions(ANDROID_OS)
 elseif(UNIX)
-   set(CMAKE_CXX_FLAGS "-DUNIX_OS ${CMAKE_CXX_FLAGS}")
-   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-   add_compile_options(-fPIC)
+    add_compile_definitions(UNIX_OS)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    add_compile_options(-fPIC)
 endif()
 
 option(CI_ACTIONS "Github Actions build" OFF)
@@ -72,8 +73,9 @@ option(HAS_TEST "Test are built" ON)
 
 option(HAS_EXAMPLES "Examples are built" ON)
 
-option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" OFF)
 
+option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" OFF)
+  
 
 if(HAS_AFFILIATES)
     add_subdirectory(affiliates)

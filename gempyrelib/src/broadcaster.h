@@ -5,7 +5,10 @@
 #include "gempyre_utils.h"
 #include "data.h"
 
+#ifndef UWS_NO_ZLIB
 #define UWS_NO_ZLIB
+#endif
+
 #include <App.h>
 
 #include <unordered_map>

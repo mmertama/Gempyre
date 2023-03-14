@@ -16,10 +16,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-if(USE_PYTHON_UI)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_PYTHON_UI)
-endif()
-
 message("compiler is ${CMAKE_CXX_COMPILER_ID}")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   add_compile_definitions(COMPILER_CLANG)
@@ -78,15 +74,22 @@ else()
     set(LIB_PNG_VER master) # no version
 endif()
 
+
+if(USE_PYTHON_UI)
+    message("Defaults to Python UI")
+    add_compile_definitions(USE_PYTHON_UI=1)
+else()
+    message("Defaults to Browser UI")
+endif()
+
 # todo: use expternalproject_getproperty SOURCE DIR instead to simplify
 set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
 
-set(CMAKE_CXX_FLAGS "-DGEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS}")
+add_compile_definitions(GEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS})
 
 
 if(WIN32)
-    set(CMAKE_CXX_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_CXX_FLAGS}")
-    set(CMAKE_C_FLAGS "-DWINDOWS_EXPORT -D_WIN32 ${CMAKE_C_FLAGS}")
+    add_compile_definitions(WINDOWS_EXPORT WIN32)
     add_compile_options(-DWINDOWS_EXPORT)
     add_compile_options(-D_WIN32)
 
@@ -351,16 +354,15 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}	-D_GLIBCXX_DEBUG")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  add_compile_definitions(_GLIBCXX_DEBUG)
+  add_compile_definitions(-stdlib=libc++)
 else()
  # set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
- set(CMAKE_EXE_LINKER_FLAGS "-lstdc++")
+ add_link_options(-lstdc++)
 endif()
 
 
-set(CMAKE_CXX_FLAGS, "-DUWS_NO_ZLIB ${CMAKE_CXX_FLAGS}")
-set(CMAKE_C_FLAGS, "-DUWS_NO_ZLIB ${CMAKE_C_FLAGS}")
+add_compile_definitions(UWS_NO_ZLIB)
 
 if(NOT (MSVC OR ANDROID))
     find_package (Threads REQUIRED)
@@ -449,7 +451,7 @@ endif()
 
 if(ANDROID OR RASPBERRY)
     #openssl is not there
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLIBUS_NO_SSL")
+    add_compile_definitions(DLIBUS_NO_SSL)
     list(REMOVE_ITEM SOCKETS_SRC "${SOCKETS_SOURCES}/src/ssl.c")
     add_library(${PROJECT_NAME}
         ${SOCKETS_SRC}
