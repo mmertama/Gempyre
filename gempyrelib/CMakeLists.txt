@@ -1,7 +1,7 @@
 #cmake_minimum_required (VERSION 3.18)
 
 
-project (gempyre VERSION 1.0.1 LANGUAGES CXX C)
+project (gempyre VERSION 1.0.2 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -270,9 +270,6 @@ set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/src")
 #set_property(DIRECTORY ${WEBSOCKETS_SOURCES}
 #    PROPERTY COMPILE_DEFINITIONS "DISABLE_WERROR=ON")
 
-#set_property(DIRECTORY ${WEBSOCKETS_SOURCES}
-#    PROPERTY COMPILE_FLAGS "-Wunused-parameter")
-
 
 find_path(ZLIB_H zlib.h PATHS
     ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}
@@ -355,7 +352,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_definitions(_GLIBCXX_DEBUG)
-  add_compile_definitions(-stdlib=libc++)
+  add_compile_options(-stdlib=libc++)
 else()
  # set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
  add_link_options(-lstdc++)
