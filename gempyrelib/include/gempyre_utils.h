@@ -263,7 +263,7 @@ T atOr(const C& container, const std::string& s, const T& defaultValue, unsigned
 }
 
 
-template <class Container>
+template <class Container = std::vector<std::string>>
 Container split(const std::string& str, const char splitChar = ' ') {
     Container con;
     std::istringstream iss(str);

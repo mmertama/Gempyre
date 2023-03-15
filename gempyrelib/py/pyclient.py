@@ -7,6 +7,7 @@ import webview
 import websockets
 import re
 import argparse
+import ast
 
 
 do_exit = None
@@ -217,7 +218,9 @@ def main():
     if args.gempyre_extra:
         for e in args.gempyre_extra.split(';'):
             m = re.match(r'^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)\s*$', e)
-            extra[m[1]] = m[2]
+            ex_name = m[1]
+            ex_value = ast.literal_eval(m[2])
+            extra[ex_name] = m[ex_value]
 
     uri = urlparse(uri_string)
     window = webview.create_window(title, url=uri_string, width=width, height=height,

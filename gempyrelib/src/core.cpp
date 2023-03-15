@@ -378,7 +378,16 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
 
     const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
 
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui cmd:", appui, cmd_params);
+    if (GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug) {
+        const auto lines = GempyreUtils::split(cmd_params, '\n');
+        if (GempyreUtils::log_level() != GempyreUtils::LogLevel::Debug_Trace || lines.size() > 2) {
+            // show only 1st and last
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui params:", appui,
+             lines[0], "...", lines[lines.size() - 1]);
+        } else {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui params:", appui, cmd_params);
+        }
+    }
 
 
 #if defined (ANDROID_OS)
