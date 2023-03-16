@@ -155,7 +155,7 @@ namespace Gempyre {
         ///Application gracefully finish the event loop and exits.
         void exit();
         ///Requires Client window to close (that cause the application to close).
-        void close();
+        [[deprecated("Prefer exit")]] void close();
 
         using ExitFunction = std::function<void ()>;
         using ReloadFunction = std::function<void ()>;

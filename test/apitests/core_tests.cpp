@@ -125,6 +125,7 @@ TEST(TestMockUi, onExit) {
     ASSERT_TRUE(ok);
 }
 
+/*
 TEST(TestMockUi, close) {
     TEST_UI;
     bool ok = false;
@@ -139,7 +140,7 @@ TEST(TestMockUi, close) {
     ui.run();
     ASSERT_TRUE(ok);
 }
-
+*/
 
 TEST(TestMockUi, alert) {
     TEST_UI;
