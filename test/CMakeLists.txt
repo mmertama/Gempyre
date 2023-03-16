@@ -27,7 +27,13 @@ set_tests_properties(${Tests} PROPERTIES TIMEOUT 10)
 set(TEST_INCLUDE_DIR ${googletest_SOURCE_DIR}/googletest/include())
 set(TEST_LIBRARY_DIR ${googletest_BINARY_DIR})
 
-add_subdirectory(mock_browser)
+if(APPLE)
+    message(WARNING "Disable mock browser and its test on OSX as Clang 14.0 fails with libwebsocket")
+else()
+  add_subdirectory(mock_browser)
+endif()
+
+
 add_subdirectory(apitests)
 add_subdirectory(unittests)
 if(NOT DEFINED ACTIONS)  # on actions EXCLUDE_FROM_ALL is not proof

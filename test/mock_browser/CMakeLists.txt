@@ -2,7 +2,7 @@
 project(mock_browser)
 set(CMAKE_CXX_STANDARD 17)
 
-include(libwebsocket.cmake)
+include(libwebsocket.cmake) 
 
 add_executable(${PROJECT_NAME}
     mock_browser.cpp
