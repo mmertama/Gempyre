@@ -8,7 +8,7 @@ namespace Gempyre {
 
 class Semaphore {
 public:
-    Semaphore(int count = 0) : m_count(count) {}
+    explicit Semaphore(int count = 0) : m_count(count) {}
     void signal() {
         std::unique_lock<std::mutex> lock(m_mtx);
         m_count++;

@@ -133,7 +133,7 @@ public:
          m_responsemap.push(std::move(id), std::move(response));
     }
 
-    void call_error(const std::string src, std::string err) {
+    void call_error(const std::string& src, std::string err) {
         if(m_onError) {
                 m_onError(src, err);
             }

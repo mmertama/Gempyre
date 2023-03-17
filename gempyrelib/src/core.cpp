@@ -82,10 +82,10 @@ static std::optional<T> getConf(const std::string& key) {
     const auto map = std::any_cast<std::unordered_map<std::string, std::any>>(&js.value());
     if(map && map->find(key) != map->end()) {
         const auto any_value = map->at(key);
-        const auto value = std::any_cast<T>(&any_value);
-        if(value) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, *value);
-            return std::make_optional<T>(*value);
+        const auto conf_value = std::any_cast<T>(&any_value);
+        if(conf_value) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, *conf_value);
+            return std::make_optional<T>(*conf_value);
         }
     }
     
@@ -171,7 +171,7 @@ static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexH
         const auto width = value(param_map, WIDTH_KEY, "320");
         const auto height = value(param_map, HEIGHT_KEY, "240");
         const auto title = value(param_map, TITLE_KEY, "Gempyre");
-        const auto extra = value(param_map, BROWSER_PARAMS_KEY, "");
+        [[maybe_unused]] const auto extra = value(param_map, BROWSER_PARAMS_KEY, "");
         const auto flags = value(param_map, FLAGS_KEY, "");
         const auto conf = confCmdLine({{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}, {"FLAGS", flags}});
         if(conf)

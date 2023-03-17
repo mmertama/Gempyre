@@ -42,7 +42,7 @@ class Broadcaster {
     bool check_backpressure(const L len, S& s) {
         auto s_ptr = &s; 
         const auto webSocketContextData = static_cast<uWS::WebSocketContextData<false, ExtraSocketData>*>
-        (us_socket_context_ext(false, static_cast<us_socket_context_t *> (us_socket_context(false, (us_socket_t *) s_ptr))));
+        (us_socket_context_ext(false, static_cast<us_socket_context_t *> (us_socket_context(false, reinterpret_cast<us_socket_t *> (s_ptr)))));
         const auto free_space =  webSocketContextData->maxBackpressure -s.getBufferedAmount(); 
         if(len > webSocketContextData->maxBackpressure) {
             GempyreUtils::log(GempyreUtils::LogLevel::Fatal,

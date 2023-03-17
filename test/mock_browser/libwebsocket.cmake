@@ -91,24 +91,4 @@ if(WIN32)
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${libwebsockets_SOURCE_DIR}/cmake")
 
   set(WS_LIBS websockets ${LIBWEBSOCKETS_DEP_LIBS})
-
-
-if(APPLE)
-#target_compile_options(libwebsockets PUBLIC -Wno-unused-variable)
-set_target_properties(libwebsockets PROPERTIES COMPILE_OPTIONS  "-Wno-unused-variable") 
-set_target_properties(libwebsockets PROPERTIES COMPILE_OPTIONS  "-Werror=no-unused-variable")
-
-#set_source_files_properties(${CMAKE_BINARY_DIR}/_deps/libwebsockets-src/lib/plat/unix/unix-misc.c
-#PROPERTIES  COMPILE_OPTIONS  "-Wno-unused-variable")
-
-
-set_directory_properties(DIRECTORY "${CMAKE_BINARY_DIR}/_deps"
-  PROPERTY COMPILE_FLAGS "-Wno-unused-variable")
-set_directory_properties(DIRECTORY "${CMAKE_BINARY_DIR}/_deps"
-  PROPERTY COMPILE_FLAGS "-Werror=no-unused-variable")
-#set_directory_properties(DIRECTORY "${CMAKE_BINARY_DIR}/_deps"
-#  PROPERTY COMPILE_FLAGS "-w")
-
-#set_directory_properties(DIRECTORY "${CMAKE_BINARY_DIR}/_deps"
-#  PROPERTY COMPILE_FLAGS "-Wno-error=unused-variable  ")    
-endif()     
+   

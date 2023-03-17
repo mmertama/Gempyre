@@ -123,13 +123,14 @@ static std::string notFoundPage(const std::string_view& url, const std::string_v
 
 class Gempyre::Batch {
 public:
-    Batch() {
+    Batch() : m_array{json::array()}{
         m_data["type"] = "batch";
-        m_array = json::array();
     }
+
     void push_back(json&& jobj) {
         m_array.push_back(std::forward<json>(jobj));
     }
+
     std::string dump() {
         m_data["batches"] =  std::move(m_array);
         return m_data.dump();
@@ -433,8 +434,8 @@ void Server::closeListenSocket() {
 
 bool Server::retryStart() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Retry", m_port);
-    const auto port = wishAport(m_port, PORT_ATTEMPTS);
-    if(port <= 0) {
+    const auto ui_port = wishAport(m_port, PORT_ATTEMPTS);
+    if(ui_port == 0) {
         GempyreUtils::log(GempyreUtils::LogLevel::Error, "Listen ports:", m_port, "failed", GempyreUtils::last_error());
         return false;
     }

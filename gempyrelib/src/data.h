@@ -15,7 +15,7 @@ class Data {
             using difference_type = void;
             using pointer = T*;
             using reference = T&;
-            iteratorT(pointer data = nullptr) : m_data(data) {}
+            explicit iteratorT(pointer data = nullptr) : m_data(data) {}
             iteratorT(const iteratorT& other) = default;
             iteratorT& operator=(const iteratorT& other) = default;
             bool operator==(const iteratorT& other) const  {return m_data == other.m_data;}
@@ -34,10 +34,10 @@ class Data {
         [[nodiscard]] dataT* data();
         [[nodiscard]] const dataT* data() const;
         [[nodiscard]] unsigned elements() const;
-        [[nodiscard]] Data::iterator begin() {return data();}
-        [[nodiscard]] Data::iterator end() {return data() + elements();}
-        [[nodiscard]] const Data::const_iterator begin() const {return data();}
-        [[nodiscard]] const Data::const_iterator end() const {return data() + elements();}
+        [[nodiscard]] Data::iterator begin() {return iteratorT{data()};}
+        [[nodiscard]] Data::iterator end() {return iteratorT{data() + elements()};}
+        [[nodiscard]] const Data::const_iterator begin() const {return iteratorT{data()};}
+        [[nodiscard]] const Data::const_iterator end() const {return iteratorT{data() + elements()};}
         [[nodiscard]] dataT& operator[](int index) {return (data()[index]);}
         [[nodiscard]] dataT operator[](int index) const {return (data()[index]);}
         [[nodiscard]] dataT* endPtr() {return data() + elements();}
