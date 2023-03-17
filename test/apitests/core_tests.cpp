@@ -142,6 +142,7 @@ TEST(TestMockUi, close) {
 }
 */
 
+#ifdef HAS_MOCK // real browser would block without user action
 TEST(TestMockUi, alert) {
     TEST_UI;
     bool ok = false;
@@ -154,6 +155,7 @@ TEST(TestMockUi, alert) {
     ui.run();
     ASSERT_TRUE(ok);
 }
+#endif
 
 //#ifndef RASPBERRY_OS
 

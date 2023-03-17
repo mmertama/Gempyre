@@ -10,14 +10,10 @@ include_directories(
     ${TEST_INCLUDE_DIR}
 )
 
+set(CORE_TEST core_tests.cpp)
+
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
-
-if(NOT WIN32)
-    set(CORE_TEST core_tests.cpp)
-else()
-    message(WARNING "Mock browser stopped working in msvc - connection error 10035 - todo")    
-endif()
 
 add_executable(${PROJECT_NAME}
     ui_tests.cpp
@@ -54,7 +50,11 @@ add_compile_definitions(TEST_HTML="${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.h
 configure_file(gui/${PROJECT_NAME}.html ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html COPYONLY)
 
 # set test app name
-add_compile_definitions(TEST_BINARY="${TEST_PROXY_BINARY}")
+if(HAS_MOCK)
+    add_compile_definitions(TEST_BINARY="${TEST_PROXY_BINARY}")
+else()
+    add_compile_definitions(TEST_BINARY="")    
+endif()
 
 add_dependencies (${PROJECT_NAME} gempyre)
 find_library(gtest PATHS ${TEST_LIBRARY_DIR})

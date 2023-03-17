@@ -73,7 +73,6 @@ option(HAS_TEST "Test are built" ON)
 
 option(HAS_EXAMPLES "Examples are built" ON)
 
-
 option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" OFF)
   
 

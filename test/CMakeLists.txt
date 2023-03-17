@@ -27,9 +27,14 @@ set_tests_properties(${Tests} PROPERTIES TIMEOUT 10)
 set(TEST_INCLUDE_DIR ${googletest_SOURCE_DIR}/googletest/include())
 set(TEST_LIBRARY_DIR ${googletest_BINARY_DIR})
 
+
 if(APPLE)
-    message(WARNING "Disable mock browser and its test on OSX as Clang 14.0 fails with libwebsocket")
+  message(WARNING "Disable mock browser and its test on OSX as Clang 14.0 fails with libwebsocket")
+elseif(WIN32)
+  message(WARNING "Mock browser stopped working in msvc - connection error 10035 - todo")    
 else()
+  set(HAS_MOCK 1)
+  add_compile_definitions(HAS_MOCK)
   add_subdirectory(mock_browser)
 endif()
 
