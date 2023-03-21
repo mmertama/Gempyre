@@ -60,6 +60,9 @@ def on_show(window, host, port):
 
                 doc = receive.result()
 
+                if(not isinstance(doc, str)):
+                    continue
+
                 receive = loop.create_task(ws.recv())
                 try:
                     obj = json.loads(doc)
