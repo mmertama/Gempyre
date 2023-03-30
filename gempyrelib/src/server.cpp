@@ -301,6 +301,8 @@ void Server::serverThread(unsigned int port) {
 
     assert(!m_uiready);
 
+    m_broadcaster->set_loop(uWS::Loop::get());
+
     auto app = WSServer()
     .ws<ExtraSocketData>("/" + toLower(SERVICE_NAME), std::move(behavior))
     .get("/data/:id", [this](auto * res, auto * req) {
@@ -570,3 +572,4 @@ void Server::close(bool wait) {
     }
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server - gone");
 }
+

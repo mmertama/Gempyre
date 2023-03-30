@@ -14,6 +14,8 @@
 #include <unordered_map>
 #include <cassert>
 
+using namespace std::chrono_literals;;
+
 namespace Gempyre {
 
 struct ExtraSocketData {};
@@ -75,7 +77,7 @@ public:
                 continue;
             if(check_backpressure(text.size(), *s))
                 return false;
-            const auto success = s->send(text, uWS::OpCode::TEXT);
+            const auto success = socket_send(s, text, true);
             if(success != WSSocket::SendStatus::SUCCESS) {
                 socket_error<SType::Txt>(success, *s);
                 return false;
@@ -97,7 +99,7 @@ public:
                     m_lastResend = ptr.index();
                     return false;
                 }
-                const auto success = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
+                const auto success = socket_send(s, std::string_view(data, len), false);
                 if(success != WSSocket::SendStatus::SUCCESS) {
                     socket_error<SType::Bin>(success, *s);
                     m_lastResend = ptr.index();
@@ -163,12 +165,38 @@ public:
 
     void unlock() {
         m_backPressureMutex.unlock();
-    } 
+    }
+
+    void set_loop( uWS::Loop* loop) {
+        m_loop = loop;
+    }
+
+private:
+    WSSocket::SendStatus socket_send(WSSocket* s, std::string_view data, bool is_text) {
+        assert(m_loop);
+        WSSocket::SendStatus status = WSSocket::SendStatus::DROPPED;
+        std::unique_lock<std::mutex> lock(m_sendMutex);
+        std::condition_variable cv;
+        m_loop->defer([&] () {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket sending");
+            status = s->send(data, is_text ? uWS::OpCode::TEXT : uWS::OpCode::BINARY);
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket sent", status);
+            cv.notify_one();
+        });
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "waiting socket send");
+        if(std::cv_status::timeout == cv.wait_for(lock, 1s)) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket send expired");
+        }
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket done", status);
+        return status;
+    }    
 private:
     std::unordered_map<WSSocket*, Type> m_sockets;
     std::timed_mutex m_backPressureMutex;
+    std::mutex m_sendMutex;
     mutable std::mutex m_socketMutex;
     unsigned m_lastResend = SEND_SUCCESS; 
+    uWS::Loop* m_loop = nullptr;
     };
 }
 

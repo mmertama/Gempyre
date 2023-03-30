@@ -93,7 +93,7 @@ private:
     Semaphore   m_waitStart; // must be before thread
     std::unique_ptr<std::thread> m_serverThread; // must be last
     friend class SocketHandler;
-};
+    };
 }
 
 #endif // SERVER_H
