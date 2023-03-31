@@ -175,17 +175,17 @@ private:
     WSSocket::SendStatus socket_send(WSSocket* s, std::string_view data, bool is_text) {
         assert(m_loop);
         WSSocket::SendStatus status = WSSocket::SendStatus::DROPPED;
-        std::unique_lock<std::mutex> lock(m_sendMutex);
+        std::unique_lock<std::mutex> lock(is_text ? m_sendTxtMutex : m_sendBinMutex);
         std::condition_variable cv;
         m_loop->defer([&] () {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket sending");
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket sending", is_text);
             status = s->send(data, is_text ? uWS::OpCode::TEXT : uWS::OpCode::BINARY);
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket sent", status);
-            cv.notify_one();
+            cv.notify_all();
         });
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "waiting socket send");
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "waiting socket send", is_text);
         if(std::cv_status::timeout == cv.wait_for(lock, 1s)) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket send expired");
+            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "socket send expired", is_text);
         }
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket done", status);
         return status;
@@ -193,7 +193,8 @@ private:
 private:
     std::unordered_map<WSSocket*, Type> m_sockets;
     std::timed_mutex m_backPressureMutex;
-    std::mutex m_sendMutex;
+    std::mutex m_sendTxtMutex;
+    std::mutex m_sendBinMutex;
     mutable std::mutex m_socketMutex;
     unsigned m_lastResend = SEND_SUCCESS; 
     uWS::Loop* m_loop = nullptr;

@@ -6,7 +6,7 @@ using namespace Gempyre;
 using namespace std::chrono_literals;
 
 void TimerMgr::onElapsed(const TimerData& data)  {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Timer running", data.id());
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Timer running", data.id());
     if(data.singleShot()) {
         remove(data.id());     // does notify
     }
@@ -54,11 +54,11 @@ void TimerMgr::start() {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer thread lock active");
                 std::unique_lock<std::mutex> lock(m_waitMutex);
                 const auto begin = std::chrono::steady_clock::now();
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer wait now:", data.id());
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer wait now:", data.id());
                 const auto status = m_cv.wait_for(lock, std::chrono::duration(currentSleep)); // do actual wait
                 const auto end = std::chrono::steady_clock::now(); //we may have had an early  wakeup
                 const auto actualWait = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer awake id:", data.id() , currentSleep.count(), actualWait.count(), m_queue->size(), (int)status);
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer awake id:", data.id() , currentSleep.count(), actualWait.count(), m_queue->size(), (int)status);
                 m_queue->reduce(actualWait);  //so we see if we are still there, and restart
                 continue; //find a new
             } else {  // no wait is <= 0
@@ -66,7 +66,7 @@ void TimerMgr::start() {
                 if(!m_queue->setPending(data.id()))
                     continue;
 
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "timer pop id:", data.id(), m_queue->size());
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "timer pop id:", data.id(), m_queue->size());
 
                 const auto begin = std::chrono::steady_clock::now();
 

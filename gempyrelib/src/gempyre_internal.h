@@ -261,7 +261,7 @@ public:
 
     void handle_requests() {
         while(has_timers() && *this != State::EXIT && !m_onOpen && !m_hold) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Do timer request", m_timerqueue.size());
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Do timer request", m_timerqueue.size());
             const auto timerfunction = std::move(m_timerqueue.front());
             m_timerqueue.pop_front();
             if(!timerfunction) {
@@ -270,7 +270,7 @@ public:
                 continue;
             }
             timerfunction();
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Dod timer request", m_timerqueue.size(),
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Dod timer request", m_timerqueue.size(),
                             state_str(), !m_timerqueue.empty() && *this != State::EXIT);
         }
     }

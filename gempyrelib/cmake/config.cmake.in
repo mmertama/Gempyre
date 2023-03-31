@@ -24,19 +24,16 @@ else()
 if(WIN32)
     message("Gempyre for WIN32")
     set(GEMPYRE_PATH "C:/Program Files (x86)/gempyre/lib/gempyre;C:/Program Files/gempyre/lib/gempyre")
-    set(CMAKE_PREFIX_PATH "C:/Program Files (x86)/gempyre/lib/gempyre;C:/Program Files/gempyre/lib/gempyre;${CMAKE_PREFIX_PATH}")
-    find_dependency(uva)
+    set(CMAKE_PREFIX_PATH "C:/Program Files (x86)/gempyre/lib/gempyre;C:/Program Files/gempyre/lib/gempyre;${CMAKE_PREFIX_PATH}")  
 elseif(RASPBERRY)
     message("Gempyre for Raspberry")
     # this could be done prettier?
     set(CMAKE_PREFIX_PATH "/usr/local/lib/gempyre;/usr/local/lib/aarch64-linux-gnu/gempyre;${CMAKE_PREFIX_PATH}")
     set(GEMPYRE_PATH "/usr/local/lib/gempyre;/usr/local/lib/aarch64-linux-gnu/gempyre")
-    find_dependency(uva)
     find_package(Threads)
 else()
     set(GEMPYRE_PATH "${ABSOLUTE_INSTALL_PREFIX}lib/gempyre") # Otherwise find_library for gempyre wont work
     set(CMAKE_PREFIX_PATH "${ABSOLUTE_INSTALL_PREFIX}lib/gempyre;${CMAKE_PREFIX_PATH}") # Otherwise usockets wont found
-    find_dependency(uSockets)
     find_package(Threads)
 endif()
 
