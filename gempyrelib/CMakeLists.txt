@@ -101,7 +101,11 @@ endif()
 
 # end of general defintions
 
-include(cmake/uwebsocket.cmake)
+if(USE_UWEBSOCKETS)
+    include(cmake/uwebsocket.cmake)
+else()
+    include(cmake/websocketpp.cmake)    
+endif()
 
 externalproject_add(libjson
     GIT_REPOSITORY https://github.com/nlohmann/json.git
@@ -193,15 +197,14 @@ set(INCLUDES
     )
 
 set(GEMPYRE_SRC
-    src/core.cpp
-    src/server.cpp
-    src/utils.cpp
-    src/base64.cpp
-    src/timer.cpp
     include/gempyre.h
     include/gempyre_utils.h
     include/gempyre_graphics.h
     include/gempyre_client.h
+    src/core.cpp
+    src/utils.cpp
+    src/base64.cpp
+    src/timer.cpp
     src/server.h
     src/base64.h
     src/timer.h
@@ -213,14 +216,15 @@ set(GEMPYRE_SRC
     src/element.cpp
     src/core.h
     src/timequeue.h
-    src/broadcaster.h
-    ${DIALOG_SRC}
     js/gempyre.js
     py/pyclient.py
     src/data.h
     src/gempyre_internal.h
     src/logging.cpp
+    src/server.cpp
+    ${DIALOG_SRC}
     ${PNG_SRC}
+    ${XWS_SOURCES}
     )
 
 
@@ -312,6 +316,7 @@ message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES_LIST}")
 target_include_directories( ${PROJECT_NAME}
     PUBLIC include
     PUBLIC include/generated
+    PRIVATE src
     #PRIVATE SYSTEM INTERFACE "$<BUILD_INTERFACE:${SYSTEM_INCLUDES_LIST}>"
     )
 
@@ -452,11 +457,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
 if(ANDROID)
     # Where to install for crosscompile? Maybe just use a ENV as this far
 else()
-    set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${CONNECTION_FIND})
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CONNECTION_FIND}.in
-        ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
-        @ONLY)
+    if(DEFINED CONNECTION_FIND)
+        set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${CONNECTION_FIND})
+        configure_file(
+            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CONNECTION_FIND}.in
+            ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
+            @ONLY)
+    endif()        
 
     install(
         TARGETS ${PROJECT_NAME}
@@ -485,10 +492,14 @@ else()
             )
     endif()
 
-    install(FILES
-        ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
-        DESTINATION ${PROJECT_CMAKE_DIR}
-        )
+    if(DEFINED CONNECTION_FIND)
+        install(FILES
+            ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
+            DESTINATION ${PROJECT_CMAKE_DIR}
+            )
+    else()
+        message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
+    endif()    
 
    install(FILES
        ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}

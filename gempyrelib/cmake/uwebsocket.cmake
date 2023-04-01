@@ -248,6 +248,8 @@ endif()
 
 
 macro(socket_dependencies TARGET)
+    target_compile_definitions(${TARGET} PRIVATE USE_UWEBSOCKETS)
+    target_include_directories(${TARGET} PRIVATE src/uwebsockets)
     add_dependencies(${TARGET} libwebsockets)
     if (COMPILE_SOCKETS_IN)
         #add_dependencies(libsockets libuv)
@@ -257,3 +259,8 @@ macro(socket_dependencies TARGET)
         add_dependencies(${TARGET} makecmd)
     endif()
 endmacro()
+
+set(XWS_SOURCES 
+    src/uwebsockets/broadcaster.h
+    src/uwebsockets/server.cpp
+    )

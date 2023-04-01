@@ -22,7 +22,7 @@ gtest_discover_tests(${PROJECT_NAME})
 add_dependencies (${PROJECT_NAME} gempyre)
 
 find_library(gtest PATHS ${TEST_LIBRARY_DIR})
-get_filename_component(uva_dir $<TARGET_PROPERTY:gempyre,gempyre_libs_path> DIRECTORY)
+#get_filename_component(uva_dir $<TARGET_PROPERTY:gempyre,gempyre_libs_path> DIRECTORY)
 target_link_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:gempyre,gempyre_libs_path>)
 target_link_libraries (${PROJECT_NAME}
     gtest

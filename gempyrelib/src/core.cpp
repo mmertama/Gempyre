@@ -1042,7 +1042,7 @@ GempyreInternal& Ui::ref() {
     m_responsemap.clear();
     
     // This is executed in m_startup 
-    m_server = std::make_unique<Server>(
+    m_server = create_server(
                    port,
                    root.empty() ? GempyreUtils::working_dir() : root,
                    [ui](){ui->openHandler();},

@@ -5,6 +5,7 @@
 #include "gempyre.h"
 #include "gempyre_utils.h"
 #include "gempyre_internal.h"
+#include "data.h"
 
 namespace Gempyre {
 
