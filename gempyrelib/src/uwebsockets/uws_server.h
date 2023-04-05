@@ -24,7 +24,7 @@ public:
            const Server::CloseFunction& onClose,
            const Server::GetFunction& onGet,
            const Server::ListenFunction& onListen,
-           int querIdBase);
+           int queryIdBase);
      
      ~Uws_Server();
 private: // let's not use Server API

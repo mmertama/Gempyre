@@ -35,8 +35,8 @@ std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
            const Server::CloseFunction& onClose,
            const Server::GetFunction& onGet,
            const Server::ListenFunction& onListen,
-           int querIdBase) {
-            return std::unique_ptr<Server>(new Uws_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, querIdBase));
+           int queryIdBase) {
+            return std::unique_ptr<Server>(new Uws_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase));
            }
 
 static std::string fileToMime(const std::string_view& filename) {

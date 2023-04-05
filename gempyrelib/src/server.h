@@ -81,7 +81,7 @@ std::unique_ptr<Server> create_server(unsigned int port,
            const Server::CloseFunction& onClose,
            const Server::GetFunction& onGet,
            const Server::ListenFunction& onListen,
-           int querIdBase);
+           int queryIdBase);
 
 }
 

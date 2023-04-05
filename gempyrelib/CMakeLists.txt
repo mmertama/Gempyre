@@ -457,10 +457,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
 if(ANDROID)
     # Where to install for crosscompile? Maybe just use a ENV as this far
 else()
-    if(DEFINED CONNECTION_FIND)
-        set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${CONNECTION_FIND})
+    if(DEFINED SOCKET_CONFIG)
+        set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${SOCKET_CONFIG})
         configure_file(
-            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CONNECTION_FIND}.in
+            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${SOCKET_CONFIG}.in
             ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
             @ONLY)
     endif()        
@@ -492,13 +492,13 @@ else()
             )
     endif()
 
-    if(DEFINED CONNECTION_FIND)
+    if(DEFINED SOCKET_CONFIG)
         install(FILES
             ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
             DESTINATION ${PROJECT_CMAKE_DIR}
             )
     else()
-        message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
+        message(WARNING "Project config is not installed - as SOCKET_CONFIG is not defined!")        
     endif()    
 
    install(FILES
