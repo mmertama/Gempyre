@@ -104,7 +104,7 @@ endif()
 if(USE_UWEBSOCKETS)
     include(cmake/uwebsocket.cmake)
 else()
-    include(cmake/websocketpp.cmake)    
+    include(cmake/libwebsockets.cmake)    
 endif()
 
 externalproject_add(libjson
@@ -224,7 +224,7 @@ set(GEMPYRE_SRC
     src/server.cpp
     ${DIALOG_SRC}
     ${PNG_SRC}
-    ${XWS_SOURCES}
+    ${GEMPYRE_WS_SOURCES}
     )
 
 
@@ -385,28 +385,28 @@ if(WIN32)
     endif()
 
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${XWS_LIB_NAME};${WIN_LIB}")    
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_obj "${XWS_LIB_OBJ};${WIN_LIB}")
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${XWS_LIB_PATH}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${GEMPYRE_WS_LIB_NAME};${WIN_LIB}")    
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_obj "${GEMPYRE_WS_LIB_OBJ};${WIN_LIB}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${GEMPYRE_WS_LIB_PATH}")
 
 
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-        PRIVATE ${XWS_LIB}
+        PRIVATE ${GEMPYRE_WS_LIB}
         PUBLIC ${WIN_LIB}
         )
 elseif(ANDROID)
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs ${XWS_LIB_NAME})
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs ${GEMPYRE_WS_LIB_NAME})
     target_link_libraries (${PROJECT_NAME}
-        PRIVATE -l${XWS_LIB_NAME_CORE}
+        PRIVATE -l${GEMPYRE_WS_LIB_NAME_CORE}
         PRIVATE -lstdc++
         )
 elseif(RASPBERRY)
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${XWS_LIB_NAME_CORE};${CMAKE_THREAD_LIBS_INIT}")
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${XWS_LIB_PATH}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${GEMPYRE_WS_LIB_NAME_CORE};${CMAKE_THREAD_LIBS_INIT}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${GEMPYRE_WS_LIB_PATH}")
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-        PRIVATE ${XWS_LIB_NAME_CORE}
+        PRIVATE ${GEMPYRE_WS_LIB_NAME_CORE}
         PRIVATE -lstdc++
         )        
 else()
@@ -457,10 +457,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
 if(ANDROID)
     # Where to install for crosscompile? Maybe just use a ENV as this far
 else()
-    if(DEFINED SOCKET_CONFIG)
-        set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${SOCKET_CONFIG})
+    if(DEFINED CONNECTION_FIND)
+        set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${CONNECTION_FIND})
         configure_file(
-            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${SOCKET_CONFIG}.in
+            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CONNECTION_FIND}.in
             ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
             @ONLY)
     endif()        
@@ -486,19 +486,19 @@ else()
 
     if(MSVC)
         # I really wont get why on some setup above works, and sometimes this is needed 8-\ win
-        install(FILES ${XWS_LIB_FULL_R}
+        install(FILES ${GEMPYRE_WS_LIB_FULL_R}
             DESTINATION ${LIBRARY_FULL_DIR}
             OPTIONAL
             )
     endif()
 
-    if(DEFINED SOCKET_CONFIG)
+    if(DEFINED CONNECTION_FIND)
         install(FILES
             ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
             DESTINATION ${PROJECT_CMAKE_DIR}
             )
     else()
-        message(WARNING "Project config is not installed - as SOCKET_CONFIG is not defined!")        
+        message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
     endif()    
 
    install(FILES

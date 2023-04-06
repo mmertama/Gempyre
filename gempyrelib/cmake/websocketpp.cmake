@@ -1,3 +1,5 @@
+message(FATAL_ERROR "Websocket++ is TODO")
+
 if(BLEEDING_EDGE)
     set(LIB_WS_VER master)    
 else()
@@ -17,12 +19,17 @@ externalproject_add(libwebsockets
     TEST_COMMAND ""
     )
 
+# set include path there    
+ExternalProject_Get_Property(libwebsockets SOURCE_DIR)
+set(WEBSOCKETS_SOURCES ${SOURCE_DIR})
+set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")    
+
 
 macro(socket_dependencies TARGET)
 target_compile_definitions(${TARGET} PRIVATE USE_WEBSOCKETPP)
 endmacro()
 
-set(XWS_SOURCES 
+set(GEMPYRE_WS_SOURCES 
     src/websocketpp/server.cpp
     src/websocketpp/wspp_server.h
     )

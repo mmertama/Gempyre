@@ -208,27 +208,27 @@ endif()
 
 if(WIN32)
     message("uvlib is set as:'${UV_LIB_FULL}'")
-    set(XWS_LIB_NAME "${UVA_LIB_NAME}")
-    set(XWS_LIB_OBJ  "${UVA_LIB}")
-    set(XWS_LIB_PATH "${UV_LIB_DIR}")
-    set(XWS_LIB "${UV_LIB}")
-    set(XWS_LIB_FULL "${UV_LIB_FULL}")
+    set(GEMPYRE_WS_LIB_NAME "${UVA_LIB_NAME}")
+    set(GEMPYRE_WS_LIB_OBJ  "${UVA_LIB}")
+    set(GEMPYRE_WS_LIB_PATH "${UV_LIB_DIR}")
+    set(GEMPYRE_WS_LIB "${UV_LIB}")
+    set(GEMPYRE_WS_LIB_FULL "${UV_LIB_FULL}")
 endif()
 
 if(MSVC)
-    set(XWS_LIB_FULL_R ${UV_LIB_FULL_R})
+    set(GEMPYRE_WS_LIB_FULL_R ${UV_LIB_FULL_R})
 endif()
 
 if(ANDROID)
     message("uvdir ${UVA_LIB_NAME}")
-    set(XWS_LIB_NAME_CORE "${UVA_LIB_NAME_CORE}")
-    set(XWS_LIB_PATH "${UV_LIB_DIR}")
+    set(GEMPYRE_WS_LIB_NAME_CORE "${UVA_LIB_NAME_CORE}")
+    set(GEMPYRE_WS_LIB_PATH "${UV_LIB_DIR}")
 endif()
 
 if(RASPBERRY)
     message("uvlib is set as:'${UV_LIB_FULL}'")
-    set(XWS_LIB_FULL "${UV_LIB_FULL}")
-    set(XWS_LIB_NAME_CORE "${UVA_LIB_NAME_CORE}")
+    set(GEMPYRE_WS_LIB_FULL "${UV_LIB_FULL}")
+    set(GEMPYRE_WS_LIB_NAME_CORE "${UVA_LIB_NAME_CORE}")
 endif()
 
 
@@ -260,7 +260,8 @@ macro(socket_dependencies TARGET)
     endif()
 endmacro()
 
-set(XWS_SOURCES 
+set(GEMPYRE_WS_SOURCES 
     src/uwebsockets/broadcaster.h
     src/uwebsockets/server.cpp
+    src/uwebsockets/uws_server.h
     )

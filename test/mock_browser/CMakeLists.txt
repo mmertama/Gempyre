@@ -2,7 +2,9 @@
 project(mock_browser)
 set(CMAKE_CXX_STANDARD 17)
 
-include(libwebsocket.cmake) 
+if(NOT USE_LIBWEBSOCKETS)
+include(${CMAKE_SOURCE_DIR}/gempyrelib/cmake/libwebsockets.cmake)
+endif()
 
 add_executable(${PROJECT_NAME}
     mock_browser.cpp
