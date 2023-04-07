@@ -410,7 +410,7 @@ bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std:
 
 std::optional<std::string> Ui::getHandler(const std::string_view & name) { //get
     GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get", name);
-    if(name == "/gempyre.js") {
+    if(name == "/gempyre.js" || name == "gempyre.js") {
         const auto encoded = Base64::decode(Gempyrejs);
         const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
         return std::make_optional(page);

@@ -6,6 +6,8 @@ if(NOT USE_LIBWEBSOCKETS)
 include(${CMAKE_SOURCE_DIR}/gempyrelib/cmake/libwebsockets.cmake)
 endif()
 
+link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
+
 add_executable(${PROJECT_NAME}
     mock_browser.cpp
     ws_app.cpp
@@ -31,11 +33,12 @@ set(TEST_PROXY_BINARY "$<TARGET_FILE:${PROJECT_NAME}>" PARENT_SCOPE)
 
 if(RASPBERRY)
     target_link_libraries(${PROJECT_NAME}
-        PRIVATE ${WS_LIBS}
+        PRIVATE websockets
         PRIVATE -lstdc++
         )
 else()
     target_link_libraries(${PROJECT_NAME}
-        PRIVATE ${WS_LIBS})        
+        PRIVATE websockets
+        )        
 endif()
 

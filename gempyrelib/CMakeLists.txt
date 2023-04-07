@@ -120,7 +120,6 @@ externalproject_add(libjson
     )
 
 ExternalProject_Get_Property(libjson SOURCE_DIR)
-#set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${JSON_DIR}/src/libjson/include")
 set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
 
 # store for testing json re-use
@@ -361,8 +360,10 @@ endif()
 
 socket_dependencies(${PROJECT_NAME})
 
-
 #add_dependencies(${PROJECT_NAME} gempyrejs)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${GEMPYRE_WS_LIB_PATH}")
+
 
 if(WIN32)
     if(MSVC)
@@ -387,8 +388,6 @@ if(WIN32)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${GEMPYRE_WS_LIB_NAME};${WIN_LIB}")    
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_obj "${GEMPYRE_WS_LIB_OBJ};${WIN_LIB}")
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${GEMPYRE_WS_LIB_PATH}")
-
 
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
@@ -403,16 +402,15 @@ elseif(ANDROID)
         )
 elseif(RASPBERRY)
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${GEMPYRE_WS_LIB_NAME_CORE};${CMAKE_THREAD_LIBS_INIT}")
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${GEMPYRE_WS_LIB_PATH}")
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${GEMPYRE_WS_LIB_NAME_CORE}
         PRIVATE -lstdc++
         )        
 else()
-    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${SOCKETS_LIB};${CMAKE_THREAD_LIBS_INIT}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs  "${SOCKETS_LIB};${CMAKE_THREAD_LIBS_INIT}")
     target_link_libraries (${PROJECT_NAME}
-        PRIVATE ${CMAKE_THREAD_LIBS_INIT}ƒ
+        PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${SOCKETS_LIB}
         PRIVATE -lstdc++)
 endif()

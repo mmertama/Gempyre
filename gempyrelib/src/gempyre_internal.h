@@ -140,11 +140,19 @@ public:
     }
 
     std::optional<std::string> file(std::string_view name) const {
-         const auto it = m_filemap.find(std::string(name));
-         if(it != m_filemap.end()) {
+        if(name.empty()) return std::nullopt;
+        const std::string key{name};
+        if(const auto it = m_filemap.find(key); it != m_filemap.end()) {
             return std::make_optional(it->second);
-         }
-         return std::nullopt; 
+        }
+        // if path is "not absolute" - older versions of Gempyre required that filemap
+        // paths are absolute (issues inherited from uws) but now we can be more
+        // liberal with paths
+        if(name[0] != '/') {
+            if(const auto it = m_filemap.find('/' + key); it != m_filemap.end())
+                return std::make_optional(it->second);
+        }
+        return std::nullopt; 
     }
 
 

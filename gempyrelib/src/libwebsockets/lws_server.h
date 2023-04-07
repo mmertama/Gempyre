@@ -3,10 +3,16 @@
 
 #include <future>
 #include <atomic>
+#include <optional>
+#include <string_view>
 
-struct lws_context;
+extern "C" {
+    #include <libwebsockets.h>
+}
 
 namespace Gempyre {
+
+class SendBuffer;    
 
 class LWS_Server : public Server {
 public:
@@ -32,9 +38,15 @@ private: // let's not use Server API
     bool beginBatch() override;
     bool endBatch() override;
 private:
+    static int wsCallback(lws *wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
+    static int httpCallback(lws *wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
+    std::string parseQuery(const std::string_view query) const;
+    bool get(const std::string_view get_param) const;
+private:
     std::atomic<bool> m_running;
+    std::atomic<bool> m_connected;
     std::future<void> m_loop;
-    lws_context m_context;
+    std::unique_ptr<SendBuffer> m_send_buffer;
 };
 } // ns Gempyre
 #endif // LWS_SERVER_H

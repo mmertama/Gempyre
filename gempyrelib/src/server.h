@@ -63,6 +63,9 @@ public:
     static unsigned wishAport(unsigned port, unsigned max);
     static unsigned portAttempts();
 
+    static std::string fileToMime(const std::string_view& filename);
+    static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "");
+
 protected:
     unsigned int m_port;
     std::string m_rootFolder;

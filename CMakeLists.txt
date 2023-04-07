@@ -4,7 +4,6 @@ project(gempyre LANGUAGES CXX)
 # enable ctests, starting from the top build folder
 include(CTest)
 
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()

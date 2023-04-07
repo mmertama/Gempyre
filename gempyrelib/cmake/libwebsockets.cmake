@@ -12,15 +12,13 @@ FetchContent_Declare(
   GIT_PROGRESS TRUE
 )
 
-set(LWS_WITHOUT_SERVER OFF)
+set(LWS_WITH_SERVER ON)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND HAS_TEST)
-    set(LWS_WITHOUT_CLIENT OFF)
+    set(LWS_WITH_CLIENT ON)
 else()
-    set(LWS_WITHOUT_CLIENT ON)
+    set(LWS_WITH_CLIENT OFF)
 endif()
-
-
 
 set(DISABLE_WERROR ON)
 
@@ -51,23 +49,28 @@ if(WIN32)
   # Windows
   set(LWS_SSL_CLIENT_USE_OS_CA_CERTS OFF)
 
+  set(SOCKETS_LIB websockets)
+
   # install
   FetchContent_GetProperties(libwebsockets)
   if(NOT libwebsockets_POPULATED)
     FetchContent_Populate(libwebsockets)
-    add_subdirectory(${libwebsockets_SOURCE_DIR} ${libwebsockets_BINARY_DIR} EXCLUDE_FROM_ALL)
+    add_subdirectory(${libwebsockets_SOURCE_DIR} ${libwebsockets_BINARY_DIR})
   endif()
 
   include_directories(${libwebsockets_SOURCE_DIR}/include ${libwebsockets_BINARY_DIR})
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${libwebsockets_SOURCE_DIR}/cmake")
 
-  set(WS_LIBS websockets ${LIBWEBSOCKETS_DEP_LIBS})
+  #set(WS_LIBS websockets ${LIBWEBSOCKETS_DEP_LIBS})
 
   set(USE_LIBWEBSOCKETS TRUE)
 
 macro(socket_dependencies TARGET)
+    target_link_directories(${TARGET} PRIVATE ${libwebsockets_BINARY_DIR}/lib)
     target_compile_definitions(${TARGET} PRIVATE USE_LIBWEBSOCKETS)
 endmacro()
+
+string(STRIP "${libwebsockets_BINARY_DIR}/lib" GEMPYRE_WS_LIB_PATH)
 
 set(GEMPYRE_WS_SOURCES 
     src/libwebsockets/server.cpp

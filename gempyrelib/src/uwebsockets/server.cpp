@@ -39,28 +39,6 @@ std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
             return std::unique_ptr<Server>(new Uws_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase));
            }
 
-static std::string fileToMime(const std::string_view& filename) {
-    const auto index = filename.find_last_of('.');
-    if(index == std::string::npos) {
-        return "";
-    }
-    const std::string_view ext(&filename[index], filename.length() - index);
-    static const std::unordered_map<std::string_view, std::string_view> mimes = {
-        {".html", "text/html;charset=utf-8"},
-        {".css", "text/css;charset=utf-8"},
-        {".js", "text/javascript;charset=utf-8"},
-        {".txt", "text/txt;charset=utf-8"},
-        {".ico", "image/x-icon"},
-        {".png", "image/png"},
-        {".jpg", "image/jpeg"},
-        {".gif", "image/gif"},
-        {".svg", "image/svg+xml"}
-    };
-    const auto it = mimes.find(ext);
-    const auto mimeType = it == mimes.end() ? " application/octet-stream" : std::string(it->second);
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Mime type:", filename, mimeType);
-    return mimeType;
-}
 
 
 static std::any convert(const nlohmann::json& js) {
@@ -100,23 +78,6 @@ static std::string toLower(const std::string& str) {
     return s;
 }
 
-
-static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "") {
-    return R"(<html>
-           <header>
-               <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0 "/>
-               <meta http-equiv="Pragma" content="no-cache" />
-               <meta http-equiv="Expires" content="0" />
-               <meta charset="UTF-8">
-               <style>
-               #styled {
-                   color:red;
-                   font-size:32px
-               }
-               </style>
-           </header>
-      <body><h1>Ooops</h1><h3 class="styled">404 Data Not Found </h3><h5>)" + std::string(url) + "</h5><i>" + std::string(info) + "</i></body></html>";
-}
 
 
 class Gempyre::Batch {
