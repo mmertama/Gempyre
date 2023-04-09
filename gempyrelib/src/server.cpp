@@ -80,3 +80,54 @@ Server::Server(
            </header>
       <body><h1>Ooops</h1><h3 class="styled">404 Data Not Found </h3><h5>)" + std::string(url) + "</h5><i>" + std::string(info) + "</i></body></html>";
 }
+
+Server::MessageReply Server::messageHandler(std::string_view message) {
+        auto object = json::parse(message);
+        const auto f = object.find("type");
+        if(f != object.end()) {
+            if(*f == "keepalive") {
+                return MessageReply::DoNothing;
+            }
+            if(*f == "ui_ready") {
+                m_onMessage(std::move(object));
+                return MessageReply::AddUiSocket;
+            }
+            if(*f == "extension_ready") {
+                m_onMessage(std::move(object));
+                return MessageReply::AddExtensionSocket;
+            }
+            if(*f == "extension") {
+                const auto log = object.find("level");
+                const auto msg = object.find("msg");
+                if(*log == "log")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Info, "Ext", *msg);
+                else if(*log == "info")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", *msg);
+                else if(*log == "warn")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Ext", *msg);
+                else if(*log == "error" || log->empty())
+                    GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ext", *msg);
+                return  MessageReply::DoNothing;
+            }
+            if(*f == "log") {
+                const auto log = object.find("level");
+                const auto msg = object.find("msg");
+                if(*log == "log")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Info, "JS", *msg);
+                else if(*log == "info")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS", *msg);
+                else if(*log == "warn")
+                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "JS", *msg);
+                else if(*log == "" || *log == "error") {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS", *msg);
+                    const auto trace = object.find("trace");
+                    if(trace != object.end()) {
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS-TRACE", *trace);
+                    }
+                }
+                return MessageReply::DoNothing;
+            }
+        }
+        m_onMessage(std::move(object));
+        return MessageReply::DoNothing;
+    }

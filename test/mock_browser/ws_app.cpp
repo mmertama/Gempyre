@@ -12,7 +12,7 @@ std::string App::on_status(websocket::Status status) {
         case websocket::Status::Error:
             return Json({{"type", "error"}}).dump();
         case websocket::Status::Established:
-            return Json({{"type", "uiready"}}).dump();
+            return Json({{"type", "ui_ready"}}).dump();
     }
     return std::string();
 }

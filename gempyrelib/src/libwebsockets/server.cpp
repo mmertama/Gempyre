@@ -1,6 +1,6 @@
 #include "gempyre_utils.h"
 #include "server.h"
-
+#include <nlohmann/json.hpp>
 #include <cstring> //memcpy
 
 #pragma GCC diagnostic push
@@ -12,6 +12,7 @@ extern "C" {
 #pragma GCC diagnostic pop
 
 using namespace Gempyre;
+using json = nlohmann::json; 
 
 class Gempyre::SendBuffer {
      public:
@@ -110,15 +111,38 @@ bool LWS_Server::get(const std::string_view get_param) const {
         return false;
      }
 
+
 int LWS_Server::wsCallback(lws *wsi, lws_callback_reasons reason, void *user, void *in, size_t len)
 {
      auto self = static_cast<LWS_Server*>(lws_context_user(lws_get_context(wsi)));
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "wsCallback", reason);
      switch (reason)
      {
      case LWS_CALLBACK_ESTABLISHED:
           self->m_connected = true;
+          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_ESTABLISHED", reason);
           break;
-     
+     case LWS_CALLBACK_SERVER_WRITEABLE:
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_SERVER_WRITEABLE", reason);
+          break;
+     case LWS_CALLBACK_RECEIVE: {
+          const std::string_view msg(in, len);
+          switch(messageHandler(msg) {
+               case MessageReply::DoNothing:
+                    if(m_s.m_doExit) {
+                         ws->close();
+                    }
+                break;
+               case MessageReply::AddUiSocket:
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO AddUiSocket");
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO Ready");
+                break;
+               case MessageReply::AddExtensionSocket:
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO AddUiSocket");
+                return;    
+        }
+          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_RECEIVE", msg);
+          } break;          
      default:
           break;
      }
@@ -141,10 +165,12 @@ static auto lwsToken(const std::string_view sv) {
 int LWS_Server::httpCallback(lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len)
 {
      auto self = static_cast<LWS_Server*>(lws_context_user(lws_get_context(wsi)));
+     
      uint8_t buf[LWS_PRE + 2048];
-     uint8_t* start = &buf[LWS_PRE];
-     uint8_t* ptr = start;
-	uint8_t* end = &buf[sizeof(buf) - 1];
+     auto start = &buf[LWS_PRE];
+     auto ptr = start;
+	auto end = &buf[sizeof(buf) - 1];
+
      switch (reason) {
      case LWS_CALLBACK_HTTP: {
           const std::string_view get_params{static_cast<const char*>(in)};
@@ -220,7 +246,7 @@ LWS_Server::LWS_Server(unsigned int port,
                          "gempyre",
                          LWS_Server::wsCallback,
                          0,
-                         128,
+                         8192,
                          0,
                          nullptr,
                          0
@@ -232,13 +258,13 @@ LWS_Server::LWS_Server(unsigned int port,
                          0,                            // per_session_data_size
                          0,                            // rx_buffer_size
                          0,                            // id
-                         nullptr,                        // user
+                         nullptr,                      // user
                          0                             // tx_packet_size
                     };
 
                     const lws_protocols protocols[] = {
-                         gempyre_http,
                          gempyre_ws,
+                         gempyre_http,
                          LWS_PROTOCOL_LIST_TERM
                     };
 

@@ -239,7 +239,6 @@ void CanvasElement::draw_completed(const DrawCallback& drawCallback, DrawNotify 
         }
 
         subscribe("event_notify", [drawCallback](const Event& ev) {
-
             if(ev.properties.at("name") == "canvas_draw") {
                 drawCallback();
             }

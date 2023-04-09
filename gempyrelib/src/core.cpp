@@ -26,14 +26,6 @@
 using namespace std::chrono_literals;
 using namespace Gempyre;
 
-constexpr auto SERVER_ADDRESS{"http://localhost"};
-
-constexpr auto BROWSER_KEY{"browser"};
-constexpr auto BROWSER_PARAMS_KEY{"params"};
-constexpr auto WIDTH_KEY{"width"};
-constexpr auto HEIGHT_KEY{"height"};
-constexpr auto TITLE_KEY{"title"};
-constexpr auto FLAGS_KEY{"flags"};
 
 #ifdef ANDROID_OS
 extern int androidLoadUi(const std::string&);
@@ -55,55 +47,7 @@ void Gempyre::setJNIENV(void*, void*) {
 #define STR(x) #x
 #define TOSTRING(x) STR(x)
 
-template <class T>
-static std::optional<T> getConf(const std::string& key) {
-    const auto find = []() {
-        const std::vector<std::string> conf_names({"/gempyre.conf",  "/gempyre_default.conf"}); // How we look, at this order
-        for(const auto& c_name : conf_names) {
-             const auto conf = Gempyrejsh.find(c_name);
-             if(conf != Gempyrejsh.end())
-                return conf;
-        }
-        return Gempyrejsh.end();
-    }; 
-    const auto conf = find();
-    if(conf == Gempyrejsh.end())
-        return std::nullopt;    
-    const auto js_data = Base64::decode(conf->second);
-    gempyre_utils_assert_x(!js_data.empty(), "Broken resource " + conf->first);
-  
-    const auto js_string = std::string(reinterpret_cast<const char*>(js_data.data()),
-                                       js_data.size());
-                                       
-    const auto js = GempyreUtils::json_to_any(js_string);
-    
-    gempyre_utils_assert_x(js, "Broken json " + js_string);
-       
-    const auto map = std::any_cast<std::unordered_map<std::string, std::any>>(&js.value());
-    if(map && map->find(key) != map->end()) {
-        const auto any_value = map->at(key);
-        const auto conf_value = std::any_cast<T>(&any_value);
-        if(conf_value) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, *conf_value);
-            return std::make_optional<T>(*conf_value);
-        }
-    }
-    
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "getConf", key, "No found");
-    return std::nullopt;
-}
 
-static std::string osName() {
-    switch (GempyreUtils::current_os()) {
-    case GempyreUtils::OS::WinOs: return "windows";
-    case GempyreUtils::OS::LinuxOs: return "linux";
-    case GempyreUtils::OS::MacOs: return "macos";
-    case GempyreUtils::OS::AndroidOs: return "android";
-    case GempyreUtils::OS::RaspberryOs: return "raspberry";
-    case GempyreUtils::OS::OtherOs: return "other";
-    default: return "undefined";
-    }
-}
 
 [[maybe_unused]] static inline std::string join(const std::unordered_map<std::string, std::string>& map, const std::string& key, const std::string& prefix) {
     const auto it = map.find(key);
@@ -133,111 +77,6 @@ static std::optional<std::string> python3() {
     return py;
 }
 
-// read command line form conf
-
-static std::optional<std::tuple<std::string, std::string>> confCmdLine(const std::unordered_map<std::string, std::string>& replacement) {
-    auto cmdName = getConf<std::string>(osName() + "-" + "cmd_name");
-    if(!cmdName)
-        cmdName = getConf<std::string>("cmd_name");
-    if(cmdName) {
-        auto cmd_params = getConf<std::string>(osName() + "-" + "cmd_params");
-        if(!cmd_params)
-            cmd_params = getConf<std::string>("cmd_params");
-        if(cmd_params) {
-            auto params = *cmd_params;
-            for(const auto& [key, value] : replacement)
-                params = GempyreUtils::substitute(params, R"(\$\{\s*)" + key + R"(\s*\})", value);
-            return std::tuple<std::string, std::string>(*cmdName, params); // make_tuple uses refs, hence copy
-          }
-    }
-    return std::nullopt;
-}
-
-static inline std::string value(const std::unordered_map<std::string, std::string>& map, const std::string& key, const std::string& default_value) {
-    const auto it = map.find(key);
-    return it == map.end() ? default_value : it->second;
-}
-
-
-// figure out and construct gui app and command line
-static std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
-                                                    int port,
-                                                    const std::unordered_map<std::string, std::string>& param_map) {
-    const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
-    const auto url =  std::string(SERVER_ADDRESS) + ":"
-    + std::to_string(port) + "/"
-    + (appPage.empty() ? "index.html" : appPage);
-    if(param_map.find(BROWSER_KEY) == param_map.end()) {
-        const auto width = value(param_map, WIDTH_KEY, "320");
-        const auto height = value(param_map, HEIGHT_KEY, "240");
-        const auto title = value(param_map, TITLE_KEY, "Gempyre");
-        [[maybe_unused]] const auto extra = value(param_map, BROWSER_PARAMS_KEY, "");
-        const auto flags = value(param_map, FLAGS_KEY, "");
-        const auto conf = confCmdLine({{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}, {"FLAGS", flags}});
-        if(conf)
-            return conf.value();
-#ifdef USE_PYTHON_UI
-        const auto py3 = python3();
-        if(py3) {
-            constexpr auto py_file = "/pyclient.py"; // let's not use definion in gempyrejsh as that may not be there
-            const auto py_data = Gempyrejsh.find(py_file);
-            if(py_data != Gempyrejsh.end()) {
-                const auto py_code = Base64::decode(py_data->second);
-                const std::string py = GempyreUtils::join(py_code);
-                const auto call_param = std::string("-c \"") + py + "\" ";
-                return {*py3, call_param
-                            + GempyreUtils::join<std::vector<std::string>>({
-                                     "--gempyre-url=" + url,
-                                     join(param_map, WIDTH_KEY, "--gempyre-width="),
-                                     join(param_map, HEIGHT_KEY,"--gempyre-height="),
-                                     join(param_map, TITLE_KEY,"--gempyre-title="),
-                                     join(param_map, FLAGS_KEY,"--gempyre-flags="),
-                                     join(param_map, BROWSER_PARAMS_KEY,"--gempyre-extra=")}, " ") };
-            }
-        }
-#endif
-    }
-
-    const auto params = url + " " + value(param_map, BROWSER_PARAMS_KEY, "");
-    const auto appui = value(param_map, BROWSER_KEY, GempyreUtils::html_file_launch_cmd());
-#ifndef ANDROID_OS
-    gempyre_utils_assert_x(!appui.empty(), "I have no idea what browser should be spawned, please use other constructor");
-#endif
-    return {appui, params};
-}
-
-
-/**
- * The server assumes that file are found at root, therefore we add a '/' if missing
- */
-static Ui::Filemap normalizeNames(const Ui::Filemap& files) {
-    Ui::Filemap normalized;
-    for(const auto& [k, v] : files) {
-        if(k.length() > 0 && k[0] != '/') {
-            normalized.emplace('/' + k, v);
-        } else {
-            normalized.emplace(k, v);
-        }
-    }
-    return normalized;
-}
-
-template <class C>
-static bool containsAll(const C& container, const std::initializer_list<typename C::value_type>& lst) {
-    for(const auto& i : lst) {
-        if(std::find(container.begin(), container.end(), i) == container.end()) {
-            return false;
-        }
-    }
-    return true;
-}
-
-template <class C>
-static std::vector<typename C::key_type> keys(const C& map) {
-    std::vector<typename C::key_type> k;
-    std::transform(map.begin(), map.end(), std::back_inserter(k), [](const auto & p) {return p.first;});
-    return k;
-}
 
 Ui::Filemap Ui::to_file_map(const std::vector<std::string>& filenames) {
     Ui::Filemap map;
@@ -289,148 +128,6 @@ Ui::Ui(const Filemap& filemap,
     {!browser.empty() ? BROWSER_KEY : "", browser},
     {!browser_params.empty() ? BROWSER_PARAMS_KEY : "", browser_params}}){}
 
-void Ui::openHandler() {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Opening", m_ui->state_str());
-    if(*m_ui == State::CLOSE || *m_ui == State::PENDING) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Request reload, Status change --> Reload");
-        m_ui->set(State::RELOAD);
-    }
-
-    m_ui->signal_pending();    // there may be some pending requests
-    
-}
-
-void Ui::messageHandler(const Server::Object& params) {
-    const auto kit = params.find("type");
-    if(kit != params.end())  {
-        const auto type = std::any_cast<std::string>(kit->second);
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "message", type);
-        if(type == "event") {
-            const auto element = std::any_cast<std::string>(params.at("element"));
-            const auto event = std::any_cast<std::string>(params.at("event"));
-            const auto properties = std::any_cast<Server::Object>(params.at("properties"));
-            m_ui->push_event({element, event, properties});
-        } else if(type == "query") {
-            const auto key = std::any_cast<std::string>(params.at("query_value"));
-            auto id = std::any_cast<std::string>(params.at("query_id"));
-            auto k = params.at(key);
-            m_ui->push_response(std::move(id), std::move(k));
-        } else if(type == "extension_response") {
-            gempyre_utils_assert_x(containsAll(keys(params), {"extension_id", "extension_call"}), "extension_response invalid parameters");
-            auto id = std::any_cast<std::string>(params.at("extension_id"));
-            const auto key = std::any_cast<std::string>(params.at("extension_call"));
-            auto k = params.at(key);
-            m_ui->push_response(std::move(id), std::move(k));
-        } else if(type == "error") {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS says at:", std::any_cast<std::string>(params.at("element")),
-                              "error:", std::any_cast<std::string>(params.at("error")));
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS trace:", std::any_cast<std::string>(params.at("trace")));
-            m_ui->call_error(std::any_cast<std::string>(params.at("element")), std::any_cast<std::string>(params.at("error")));
-        } else if(type == "exit_request") {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "client kindly asks exit --> Status change Exit");
-            m_ui->set(State::EXIT);
-        } else if(type == "extensionready") {
-             /* no more like this
-              * const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
-             const auto address =
-             + " " + std::string(SERVER_ADDRESS) + "/"
-             + (appPage.empty() ? "index.html" : appPage);
-
-             extensionCall("ui_info", {
-                              {"url", address},
-                              {"params", ""}});
-            */
-        }
-        m_ui->signal_pending();
-    }
-}
-
-void Ui::closeHandler(Gempyre::CloseStatus closeStatus, int code) { //close
-    if(!m_ui->has_server()) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Close, Status change --> Exit");
-        m_ui->set(State::EXIT);
-        m_ui->signal_pending();
-        return;
-    }
-
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Gempyre close",  m_ui->state_str(),
-                      static_cast<int>(closeStatus), m_ui->is_connected(), code);
-
-    if(*m_ui != State::EXIT && (closeStatus != CloseStatus::EXIT  && (closeStatus == CloseStatus::CLOSE /*&& m_ui->is_connected()*/))) {
-        pendingClose();
-    } else if(closeStatus == CloseStatus::FAIL) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Fail, Status change --> Retry");
-        m_ui->set(State::RETRY);
-    }
-
-    if(*m_ui == State::EXIT || *m_ui == State::RETRY) {
-       m_ui->signal_pending();
-    }
-}
-
-
-
-bool Ui::startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters , int listen_port) { //listening
-    if(*m_ui == State::EXIT)
-        return false; //we are on exit, no more listening please
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Listening, Status change --> Running");
-    m_ui->set(State::RUNNING);
-
-    const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
-
-    if (GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug) {
-        const auto lines = GempyreUtils::split(cmd_params, '\n');
-        if (GempyreUtils::log_level() != GempyreUtils::LogLevel::Debug_Trace || lines.size() > 2) {
-            // show only 1st and last
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui params:", appui,
-             lines[0], "...", lines[lines.size() - 1]);
-        } else {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "gui params:", appui, cmd_params);
-        }
-    }
-
-
-#if defined (ANDROID_OS)
-    const auto result = androidLoadUi(appui + " " + cmd_params);
-#else
-
-    const auto on_path = GempyreUtils::which(appui);
-    const auto is_exec = GempyreUtils::is_executable(appui) || (on_path && GempyreUtils::is_executable(*on_path));
-    const auto result = is_exec ?
-            GempyreUtils::execute(appui, cmd_params) :
-            GempyreUtils::execute("", appui + " " +  cmd_params);
-
-#endif
-
-    if(result != 0) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "gui cmd Error:", result, GempyreUtils::last_error());
-    }
-    return true;
-}
-
-std::optional<std::string> Ui::getHandler(const std::string_view & name) { //get
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get", name);
-    if(name == "/gempyre.js" || name == "gempyre.js") {
-        const auto encoded = Base64::decode(Gempyrejs);
-        const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
-        return std::make_optional(page);
-    }
-    const auto file = m_ui->file(name);
-    if(file) {
-        if(file->size() == 0) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Empty data:", name);
-        }
-        const auto encoded = Base64::decode(*file);
-        if(encoded.size() == 0) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Invalid Base64:", name);
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "This is bad:", *file);
-        }
-        const auto page = GempyreUtils::join(encoded.begin(), encoded.end());
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get:", page.size(), file->size());
-        return std::make_optional(page);
-    }
-    return std::nullopt;
-}
 
 Ui::Ui(const Filemap& filemap,
        const std::string& indexHtml,
@@ -468,21 +165,6 @@ Ui::~Ui() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ui Destroyed"); 
 }
 
-void Ui::pendingClose() {
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending close, Status change --> Pending");
-    m_ui->set(State::PENDING);
-    m_ui->flush_timers(false); //all timers are run here
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Start 1s wait for pending");
-  //  after(1000ms, [this]() { //delay as a get may come due page chage
-        if(*m_ui == State::PENDING) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending close, Status change --> Exit");
-            m_ui->set(State::CLOSE);
-            m_ui->signal_pending();
-        } else {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Pending cancelled", m_ui->state_str());
-        }
-   // });
-}
 
 void Ui::close() {
     m_ui->add_request([this]() {
@@ -1013,43 +695,3 @@ void Ui::resume() {
     }
 }
 
-const GempyreInternal& Ui::ref() const {
-    return *m_ui;
-}
-
-GempyreInternal& Ui::ref() {
-    return *m_ui;
-}
-
-
- GempyreInternal::GempyreInternal(
-        Ui* ui, 
-        const Ui::Filemap& filemap,
-        const std::string& indexHtml,
-        unsigned short port,
-        const std::string& root,
-        const std::unordered_map<std::string, std::string>& parameters) : 
-    m_filemap(normalizeNames(filemap)),
-    m_startup{[this, ui, port, indexHtml, parameters, root]() {
-
-    auto last_query_id  = 0;
-    for(const auto& id_string : m_responsemap.keys()) {
-        const auto id = GempyreUtils::convert<int>(id_string);
-        if(id > last_query_id)
-            last_query_id = id;
-    }
-
-    m_responsemap.clear();
-    
-    // This is executed in m_startup 
-    m_server = create_server(
-                   port,
-                   root.empty() ? GempyreUtils::working_dir() : root,
-                   [ui](){ui->openHandler();},
-                   [ui](const Server::Object& obj){ui->messageHandler(obj);},
-                   [ui](CloseStatus status, int code){ui->closeHandler(status, code);},
-                   [ui](const std::string_view& name){return ui->getHandler(name);},
-                   [indexHtml, parameters, ui](int listen_port){return ui->startListen(indexHtml, parameters, listen_port);},
-                   last_query_id + 1 // if m_server is created second time it is good that this is > as 1st as pending queries may cause confusion
-                );
-    }} {}

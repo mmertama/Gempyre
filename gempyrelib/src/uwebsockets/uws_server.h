@@ -48,7 +48,6 @@ private:
     void serverThread(unsigned port);
     bool checkPort();
     std::unique_ptr<std::thread> newThread();
-    void messageHandler(const std::string& message, int opCode);
 private:
     
     std::unique_ptr<Broadcaster> m_broadcaster;

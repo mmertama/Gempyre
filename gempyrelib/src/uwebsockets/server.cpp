@@ -41,11 +41,12 @@ std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
 
 
 
+#if 0
 static std::any convert(const nlohmann::json& js) {
     if(js.is_object()) {
         Server::Object params;
         for(const auto& [key, value] : js.items()) {
-            params.emplace(key, convert(value));
+            params.emplace(key, value);
         }
 #if 0
         for(const auto& [key, value] : params) {
@@ -56,7 +57,7 @@ static std::any convert(const nlohmann::json& js) {
     } else if(js.is_array()) {
         Server::Array params;
         for(const auto& value : js) {
-            params.push_back(convert(value));
+            params.push_back(value);
         }
         return std::make_any<Server::Array>(params);
     } else if(js.is_boolean()) {
@@ -70,6 +71,7 @@ static std::any convert(const nlohmann::json& js) {
         return std::make_any<std::string>(std::string("false"));
     }
 }
+#endif
 
 
 static std::string toLower(const std::string& str) {
@@ -108,63 +110,8 @@ class Gempyre::SocketHandler {
         m_s.m_broadcaster->append(ws);
         m_s.m_onOpen();
     }
-    void messageHandler(Gempyre::WSSocket* ws, std::string_view message, int opCode) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS message", message, opCode);
-        const auto jsObj = json::parse(message);
-        const auto f = jsObj.find("type");
-        if(f != jsObj.end()) {
-            if(*f == "keepalive") {
-                if(m_s.m_doExit) {
-                    ws->close();
-                }
-                return;
-            }
-            if(*f == "uiready") {
-                m_s.m_uiready = true;
-                m_s.m_broadcaster->setType(ws, Broadcaster::Type::Ui);
-            }
-            if(*f == "extensionready") {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", "extensionready");
-                m_s.m_broadcaster->setType(ws, Broadcaster::Type::Extension);
+    
 
-            }
-            if(*f == "extension") {
-                const auto log = jsObj.find("level");
-                const auto msg = jsObj.find("msg");
-                if(*log == "log")
-                    GempyreUtils::log(GempyreUtils::LogLevel::Info, "Ext", *msg);
-                else if(*log == "info")
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Ext", *msg);
-                else if(*log == "warn")
-                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "Ext", *msg);
-                else if(*log == "error" || log->empty())
-                    GempyreUtils::log(GempyreUtils::LogLevel::Error, "Ext", *msg);
-                return;
-            }
-            if(*f == "log") {
-                const auto log = jsObj.find("level");
-                const auto msg = jsObj.find("msg");
-                if(*log == "log")
-                    GempyreUtils::log(GempyreUtils::LogLevel::Info, "JS", *msg);
-                else if(*log == "info")
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS", *msg);
-                else if(*log == "warn")
-                    GempyreUtils::log(GempyreUtils::LogLevel::Warning, "JS", *msg);
-                else if(*log == "" || *log == "error") {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS", *msg);
-                    const auto trace = jsObj.find("trace");
-                    if(trace != jsObj.end()) {
-                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS-TRACE", *trace);
-                    }
-                }
-                return;
-            }
-        }
-        const auto js = convert(jsObj);
-        auto object = std::any_cast<Server::Object>(js);
-        m_s.m_onMessage(std::move(object));
-
-    }
     void closeHandler(WSSocket* ws, int code, std::string_view message) {
         if(code != 1001 && code != 1006) {  //browser window closed
             if(code == 1000 || (code != 1005 && code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
@@ -238,7 +185,21 @@ void Uws_Server::serverThread(unsigned int port) {
         Gempyre::SocketHandler(*this).openHandler(ws);
     };;
     behavior.message =  [this](auto ws, auto message, auto opCode) {
-        Gempyre::SocketHandler(*this).messageHandler(ws, message, opCode);
+        (void) opCode;
+        switch(messageHandler(message)) {
+            case MessageReply::DoNothing:
+                if(m_doExit) {
+                    ws->close();
+                }
+                return;
+            case MessageReply::AddUiSocket:
+                m_uiready = true;
+                m_broadcaster->setType(ws, Broadcaster::Type::Ui);
+                return;
+             case MessageReply::AddExtensionSocket:
+                 m_broadcaster->setType(ws, Broadcaster::Type::Extension);
+                return;    
+        }
     };;
     behavior.close = [this](auto ws, auto code, auto message) {
         Gempyre::SocketHandler(*this).closeHandler(ws, code, message);

@@ -94,6 +94,11 @@ std::optional<std::string> Element::type() const {
 std::optional<Element::Rect> Element::rect() const {
     const auto value = m_ui->query<std::unordered_map<std::string, std::string>>(m_id, "bounding_rect");
     if(m_ui->ref() == State::RUNNING && value.has_value()) {
+        assert(value->size() >= 4);
+        assert(value->find("x") != value->end());
+        assert(value->find("y") != value->end());
+        assert(value->find("width") != value->end());
+        assert(value->find("height") != value->end());
         return Rect{
             GempyreUtils::parse<int>(value->at("x")).value(),
             GempyreUtils::parse<int>(value->at("y")).value(),

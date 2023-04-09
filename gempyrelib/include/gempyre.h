@@ -250,28 +250,12 @@ namespace Gempyre {
         void send(const DataPtr& data);
         void send(const Element& el, const std::string& type, const std::any& data, bool unique = false);
         template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
-        void pendingClose();
         void eventLoop(bool is_main);
         std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
         
-        void openHandler();
-        void messageHandler(const std::unordered_map<std::string, std::any>& params);
-        void closeHandler(CloseStatus closeStatus, int code);
-        std::optional<std::string> getHandler(const std::string_view & name);
-
-        bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters , int listen_port);
-
         const GempyreInternal& ref() const;
         GempyreInternal& ref();
-
     private:
-        struct InternalEvent {
-            std::string element;
-            std::string handler;
-            std::unordered_map<std::string, std::any> data;
-        };
-    private:
-        friend class GempyreInternal;
         friend class Element;
         std::unique_ptr<GempyreInternal> m_ui;
     };

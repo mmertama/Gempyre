@@ -12,6 +12,7 @@
 #include <string>
 #include <atomic>
 #include <cassert>
+#include <nlohmann/json.hpp>
 
 namespace Gempyre {
 
@@ -20,13 +21,15 @@ class Data;
 
 enum class CloseStatus {EXIT, FAIL, CLOSE};
 
+using json = nlohmann::json;
+
 class Server {
 public:
     static constexpr int PAGEXIT = 1001;
-    using JSData = std::any;
-    using Array = std::vector<JSData>;
-    using Object = std::unordered_map<std::string, JSData>;
-    using MessageFunction = std::function<void (const Object&)>;
+    using Array = json::array_t;
+    using Object = json::object_t;
+    using Value = json;
+    using MessageFunction = std::function<void (Object&&)>;
     using CloseFunction =  std::function<void (CloseStatus, int)>;
     using OpenFunction =  std::function<void ()>;
     using GetFunction =  std::function<std::optional<std::string> (const std::string_view& filename)>;
@@ -67,6 +70,10 @@ public:
     static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "");
 
 protected:
+    enum class MessageReply {DoNothing, AddUiSocket, AddExtensionSocket};
+    MessageReply messageHandler(std::string_view message);
+protected:
+
     unsigned int m_port;
     std::string m_rootFolder;
     mutable int m_queryId;

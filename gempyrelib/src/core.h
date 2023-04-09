@@ -20,6 +20,7 @@ struct has_key<T, std::void_t<decltype(T::key_type)>> : std::true_type{};
 */
 
 
+
 template<typename T, typename _ = void>
 struct hasKey : std::false_type {};
 
@@ -31,32 +32,49 @@ struct hasKey<T,
         std::conditional_t<false,
             isContainerHelper<typename T::value_type, typename T::key_type>, void >> : public std::true_type {};
 
+// fwd declaration for recursion
+template <class T, std::enable_if_t<hasKey<T>::value, int> = 0>  T copy_value(const Server::Value& d);
+template <class T, std::enable_if_t<!hasKey<T>::value, int> = 0> T copy_value(const Server::Value& d);
+template <> inline std::string copy_value(const Server::Value& d);
+
 template <class T, std::enable_if_t<hasKey<T>::value, int> = 0>
- void copy(const std::any& d, T& response) {
-    const auto attr = std::any_cast<Server::Object>(d);
-    std::for_each(attr.begin(), attr.end(), [&response](const auto& p) {
-        response.emplace(p.first, std::any_cast<typename std::decay_t<decltype(response)>::mapped_type>(p.second));
-    });
+ T copy_value(const Server::Value& obj) {
+    assert(obj.is_object());
+    T response {};
+    for(const auto& [k, v] : obj.items()) {
+        using get_t = typename std::decay_t<decltype(response)>::mapped_type;
+        auto value = copy_value<get_t>(v);
+        response.emplace(k, std::move(value));
+    }
+    return response;
 }
 
 template <class T, std::enable_if_t<!hasKey<T>::value, int> = 0>
- void copy(const std::any& d, T& response) {
-    const auto attr = std::any_cast<Server::Array>(d);
-    std::for_each(attr.begin(), attr.end(), [&response](const auto& p) {
-        response.push_back(std::any_cast<typename std::decay_t<decltype(response)>::value_type>(p));
-    });
+ T copy_value(const Server::Value& array) {
+    assert(array.is_array());
+    T response {};
+    for(const auto& v : array) {
+        using get_t = typename std::decay_t<T>::value_type;
+        auto value = copy_value<get_t>(v);
+        response.push_back(std::move(value));
+    }
+    return response;
 }
+
 
 template <>
- inline void copy(const std::any& d, std::string& response) {
-    const auto attr = std::any_cast<std::string>(d);
-    response = attr;
+ inline std::string copy_value(const Server::Value& d) {
+    return GempyreInternal::to_string(d);
 }
 
+template<typename T>
+bool is_error(const T&) {return false;}
+
+template<>
+inline bool is_error(const std::string& s) {return s == "query_error";}
 
 template<class T>
 std::optional<T> Ui::query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams)  {
-    T response;
     if(*m_ui == State::RUNNING) {
         const auto queryId = m_ui->query_id();
 
@@ -70,24 +88,22 @@ std::optional<T> Ui::query(const std::string& elId, const std::string& queryStri
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", m_ui->state_str());
             if(*m_ui != State::RUNNING) {
                 m_ui->signal_pending();
-                break; //we are gone
+                break;
             }
 
             const auto query_response = m_ui->take_response(queryId);
 
             if(query_response) {
-               const auto item = query_response.value();
-               const auto asString = std::any_cast<std::string>(&item);
-               if(asString && *asString == "query_error") {
-                   GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Invalid query:", elId, queryString);
-                   return std::nullopt;
-               }
-               copy(item, response);
-               break;
+                const auto item = query_response.value();
+                auto response = copy_value<T>(item);
+                if(is_error(response)) {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Invalid query:", elId, queryString);
+                    break;
+                }
+              return std::make_optional<T>(std::move(response));
             }
         }
     }
-    return std::make_optional<T>(response);
+    return std::nullopt;
 }
-
 }

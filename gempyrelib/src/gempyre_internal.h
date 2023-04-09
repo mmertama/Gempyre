@@ -14,6 +14,16 @@
 
 namespace Gempyre {
 
+
+    constexpr auto SERVER_ADDRESS{"http://localhost"};
+
+    constexpr auto BROWSER_KEY{"browser"};
+    constexpr auto BROWSER_PARAMS_KEY{"params"};
+    constexpr auto WIDTH_KEY{"width"};
+    constexpr auto HEIGHT_KEY{"height"};
+    constexpr auto TITLE_KEY{"title"};
+    constexpr auto FLAGS_KEY{"flags"};
+
   enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING, SUSPEND};
   inline
   std::string_view str(State state) {
@@ -28,8 +38,15 @@ namespace Gempyre {
 class GempyreInternal {
     struct Event {
         Element element;
-        const std::unordered_map<std::string, std::any> properties;
+        const Server::Object properties;
     };
+
+    struct HandlerEvent {
+        std::string element;
+        std::string handler;
+        Server::Object data;
+        };
+
     using HandlerFunction = std::function<void (const Event& el)>;
     using HandlerMap = std::unordered_map<std::string, HandlerFunction>;
 
@@ -93,8 +110,11 @@ public:
     void add_handler(const std::string& id, const std::string& name, const Element::SubscribeFunction& handler) {
         HandlerFunction hf = [handler](const Event& event) {
             std::unordered_map<std::string, std::string> property_map;
-            for(const auto& [k, v] : event.properties)
-                property_map.emplace(k, std::any_cast<std::string>(v));
+            for(const auto& [k, v] : event.properties) {
+                //const auto str_value = GempyreUtils::to_str(v.value());
+                std::string value = to_string(v);
+                property_map.emplace(k, std::move(value));
+            }
             Gempyre::Event ev{event.element, std::move(property_map)};
             handler(ev);
             };
@@ -116,12 +136,12 @@ public:
             m_sema.signal();    // there may be some pending requests
     }
 
-    void push_event(Ui::InternalEvent&& event) {
+    void push_event(HandlerEvent&& event) {
         m_eventqueue.push(std::move(event));
     }
 
 
-    std::optional<std::any> take_response(const std::string& queryId) {
+    std::optional<Server::Value> take_response(const std::string& queryId) {
          if(m_responsemap.contains(queryId)) {
             const auto item = m_responsemap.take(queryId);
             return std::make_optional(item);
@@ -129,7 +149,7 @@ public:
         return std::nullopt;
     }
 
-    void push_response(std::string&& id, std::any&& response) {
+    void push_response(std::string&& id, Server::Value&& response) {
          m_responsemap.push(std::move(id), std::move(response));
     }
 
@@ -395,10 +415,17 @@ public:
         return m_loop;
     }
 
+    void messageHandler(Server::Object&& msg);
+    void openHandler();
+    void closeHandler(CloseStatus closeStatus, int code);
+    std::optional<std::string> getHandler(const std::string_view& name);
+    void pendingClose();
+    bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters, int listen_port);
+    static std::string to_string(const nlohmann::json& js);
 private:
         std::atomic<State> m_status = State::NOTSTARTED;
-        EventQueue<Ui::InternalEvent> m_eventqueue;
-        EventMap<std::string, std::any> m_responsemap;
+        EventQueue<HandlerEvent> m_eventqueue;
+        EventMap<std::string, Server::Value> m_responsemap;
         Semaphore  m_sema;
         TimerMgr m_timers;
         std::unordered_map<std::string, HandlerMap> m_elements;

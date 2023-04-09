@@ -45,7 +45,7 @@ def on_show(window, host, port):
             global do_exit
             do_exit = exit_f
 
-            await ws.send(json.dumps({'type': 'extensionready'}))
+            await ws.send(json.dumps({'type': 'extension_ready'}))
 
             while True:
                 try:
