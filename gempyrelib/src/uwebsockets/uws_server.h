@@ -35,7 +35,7 @@ private: // let's not use Server API
     bool isConnected() const override;
     bool retryStart() override;
     void close(bool wait = false) override;
-    bool send(const std::unordered_map<std::string, std::string>& object, const std::any& values = std::any()) override;
+    bool send(Server::TargetSocket target, Server::Value&& value) override;
     bool send(const Gempyre::Data& data) override;
     bool beginBatch() override;
     bool endBatch() override;

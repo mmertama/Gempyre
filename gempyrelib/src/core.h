@@ -74,24 +74,29 @@ template<>
 inline bool is_error(const std::string& s) {return s == "query_error";}
 
 template<class T>
-std::optional<T> Ui::query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams)  {
-    if(*m_ui == State::RUNNING) {
-        const auto queryId = m_ui->query_id();
+std::optional<T> GempyreInternal::query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams)  {
+    if(*this == State::RUNNING) {
+        const auto queryId = query_id();
 
-        m_ui->add_request([this, queryId, elId, queryString, queryParams](){
-            return m_ui->send({{"type", "query"}, {"query_id", queryId}, {"element", elId},{"query", queryString}},
-                                  std::unordered_map<std::string, std::any>{{"query_params", queryParams}});
+        add_request([this, queryId, elId, queryString, queryParams](){
+            return send(Server::TargetSocket::Ui, json{
+                    {"type", "query"},
+                    {"query_id", queryId},
+                    {"element", elId},
+                    {"query", queryString},
+                    {"query_params", queryParams}
+                    });
         });
 
-        while(m_ui->is_running()) {   //start waiting the response
+        while(is_running()) {   //start waiting the response
             eventLoop(false);
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", m_ui->state_str());
-            if(*m_ui != State::RUNNING) {
-                m_ui->signal_pending();
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", state_str());
+            if(*this != State::RUNNING) {
+                signal_pending();
                 break;
             }
 
-            const auto query_response = m_ui->take_response(queryId);
+            const auto query_response = take_response(queryId);
 
             if(query_response) {
                 const auto item = query_response.value();

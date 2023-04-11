@@ -3,6 +3,7 @@
 
 #include <gempyre.h>
 #include <initializer_list>
+#include <variant>
 		
 
 /**

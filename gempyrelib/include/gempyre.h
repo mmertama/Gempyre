@@ -1,19 +1,14 @@
 #ifndef GEMPYRE_H
 #define GEMPYRE_H
 
-#include <iterator>
 #include <string>
 #include <unordered_map>
 #include <functional>
 #include <memory>
-#include <deque>
 #include <chrono>
-#include <atomic>
 #include <any>
 #include <optional>
 #include <vector>
-#include <variant>
-#include <mutex>
 #include <tuple>
 
 /**
@@ -105,15 +100,15 @@ namespace Gempyre {
         void remove();
         [[nodiscard]] std::optional<std::string> type() const;
         [[nodiscard]] std::optional<Rect> rect() const;
-    protected:
-        void send(const DataPtr& data);
-        void send(const std::string& type, const std::any& data, bool unique = false);
-        [[nodiscard]] static const std::string generateId(const std::string& prefix);
-        [[nodiscard]] size_t payloadSize() const;
+    protected:    
+        const GempyreInternal& ref() const;
+        GempyreInternal& ref();
+        static const std::string generateId(const std::string& prefix);    
     protected:
         Ui* m_ui;
         std::string m_id;
-        friend class Ui;
+    private:   
+        friend class GempyreInternal;
     };
 
     struct Event {
@@ -247,12 +242,6 @@ namespace Gempyre {
         
     private:
         Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root, const std::unordered_map<std::string, std::string>& parameters);
-        void send(const DataPtr& data);
-        void send(const Element& el, const std::string& type, const std::any& data, bool unique = false);
-        template<class T> std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
-        void eventLoop(bool is_main);
-        std::function<void(int)> makeCaller(const std::function<void (TimerId id)>& function);
-        
         const GempyreInternal& ref() const;
         GempyreInternal& ref();
     private:

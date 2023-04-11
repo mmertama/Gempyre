@@ -1,5 +1,10 @@
 #include "gempyre_internal.h"
 #include "gempyre.js.h"
+#include "data.h"
+
+#ifndef ENSURE_SEND
+#define ENSURE_SEND 65536
+#endif
 
 
 using namespace Gempyre;
@@ -81,6 +86,35 @@ std::optional<std::tuple<std::string, std::string>> confCmdLine(const std::unord
           }
     }
     return std::nullopt;
+}
+
+
+[[maybe_unused]] static inline std::string join(const std::unordered_map<std::string, std::string>& map, const std::string& key, const std::string& prefix) {
+    const auto it = map.find(key);
+    return it == map.end() ? std::string() : prefix + it->second;
+}
+
+[[maybe_unused]]
+static std::optional<std::string> python3() {
+    const auto  py3 = GempyreUtils::which("python3");
+    if(py3)
+        return *py3;
+    const auto  py = GempyreUtils::which("python");
+    if(!py)
+        return std::nullopt;
+    const auto out = GempyreUtils::read_process("python", {"--version"});
+    if(!out)
+        return std::nullopt;
+    const auto pv = GempyreUtils::split<std::vector<std::string>>(*out, ' '); //// Python 2.7.16
+    if(pv.size() < 2)
+        return std::nullopt;
+    const auto ver = GempyreUtils::split<std::vector<std::string>>(pv[1], '.');
+    if(pv.size() < 1)
+        return std::nullopt;
+    const auto major = GempyreUtils::convert<int>(ver[0]);
+    if(major < 3)
+        return std::nullopt;
+    return py;
 }
 
 
@@ -179,7 +213,8 @@ GempyreInternal& Ui::ref() {
         const std::string& indexHtml,
         unsigned short port,
         const std::string& root,
-        const std::unordered_map<std::string, std::string>& parameters) : 
+        const std::unordered_map<std::string, std::string>& parameters) :
+        m_app_ui(ui), 
     m_filemap(normalizeNames(filemap)),
     m_startup{[this, ui, port, indexHtml, parameters, root]() {
 
@@ -383,4 +418,168 @@ std::string GempyreInternal::to_string(const nlohmann::json& js) {
 }
 
 
+void GempyreInternal::eventLoop(bool is_main) {
+    GEM_DEBUG("enter", is_main, is_running());
+    const GempyreInternal::LoopWatch loop_watch (*this, is_main);
+    while(is_running()) {
+        wait_events();
 
+        if(*this == State::EXIT) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is exiting");
+            break;
+        }
+
+         if(*this == State::SUSPEND) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is suspend");
+            break;
+        }
+
+
+        if(*this == State::RETRY) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop will retry");
+            if(! retry_start()) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "retry failed --> Status change Exit");
+                set(State::EXIT);
+                break;
+            }
+            continue;
+        }
+
+        if(*this == State::CLOSE) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is Close", is_running());
+            if( ! is_connected()) {
+                close_server();
+            }
+            continue;
+        }
+
+        if(*this == State::RELOAD) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is Reload");
+            if(has_reload())
+                add_request([this]() {
+                on_reload();
+                return true;
+            });
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Reload, Status change --> Running");
+            set(State::RUNNING);
+        }
+
+        if(has_requests() && *this == State::EXIT) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip timerqueue", state_str());
+        }
+
+
+        if(is_connected())  
+            handle_requests();
+        
+
+        if(*this == State::PENDING) {
+            continue;
+        }
+
+        if(has_open() && *this == State::RUNNING && is_connected()) {
+            const auto fptr = take_open();
+            set_hold(true);
+            add_request([fptr, this]() {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
+                fptr();
+                set_hold(false);
+                return true;
+            }); //we try to keep logic call order
+        }
+
+        if(has_requests() && *this != State::RUNNING) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip requestqueue", state_str());
+        }
+
+        //shoot pending requests
+        while(has_requests() && *this == State::RUNNING && is_connected()) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "do request");
+            auto topRequest = take_request();
+            if(!topRequest()) { //yes I wanna  mutex to be unlocked
+                if( ! has_requests())
+                    std::this_thread::sleep_for(10ms); // busyness
+                put_request(std::move(topRequest));
+            }
+        }
+
+        if(has_requests()) {
+             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "unfinished business", state_str(), is_connected());
+        }
+
+        //if there are responses they must be handled
+        if(has_responses()) {
+            if(!is_main) // this was eventloop(true) in exit, changed to false for logic...still works...
+                return; //handle query elsewhere, hopefully some one is pending
+           // TODO: looks pretty busy (see calc) GempyreUtils::log(GempyreUtils::LogLevel::Warning, "There are unhandled responses on main");
+        }
+
+        if( ! has_events() && *this != State::RUNNING) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip eventqueue", state_str());
+        }
+
+        //events must be last as they may generate more requests or responses
+        consume_events();
+#if 0
+        // Todo: Here all pending tasks are done, but this starts a loop again. I.e. make a busy loop. Therefore in NEXT version 
+        // this thread should hold here either for a timer thread or a service thread wakeup. For timebeing just add miniscle sleep
+        // that is really a poor solution, but avoids CPU 100%
+        std::this_thread::sleep_for(10ms);
+#endif
+
+    }
+    GEM_DEBUG("Eventloop exit");
+}
+
+void GempyreInternal::send(const DataPtr& data) {
+#ifndef DIRECT_DATA
+    const auto clonedBytes = data->clone();
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send ui_bin", clonedBytes->size());
+    add_request([this, clonedBytes]() {
+#else
+    const auto [bytes, len] = data->payload();
+#endif
+        const auto ok = send(*clonedBytes);
+        // not sure if this is needed any more as there are other fixes that has potentially fixed this
+        if(ok && clonedBytes->size() > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
+            send(m_app_ui->root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
+        }                                        //multiple tiles
+#ifndef DIRECT_DATA
+    return ok;
+    });
+#endif
+}
+
+// timer elapses calls a function
+// that calls a function that adds a another function to a queue
+// that function calls a the actual timer functio when on top
+std::function<void(int)> GempyreInternal::makeCaller(const std::function<void (Ui::TimerId id)>& function) {
+    const auto caller =  [this, function](int id) {
+        auto call = [function, id]() {
+            function(id);
+        };
+        add_timer(std::move(call));
+        signal_pending();
+    };
+    return caller;
+}
+
+void GempyreInternal::consume_events() {
+        while(has_events() && *this == State::RUNNING) {
+            const auto it = m_eventqueue.take();
+            const auto element = m_elements.find(it.element);
+            if(element != m_elements.end()) {
+                const auto handlerName = it.handler;
+                const auto handlers = std::get<1>(*element);
+                const auto h = handlers.find(handlerName);
+
+                if(h != handlers.end()) {
+                    h->second(Event{Element(*m_app_ui, std::move(element->first)), std::move(it.data)});
+                } else {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element", it.element);
+                }
+            } else {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find", it.element, "from elements");
+            }
+        }
+    }

@@ -1,12 +1,12 @@
 #include "gempyre_graphics.h"
 #include "gempyre_utils.h"
+#include "gempyre_internal.h"
 #include "data.h"
 #include <any>
 #include <cassert>
 #include <lodepng.h>
 
 using namespace Gempyre;
-
 
 static constexpr auto TileWidth = 640;  // used for server spesific stuff - bigger than a limit (16384) causes random crashes (There is a issue somewhere, this not really work if something else)
 static constexpr auto TileHeight = 640; // as there are some header info
@@ -118,7 +118,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
                 }
             //  assert(m_tile->size() == static_cast<size_t>((width * height + 4) * 4 + 20 + 16));
                 #endif         
-                send(m_tile->ptr());
+                ref().send(m_tile->ptr());
             }
         }
     } else {
@@ -129,7 +129,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
                                         static_cast<Gempyre::dataT>(0),
                                         static_cast<Gempyre::dataT>(0),
                                         static_cast<Gempyre::dataT>(is_last)});
-            send(m_tile->ptr());                            
+            ref().send(m_tile->ptr());                            
         }
     }
     assert(is_last);
@@ -169,27 +169,31 @@ std::vector<std::string> CanvasElement::add_images(const std::vector<std::string
 }
 
 void CanvasElement::paint_image(const std::string& imageId, int x, int y, const Rect& clippingRect) const {
-    auto This = const_cast<CanvasElement*>(this);
+    auto ui = const_cast<GempyreInternal*>(&ref());
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
-        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
-                                                                    {"pos", std::vector<int>{x, y}}});
+        ui->send(*this, "paint_image",
+            "image", imageId,
+            "pos", std::vector<int>{x, y});
     else
-        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
-                                                                         {"pos", std::vector<int>{x, y}},
-                                                                         {"clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height}}});
+        ui->send(*this, "paint_image",
+            "image", imageId,
+            "pos", std::vector<int>{x, y},
+            "clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height});
 }
 
 void CanvasElement::paint_image(const std::string& imageId, const Rect& targetRect, const Element::Rect& clippingRect) const {
     if(targetRect.width <= 0 || targetRect.height <= 0)
         return;
-    auto This = const_cast<CanvasElement*>(this);
+    auto ui = const_cast<GempyreInternal*>(&ref());
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
-        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
-                                                                     {"rect", std::vector<int>{targetRect.x, targetRect.y, targetRect.width, targetRect.height}}});
+        ui->send(*this, "paint_image",
+        "image", imageId,
+        "rect", std::vector<int>{targetRect.x, targetRect.y, targetRect.width, targetRect.height});
     else
-        This->send("paint_image", std::unordered_map<std::string, std::any>{{"image", imageId},
-                                                                         {"rect", std::vector<int>{targetRect.x, targetRect.y, targetRect.width, targetRect.height}},
-                                                                         {"clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height}}});
+        ui->send(*this, "paint_image", 
+        "image", imageId, 
+        "rect", std::vector<int>{targetRect.x, targetRect.y, targetRect.width, targetRect.height},
+        "clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height});
 
 }
 
@@ -217,8 +221,7 @@ void CanvasElement::draw(const CanvasElement::CommandList &canvasCommands)  {
         commandString.emplace_back(s);
     }
 
-    send("canvas_draw", std::unordered_map<std::string, std::any>{
-                   {"commands", commandString}}, true);
+    ref().send_unique(*this, "canvas_draw", "commands", commandString);
 }
 
 void CanvasElement::draw(const FrameComposer& frameComposer) {
@@ -228,9 +231,9 @@ void CanvasElement::draw(const FrameComposer& frameComposer) {
 
 void CanvasElement::draw_completed(const DrawCallback& drawCallback, DrawNotify kick) {
     
-    send("event_notify", std::unordered_map<std::string, std::any>{
-        {"name", "canvas_draw"},
-        {"add", drawCallback != nullptr}});
+    ref().send(*this, "event_notify",
+        "name", "canvas_draw",
+        "add", drawCallback != nullptr);
 
     if (drawCallback) {
 

@@ -50,6 +50,17 @@ class GempyreInternal {
     using HandlerFunction = std::function<void (const Event& el)>;
     using HandlerMap = std::unordered_map<std::string, HandlerFunction>;
 
+    template<size_t SZ, typename T>
+    void emplace_in(const T& tuple, json& map) {
+        if constexpr (SZ > 1) {
+            const auto key = std::string(std::get<SZ - 2>(tuple));
+            const auto value = std::get<SZ - 1>(tuple);
+            map.emplace(std::move(key), std::move(value));
+            emplace_in<SZ - 2, T>(tuple, map);
+        }
+    }    
+    
+
 public:
     class LoopWatch {
         public:
@@ -65,6 +76,7 @@ public:
         private:
         GempyreInternal& m_gi;
     };
+
     GempyreInternal(
         Ui* ui, 
         const Ui::Filemap& filemap,
@@ -76,6 +88,60 @@ public:
     bool operator==(State state) const {return m_status == state;}
     bool operator!=(State state) const {return m_status != state;}
 
+    template<class T>
+    std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
+
+    void eventLoop(bool is_main);
+    void send(const DataPtr& data);
+
+    template<typename T>
+    bool send_unique(const Element& el, const std::string& type, const T& value) {
+         json params {
+            {"element", el.m_id},
+            {"type", type},
+            {type, value},
+            {"msgid", next_msg_id()}
+            };
+        return send(Server::TargetSocket::Ui, std::move(params));    
+    }
+
+    template<typename K, typename V, typename... P>
+    bool send_unique(const Element& el, const std::string& type, const K& key, const V& value, const P&... pairs) {
+        json params {
+            {"element", el.m_id},
+            {"type", type},
+            {"msgid", next_msg_id()},
+            {key, value}
+            };
+        constexpr auto count = sizeof...(pairs);
+        static_assert((count & 0x1) == 0, "Expect is even");
+        emplace_in<count>(std::forward_as_tuple(pairs...), params);
+        return send(Server::TargetSocket::Ui, std::move(params));   
+    }
+
+    template<typename T>
+    bool send(const Element& el, const std::string& type, const T& value) {
+         json params {
+            {"element", el.m_id},
+            {"type", type},
+            {type, value}
+            };
+        return send(Server::TargetSocket::Ui, std::move(params));    
+    }
+
+
+    template<typename K, typename V, typename... P>
+    bool send(const Element& el, const std::string& type, const K& key, const V& value, const P&... pairs) {
+        json params {
+            {"element", el.m_id},
+            {"type", type},
+            {key, value}
+            };
+        constexpr auto count = sizeof...(pairs);
+        static_assert((count & 0x1) == 0, "Expect is even");
+        emplace_in<count>(std::forward_as_tuple(pairs...), params);
+        return send(Server::TargetSocket::Ui, std::move(params));    
+    }
 
     void add_request(std::function<bool()>&& f) {
         std::lock_guard<std::mutex> lock(m_requestMutex);
@@ -188,8 +254,8 @@ public:
     }
 
     
-    bool send(const std::unordered_map<std::string, std::string>& object, const std::any& values = std::any()) {
-        return m_server->send(object, values);
+    bool send(Server::TargetSocket target, Server::Value&& value) {
+        return m_server->send(target, std::move(value));
     }
 
     
@@ -355,26 +421,6 @@ public:
         m_status = State::NOTSTARTED; // reset the state
     }
 
-    void consume_events(Ui& ui) {
-        while(has_events() && *this == State::RUNNING) {
-            const auto it = m_eventqueue.take();
-            const auto element = m_elements.find(it.element);
-            if(element != m_elements.end()) {
-                const auto handlerName = it.handler;
-                const auto handlers = std::get<1>(*element);
-                const auto h = handlers.find(handlerName);
-
-                if(h != handlers.end()) {
-                    h->second(Event{Element(ui, std::move(element->first)), std::move(it.data)});
-                } else {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element", it.element);
-                }
-            } else {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find", it.element, "from elements");
-            }
-        }
-    }
-
     void add_timer(std::function<void ()>&& call) {
          m_timerqueue.emplace_back(std::move(call));
     }
@@ -422,27 +468,30 @@ public:
     void pendingClose();
     bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters, int listen_port);
     static std::string to_string(const nlohmann::json& js);
+    std::function<void(int)> makeCaller(const std::function<void (Ui::TimerId id)>& function);
+    void consume_events(); 
 private:
-        std::atomic<State> m_status = State::NOTSTARTED;
-        EventQueue<HandlerEvent> m_eventqueue;
-        EventMap<std::string, Server::Value> m_responsemap;
-        Semaphore  m_sema;
-        TimerMgr m_timers;
-        std::unordered_map<std::string, HandlerMap> m_elements;
-        std::deque<std::function<bool ()>> m_requestqueue;
-        std::deque<std::function<void ()>> m_timerqueue;
-        std::function<void ()> m_onUiExit{nullptr};
-        std::function<void ()> m_onReload{nullptr};
-        std::function<void ()> m_onOpen{nullptr};
-        std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
-        Ui::Filemap m_filemap;
-        std::function<void ()> m_startup;
-        std::unique_ptr<Server> m_server;
-        // protect request_queue
-        std::mutex m_requestMutex;
-        bool m_hold{false};
-        unsigned m_msgId{1};
-        int m_loop = 0;
+    Ui* m_app_ui;
+    std::atomic<State> m_status = State::NOTSTARTED;
+    EventQueue<HandlerEvent> m_eventqueue;
+    EventMap<std::string, Server::Value> m_responsemap;
+    Semaphore  m_sema;
+    TimerMgr m_timers;
+    std::unordered_map<std::string, HandlerMap> m_elements;
+    std::deque<std::function<bool ()>> m_requestqueue;
+    std::deque<std::function<void ()>> m_timerqueue;
+    std::function<void ()> m_onUiExit{nullptr};
+    std::function<void ()> m_onReload{nullptr};
+    std::function<void ()> m_onOpen{nullptr};
+    std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
+    Ui::Filemap m_filemap;
+    std::function<void ()> m_startup;
+    std::unique_ptr<Server> m_server;
+    // protect request_queue
+    std::mutex m_requestMutex;
+    bool m_hold{false};
+    unsigned m_msgId{1};
+    int m_loop = 0;
 };
 }
 

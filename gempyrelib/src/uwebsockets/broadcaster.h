@@ -64,16 +64,11 @@ class Broadcaster {
     }
 
 public:
-    enum class Type {
-        Undefined,
-        Ui,
-        Extension
-    };
-    bool send(const std::string_view& text, bool is_ext = false) {
+    bool send(Server::TargetSocket send_to, const std::string_view& text) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send txt", text.size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         for(auto& [s, type] : m_sockets) {
-            if((type == Type::Ui && is_ext) || (type == Type::Extension && !is_ext))
+            if(send_to != Server::TargetSocket::All && type != send_to)
                 continue;
             if(check_backpressure(text.size(), *s))
                 return false;
@@ -93,7 +88,7 @@ public:
         if(ptr.index() > m_lastResend )
             return false; // re-queue to keep order
         for(auto& [s, type] : m_sockets) {
-            if(type == Type::Ui) { // extension is not expected to handle binary messages
+            if(type == Server::TargetSocket::Ui) { // extension is not expected to handle binary messages
                 const auto& [data, len] = ptr.payload();
                 if(check_backpressure(len, *s)) {
                     m_lastResend = ptr.index();
@@ -114,7 +109,7 @@ public:
 
     void append(WSSocket* socket) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        m_sockets.emplace(socket, Type::Undefined);
+        m_sockets.emplace(socket, Server::TargetSocket::Undefined);
     }
 
     void remove(WSSocket* socket) {
@@ -157,9 +152,9 @@ public:
         return static_cast<size_t>(min);
     }
 
-    void setType(WSSocket* ws, Type type) {
+    void setType(WSSocket* ws, Server::TargetSocket type) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        assert(m_sockets[ws] == Type::Undefined);
+        assert(m_sockets[ws] == Server::TargetSocket::Undefined);
         m_sockets[ws] = type;
     }
 
@@ -191,7 +186,7 @@ private:
         return status;
     }    
 private:
-    std::unordered_map<WSSocket*, Type> m_sockets;
+    std::unordered_map<WSSocket*, Server::TargetSocket> m_sockets;
     std::timed_mutex m_backPressureMutex;
     std::mutex m_sendTxtMutex;
     std::mutex m_sendBinMutex;

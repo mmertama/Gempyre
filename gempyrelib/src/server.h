@@ -26,6 +26,7 @@ using json = nlohmann::json;
 class Server {
 public:
     static constexpr int PAGEXIT = 1001;
+    
     using Array = json::array_t;
     using Object = json::object_t;
     using Value = json;
@@ -34,6 +35,9 @@ public:
     using OpenFunction =  std::function<void ()>;
     using GetFunction =  std::function<std::optional<std::string> (const std::string_view& filename)>;
     using ListenFunction =  std::function<bool (unsigned)>;
+
+    enum class TargetSocket{Undefined, Ui, Extension, All};
+
     Server(unsigned int port,
            const std::string& rootFolder,
            const OpenFunction& onOpen,
@@ -50,7 +54,7 @@ public:
     virtual bool retryStart() = 0;
     virtual void close(bool wait = false) = 0;
 
-    virtual bool send(const std::unordered_map<std::string, std::string>& object, const std::any& values = std::any()) = 0;
+    virtual bool send(TargetSocket target, Server::Value&& value) = 0;
     virtual bool send(const Gempyre::Data& data) = 0;
 
     virtual bool isJoinable() const = 0;

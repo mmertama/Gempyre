@@ -25,75 +25,87 @@ Element::Element(Ui& ui, const std::string& id) : m_ui(&ui), m_id(id) {
 }
 
 Element::Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent) : Element(ui, id) {
-    ui.send(parent, "create", std::unordered_map<std::string, std::string>{{"new_id", m_id}, {"html_element", htmlElement}});
+    ref().send(parent, "create",
+        "new_id", m_id,
+        "html_element", htmlElement);
 }
 
 Element::Element(Ui& ui, const std::string& htmlElement, const Element& parent) : Element(ui, generateId("__element")) {
-    ui.send(parent, "create", std::unordered_map<std::string, std::string>{{"new_id", m_id}, {"html_element", htmlElement}});
+    ref().send(parent, "create",
+        "new_id", m_id,
+        "html_element", htmlElement);
 }
 
 
 Element& Element::subscribe(const std::string& name, const SubscribeFunction& handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
    
-    m_ui->ref().add_handler(m_id, name, handler);
-    m_ui->send(*this, "event", std::unordered_map<std::string, std::any>{
-                   {"event", name}, {"properties", properties}, {"throttle", std::to_string(throttle.count())}});
+    ref().add_handler(m_id, name, handler);
+    ref().send(*this, "event",
+        "event", name,
+        "properties", properties,
+        "throttle", std::to_string(throttle.count()));
     return *this;
 }
 
 Element& Element::set_html(const std::string& htmlText) {
-    m_ui->send(*this, "html", htmlText);
+    ref().send(*this, "html", htmlText);
     return *this;
 }
 
 Element& Element::set_attribute(const std::string &attr, const std::string &value) {
-    m_ui->send(*this, "set_attribute", std::unordered_map<std::string, std::string>{{"attribute", attr}, {"value", value}});
+    ref().send(*this, "set_attribute", 
+        "attribute", attr,
+        "value", value);
     return *this;
 }
 
 Element& Element::remove_attribute(const std::string &attr) {
-    m_ui->send(*this, "remove_attribute", std::unordered_map<std::string, std::string>{{"attribute", attr}});
+    ref().send(*this, "remove_attribute",
+        "attribute", attr);
     return *this;
 }
 
 Element& Element::set_style(const std::string &styleName, const std::string &value) {
-    m_ui->send(*this, "set_style", std::unordered_map<std::string, std::string>{{"style", styleName}, {"value", value}});
+    ref().send(*this, "set_style",
+        "style", styleName,
+        "value", value);
     return *this;
 }
 
 Element& Element::removeStyle(const std::string &styleName) {
-    m_ui->send(*this, "remove_style", std::unordered_map<std::string, std::string>{{"style", styleName}});
+    ref().send(*this, "remove_style",
+        "style", styleName);
     return *this;
 }
 
 std::optional<Element::Attributes> Element::attributes() const {
-    const auto attributes = m_ui->query<Element::Attributes>(m_id, "attributes");
-    return m_ui->ref() == State::RUNNING ? attributes : std::nullopt;
+    const auto attributes = m_ui->ref().query<Element::Attributes>(m_id, "attributes");
+    return ref() == State::RUNNING ? attributes : std::nullopt;
 }
 
 std::optional<Element::Values> Element::styles(const std::vector<std::string>& keys) const {
-    const auto styles = m_ui->query<Element::Values>(m_id, "styles", keys);
-    return m_ui->ref() == State::RUNNING ? styles : std::nullopt;
+    const auto styles = m_ui->ref().query<Element::Values>(m_id, "styles", keys);
+    return ref() == State::RUNNING ? styles : std::nullopt;
 }
 
 std::optional<Element::Values> Element::values() const {
-    const auto value = m_ui->query<Element::Values>(m_id, "value");
-    return m_ui->ref() == State::RUNNING ? value : std::nullopt;
+    const auto value = m_ui->ref().query<Element::Values>(m_id, "value");
+    return ref() == State::RUNNING ? value : std::nullopt;
 }
 
 std::optional<std::string> Element::html() const {
-    const auto value = m_ui->query<std::string>(m_id, "innerHTML");
-    return m_ui->ref() == State::RUNNING ? value : std::nullopt;
+    const auto value = m_ui->ref().query<std::string>(m_id, "innerHTML");
+    return ref() == State::RUNNING ? value : std::nullopt;
 }
 
 std::optional<std::string> Element::type() const {
-    const auto value = m_ui->query<std::string>(m_id, "element_type");
-    return m_ui->ref() == State::RUNNING ? value : std::nullopt;
+    const auto value = m_ui->ref().query<std::string>(m_id, "element_type");
+    return ref() == State::RUNNING ? value : std::nullopt;
 }
 
 std::optional<Element::Rect> Element::rect() const {
-    const auto value = m_ui->query<std::unordered_map<std::string, std::string>>(m_id, "bounding_rect");
-    if(m_ui->ref() == State::RUNNING && value.has_value()) {
+    const auto value = m_ui->ref().query<std::unordered_map<std::string, std::string>>(m_id, "bounding_rect");
+    if(ref() == State::RUNNING && value.has_value()) {
         assert(value->size() >= 4);
         assert(value->find("x") != value->end());
         assert(value->find("y") != value->end());
@@ -110,7 +122,7 @@ std::optional<Element::Rect> Element::rect() const {
 
 std::optional<Element::Elements> Element::children() const {
     Element::Elements childArray;
-    const auto childIds = m_ui->query<std::vector<std::string>>(m_id, "children");
+    const auto childIds = m_ui->ref().query<std::vector<std::string>>(m_id, "children");
     if(!childIds.has_value())
         return std::nullopt;
     for(const auto& cid : *childIds) {
@@ -120,19 +132,16 @@ std::optional<Element::Elements> Element::children() const {
 }
 
 void Element::remove() {
-    m_ui->send(*this, "remove", m_id);
+    ref().send(*this, "remove", m_id);
 }
 
-void Element::send(const DataPtr& data) {
-    assert(data->has_owner()); // the data has to have owner we can optionally tell how is waiting it
-    m_ui->send(data);
-}
-
-void Element::send(const std::string& type, const std::any& data, bool unique) {
-    m_ui->send(*this, type, data, unique);
-}
 
 Element::~Element() {}
+
+
+const GempyreInternal& Element::ref() const {return m_ui->ref();}
+
+GempyreInternal& Element::ref() {return m_ui->ref();}    
 
 template <typename T> T align(T a) {return (a + 3U) & ~3U;}
 

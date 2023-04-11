@@ -160,7 +160,11 @@ FetchContent_GetProperties(lodepng SOURCE_DIR srcDirVar)
 set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}")
 set(PNG_SRC 
     ${srcDirVar}/lodepng.cpp
-    ${srcDirVar}/lodepng.h ) 
+    ${srcDirVar}/lodepng.h )
+# try turn off warnings for the PNG folder    
+set_source_files_properties(${srcDirVar}
+  PROPERTIES COMPILE_FLAGS "-w"
+) 
 
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")

@@ -40,40 +40,6 @@ std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
            }
 
 
-
-#if 0
-static std::any convert(const nlohmann::json& js) {
-    if(js.is_object()) {
-        Server::Object params;
-        for(const auto& [key, value] : js.items()) {
-            params.emplace(key, value);
-        }
-#if 0
-        for(const auto& [key, value] : params) {
-            std::cerr << key << "->" << value.type().name() << std::endl;
-        }
-#endif
-        return std::make_any<Server::Object>(params);
-    } else if(js.is_array()) {
-        Server::Array params;
-        for(const auto& value : js) {
-            params.push_back(value);
-        }
-        return std::make_any<Server::Array>(params);
-    } else if(js.is_boolean()) {
-        return std::make_any<std::string>(std::string(js.get<bool>() ? "true" : "false"));
-    } else if(js.is_number()) {
-        return std::make_any<std::string>(std::to_string(js.get<double>()));
-    } else if(js.is_string()) {
-        return std::make_any<std::string>(js.get<std::string>());
-    } else {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "conversion dicards", js);
-        return std::make_any<std::string>(std::string("false"));
-    }
-}
-#endif
-
-
 static std::string toLower(const std::string& str) {
     std::string s = str;
     std::transform(s.begin(), s.end(), s.begin(), [](auto c) {return std::tolower(c);});
@@ -84,21 +50,21 @@ static std::string toLower(const std::string& str) {
 
 class Gempyre::Batch {
 public:
-    Batch() : m_array{json::array()}{
-        m_data["type"] = "batch";
+    Batch() : m_arrays{} {
     }
 
-    void push_back(json&& jobj) {
-        m_array.push_back(std::forward<json>(jobj));
+    void push_back(Server::TargetSocket target, json&& jobj) {
+        m_arrays[target].push_back(std::forward<json>(jobj));
     }
 
-    std::string dump() {
-        m_data["batches"] =  std::move(m_array);
-        return m_data.dump();
+    std::string dump(Server::TargetSocket target) {
+        auto data = json::object();
+        data["type"] = "batch";
+        data["batches"] =  std::move(m_arrays[target]);
+        return data.dump();
     }
 private:
-    json m_data;
-    json m_array;
+    std::unordered_map<Server::TargetSocket, json::array_t> m_arrays;
 };
 
 
@@ -194,10 +160,10 @@ void Uws_Server::serverThread(unsigned int port) {
                 return;
             case MessageReply::AddUiSocket:
                 m_uiready = true;
-                m_broadcaster->setType(ws, Broadcaster::Type::Ui);
+                m_broadcaster->setType(ws, Server::TargetSocket::Ui);
                 return;
              case MessageReply::AddExtensionSocket:
-                 m_broadcaster->setType(ws, Broadcaster::Type::Extension);
+                 m_broadcaster->setType(ws, Server::TargetSocket::Extension);
                 return;    
         }
     };;
@@ -388,51 +354,42 @@ bool Uws_Server::beginBatch() {
 
 bool Uws_Server::endBatch() {
     if(m_batch) {
-        const auto str = m_batch->dump();
+        const auto targets = {Server::TargetSocket::Ui, Server::TargetSocket::Extension};
+        for(const auto target : targets) {
+        const auto str = m_batch->dump(target);
 #ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
 #endif            
-            if(!m_broadcaster->send(str))
-                return false;
+        if(!m_broadcaster->send(Server::TargetSocket::Ui, str))
+            return false;
 #ifdef PULL_MODE                
         } else {
             const auto pull = addPulled(DataType::Json, str);
             const json obj = {{"type", "pull_json"}, {"id", pull}};
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add batch pull", str.size(), pull);
-            if(!m_broadcaster->send(obj.dump()))
+            if(!m_broadcaster->send(target, obj.dump()))
                 return false;
         }
-#endif        
+#endif      
+        }  
         m_batch.reset();
     }
     return true;
 }
 
-bool Uws_Server::send(const std::unordered_map<std::string, std::string>& object, const std::any& values) {
-    json js;
-    if(values.has_value()) {
-        const auto jopt = GempyreUtils::to_json_string(values);
-        if(jopt.has_value()) {
-            js = json::parse(*jopt);
-        }
-    }
-    [[maybe_unused]] bool is_ext = false;
-    for(const auto& [key, value] : object) {
-        js[key] = value;
-        if(key == "type" && value == "extension") {
-            is_ext = true;
-        }
-    }
+bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value) {
+
     if(m_batch) {
-        m_batch->push_back(std::move(js));
+        m_batch->push_back(target, std::move(value));
     } else {
-        const auto str = js.dump();
+        const auto str = value.dump();
 #ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
 #endif            
-            if(!m_broadcaster->send(str))
+            if(!m_broadcaster->send(target, str))
                 return false;
-#ifdef PULL_MODE                
+#ifdef PULL_MODE               
+    This is not working - but keep here as a reference if pull mode want to be re-enabled 
         } else {
             const auto pull = addPulled(DataType::Json, str);
             const json obj = {{"type", "pull_json"}, {"id", pull}};
