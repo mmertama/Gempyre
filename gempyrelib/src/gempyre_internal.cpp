@@ -539,7 +539,7 @@ void GempyreInternal::send(const DataPtr& data) {
 #else
     const auto [bytes, len] = data->payload();
 #endif
-        const auto ok = send(*clonedBytes);
+        const auto ok = m_server->send(*clonedBytes);
         // not sure if this is needed any more as there are other fixes that has potentially fixed this
         if(ok && clonedBytes->size() > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
             send(m_app_ui->root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as

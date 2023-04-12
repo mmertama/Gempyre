@@ -92,21 +92,24 @@ public:
     std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
 
     void eventLoop(bool is_main);
+
     void send(const DataPtr& data);
 
     template<typename T>
-    bool send_unique(const Element& el, const std::string& type, const T& value) {
-         json params {
+    void send_unique(const Element& el, const std::string& type, const T& value) {
+        Server::Value params {
             {"element", el.m_id},
             {"type", type},
             {type, value},
             {"msgid", next_msg_id()}
             };
-        return send(Server::TargetSocket::Ui, std::move(params));    
+        add_request([this, params = std::move(params)]() mutable {        
+            return send_to(Server::TargetSocket::Ui, std::move(params));
+        });    
     }
 
     template<typename K, typename V, typename... P>
-    bool send_unique(const Element& el, const std::string& type, const K& key, const V& value, const P&... pairs) {
+    void send_unique(const Element& el, const std::string& type, const K& key, const V& value, const P&... pairs) {
         json params {
             {"element", el.m_id},
             {"type", type},
@@ -116,22 +119,26 @@ public:
         constexpr auto count = sizeof...(pairs);
         static_assert((count & 0x1) == 0, "Expect is even");
         emplace_in<count>(std::forward_as_tuple(pairs...), params);
-        return send(Server::TargetSocket::Ui, std::move(params));   
+        add_request([this, params = std::move(params)]() mutable {        
+            return send_to(Server::TargetSocket::Ui, std::move(params));
+        });    
     }
 
     template<typename T>
-    bool send(const Element& el, const std::string& type, const T& value) {
+    void send(const Element& el, const std::string& type, const T& value) {
          json params {
             {"element", el.m_id},
             {"type", type},
             {type, value}
             };
-        return send(Server::TargetSocket::Ui, std::move(params));    
+        add_request([this, params = std::move(params)]() mutable {    
+            return send_to(Server::TargetSocket::Ui, std::move(params));
+        });    
     }
 
 
     template<typename K, typename V, typename... P>
-    bool send(const Element& el, const std::string& type, const K& key, const V& value, const P&... pairs) {
+    void send(const Element& el, const std::string& type, const K& key, const V& value, const P&... pairs) {
         json params {
             {"element", el.m_id},
             {"type", type},
@@ -140,7 +147,9 @@ public:
         constexpr auto count = sizeof...(pairs);
         static_assert((count & 0x1) == 0, "Expect is even");
         emplace_in<count>(std::forward_as_tuple(pairs...), params);
-        return send(Server::TargetSocket::Ui, std::move(params));    
+        add_request([this, params = std::move(params)]() mutable {        
+            return send_to(Server::TargetSocket::Ui, std::move(params));
+        });        
     }
 
     void add_request(std::function<bool()>&& f) {
@@ -254,13 +263,9 @@ public:
     }
 
     
-    bool send(Server::TargetSocket target, Server::Value&& value) {
+    [[nodiscard]]
+    bool send_to(Server::TargetSocket target, Server::Value&& value) {
         return m_server->send(target, std::move(value));
-    }
-
-    
-    bool send(const Data& ptr) {
-        return m_server->send(ptr);
     }
 
     unsigned port() const {
