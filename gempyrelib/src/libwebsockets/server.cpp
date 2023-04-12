@@ -126,23 +126,24 @@ int LWS_Server::wsCallback(lws *wsi, lws_callback_reasons reason, void *user, vo
      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_SERVER_WRITEABLE", reason);
           break;
      case LWS_CALLBACK_RECEIVE: {
-          const std::string_view msg(in, len);
-          switch(messageHandler(msg) {
+          const std::string_view msg(static_cast<char*>(in), len);
+          switch(self->messageHandler(msg)) {
                case MessageReply::DoNothing:
-                    if(m_s.m_doExit) {
-                         ws->close();
+                    if(self->m_do_close) {
+                         return -1; // close connection
                     }
-                break;
+                    break;
                case MessageReply::AddUiSocket:
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO AddUiSocket");
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO Ready");
-                break;
+                    break;
                case MessageReply::AddExtensionSocket:
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO AddUiSocket");
-                return;    
-        }
+                    break;
+               }
           GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_RECEIVE", msg);
-          } break;          
+     }
+          break;          
      default:
           break;
      }
@@ -238,6 +239,7 @@ LWS_Server::LWS_Server(unsigned int port,
             Server{port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase},
             m_send_buffer{std::make_unique<SendBuffer>()} {
                assert(m_send_buffer && m_send_buffer->empty());
+
                m_loop = std::async(std::launch::async, [this] {
 
                     lws_context_creation_info info{};
@@ -343,13 +345,16 @@ bool LWS_Server::isConnected() const {
      return m_connected;
      }
 bool LWS_Server::retryStart() {std::abort();}
-void LWS_Server::close(bool wait) {std::abort();}
 
-bool LWS_Server::send(const std::unordered_map<std::string, std::string>& object, const std::any& values) {
+void LWS_Server::close(bool wait) {
+     m_do_close = true;
+}
+
+bool LWS_Server::send(Server::TargetSocket target, Server::Value&& value) {
      assert(isConnected());
-     for(const auto& [k, v] : object) {
-          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send!", k, v);
-     }
+     //for(const auto& [k, v] : object) {
+     //     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send!", k, v);
+     //}
      //TODO lws_write
      //TODO break - IDs to identidy target: extension, ui or both
      //TODO break - any --> json
