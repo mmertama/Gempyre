@@ -72,11 +72,13 @@ Element& Element::set_style(const std::string &styleName, const std::string &val
     return *this;
 }
 
+#if 0
 Element& Element::removeStyle(const std::string &styleName) {
     ref().send(*this, "remove_style",
         "style", styleName);
     return *this;
 }
+#endif
 
 std::optional<Element::Attributes> Element::attributes() const {
     const auto attributes = m_ui->ref().query<Element::Attributes>(m_id, "attributes");

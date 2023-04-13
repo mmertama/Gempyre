@@ -24,7 +24,8 @@ public:
            const Server::CloseFunction& onClose,
            const Server::GetFunction& onGet,
            const Server::ListenFunction& onListen,
-           int queryIdBase);
+           int queryIdBase,
+           const Server::ResendRequest& request);
      
      ~Uws_Server();
 private: // let's not use Server API
@@ -36,9 +37,10 @@ private: // let's not use Server API
     bool retryStart() override;
     void close(bool wait = false) override;
     bool send(Server::TargetSocket target, Server::Value&& value) override;
-    bool send(const Gempyre::Data& data) override;
+    bool send(Gempyre::DataPtr&& data) override;
     bool beginBatch() override;
     bool endBatch() override;
+    void flush() override;
 private:
     std::unique_ptr<std::thread> makeServer(unsigned short port);
     void doClose();

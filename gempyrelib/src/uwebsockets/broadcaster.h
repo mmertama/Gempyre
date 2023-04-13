@@ -41,7 +41,7 @@ class Broadcaster {
         }
     }
     template<typename L, class S>
-    bool check_backpressure(const L len, S& s) {
+    bool has_backpressure(const L len, S& s) {
         auto s_ptr = &s; 
         const auto webSocketContextData = static_cast<uWS::WebSocketContextData<false, ExtraSocketData>*>
         (us_socket_context_ext(false, static_cast<us_socket_context_t *> (us_socket_context(false, reinterpret_cast<us_socket_t *> (s_ptr)))));
@@ -64,32 +64,39 @@ class Broadcaster {
     }
 
 public:
-    bool send(Server::TargetSocket send_to, const std::string_view& text) {
+    
+    Broadcaster(const std::function<void(WSSocket::SendStatus)>& onErr) : m_onErr{onErr} {}
+
+    bool send(Server::TargetSocket send_to, std::string&& text) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send txt", text.size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         for(auto& [s, type] : m_sockets) {
             if(send_to != Server::TargetSocket::All && type != send_to)
                 continue;
-            if(check_backpressure(text.size(), *s))
+            add_queue(s, std::move(text));
+            socket_send();    
+           /*if(check_backpressure(text.size(), *s))
                 return false;
             const auto success = socket_send(s, text, true);
             if(success != WSSocket::SendStatus::SUCCESS) {
                 socket_error<SType::Txt>(success, *s);
                 return false;
-            }
+            }*/
         }
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "sent txt", !m_sockets.empty());
         return !m_sockets.empty();
     }
 
-    bool send(const Data& ptr) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send bin", ptr.size());
+    bool send(DataPtr&& ptr) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send bin", ptr->size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        if(ptr.index() > m_lastResend )
-            return false; // re-queue to keep order
+        //if(ptr.index() > m_lastResend )
+        //    return false; // re-queue to keep order
         for(auto& [s, type] : m_sockets) {
             if(type == Server::TargetSocket::Ui) { // extension is not expected to handle binary messages
-                const auto& [data, len] = ptr.payload();
+                add_queue(s, std::move(ptr));
+                socket_send();
+                /*const auto& [data, len] = ptr.payload();
                 if(check_backpressure(len, *s)) {
                     m_lastResend = ptr.index();
                     return false;
@@ -99,10 +106,10 @@ public:
                     socket_error<SType::Bin>(success, *s);
                     m_lastResend = ptr.index();
                     return false;
-                }
+                }*/
             }
         }
-        m_lastResend = SEND_SUCCESS;
+        //m_lastResend = SEND_SUCCESS;
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "sent bin", !m_sockets.empty());
         return !m_sockets.empty();
     }
@@ -166,7 +173,74 @@ public:
         m_loop = loop;
     }
 
+// check if there is data in queues and request their send
+    void flush() {
+        bool has_data = false;
+        if(!has_data) {
+        std::unique_lock<std::mutex> lock(m_sendTxtMutex);
+            has_data |=  !m_textQueue.empty();   
+        }
+        if(!has_data) {
+        std::unique_lock<std::mutex> lock(m_sendTxtMutex);
+            has_data |=  !m_textQueue.empty();   
+        }
+        if(has_data) {
+            socket_send();
+        }
+    }
+
 private:
+    // see socket_send
+    void add_queue(WSSocket* s, std::string&& text) {
+        std::unique_lock<std::mutex> lock(m_sendTxtMutex);
+        m_textQueue.push_back(std::make_tuple(s, std::move(text)));
+    }
+
+    // see socket_send
+    void add_queue(WSSocket* s, DataPtr&& text) {
+        std::unique_lock<std::mutex> lock(m_sendBinMutex);
+        m_dataQueue.push_back(std::make_tuple(s, std::move(text)));
+    }
+
+    // uws requires send happen in its thread, therefore we queue them and then send them using m_loop->defer
+    void socket_send() {
+         m_loop->defer([this] () {{ // this happens in server thread 
+            std::unique_lock<std::mutex> lock(m_sendTxtMutex);
+            for(auto it = m_textQueue.begin(); it != m_textQueue.end();) {
+                auto& [s, txt] = *it;
+                if(has_backpressure(txt.size(), *s)) {
+                    m_onErr(WSSocket::SendStatus::BACKPRESSURE);
+                    return;
+                }
+                const WSSocket::SendStatus status = s->send(txt, uWS::OpCode::TEXT);
+                if(status == WSSocket::SendStatus::SUCCESS) {
+                    m_textQueue.erase(it);
+                } else {
+                    m_onErr(status);
+                    return;
+                }
+            }}
+
+            {
+            std::unique_lock<std::mutex> lock(m_sendBinMutex);
+            for(auto it = m_dataQueue.begin(); it != m_dataQueue.end();) {
+                 auto& [s, ptr] = *it;
+                 const auto& [data, len] = ptr->payload();
+                 if(has_backpressure(len, *s)) {
+                    m_onErr(WSSocket::SendStatus::BACKPRESSURE);
+                    return;
+                }
+                const WSSocket::SendStatus status = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
+                if(status == WSSocket::SendStatus::SUCCESS) {
+                    m_dataQueue.erase(it);
+                } else {
+                    m_onErr(status);
+                    return;
+                }
+            }}
+         });
+    }
+/*
     WSSocket::SendStatus socket_send(WSSocket* s, std::string_view data, bool is_text) {
         assert(m_loop);
         WSSocket::SendStatus status = WSSocket::SendStatus::DROPPED;
@@ -184,14 +258,17 @@ private:
         }
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket done", status);
         return status;
-    }    
+    }*/    
 private:
+    std::function<void (WSSocket::SendStatus)> m_onErr;
     std::unordered_map<WSSocket*, Server::TargetSocket> m_sockets;
     std::timed_mutex m_backPressureMutex;
     std::mutex m_sendTxtMutex;
     std::mutex m_sendBinMutex;
+    std::vector<std::tuple<WSSocket*, std::string>> m_textQueue;
+    std::vector<std::tuple<WSSocket*, DataPtr>> m_dataQueue;
     mutable std::mutex m_socketMutex;
-    unsigned m_lastResend = SEND_SUCCESS; 
+    //unsigned m_lastResend = SEND_SUCCESS; 
     uWS::Loop* m_loop = nullptr;
     };
 }

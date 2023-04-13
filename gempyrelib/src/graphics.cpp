@@ -148,6 +148,7 @@ std::string CanvasElement::add_image(const std::string& url, const std::function
     return name;
 }
 
+#if 0
 std::vector<std::string> CanvasElement::add_images(const std::vector<std::string>& urls, const std::function<void (const std::vector<std::string>)>& loaded) {
     std::vector<std::string> names;
     auto result = std::make_shared<std::map<std::string, bool>>();
@@ -167,6 +168,7 @@ std::vector<std::string> CanvasElement::add_images(const std::vector<std::string
     });
     return names;
 }
+#endif
 
 void CanvasElement::paint_image(const std::string& imageId, int x, int y, const Rect& clippingRect) const {
     auto ui = const_cast<GempyreInternal*>(&ref());

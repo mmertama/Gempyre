@@ -236,7 +236,12 @@ GempyreInternal& Ui::ref() {
                    [this](CloseStatus status, int code){closeHandler(status, code);},
                    [this](const std::string_view& name){return getHandler(name);},
                    [indexHtml, parameters, this](int listen_port){return startListen(indexHtml, parameters, listen_port);},
-                   last_query_id + 1 // if m_server is created second time it is good that this is > as 1st as pending queries may cause confusion
+                   last_query_id + 1, // if m_server is created second time it is good that this is > as 1st as pending queries may cause confusion
+                   [this]() {add_request([this](){m_app_ui->after(50ms, [this]() { // this is on send error
+                            m_server->flush(); // try resend after 50ms
+                        });
+                        return true;
+                    });}
                 );
     }} {}
 
@@ -533,15 +538,16 @@ void GempyreInternal::eventLoop(bool is_main) {
 
 void GempyreInternal::send(const DataPtr& data) {
 #ifndef DIRECT_DATA
-    const auto clonedBytes = data->clone();
+    auto clonedBytes = data->clone();
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send ui_bin", clonedBytes->size());
-    add_request([this, clonedBytes]() {
+    add_request([this, clonedBytes = std::move(clonedBytes)]() mutable {
 #else
     const auto [bytes, len] = data->payload();
 #endif
-        const auto ok = m_server->send(*clonedBytes);
+        const auto sz = clonedBytes->size();
+        const auto ok = m_server->send(std::move(clonedBytes));
         // not sure if this is needed any more as there are other fixes that has potentially fixed this
-        if(ok && clonedBytes->size() > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
+        if(ok && sz > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
             send(m_app_ui->root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
         }                                        //multiple tiles
 #ifndef DIRECT_DATA

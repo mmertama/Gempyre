@@ -35,8 +35,11 @@ std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
            const Server::CloseFunction& onClose,
            const Server::GetFunction& onGet,
            const Server::ListenFunction& onListen,
-           int queryIdBase) {
-            return std::unique_ptr<Server>(new Uws_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase));
+           int queryIdBase,
+           const Server::ResendRequest& request) {
+                return std::unique_ptr<Server>(new Uws_Server(
+                    port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase, request
+                    ));
            }
 
 
@@ -105,16 +108,19 @@ class Gempyre::SocketHandler {
 Uws_Server::Uws_Server(
     unsigned port,
     const std::string& root,
-    const OpenFunction& onOpen,
-    const MessageFunction& onMessage,
-    const CloseFunction& onClose,
-    const GetFunction& onGet,
-    const ListenFunction& onListen,
-    int queryIdBase) : Server{port, root, onOpen, onMessage, onClose, onGet, onListen, queryIdBase},
+    const Server::OpenFunction& onOpen,
+    const Server::MessageFunction& onMessage,
+    const Server::CloseFunction& onClose,
+    const Server::GetFunction& onGet,
+    const Server::ListenFunction& onListen,
+    int queryIdBase,
+    const Server::ResendRequest& resendRequest) : Server{port, root, onOpen, onMessage, onClose, onGet, onListen, queryIdBase},
     //mStartFunction([this]()->std::unique_ptr<std::thread> {
 //   return makeServer();
 //}),
-    m_broadcaster(std::make_unique<Broadcaster>()),
+    m_broadcaster(std::make_unique<Broadcaster>([this, resendRequest](WSSocket::SendStatus) {
+        resendRequest();
+    })),
     m_serverThread{newThread()} {
 #ifdef RANDOM_PORT
     const auto seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -123,6 +129,10 @@ Uws_Server::Uws_Server(
     m_port = distribution(generator);
 #endif
 }
+
+ void Uws_Server::flush() {
+    m_broadcaster->flush();
+ }
 
 std::unique_ptr<std::thread> Uws_Server::newThread() {
     auto thread = std::make_unique<std::thread>([this]() {
@@ -356,12 +366,12 @@ bool Uws_Server::endBatch() {
     if(m_batch) {
         const auto targets = {Server::TargetSocket::Ui, Server::TargetSocket::Extension};
         for(const auto target : targets) {
-        const auto str = m_batch->dump(target);
+            auto str = m_batch->dump(target);
 #ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
 #endif            
-        if(!m_broadcaster->send(Server::TargetSocket::Ui, str))
-            return false;
+            if(!m_broadcaster->send(Server::TargetSocket::Ui, std::move(str)))
+                return false;
 #ifdef PULL_MODE                
         } else {
             const auto pull = addPulled(DataType::Json, str);
@@ -382,11 +392,11 @@ bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value) {
     if(m_batch) {
         m_batch->push_back(target, std::move(value));
     } else {
-        const auto str = value.dump();
+            auto str = value.dump();
 #ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
 #endif            
-            if(!m_broadcaster->send(target, str))
+            if(!m_broadcaster->send(target, std::move(str)))
                 return false;
 #ifdef PULL_MODE               
     This is not working - but keep here as a reference if pull mode want to be re-enabled 
@@ -402,11 +412,11 @@ bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value) {
     return true;
 }
 
-bool Uws_Server::send(const Gempyre::Data& ptr) {
+bool Uws_Server::send(Gempyre::DataPtr&& ptr) {
 #ifdef PULL_MODE    
     if(len < WS_MAX_LEN) {
 #endif        
-        if(!m_broadcaster->send(ptr))
+        if(!m_broadcaster->send(std::move(ptr)))
             return false;
 #ifdef PULL_MODE            
     } else {

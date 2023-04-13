@@ -74,7 +74,6 @@ public:
     CanvasElement& operator=(CanvasElement&& other) = default;
 
     std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
-    [[deprecated]] std::vector<std::string> add_images(const std::vector<std::string>& urls, const std::function<void(const std::vector<std::string>)>&loaded = nullptr);
     void paint_image(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
     void paint_image(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
     void draw(const CommandList& canvasCommands);
@@ -83,7 +82,6 @@ public:
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
     void draw_completed(const DrawCallback& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
     void erase(bool resized = false);
-    [[nodiscard, deprecated]] bool has_canvas() const {return !!m_tile;}
 private:
     friend class Bitmap;
     void paint(const CanvasDataPtr& canvas, int x, int y, bool as_draw);
@@ -100,8 +98,6 @@ namespace  Color {
         return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
     }
 
-
-    [[nodiscard, deprecated("Use snake")]] static constexpr inline type rgbaClamped(type r, type g, type b, type a = 0xFF) {return rgba_clamped(r, g, b, a);}
     
     [[nodiscard]] static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
         return r | (g << 8) | (b << 16) | (a << 24);
@@ -197,26 +193,6 @@ private:
     Gempyre::CanvasDataPtr m_canvas;
 };
 
- class // bw compatibility
-[[deprecated("Use Bitmap")]] Graphics : public Bitmap {
-public:
-    [[deprecated("Use Color")]] static constexpr Color::type Black = Color::Black;
-    [[deprecated("Use Color")]] static constexpr Color::type White = Color::White;
-    [[deprecated("Use Color")]] static constexpr Color::type Red = Color::Red;
-    [[deprecated("Use Color")]] static constexpr Color::type Green = Color::Green;
-    [[deprecated("Use Color")]] static constexpr Color::type Blue = Color::Blue;
-    Graphics(const Gempyre::CanvasElement& element, int width, int height) : Bitmap(width, height), m_element(element) {};
-    Graphics(const Gempyre::CanvasElement& element) : m_element(element) {};
-    void update() {m_element.draw(0, 0, *this);}
-    void merge(const Graphics& other) {Bitmap::merge(0, 0, other);}
-    Graphics clone() const {Graphics other(m_element, width(), height());
-        other.copy_from(*this);
-        return other;
-    }
-private:
-    Gempyre::CanvasElement m_element;
-
-};
 
 class FrameComposer {
 public:

@@ -18,6 +18,7 @@ namespace Gempyre {
 
 class Batch;
 class Data;
+using DataPtr = std::shared_ptr<Data>;
 
 enum class CloseStatus {EXIT, FAIL, CLOSE};
 
@@ -35,6 +36,7 @@ public:
     using OpenFunction =  std::function<void ()>;
     using GetFunction =  std::function<std::optional<std::string> (const std::string_view& filename)>;
     using ListenFunction =  std::function<bool (unsigned)>;
+    using ResendRequest = std::function<void()>;
 
     enum class TargetSocket{Undefined, Ui, Extension, All};
 
@@ -45,7 +47,7 @@ public:
            const CloseFunction& onClose,
            const GetFunction& onGet,
            const ListenFunction& onListen,
-           int querIdBase);
+           int queryIdBase);
     
     virtual ~Server() = default;       
    
@@ -55,7 +57,7 @@ public:
     virtual void close(bool wait = false) = 0;
 
     virtual bool send(TargetSocket target, Server::Value&& value) = 0;
-    virtual bool send(const Gempyre::Data& data) = 0;
+    virtual bool send(Gempyre::DataPtr&& data) = 0;
 
     virtual bool isJoinable() const = 0;
     virtual bool isRunning() const = 0;
@@ -66,6 +68,8 @@ public:
     
     virtual bool beginBatch() = 0;
     virtual bool endBatch() = 0;
+
+    virtual void flush() = 0;
 
     static unsigned wishAport(unsigned port, unsigned max);
     static unsigned portAttempts();
@@ -95,7 +99,8 @@ std::unique_ptr<Server> create_server(unsigned int port,
            const Server::CloseFunction& onClose,
            const Server::GetFunction& onGet,
            const Server::ListenFunction& onListen,
-           int queryIdBase);
+           int queryIdBase,
+           const Server::ResendRequest& resendRequest);
 
 }
 

@@ -91,7 +91,6 @@ namespace Gempyre {
         Element& set_attribute(const std::string& attr, const std::string& value = "");
         std::optional<Attributes> attributes() const;
         Element& set_style(const std::string& style, const std::string& value);
-        [[deprecated("not supported")]] Element& removeStyle(const std::string& style);
         Element& remove_attribute(const std::string& attr);
         [[nodiscard]] std::optional<Values> styles(const std::vector<std::string>& keys) const;
         [[nodiscard]] std::optional<Elements> children() const;
