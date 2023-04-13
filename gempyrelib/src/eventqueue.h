@@ -1,7 +1,7 @@
 #ifndef EVENTQUEUE_H
 #define EVENTQUEUE_H
 
-#include <deque>
+#include <list>
 #include <unordered_map>
 #include <string>
 #include <mutex>
@@ -42,7 +42,7 @@ public:
 
 
 private:
-    std::deque<Event> m_events;
+    std::list<Event> m_events;
     mutable std::mutex m_mutex;
 };
 

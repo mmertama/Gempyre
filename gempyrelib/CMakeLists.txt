@@ -101,11 +101,18 @@ endif()
 
 # end of general defintions
 
-if(USE_UWEBSOCKETS)
-    include(cmake/uwebsocket.cmake)
-else()
+#if(USE_UWEBSOCKETS)
+#    include(cmake/uwebsocket.cmake)
+#else()
+#    include(cmake/libwebsockets.cmake)    
+#endif()
+
+if(USE_LIBWEBSOCKETS)
     include(cmake/libwebsockets.cmake)    
+else()
+    include(cmake/uwebsocket.cmake)
 endif()
+
 
 externalproject_add(libjson
     GIT_REPOSITORY https://github.com/nlohmann/json.git

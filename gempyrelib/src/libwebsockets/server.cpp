@@ -352,12 +352,24 @@ void LWS_Server::close(bool wait) {
 
 bool LWS_Server::send(Server::TargetSocket target, Server::Value&& value) {
      assert(isConnected());
-     //for(const auto& [k, v] : object) {
-     //     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send!", k, v);
-     //}
-     //TODO lws_write
-     //TODO break - IDs to identidy target: extension, ui or both
-     //TODO break - any --> json
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send!", k, v);
+     /*
+          // https://libwebsockets.org/lws-api-doc-master/html/md_README.coding.html
+     Only send data when socket writeable
+     You should only send data on a websocket connection from the user callback LWS_CALLBACK_SERVER_WRITEABLE (
+     or LWS_CALLBACK_CLIENT_WRITEABLE for clients).
+
+     If you want to send something, do not just send it but request a callback when the socket is writeable using
+     lws_callback_on_writable(context, wsi) for a specific wsi,
+     or lws_callback_on_writable_all_protocol(protocol) for all connections using that protocol to get a callback when next writeable.
+
+     Usually you will get called back immediately next time around the service loop,
+     but if your peer is slow or temporarily inactive the callback will be delayed accordingly.
+     Generating what to write and sending it should be done in the ...WRITEABLE callback.
+
+*/
+
+     // Here we add data to queue and, if it is not a batch, kick writeable request
      return true;
      }
 

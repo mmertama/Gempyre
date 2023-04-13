@@ -483,8 +483,8 @@ private:
     Semaphore  m_sema;
     TimerMgr m_timers;
     std::unordered_map<std::string, HandlerMap> m_elements;
-    std::deque<std::function<bool ()>> m_requestqueue;
-    std::deque<std::function<void ()>> m_timerqueue;
+    std::list<std::function<bool ()>> m_requestqueue;
+    std::list<std::function<void ()>> m_timerqueue;
     std::function<void ()> m_onUiExit{nullptr};
     std::function<void ()> m_onReload{nullptr};
     std::function<void ()> m_onOpen{nullptr};
