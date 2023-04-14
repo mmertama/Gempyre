@@ -19,8 +19,8 @@ using WSBehaviour = WSServer::WebSocketBehavior<Gempyre::ExtraSocketData>;
 using namespace Gempyre;
 
 
-constexpr unsigned PAYLOAD_SIZE = 4 * 1024 * 1024;
-constexpr unsigned BACKPRESSURE_SIZE = 4 * 1024 * 1024;
+constexpr unsigned PAYLOAD_SIZE = 8 * 1024 * 1024;
+constexpr unsigned BACKPRESSURE_SIZE = 8 * 1024 * 1024;
 
 #ifdef PULL_MODE
 constexpr size_t WS_MAX_LEN = 16 * 1024;
@@ -118,7 +118,7 @@ Uws_Server::Uws_Server(
     //mStartFunction([this]()->std::unique_ptr<std::thread> {
 //   return makeServer();
 //}),
-    m_broadcaster(std::make_unique<Broadcaster>([this, resendRequest](WSSocket::SendStatus) {
+    m_broadcaster(std::make_unique<Broadcaster>([resendRequest](WSSocket*, WSSocket::SendStatus) {
         resendRequest();
     })),
     m_serverThread{newThread()} {
@@ -183,8 +183,8 @@ void Uws_Server::serverThread(unsigned int port) {
     behavior.maxPayloadLength =  PAYLOAD_SIZE;
     behavior.maxBackpressure = BACKPRESSURE_SIZE;
     behavior.drain = [this](auto ws) {
-        GempyreUtils::log(GempyreUtils::LogLevel::Warning, "drain", ws->getBufferedAmount());
-        m_broadcaster->unlock(); //release backpressure wait
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "drain", ws->getBufferedAmount());
+        m_broadcaster->drain(ws); //release backpressure wait
     };
 
     assert(!m_uiready);
@@ -412,11 +412,11 @@ bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value) {
     return true;
 }
 
-bool Uws_Server::send(Gempyre::DataPtr&& ptr) {
+bool Uws_Server::send(Gempyre::DataPtr&& ptr, bool droppable) {
 #ifdef PULL_MODE    
     if(len < WS_MAX_LEN) {
 #endif        
-        if(!m_broadcaster->send(std::move(ptr)))
+        if(!m_broadcaster->send(std::move(ptr), droppable))
             return false;
 #ifdef PULL_MODE            
     } else {

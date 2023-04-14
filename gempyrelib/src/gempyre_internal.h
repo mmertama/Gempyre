@@ -93,7 +93,7 @@ public:
 
     void eventLoop(bool is_main);
 
-    void send(const DataPtr& data);
+    void send(const DataPtr& data, bool droppable);
 
     template<typename T>
     void send_unique(const Element& el, const std::string& type, const T& value) {

@@ -117,7 +117,7 @@ void amain( Gempyre::Ui& ui, Gempyre::CanvasElement& canvas_element, const Gempy
 }
 
 int main(int /*argc*/, char** /*argv*/) {
-    Gempyre::set_debug();
+    GempyreUtils::set_log_level(GempyreUtils::LogLevel::Warning);
     Gempyre::Ui ui{Fire_resourcesh, "fire.html"};
     Gempyre::CanvasElement canvas_element{ui, "canvas"};
     const auto image_data = ui.resource("/grunge-skull.png");

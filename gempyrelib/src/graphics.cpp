@@ -118,7 +118,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
                 }
             //  assert(m_tile->size() == static_cast<size_t>((width * height + 4) * 4 + 20 + 16));
                 #endif         
-                ref().send(m_tile->ptr());
+                ref().send(m_tile->ptr(), is_last); // last is not droppable
             }
         }
     } else {
@@ -129,7 +129,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
                                         static_cast<Gempyre::dataT>(0),
                                         static_cast<Gempyre::dataT>(0),
                                         static_cast<Gempyre::dataT>(is_last)});
-            ref().send(m_tile->ptr());                            
+            ref().send(m_tile->ptr(), is_last);   // last is not droppable                         
         }
     }
     assert(is_last);

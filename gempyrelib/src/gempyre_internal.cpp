@@ -216,7 +216,7 @@ GempyreInternal& Ui::ref() {
         const std::unordered_map<std::string, std::string>& parameters) :
         m_app_ui(ui), 
     m_filemap(normalizeNames(filemap)),
-    m_startup{[this, ui, port, indexHtml, parameters, root]() {
+    m_startup{[this, port, indexHtml, parameters, root]() {
 
     auto last_query_id  = 0;
     for(const auto& id_string : m_responsemap.keys()) {
@@ -536,20 +536,20 @@ void GempyreInternal::eventLoop(bool is_main) {
     GEM_DEBUG("Eventloop exit");
 }
 
-void GempyreInternal::send(const DataPtr& data) {
+void GempyreInternal::send(const DataPtr& data, bool droppable) {
 #ifndef DIRECT_DATA
     auto clonedBytes = data->clone();
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send ui_bin", clonedBytes->size());
-    add_request([this, clonedBytes = std::move(clonedBytes)]() mutable {
+    add_request([this, clonedBytes = std::move(clonedBytes), droppable]() mutable {
 #else
     const auto [bytes, len] = data->payload();
 #endif
         const auto sz = clonedBytes->size();
-        const auto ok = m_server->send(std::move(clonedBytes));
+        const auto ok = m_server->send(std::move(clonedBytes), droppable);
         // not sure if this is needed any more as there are other fixes that has potentially fixed this
-        if(ok && sz > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
-            send(m_app_ui->root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
-        }                                        //multiple tiles
+       // if(ok && sz > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
+       //     send(m_app_ui->root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
+       // }                                        //multiple tiles
 #ifndef DIRECT_DATA
     return ok;
     });

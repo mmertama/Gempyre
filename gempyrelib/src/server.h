@@ -57,7 +57,7 @@ public:
     virtual void close(bool wait = false) = 0;
 
     virtual bool send(TargetSocket target, Server::Value&& value) = 0;
-    virtual bool send(Gempyre::DataPtr&& data) = 0;
+    virtual bool send(Gempyre::DataPtr&& data, bool droppable) = 0;
 
     virtual bool isJoinable() const = 0;
     virtual bool isRunning() const = 0;

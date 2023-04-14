@@ -37,7 +37,7 @@ private: // let's not use Server API
     bool retryStart() override;
     void close(bool wait = false) override;
     bool send(Server::TargetSocket target, Server::Value&& value) override;
-    bool send(Gempyre::DataPtr&& data) override;
+    bool send(Gempyre::DataPtr&& data, bool droppable) override;
     bool beginBatch() override;
     bool endBatch() override;
     void flush() override;
