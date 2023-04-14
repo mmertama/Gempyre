@@ -244,7 +244,7 @@ private:
     // uws requires send happen in its thread, therefore we queue them and then send them using m_loop->defer
     void socket_send(WSSocket* ws, size_t sz) {
          if(ws && sz > 0 && has_backpressure(ws, sz)) {
-            std::this_thread::sleep_for(10ms);
+            std::this_thread::sleep_for(BACKPRESSURE_DELAY);
          }
          m_loop->defer([this] () { // this happens in server thread 
             send_all(nullptr);

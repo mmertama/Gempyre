@@ -77,10 +77,10 @@ void draw_frame(
 }
 
 void draw_fps(Gempyre::Ui& ui, unsigned& fps_count, Time& start) {
-    if (fps_count == 50) {
+    if (fps_count > 100) {
         auto end = std::chrono::steady_clock::now(); 
         const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        const auto fps = static_cast<float>(1000 * 50) / duration.count();
+        const auto fps = static_cast<float>(1000 * fps_count) / duration.count();
         Gempyre::Element(ui, "fps").set_html(std::to_string(fps));
         fps_count = 0;
         start = std::chrono::steady_clock::now(); 

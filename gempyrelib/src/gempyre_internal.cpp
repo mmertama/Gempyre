@@ -544,7 +544,6 @@ void GempyreInternal::send(const DataPtr& data, bool droppable) {
 #else
     const auto [bytes, len] = data->payload();
 #endif
-        const auto sz = clonedBytes->size();
         const auto ok = m_server->send(std::move(clonedBytes), droppable);
         // not sure if this is needed any more as there are other fixes that has potentially fixed this
        // if(ok && sz > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
