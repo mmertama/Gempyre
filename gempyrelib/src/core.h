@@ -37,7 +37,7 @@ template <class T, std::enable_if_t<hasKey<T>::value, int> = 0>  T copy_value(co
 template <class T, std::enable_if_t<!hasKey<T>::value, int> = 0> T copy_value(const Server::Value& d);
 template <> inline std::string copy_value(const Server::Value& d);
 
-template <class T, std::enable_if_t<hasKey<T>::value, int> = 0>
+template <class T, std::enable_if_t<hasKey<T>::value, int>>
  T copy_value(const Server::Value& obj) {
     assert(obj.is_object());
     T response {};
@@ -49,7 +49,7 @@ template <class T, std::enable_if_t<hasKey<T>::value, int> = 0>
     return response;
 }
 
-template <class T, std::enable_if_t<!hasKey<T>::value, int> = 0>
+template <class T, std::enable_if_t<!hasKey<T>::value, int>>
  T copy_value(const Server::Value& array) {
     assert(array.is_array());
     T response {};
