@@ -2,11 +2,6 @@
 #include "gempyre.js.h"
 #include "data.h"
 
-#ifndef ENSURE_SEND
-#define ENSURE_SEND 65536
-#endif
-
-
 using namespace Gempyre;
 
 
@@ -537,22 +532,20 @@ void GempyreInternal::eventLoop(bool is_main) {
 }
 
 void GempyreInternal::send(const DataPtr& data, bool droppable) {
-#ifndef DIRECT_DATA
     auto clonedBytes = data->clone();
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send ui_bin", clonedBytes->size());
     add_request([this, clonedBytes = std::move(clonedBytes), droppable]() mutable {
-#else
-    const auto [bytes, len] = data->payload();
-#endif
+        #ifdef ENSURE_SEND
+            const auto sz = clonedBytes->size();
+        #endif
         const auto ok = m_server->send(std::move(clonedBytes), droppable);
-        // not sure if this is needed any more as there are other fixes that has potentially fixed this
-       // if(ok && sz > ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
-       //     send(m_app_ui->root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
-       // }                                        //multiple tiles
-#ifndef DIRECT_DATA
+        #ifdef ENSURE_SEND
+        if(ok && !droppable && sz >= ENSURE_SEND) {           //For some reason the DataPtr MAY not be send (propability high on my mac), but his cludge seems to fix it
+            send(m_app_ui->root(), "nil", "");     //correct fix may be adjust buffers and or send Data in several smaller packets .i.e. in case of canvas as
+        }                                        //multiple tiles
+       #endif
     return ok;
     });
-#endif
 }
 
 // timer elapses calls a function

@@ -67,10 +67,12 @@ function errlog(source, text) {
     socket.send(JSON.stringify({'type': 'error', 'element': String(source), 'error': text, 'trace': getTrace()}));
 }
 
-function catchLog(error) {
+function catchLog(error, extra) {
     source = error.name || "Unknown";
-    console.error("error:" + source + " --> " + error.message);
-    socket.send(JSON.stringify({'type': 'error', 'element': String(source), 'error': error.message , 'trace': error.stack}));
+    console.error("error:" + source + " --> " + error.message + " \"" + (extra ? extra : '"'));
+    socket.send(JSON.stringify({'type': 'error',
+        'element': String(source),
+        'error': error.message + " \"" + (extra ? extra : '"'), 'trace': error.stack}));
 }
 
 function assert(condition, msg) {
@@ -746,7 +748,7 @@ socket.onmessage =
             const msg = JSON.parse(event.data);
             handleJson(msg);
         } catch(error) {
-            catchLog(error);
+            catchLog(error, event.data);
         }
  }
 

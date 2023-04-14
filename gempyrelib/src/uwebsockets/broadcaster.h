@@ -149,9 +149,9 @@ private:
     }
 
     // see socket_send
-    void add_queue(WSSocket* s, DataPtr&& text, bool droppable) {
+    void add_queue(WSSocket* s, DataPtr&& ptr, bool droppable) {
         std::unique_lock<std::mutex> lock(m_sendBinMutex);
-        m_dataQueue.push_back(std::make_tuple(s, std::move(text), droppable));
+        m_dataQueue.push_back(std::make_tuple(s, std::move(ptr), droppable));
     }
 
     bool forceReduceData() {
@@ -221,16 +221,17 @@ private:
                     m_dataQueue.erase(it);
                 return;
             }
+
             const WSSocket::SendStatus status = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
-            if(status == WSSocket::SendStatus::SUCCESS) {
+                    
+            if(status == WSSocket::SendStatus::SUCCESS || !droppable) {
                 m_dataQueue.erase(it);
             } else {
-                if(!droppable) {
-                    if(status != WSSocket::SendStatus::BACKPRESSURE)
-                        m_resendRequest(s, status);
+                if(status != WSSocket::SendStatus::BACKPRESSURE) {
+                    m_resendRequest(s, status); // on drops we keep non-droppables and request resend
                     return;
                 } else {
-                    ++it;
+                    ++it; // on backpressure  we keep non-droppables
                 }
             }
         }

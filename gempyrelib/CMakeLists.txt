@@ -104,13 +104,15 @@ endif()
 #if(USE_UWEBSOCKETS)
 #    include(cmake/uwebsocket.cmake)
 #else()
-#    include(cmake/libwebsockets.cmake)    
+#   include(cmake/libwebsockets.cmake)
+#    set(USE_LIBWEBSOCKETS TRUE)    
 #endif()
 
 if(USE_LIBWEBSOCKETS)
     include(cmake/libwebsockets.cmake)    
 else()
     include(cmake/uwebsocket.cmake)
+    set(USE_UWEBSOCKETS TRUE)
 endif()
 
 
@@ -294,6 +296,13 @@ else()
         ${GEMPYRE_SRC}
     )
 endif()
+
+#if(APPLE)
+#    if(USE_UWEBSOCKETS)
+#        message("When uwebsockets is used then apple has issues with big messages")
+#        target_compile_definitions(${PROJECT_NAME} PRIVATE ENSURE_SEND=65536)
+#    endif()
+#endif()
 
 if(NOT MSVC)
     target_compile_options(${PROJECT_NAME}
