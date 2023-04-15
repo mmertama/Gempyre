@@ -49,8 +49,8 @@ Gempyre is a library that is linked with the application, except for Android, se
 
 * Install cmake https://cmake.org/download/ (let it to be added in path)
 * Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
-* Install Python (maybe 3.9, yet tested mostly with 3.8, but 3.6 >= shall be ok) https://www.python.org/downloads/windows/
-* From Windows menu, Visual Stuudio: Open "x64 Native Tools Command Prompt for VS 2019"
+* Install Python (latest, yet tested mostly with 3.10, but 3.6 >= shall be ok) https://www.python.org/downloads/windows/
+* From Windows menu, Visual Studio: Open "x64 Native Tools Command Prompt for VS 2019" (later propably ok)
 * Run 
    ```bat
     msvc_install.bat
@@ -97,9 +97,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 * Support for secure web socket (nice for remote UIs)
 * Testing coverage and perf measurements.
 * JS testing  
-* String_views instead of strings when possible, meaningless std::any for code encapsulation)
 * Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
-* Reconsider libwebsockets instead of uWebsockets.
 * Apply Wpedantic
 
 maybe not
@@ -132,10 +130,16 @@ Late updates
 * Lot of fixes
 * Raspberry, and imporoved MinGW support
 
-## 2023
+## 2023 1
 * Lot of fixed
 * API changes and harmonize with GemGui-rs
 * Testing coverage
 
-Copyright Markus Mertama 2020, 2021, 2022
+# 2023 2
+* Python UI fixes
+* Performance update
+* Refactoring internals
+* Ready to change uwebsockets to libwebsockets or websockets++. (however not completed)
+
+Copyright Markus Mertama 2020, 2021, 2022, 2023
 
