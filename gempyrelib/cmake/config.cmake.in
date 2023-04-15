@@ -11,10 +11,6 @@ add_library(gempyre::gempyre INTERFACE IMPORTED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
-if(USE_UWEBSOCKETS)
-    include(uwebsockets.config)
-endif()
-
 if(WIN32)
     set(CMAKE_PREFIX_PATH "C:/Program Files (x86);C:/Program Files;${CMAKE_PREFIX_PATH}")
     find_path(SYSTEM_GEMPYRE_INSTALL gempyre REQUIRED)
@@ -41,6 +37,12 @@ else()
     find_package(Threads)
 endif()
 
+if(@USE_UWEBSOCKETS@)
+    include(uwebsockets_config)
+else()
+    message(FATAL_ERROR "What WS is in use?")    
+endif()
+
 
 # Since msvc and mingw libraries are located in the same folder we have to be explicit with naming.
 find_library(LIB_NAME_DEBUG NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyred${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH REQUIRED)
@@ -57,7 +59,7 @@ add_library(gempyre::gempyre_lib STATIC IMPORTED)
     
 set_target_properties(gempyre::gempyre_lib PROPERTIES
     IMPORTED_LOCATION_RELEASE "${LIB_NAME}"
-    IMPORTED_LOCATION_DEBUG ${LIB_NAME_DEBUG}
+    IMPORTED_LOCATION_DEBUG "${LIB_NAME_DEBUG}"
     )
 
 if(WIN32)
@@ -94,9 +96,13 @@ elseif(RASPBERRY)
 else()
     add_library(gempyre::gempyre_usock STATIC IMPORTED)
 
+    #if(NOT "${uSockets_LIBRARY}")
+    #    message(FATAL_ERROR "uSockets library is not found!")
+    #endif()
+
     set_target_properties(gempyre::gempyre_usock PROPERTIES
         IMPORTED_LOCATION "${uSockets_LIBRARY}"
-        IMPORTED_LOCATION_DEBUG ${uSockets_LIBRARY} 
+        IMPORTED_LOCATION_DEBUG "${uSockets_LIBRARY}" 
         )
 
     set_target_properties(gempyre::gempyre_lib PROPERTIES

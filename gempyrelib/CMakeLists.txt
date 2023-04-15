@@ -98,11 +98,10 @@ endif()
 if (WIN32 OR ANDROID OR RASPBERRY)
     set(COMPILE_SOCKETS_IN ON)
 endif()
-
 # end of general defintions
 
 #if(USE_UWEBSOCKETS)
-#    include(cmake/uwebsocket.cmake)
+#    include(cmake/uwebsockets.cmake)
 #else()
 #   include(cmake/libwebsockets.cmake)
 #    set(USE_LIBWEBSOCKETS TRUE)    
@@ -111,7 +110,7 @@ endif()
 if(USE_LIBWEBSOCKETS)
     include(cmake/libwebsockets.cmake)    
 else()
-    include(cmake/uwebsocket.cmake)
+    include(cmake/uwebsockets.cmake)
     set(USE_UWEBSOCKETS TRUE)
 endif()
 
@@ -170,10 +169,11 @@ set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}")
 set(PNG_SRC 
     ${srcDirVar}/lodepng.cpp
     ${srcDirVar}/lodepng.h )
-# try turn off warnings for the PNG folder    
-set_source_files_properties(${srcDirVar}
-  PROPERTIES COMPILE_FLAGS "-w"
-) 
+
+# try turn off warnings for the PNG folder 
+file(GLOB_RECURSE LODE_FILES LIST_DIRECTORIES FALSE ${srcDirVar}/*)
+set_source_files_properties(${LODE_FILES} PROPERTIES COMPILE_FLAGS "-w")
+  
 
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -511,6 +511,10 @@ else()
             )
     endif()
 
+    if(USE_UWEBSOCKETS)
+        set(SOCKET_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/uwebsockets_config.cmake")
+    endif()
+
     if(DEFINED CONNECTION_FIND)
         install(FILES
             ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
@@ -525,6 +529,7 @@ else()
        ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
        ${CMAKE_SOURCE_DIR}/scripts/genStringResource.py
        ${CMAKE_SOURCE_DIR}/scripts/gempyre.cmake
+       ${SOCKET_CONFIG_FILE}
        DESTINATION ${PROJECT_CMAKE_DIR}
        )
 
