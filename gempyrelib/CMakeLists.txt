@@ -170,7 +170,7 @@ set(PNG_SRC
     ${srcDirVar}/lodepng.cpp
     ${srcDirVar}/lodepng.h )
 
-# try turn off warnings for the PNG folder 
+# suppress warnings for the PNG folder 
 file(GLOB_RECURSE LODE_FILES LIST_DIRECTORIES FALSE ${srcDirVar}/*)
 set_source_files_properties(${LODE_FILES} PROPERTIES COMPILE_FLAGS "-w")
   
@@ -257,6 +257,16 @@ if(COMPILE_SOCKETS_IN)
         set_property(SOURCE ${SOCKETS_SRC} PROPERTY COMPILE_OPTIONS -w)
         set_property(SOURCE ${SOCKETS_HRD} PROPERTY COMPILE_OPTIONS -w)
     endif()
+endif()
+
+FILE(GLOB_RECURSE ALL_SRC LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_BINARY_DIR}/_deps/*.c*")
+FILE(GLOB_RECURSE ALL_HDR LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_BINARY_DIR}/_deps/*.h*")
+if(MSVC)
+    set_source_files_properties(${ALL_SRC} PROPERTIES COMPILE_FLAGS "/w")
+    set_source_files_properties(${ALL_SRC} PROPERTIES COMPILE_FLAGS "/w")
+else()
+    set_source_files_properties(${ALL_SRC} PROPERTIES COMPILE_FLAGS "-w")
+    set_source_files_properties(${ALL_SRC} PROPERTIES COMPILE_FLAGS "-w")
 endif()
 
 if(DEFINED GEMPYRE_SHARED)
