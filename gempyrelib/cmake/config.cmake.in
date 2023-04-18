@@ -37,12 +37,6 @@ else()
     find_package(Threads)
 endif()
 
-if(@USE_UWEBSOCKETS@)
-    include(uwebsockets_config)
-else()
-    message(FATAL_ERROR "What WS is in use?")    
-endif()
-
 
 # Since msvc and mingw libraries are located in the same folder we have to be explicit with naming.
 find_library(LIB_NAME_DEBUG NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyred${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH REQUIRED)
@@ -64,6 +58,19 @@ set_target_properties(gempyre::gempyre_lib PROPERTIES
 
 if(WIN32)
     add_library(gempyre::gempyre_uv STATIC IMPORTED)
+elseif(RASPBERRY)
+    add_library(gempyre::gempyre_uv STATIC IMPORTED)
+else()
+    add_library(gempyre::gempyre_usock STATIC IMPORTED)
+endif()
+
+if(@USE_UWEBSOCKETS@)
+    include(uwebsockets_config)
+else()
+    message(FATAL_ERROR "What WS is in use?")    
+endif()
+
+if(WIN32)
     
     if(MSVC)
         set_target_properties(gempyre::gempyre_lib PROPERTIES
@@ -83,7 +90,10 @@ if(WIN32)
         INTERFACE_LINK_LIBRARIES "gempyre::gempyre_lib;gempyre::gempyre_uv"
         )
 elseif(RASPBERRY)
-    add_library(gempyre::gempyre_uv STATIC IMPORTED)
+
+    if(NOT ${gempyre::gempyre_uv} ) 
+        message(FATAL_ERROR "gempyre_uv not found")
+    endif()
 
     set_target_properties(gempyre::gempyre_lib PROPERTIES
         INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
@@ -94,11 +104,6 @@ elseif(RASPBERRY)
         INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_uv"
         )           
 else()
-    add_library(gempyre::gempyre_usock STATIC IMPORTED)
-
-    #if(NOT "${uSockets_LIBRARY}")
-    #    message(FATAL_ERROR "uSockets library is not found!")
-    #endif()
 
     set_target_properties(gempyre::gempyre_usock PROPERTIES
         IMPORTED_LOCATION "${uSockets_LIBRARY}"
@@ -110,10 +115,10 @@ else()
             )    
 
     set_target_properties(gempyre::gempyre PROPERTIES
-        #INTERFACE_INCLUDE_DIRECTORIES ${gempyre_legacy_INCLUDE_DIR}
         INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_usock"
         )
 endif()
+
 
 check_required_components(@PROJECT_NAME@)
 

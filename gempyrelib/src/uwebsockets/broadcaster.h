@@ -173,7 +173,8 @@ private:
     }
 
     void removeDuplicates_unsafe() {
-        std::unique(m_textQueue.begin(), m_textQueue.end());
+        m_textQueue.erase(std::unique(m_textQueue.begin(), m_textQueue.end()), m_textQueue.end());
+
     }
 
     void removeDuplicates() {

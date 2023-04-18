@@ -63,6 +63,8 @@ GempyreUtils::LogLevel GempyreUtils::log_level() {
    return g_serverLogLevel;
 }
 
+#ifndef WIN_OS
+
 #define CLEAR "\e[0m"
 #define RED "\e[1;31m"
 #define ORANGE "\e[1;48:5:166m"
@@ -70,6 +72,18 @@ GempyreUtils::LogLevel GempyreUtils::log_level() {
 #define YELLOW "\e[0;33m"
 #define DARK_RED_WITH_UNDERLINE "\e[4;31m"
 #define WHITE_BACKGROUND_BLACK_TEXT "\e[0;47m\e[1;90m"
+
+#else
+
+#define CLEAR
+#define RED
+#define ORANGE
+#define CYAN_TEXT
+#define YELLOW
+#define DARK_RED_WITH_UNDERLINE
+#define WHITE_BACKGROUND_BLACK_TEXT
+
+#endif
 
 std::string GempyreUtils::to_str(LogLevel l) {
     const std::unordered_map<LogLevel, std::string> m = {
