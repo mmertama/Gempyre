@@ -1,4 +1,16 @@
 #!/bin/bash
+
+if [[ "$(uname -s)" == "MINGW"* ]] ; then
+
+    IS_MINGW=$(cmake -G InvalidGeneratorName 2>&1 | grep "* Ninja")
+    if [[ "$IS_MINGW" == "" ]] ; then
+        echo "WARNING: Cannot verify MinGW Gempyre installation in this build environment."
+        exit 0
+    else  
+        echo "Verify MinGW Gempyre"
+    fi
+fi
+
 set -e
 rm -rf $1/test/install_test
 mkdir -p  $1/test/install_test
@@ -56,7 +68,7 @@ fi
 
 popd
 
-if [[ $DISPLAY ]]; then 
+if [[ -n "$DISPLAY" ]] || [[ "$(uname -s)" == "MINGW"* ]] ; then 
     $1/test/install_test/Hello
 else
     echo "WARNING: DISPLAY is not set -> verification is not completed!"    

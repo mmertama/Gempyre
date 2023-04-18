@@ -39,7 +39,7 @@ jobs:
           }
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     
     - name: Install dependencies on windows
       if: startsWith(matrix.config.os, 'windows')

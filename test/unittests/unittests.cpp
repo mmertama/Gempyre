@@ -166,30 +166,16 @@ TEST(Unittests, test_timermgr) {
 
 TEST(Unittests, test_pushpath) {
     auto p = GempyreUtils::push_path("cat", "dog");
-#ifdef WIN_OS
-     EXPECT_EQ(p, std::string("cat\\dog"));
-#else
-     EXPECT_EQ(p, std::string("cat/dog"));
-#endif
-      p = GempyreUtils::push_path(p, "mouse");
-#ifdef WIN_OS
-     EXPECT_EQ(p, std::string("cat\\dog\\mouse"));
-#else
-     EXPECT_EQ(p, std::string("cat/dog/mouse"));
-#endif
-      p = GempyreUtils::push_path(p, "");
-#ifdef WIN_OS
-     EXPECT_EQ(p, std::string("cat\\dog\\mouse\\"));
-#else
-     EXPECT_EQ(p, std::string("cat/dog/mouse/"));
-#endif
+    EXPECT_EQ(p, std::string("cat/dog"));
+
+    p = GempyreUtils::push_path(p, "mouse");
+    EXPECT_EQ(p, std::string("cat/dog/mouse"));
+
+    p = GempyreUtils::push_path(p, "");
+    EXPECT_EQ(p, std::string("cat/dog/mouse/"));
 
     p = GempyreUtils::push_path("cat", "dog", "mouse");
- #ifdef WIN_OS
-      EXPECT_EQ(p, std::string("cat\\dog\\mouse"));
- #else
-      EXPECT_EQ(p, std::string("cat/dog/mouse"));
-#endif
+    EXPECT_EQ(p, std::string("cat/dog/mouse"));
 }
 
 TEST(Unittests, test_parseArgs) {

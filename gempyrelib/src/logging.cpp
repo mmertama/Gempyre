@@ -63,7 +63,7 @@ GempyreUtils::LogLevel GempyreUtils::log_level() {
    return g_serverLogLevel;
 }
 
-#ifndef WIN_OS
+#ifndef WINDOWS_OS
 
 #define CLEAR "\e[0m"
 #define RED "\e[1;31m"
