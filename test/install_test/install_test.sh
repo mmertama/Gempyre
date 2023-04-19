@@ -68,7 +68,7 @@ fi
 
 popd
 
-if [[ -n "$DISPLAY" ]] || [[ "$(uname -s)" == "MINGW"* ]] ; then 
+if [[ -n "$DISPLAY" ]] || [[ "$(uname -s)" == "MINGW"* ]] || [[ "$(uname -s)" == "Darwin"* ]] ; then 
     $1/test/install_test/Hello
 else
     echo "WARNING: DISPLAY is not set -> verification is not completed!"    
