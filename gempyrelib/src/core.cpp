@@ -71,20 +71,10 @@ std::tuple<int, int, int> Gempyre::version() {
 /// Create UI using default ui app or gempyre.conf
 Ui::Ui(const Filemap& filemap,
        const std::string& indexHtml,
-       const std::string& title,
-       int width,
-       int height,
-       unsigned flags,
        unsigned short port,
        const std::string& root) : Ui(filemap, indexHtml, port, root,
-            {
-    // add only if valid
-    {!title.empty() ? TITLE_KEY : "", GempyreUtils::qq(title)},
-    {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},
-    {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
-    {height > 0 ? HEIGHT_KEY : "", std::to_string(height)},
-    {GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "",
-    "" }}){}
+       {{GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "","" }},
+       WindowType::BROWSER){}
 
 
 Ui::Ui(const Filemap& filemap,
@@ -94,22 +84,47 @@ Ui::Ui(const Filemap& filemap,
        unsigned short port,
        const std::string& root) : Ui(filemap, indexHtml, port, root,
         {
-    {!browser.empty() ? BROWSER_KEY : "", browser},
-    {!browser_params.empty() ? BROWSER_PARAMS_KEY : "", browser_params}}){}
+            {!browser.empty() ? BROWSER_KEY : "", browser},
+            {!browser_params.empty() ? BROWSER_PARAMS_KEY : "", browser_params}
+        },
+        WindowType::AUTO) {}
+
+
+static
+std::unordered_map<std::string, std::string> merge(const std::unordered_map<std::string, std::string>& a, const std::unordered_map<std::string, std::string>& b) {
+    std::unordered_map<std::string, std::string> result{a};
+    for(const auto& kv : b) {
+        result.emplace(kv);
+    }
+    return result;
+}
+
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height,
+            const std::unordered_map<std::string, std::string>& ui_params, unsigned flags, unsigned short port, const std::string& root) : 
+            Ui{filemap, indexHtml, port, root, merge({
+            {!title.empty() ? TITLE_KEY : "", GempyreUtils::qq(title)},
+            {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},
+            {width > 0 ? WIDTH_KEY : "", std::to_string(width)},
+            {height > 0 ? HEIGHT_KEY : "", std::to_string(height)},
+            {GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "","" }},ui_params),
+            WindowType::PYTHON} {
+            }
 
 
 Ui::Ui(const Filemap& filemap,
        const std::string& indexHtml,
        unsigned short port,
        const std::string& root,
-       const std::unordered_map<std::string, std::string>& parameters) :
+       const std::unordered_map<std::string, std::string>& parameters,
+       WindowType windowType) :
     m_ui{std::make_unique<GempyreInternal>(
         this,
         filemap,
         indexHtml,
         port,
         root,
-        parameters)} {
+        parameters,
+        windowType)} {
     GempyreUtils::init();
     // automatically try to set app icon if favicon is available
     const auto icon = resource("/favicon.ico");

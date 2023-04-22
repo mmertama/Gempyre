@@ -9,7 +9,7 @@
 int main(int /*argc*/, char** /*argv*/) {
     Gempyre::set_debug();
 
-    auto ui = std::make_unique<Gempyre::Ui>(Html_resourceh, "index.html");
+    auto ui = std::make_unique<Gempyre::Ui>(Html_resourceh, "index.html", "Hello world", 500, 500);
 
     Gempyre::Element text(*ui, "content");
     Gempyre::Element button(*ui, "startbutton");

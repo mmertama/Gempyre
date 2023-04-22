@@ -39,6 +39,7 @@ namespace Gempyre {
     class TimerMgr;
     class GempyreInternal;
     enum class CloseStatus;
+    enum class WindowType;
     template <class T> class EventQueue;
     template <class T> class IdList;
     template <class K, class T> class EventMap;
@@ -137,10 +138,17 @@ namespace Gempyre {
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr auto UseDefaultRoot = "";   //zero means default root
         /// Create UI using default ui app or gempyre.conf
-        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title = "",  int width = -1, int height = -1, unsigned flags = 0, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        //Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title = "",  int width = -1, int height = -1, unsigned flags = 0, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
 
         /// Create UI using given ui app and command line
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser,  const std::string& browser_params, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
+        /// Create window UI
+        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height,
+            const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned flags = 0, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+
 
         ~Ui();
         Ui(const Ui& other) = delete;
@@ -240,7 +248,9 @@ namespace Gempyre {
         void suspend();
         
     private:
-        Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port, const std::string& root, const std::unordered_map<std::string, std::string>& parameters);
+        Ui(const Filemap& filemap, const std::string& indexHtml,
+            unsigned short port, const std::string& root,
+            const std::unordered_map<std::string, std::string>& parameters, WindowType windowType);
         const GempyreInternal& ref() const;
         GempyreInternal& ref();
     private:

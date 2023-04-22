@@ -117,7 +117,8 @@ static std::optional<std::string> python3() {
 static
 std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
                                                     int port,
-                                                    const std::unordered_map<std::string, std::string>& param_map) {
+                                                    const std::unordered_map<std::string, std::string>& param_map,
+                                                    WindowType windowType) {
     const auto appPage = GempyreUtils::split<std::vector<std::string>>(indexHtml, '/').back();
     const auto url =  std::string(SERVER_ADDRESS) + ":"
     + std::to_string(port) + "/"
@@ -131,7 +132,13 @@ std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
         const auto conf = confCmdLine({{"URL", url}, {"WIDTH", width}, {"HEIGHT", height}, {"TITLE", title}, {"FLAGS", flags}});
         if(conf)
             return conf.value();
+    if(windowType == WindowType::AUTO)
 #ifdef USE_PYTHON_UI
+        windowType = WindowType::PYTHON;
+#else    
+        windowType = WindowType::PYTHON;
+#endif
+    if(windowType == WindowType::PYTHON) {
         const auto py3 = python3();
         if(py3) {
             constexpr auto py_file = "/pyclient.py"; // let's not use definion in gempyrejsh as that may not be there
@@ -148,9 +155,9 @@ std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
                                      join(param_map, TITLE_KEY,"--gempyre-title="),
                                      join(param_map, FLAGS_KEY,"--gempyre-flags="),
                                      join(param_map, BROWSER_PARAMS_KEY,"--gempyre-extra=")}, " ") };
+                }
             }
         }
-#endif
     }
 
     const auto params = url + " " + value(param_map, BROWSER_PARAMS_KEY, "");
@@ -208,10 +215,12 @@ GempyreInternal& Ui::ref() {
         const std::string& indexHtml,
         unsigned short port,
         const std::string& root,
-        const std::unordered_map<std::string, std::string>& parameters) :
-        m_app_ui(ui), 
-    m_filemap(normalizeNames(filemap)),
-    m_startup{[this, port, indexHtml, parameters, root]() {
+        const std::unordered_map<std::string, std::string>& parameters,
+        WindowType windowType) :
+        m_app_ui{ui}, 
+        m_filemap{normalizeNames(filemap)},
+        m_windowType{windowType},
+        m_startup{[this, port, indexHtml, parameters, root]() {
 
     auto last_query_id  = 0;
     for(const auto& id_string : m_responsemap.keys()) {
@@ -357,7 +366,7 @@ bool GempyreInternal::startListen(const std::string& indexHtml, const std::unord
     
     set(State::RUNNING);
 
-    const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters);
+    const auto& [appui, cmd_params] = guiCmdLine(indexHtml, listen_port, parameters, m_windowType);
 
     if (GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug) {
         const auto lines = GempyreUtils::split(cmd_params, '\n');

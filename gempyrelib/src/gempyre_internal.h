@@ -25,6 +25,14 @@ namespace Gempyre {
     constexpr auto FLAGS_KEY{"flags"};
 
   enum class State {NOTSTARTED, RUNNING, RETRY, EXIT, CLOSE, RELOAD, PENDING, SUSPEND};
+
+  // There are 3 Ui c'tors
+  // 'legacy' with just map + index, that is using AUTO
+  //  with browser using BROWSER
+  //  with title, width, height, that is using PYTHON
+  // AUTO depends on USE_PYTHON_UI 
+  enum class WindowType {AUTO, BROWSER, PYTHON};
+
   inline
   std::string_view str(State state) {
     const char* s[] = 
@@ -83,7 +91,9 @@ public:
         const std::string& indexHtml,
         unsigned short port,
         const std::string& root,
-        const std::unordered_map<std::string, std::string>& parameters);
+        const std::unordered_map<std::string, std::string>& parameters,
+        WindowType windowType
+        );
 
     bool operator==(State state) const {return m_status == state;}
     bool operator!=(State state) const {return m_status != state;}
@@ -490,6 +500,7 @@ private:
     std::function<void ()> m_onOpen{nullptr};
     std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
     Ui::Filemap m_filemap;
+    WindowType m_windowType;
     std::function<void ()> m_startup;
     std::unique_ptr<Server> m_server;
     // protect request_queue

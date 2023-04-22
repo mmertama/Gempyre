@@ -43,7 +43,7 @@ constexpr int Size = 400;
 
 int main(int /*argc*/, char** /*argv*/) {
     Gempyre::set_debug(true);
-    Gempyre::Ui ui({{"/snowflakes.html", Snowflakeshtml}}, "snowflakes.html");
+    Gempyre::Ui ui({{"/snowflakes.html", Snowflakeshtml}}, "snowflakes.html", "Koch flake", 620, 620);
     Gempyre::CanvasElement canvas(ui, "canvas");
     Gempyre::Element flakes_count(ui, "flakes_count");
     Gempyre::Element flakes_label(ui, "flakes_label");
