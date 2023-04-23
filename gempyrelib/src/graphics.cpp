@@ -47,11 +47,30 @@ private:
     const int m_height;  
 };
 
+ CanvasElement::CanvasElement(const CanvasElement& other)
+        : Element{other},
+          m_tile{other.m_tile},
+          m_width{other.m_width},
+          m_height{other.m_height}{
+    }
+
+CanvasElement::CanvasElement(CanvasElement&& other)
+        : Element{std::move(other)},
+            m_tile{std::move(other.m_tile)},
+            m_width{other.m_width},
+            m_height{other.m_height}{
+    }
+
+CanvasElement::CanvasElement(Ui& ui, const std::string& id)
+        : Element(ui, id) {}
+    
+CanvasElement::CanvasElement(Ui& ui, const std::string& id, const Element& parent)
+        : Element(ui, id, "canvas", parent) {}
+        
 
 CanvasElement::~CanvasElement() {
     m_tile.reset();
 }
-
 
 
 void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, bool as_draw) {
@@ -231,6 +250,10 @@ void CanvasElement::draw(const FrameComposer& frameComposer) {
 }
 
 
+// TODO: This function has issues
+// 1) it HAS to be called if there is any drawing +10 fps, otherwise network may be mumbled
+// i.e. why then not to set it always on (but being lazy init is trikier and that is why not done now)
+// 2) If called multiple times there can be some unwanted size effecs
 void CanvasElement::draw_completed(const DrawCallback& drawCallback, DrawNotify kick) {
     
     ref().send(*this, "event_notify",
@@ -249,7 +272,6 @@ void CanvasElement::draw_completed(const DrawCallback& drawCallback, DrawNotify 
             }
         });  
     }         
-
 }
 
 void CanvasElement::erase(bool resized) {

@@ -66,9 +66,13 @@ def on_show(window, host, port):
                 receive = loop.create_task(ws.recv())
                 try:
                     obj = json.loads(doc)
+                except json.JSONDecodeError as e:
+                    print('Invalid JSON', e, '\nWhen parsing:', doc, file=sys.stderr)
+                    return
                 except UnicodeDecodeError as e:
                     print('Exception on extender:', e, '\nWhen parsing:', doc, file=sys.stderr)
                     return
+                
                 if not type(obj) is dict:
                     print('Invalid JS object', doc)
                     continue

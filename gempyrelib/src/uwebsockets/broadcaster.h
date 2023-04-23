@@ -51,11 +51,19 @@ public:
     bool send(Server::TargetSocket send_to, std::string&& text) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send txt", text.size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        for(auto& [s, type] : m_sockets) {
-            if(send_to != Server::TargetSocket::All && type != send_to)
-                continue;
-            add_queue(s, std::move(text));
-            socket_send(s, text.size());    
+        if(send_to == Server::TargetSocket::All) {
+            for(auto& [s, type] : m_sockets) {
+                auto copy_of_text = text;
+                add_queue(s, std::move(copy_of_text));
+                socket_send(s, text.size());    
+            }
+        } else {
+            for(auto& [s, type] : m_sockets) {
+                if(type != send_to)
+                    continue;
+                add_queue(s, std::move(text));
+                socket_send(s, text.size());    
+            }
         }
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "sent txt", !m_sockets.empty());
         return !m_sockets.empty();
@@ -251,7 +259,8 @@ private:
          m_loop->defer([this] () { // this happens in server thread 
             send_all(nullptr);
          });
-    }    
+    }
+
 private:
     std::function<void (WSSocket*, WSSocket::SendStatus)> m_resendRequest;
     std::unordered_map<WSSocket*, Server::TargetSocket> m_sockets;

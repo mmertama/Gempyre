@@ -54,24 +54,13 @@ public:
     enum class DrawNotify{NoKick, Kick};
     
     ~CanvasElement();
-    CanvasElement(const CanvasElement& other)
-        : Element(other) {
-        m_tile = other.m_tile;
-        m_width = other.m_width;
-        m_height = other.m_height;
-    }
-    CanvasElement(CanvasElement&& other)
-        : Element(std::move(other)) {
-        m_tile = std::move(other.m_tile);
-        m_width = other.m_width;
-        m_height = other.m_height;
-    }
-    CanvasElement(Ui& ui, const std::string& id)
-        : Element(ui, id) {}
-    CanvasElement(Ui& ui, const std::string& id, const Element& parent)
-        : Element(ui, id, "canvas", parent) {}
-    CanvasElement& operator=(const CanvasElement& other) = default;
-    CanvasElement& operator=(CanvasElement&& other) = default;
+    CanvasElement(const CanvasElement& other);
+    CanvasElement(CanvasElement&& other);
+    CanvasElement(Ui& ui, const std::string& id);
+    CanvasElement(Ui& ui, const std::string& id, const Element& parent);
+
+    CanvasElement& operator=(const CanvasElement& other);
+    CanvasElement& operator=(CanvasElement&& other);
 
     std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
     void paint_image(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
