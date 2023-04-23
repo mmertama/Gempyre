@@ -27,15 +27,16 @@ set_tests_properties(${Tests} PROPERTIES TIMEOUT 10)
 set(TEST_INCLUDE_DIR ${googletest_SOURCE_DIR}/googletest/include())
 set(TEST_LIBRARY_DIR ${googletest_BINARY_DIR})
 
-if(APPLE)
-  message(WARNING "Disable mock browser and its test on OSX as Clang 14.0 fails with libwebsocket")
-### WIN32 works again on Github Actions!  
-##elseif(WIN32)
-##  message(WARNING "Mock browser stopped working in msvc - connection error 10035 - todo")    
-else()
+if(UNIX AND NOT APPLE) # AND NOT RASPBERRY (not sure), MSVC and MINGW works, most of time ... libwebsockets used for these wont compile with all Apple versions, todo
   set(HAS_MOCK 1)
   add_compile_definitions(HAS_MOCK)
   add_subdirectory(mock_browser)
+else()
+  if(APPLE)
+    message(WARNING "Disable mock browser and its test on OSX as Clang 14.0 fails with libwebsocket")
+  else()  
+    message(WARNING "MSVC has frequent connection issues withv MOCK Browser --> disabled")
+  endif()  
 endif()
 
 add_subdirectory(apitests)

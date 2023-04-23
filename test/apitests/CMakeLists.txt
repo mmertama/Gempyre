@@ -10,7 +10,8 @@ include_directories(
     ${TEST_INCLUDE_DIR}
 )
 
-if(UNIX AND NOT APPLE )  # AND NOT RASPBERRY (not sure), MSVC and MINGW works, most of time ... libwebsockets used for these wont compile with all Apple versions, todo
+
+if(HAS_MOCK) 
     set(CORE_TEST mock_tests.cpp)
 endif()    
 

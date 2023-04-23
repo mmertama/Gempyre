@@ -17,7 +17,9 @@ add_executable(${PROJECT_NAME}
     src/${NAME}.cpp
     gui/${NAME}.html
     )
+   
 
+add_dependencies(${PROJECT_NAME} gempyre)
 
 gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html)
 
