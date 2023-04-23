@@ -10,7 +10,9 @@ include_directories(
     ${TEST_INCLUDE_DIR}
 )
 
-set(CORE_TEST core_tests.cpp)
+if(UNIX AND NOT APPLE )  # AND NOT RASPBERRY (not sure), MSVC and MINGW works, most of time ... libwebsockets used for these wont compile with all Apple versions, todo
+    set(CORE_TEST mock_tests.cpp)
+endif()    
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
