@@ -97,8 +97,6 @@ Gempyre is a library that is linked with the application, except for Android, se
 * Support for secure web socket (nice for remote UIs)
 * Testing coverage and perf measurements.
 * JS testing  
-* Supress subsystem warnings (gempyre itself has not warnings, but some libraries built in are leaking warnings).
-* Apply Wpedantic
 
 maybe not
 * Flatbuffer/protobuf instead of JSON
@@ -130,16 +128,18 @@ Late updates
 * Lot of fixes
 * Raspberry, and imporoved MinGW support
 
-## 2023 1
+### 2023 1
 * Lot of fixed
 * API changes and harmonize with GemGui-rs
 * Testing coverage
 
-# 2023 2
+### 2023 2
 * Python UI fixes
 * Performance update
 * Refactoring internals
 * Ready to change uwebsockets to libwebsockets or websockets++. (however not completed)
+* Pedantic and Sanizers
+* Supress external libry warnings (except MSVC not working, it seems :-/ )
 
 Copyright Markus Mertama 2020, 2021, 2022, 2023
 
