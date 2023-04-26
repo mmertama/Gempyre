@@ -99,8 +99,8 @@ std::unordered_map<std::string, std::string> merge(const std::unordered_map<std:
     return result;
 }
 
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height,
-            const std::unordered_map<std::string, std::string>& ui_params, unsigned flags, unsigned short port, const std::string& root) : 
+Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height, unsigned flags,
+            const std::unordered_map<std::string, std::string>& ui_params, unsigned short port, const std::string& root) : 
             Ui{filemap, indexHtml, port, root, merge({
             {!title.empty() ? TITLE_KEY : "", GempyreUtils::qq(title)},
             {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},

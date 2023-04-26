@@ -13,7 +13,7 @@ APPS=(  "calc-Gempyre"
        )
 
 rm -rf $TMP
-mkdif $TMP
+mkdir $TMP
 pushd $TMP       
 
 for i in ${APPS[@]};
@@ -25,19 +25,32 @@ for i in ${APPS[@]};
 
         pushd $i
 
-	set +e
-      	git checkout main
-      	git checkout master
-      	set -e 
+        if git branch | grep "main"; then 
+      	    git checkout main
+        fi
+
+      	if git branch | grep "master"; then 
+      	    git checkout master
+        fi
       	
       	git pull
         
         mkdir -p build
         pushd build
-	rm CMakeCache.txt
+	    rm -f CMakeCache.txt
         rm -rf CMakeFiles
-        cmake .. -DCMAKE_BUILD_TYPE=Release || true 2>&1
-        cmake --build . || true
+
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        if [ $? -ne 0 ]; then
+            echo CMake config on $i has errors!
+            exit -1
+        fi          
+        
+        cmake --build . 
+        if [ $? -ne 0 ]; then
+            echo CMake build on $i has errors!
+            exit -1
+        fi    
 
         echo "$i done"
 
@@ -46,4 +59,6 @@ for i in ${APPS[@]};
     done
 
 popd
-popd       
+
+
+rm -rf $TMP

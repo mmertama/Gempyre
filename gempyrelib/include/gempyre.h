@@ -146,8 +146,8 @@ namespace Gempyre {
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser,  const std::string& browser_params, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         /// Create window UI
-        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height,
-            const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned flags = 0, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height, unsigned flags = 0,
+            const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
 
         ~Ui();

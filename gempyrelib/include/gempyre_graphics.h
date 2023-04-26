@@ -67,6 +67,7 @@ public:
     void paint_image(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
     void draw(const CommandList& canvasCommands);
     void draw(const FrameComposer& frameComposer);
+    void draw(const Bitmap& bmp) {draw(0, 0, bmp);}
     void draw(int x, int y, const Bitmap& bmp);
     /// Set a callback to be called after the draw, drawCompletedCallback can be nullptr
     void draw_completed(const DrawCallback& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
@@ -175,6 +176,7 @@ public:
     void swap(Bitmap& other);
     void draw_rect(const Element::Rect& rect, Color::type color);
     void merge(int x, int y, const Bitmap& other);
+    void merge(const Bitmap& other) {merge(0, 0, other);}
 protected:
     void copy_from(const Bitmap& other);
 private:
