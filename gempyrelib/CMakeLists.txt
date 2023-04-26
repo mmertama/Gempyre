@@ -346,46 +346,6 @@ if(PEDANTIC_WARNINGS)
     )
 endif()
 
-if(SANITIZER)
-      target_compile_options(${PROJECT_NAME} PRIVATE
-        -fsanitize=address
-        -fsanitize=pointer-compare
-        -fsanitize=pointer-subtract
-        -fsanitize=leak
-        -fsanitize=undefined
-        -fsanitize=shift
-        -fsanitize=shift-exponent
-        -fsanitize=shift-base
-        -fsanitize=integer-divide-by-zero
-        -fsanitize=unreachable
-        -fsanitize=vla-bound
-        -fsanitize=null
-        -fsanitize=return
-        -fsanitize=signed-integer-overflow
-        -fsanitize=bounds
-        -fsanitize=bounds-strict
-        -fsanitize=alignment
-        -fsanitize=object-size
-        -fsanitize=float-divede-by-zero
-        -fsanitize=float-cast-overflow
-        -fsanitize=nonull-attribute
-        -fsanitize=returns-nonull-attribute
-        -fsanitize=bool
-        -fsanitize=enum
-        -fsanitize=vptr
-        -fsanitize=pointer-overlow
-        -fsanitize=builtin
-    )
-endif()
-
-if(SANITIZER_THREAD)
-    if(SANITIZER)
-        message(FATAL_ERROR "SANITIZER_THREAD cannot co exists with SANITIZER flag!")
-    endif()
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -fsanitize=thread 
-    )
-endif()
 
 #if(APPLE)
 #    if(USE_UWEBSOCKETS)
@@ -406,8 +366,11 @@ endif()
 
 
 if (LINUX OR RASPBERRY)
-    target_compile_options(${PROJECT_NAME}
-        PRIVATE -fstack-usage -Wstack-usage=8192 -Wformat-truncation)
+    if (NOT (SANITIZER OR SANITIZER_THREAD))
+        # sanitizer makes stack bigger
+        target_compile_options(${PROJECT_NAME}
+            PRIVATE -fstack-usage -Wstack-usage=8192 -Wformat-truncation)
+    endif()    
     if(NOT IS_RELEASE AND RASPBERRY)
         message("Add some Raspberry special debug flags")
         # -fsanitize=address

@@ -744,7 +744,8 @@ static std::string printTime(std::chrono::time_point<T> time) {
     const auto curr_time = T::to_time_t(time);
 
     char buf[100];
-    strftime(buf, sizeof(buf),"%Y-%m-%d %H:%M:%S",localtime(&curr_time));
+    struct tm result;
+    strftime(buf, sizeof(buf),"%Y-%m-%d %H:%M:%S",localtime_r(&curr_time, &result));
 
     typename T::duration since_epoch = time.time_since_epoch();
     const auto s = duration_cast<std::chrono::seconds>(since_epoch);

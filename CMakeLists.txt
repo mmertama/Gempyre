@@ -64,6 +64,50 @@ if(CI_ACTIONS)
     message(WARNING "This is for Github actions")
 endif()
 
+
+if(SANITIZER)
+    set(ASAN_FLAGS
+        -fsanitize=address
+        -fsanitize=pointer-compare
+        -fsanitize=pointer-subtract
+        -fsanitize=leak
+        -fsanitize=undefined
+        -fsanitize=shift
+        -fsanitize=shift-exponent
+        -fsanitize=shift-base
+        -fsanitize=integer-divide-by-zero
+        -fsanitize=unreachable
+        -fsanitize=vla-bound
+        -fsanitize=null
+        -fsanitize=return
+        -fsanitize=signed-integer-overflow
+        -fsanitize=bounds
+        -fsanitize=bounds-strict
+        -fsanitize=alignment
+        -fsanitize=object-size
+        -fsanitize=float-divide-by-zero
+        -fsanitize=float-cast-overflow
+        -fsanitize=nonnull-attribute
+        -fsanitize=returns-nonnull-attribute
+        -fsanitize=bool
+        -fsanitize=enum
+        -fsanitize=vptr
+        -fsanitize=pointer-overflow
+        -fsanitize=builtin)
+    add_compile_options(${ASAN_FLAGS})
+    add_link_options(${ASAN_FLAGS})
+endif()
+
+if(SANITIZER_THREAD)
+    if(SANITIZER)
+        message(FATAL_ERROR "SANITIZER_THREAD cannot co exists with SANITIZER flag!")
+    endif()
+    set(ASAN_FLAGS -fsanitize=thread) 
+    add_compile_options(${ASAN_FLAGS})
+    add_link_options(${ASAN_FLAGS})
+endif()
+
+
 add_subdirectory(gempyrelib)
 
 option(HAS_AFFILIATES "Affiliates are built" ON)
