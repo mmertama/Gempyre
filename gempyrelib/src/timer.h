@@ -43,13 +43,13 @@ private:
     void start();
     void onElapsed(const TimerData& data) ;
 private:
-    std::condition_variable m_cv;
-    std::future<void> m_timerThread;
-    std::unique_ptr<TimeQueue> m_queue;
-    std::mutex m_waitMutex;
-    std::atomic<bool> m_exit = false;
-    Semaphore m_callWait;
-    std::mutex m_queueMutex;
+    std::condition_variable m_cv{};
+    std::future<void> m_timerThread{};
+    std::unique_ptr<TimeQueue> m_queue{};
+    std::mutex m_waitMutex{};
+    std::atomic<bool> m_exit{false};
+    Semaphore m_callWait{};
+    std::mutex m_queueMutex{};
 };
 }
 

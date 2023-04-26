@@ -62,7 +62,9 @@ enum class LogLevel : int {None, Fatal, Error, Warning, Info, Debug, Debug_Trace
 class LogWriter {
 public:
     LogWriter();
-    ~LogWriter();
+    virtual ~LogWriter();
+    LogWriter(const GempyreUtils::LogWriter&) = delete;
+    LogWriter& operator=(const GempyreUtils::LogWriter&) = delete;
     /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
     virtual std::string header(LogLevel logLevel);
     /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
@@ -70,7 +72,7 @@ public:
     /// override to return true if this write supports ANSI colors, default false
     virtual bool has_ansi() const;
 private:
-    LogWriter* m_previousLogWriter;
+    LogWriter* m_previousLogWriter{nullptr};
 };
 
 /// Courtesy class to write log into files, see  setLogWriter
@@ -105,6 +107,7 @@ inline void log_line(LogLevel level, std::ostream& os, const T& e, Args... args)
 
 // predeclation
 UTILS_EX void process_exit(int);
+
 template<typename T>
 inline void log_line(LogLevel level, std::ostream& os, const T& e) {
     os << e << std::endl;
@@ -162,6 +165,10 @@ class _Close {
 public:
     _Close(T ref, A&& f) : t(ref), d(f) {}
     ~_Close() {(void) this->d(this->t);}
+    _Close(_Close&& other) = default;
+    _Close& operator=(_Close&& other) = default;
+    _Close(const _Close& other) = delete;
+    _Close& operator=(const _Close& other) = delete;
 private:
     T t;
     A d;
@@ -389,7 +396,7 @@ public:
 private:
     expiror() = default;
     expiror(std::future<void>&& f) : m_f(std::move(f)) {}
-    std::future<void> m_f;
+    std::future<void> m_f{};
     friend std::shared_ptr<GempyreUtils::expiror> GempyreUtils::wait_expire(std::chrono::seconds s, const std::function<void ()>& onExpire);
 };
 
@@ -447,9 +454,6 @@ std::string push_path(const std::string& path, const std::string& name, NAME...n
 }
 ///execute a prog
 UTILS_EX int execute(const std::string& prog, const std::string& parameters);
-
-/// exit 
-UTILS_EX void process_exit(int err);
 
 
 template <class T>

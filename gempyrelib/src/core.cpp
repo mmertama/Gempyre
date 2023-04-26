@@ -294,7 +294,7 @@ void Ui::open(const std::string& url, const std::string& name) {
 std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> Ui::ping() const {
     const auto milliseconds_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     const clock_t begin_time = ::clock();
-    const auto pong = const_cast<GempyreInternal*>(m_ui.get())->query<std::string>(std::string(), "ping");
+    const auto pong = m_ui->query<std::string>(std::string(), "ping");
     if(pong.has_value() && !pong->empty()) {
         // full loop
         const auto full = double(::clock() - begin_time) / (CLOCKS_PER_SEC / 1000000.0);
@@ -323,7 +323,7 @@ std::string Ui::address_of(const std::string& filepath) const {
 
 std::optional<Element::Elements> Ui::by_class(const std::string& className) const {
     Element::Elements childArray;
-    const auto childIds = const_cast<GempyreInternal*>(m_ui.get())->query<std::vector<std::string>>(className, "classes");
+    const auto childIds = m_ui->query<std::vector<std::string>>(className, "classes");
     if(!childIds.has_value()) {
         return std::nullopt;
     }
@@ -335,7 +335,7 @@ std::optional<Element::Elements> Ui::by_class(const std::string& className) cons
 
 std::optional<Element::Elements> Ui::by_name(const std::string& className) const {
     Element::Elements childArray;
-    const auto childIds = const_cast<GempyreInternal*>(m_ui.get())->query<std::vector<std::string>>(className, "names");
+    const auto childIds = m_ui->query<std::vector<std::string>>(className, "names");
     if(!childIds.has_value()) {
         return std::nullopt;
     }
@@ -420,7 +420,7 @@ bool Ui::add_file(const std::string& url, const std::string& file_name) {
 }
 
 std::optional<double> Ui::device_pixel_ratio() const {
-    const auto value = const_cast<GempyreInternal*>(m_ui.get())->query<std::string>("", "devicePixelRatio");
+    const auto value = m_ui->query<std::string>("", "devicePixelRatio");
     return value.has_value() && *m_ui == State::RUNNING ? GempyreUtils::parse<double>(value.value()) : std::nullopt;
 }
 

@@ -51,9 +51,9 @@ public:
     }
 
 private:
-    mutable  std::mutex m_mtx;
-    std::condition_variable m_cv;
-    int m_count = 0;
+    mutable std::mutex m_mtx{};
+    std::condition_variable m_cv{};
+    int m_count{0};
 };
 }
 #endif // SEMAPHORE_H

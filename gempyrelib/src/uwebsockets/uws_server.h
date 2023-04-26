@@ -53,18 +53,18 @@ private:
 private:
     
     std::unique_ptr<Broadcaster> m_broadcaster;
-    std::unique_ptr<Broadcaster> m_extensions;
+    std::unique_ptr<Broadcaster> m_extensions{};
    
     ListenSocket m_closeData = nullptr; //arbitrary
     bool m_uiready = false;
 
-    std::unique_ptr<Batch> m_batch;
-    std::unordered_map<std::string, std::pair<DataType, std::string>> m_pulled;
-    int m_pulledId = 0;
-    std::atomic_bool m_doExit = false;
-    std::atomic_bool m_isRunning = false;
-    Semaphore   m_waitStart; // must be before thread
-    std::unique_ptr<std::thread> m_serverThread; // must be last
+    std::unique_ptr<Batch> m_batch{};
+    std::unordered_map<std::string, std::pair<DataType, std::string>> m_pulled{};
+    int m_pulledId{0};
+    std::atomic_bool m_doExit{false};
+    std::atomic_bool m_isRunning{false};
+    Semaphore m_waitStart{}; // must be before thread
+    std::unique_ptr<std::thread> m_serverThread{}; // must be last
     friend class SocketHandler;
     };
 

@@ -163,9 +163,9 @@ public:
 
 private:
     static Comp m_comp;
-    mutable std::mutex m_mutex;
-    int m_lastId = 0;
-    std::multiset<DataPtr, Comp> m_priorityQueue;
+    mutable std::mutex m_mutex{};
+    int m_lastId{0};
+    std::multiset<DataPtr, Comp> m_priorityQueue{};
 };
 }
 

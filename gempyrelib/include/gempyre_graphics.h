@@ -76,7 +76,7 @@ private:
     friend class Bitmap;
     void paint(const CanvasDataPtr& canvas, int x, int y, bool as_draw);
 private:
-    CanvasDataPtr m_tile;
+    CanvasDataPtr m_tile{};
     int m_width{0};
     int m_height{0};
 };
@@ -110,7 +110,7 @@ namespace  Color {
     }
 
     [[nodiscard]] static constexpr inline type alpha(type pixel) {
-        return (pixel & static_cast<type>(0xFF000000)) >> 24;
+        return (pixel & 0xFF000000) >> 24;
     }
 
     [[nodiscard]] static inline std::string rgba(type pixel) {
@@ -181,7 +181,7 @@ protected:
     void copy_from(const Bitmap& other);
 private:
     friend class Gempyre::CanvasElement;
-    Gempyre::CanvasDataPtr m_canvas;
+    Gempyre::CanvasDataPtr m_canvas{};
 };
 
 
@@ -230,7 +230,7 @@ public:
     [[nodiscard]] const Gempyre::CanvasElement::CommandList& composed() const {return m_composition;}
 private:
     FrameComposer push(const std::initializer_list<Gempyre::CanvasElement::Command>& list) {m_composition.insert(m_composition.end(), list); return *this;}
-    Gempyre::CanvasElement::CommandList m_composition;
+    Gempyre::CanvasElement::CommandList m_composition{};
 };
 }
 

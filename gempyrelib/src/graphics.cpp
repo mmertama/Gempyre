@@ -128,7 +128,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
                                     static_cast<Gempyre::dataT>(j + y_pos),
                                     static_cast<Gempyre::dataT>(width),
                                     static_cast<Gempyre::dataT>(height),
-                                    (as_draw && is_last)});
+                                    static_cast<Gempyre::dataT>(as_draw && is_last)});
                 
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sending canvas frame", i, j, width, height, m_tile->size(),  (width * height + 4) * 4 + 20 + 16);
                 #ifdef GEMPYRE_IS_DEBUG
@@ -333,7 +333,7 @@ Bitmap::~Bitmap() {
 }
 
 void Bitmap::draw_rect(const Element::Rect& rect, Color::type color) {
-    if(rect.width <= 0 || rect.width <= 0)
+    if(rect.width <= 0 || rect.height <= 0)
         return;
     const auto x = std::max(0, rect.x);
     const auto y = std::max(0, rect.y);

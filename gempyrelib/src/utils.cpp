@@ -69,7 +69,6 @@ static std::string last_error(T err) {
 using namespace std::chrono_literals;
 
 
-
 void GempyreUtils::init() {
 #ifdef WINDOWS_OS
 	if(!LoadLibraryA("ntdll.dll")) {
@@ -144,6 +143,8 @@ GempyreUtils::Params GempyreUtils::parse_args(int argc, char* argv[], const std:
             longOptions[argi].has_arg = optional_argument;
             plist += "::";
             break;
+        default:
+            log(LogLevel::Fatal, "Bad argument", static_cast<int>(atype));
         }
         ++argi;
     }
@@ -152,7 +153,7 @@ GempyreUtils::Params GempyreUtils::parse_args(int argc, char* argv[], const std:
     std::multimap<std::string, std::string> options;
 
     for(;;) {
-        const auto opt = getopt_long(argc, const_cast<char**>(argv), plist.c_str(),
+        const auto opt = getopt_long(argc, argv, plist.c_str(),
                             longOptions, nullptr);
         if(opt < 0)
             break;
@@ -366,7 +367,7 @@ std::string GempyreUtils::substitute(const std::string& str, const std::string& 
     try {
     return std::regex_replace(str, std::regex(substring) , subsitution);
     } catch (std::regex_error& e) {
-         log(LogLevel::Error, "reg exp", substring, e.code());
+         log(LogLevel::Error, "reg exp", substring, static_cast<unsigned>(e.code()));
          gempyre_utils_assert_x(false, "regexp");
     }
     return std::string();

@@ -42,8 +42,8 @@ public:
 
 
 private:
-    std::list<Event> m_events;
-    mutable std::mutex m_mutex;
+    std::list<Event> m_events{};
+    mutable std::mutex m_mutex{};
 };
 
 template <class Key, class Event>
@@ -87,8 +87,8 @@ public:
     }
 
 private:
-    std::unordered_map<Key, Event> m_events;
-    mutable std::mutex m_mutex;
+    std::unordered_map<Key, Event> m_events{};
+    mutable std::mutex m_mutex{};
 };
 
 }

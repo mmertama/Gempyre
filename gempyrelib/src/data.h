@@ -23,8 +23,8 @@ class Data {
             reference operator*() {return *m_data;}
             reference operator*() const {return *m_data;}
             pointer operator->() {return m_data;}
-            value_type operator++() {++m_data ; return *m_data;}
-            value_type operator++(int) {auto temp(m_data); ++m_data; return *temp;}
+            iteratorT& operator++() {++m_data ; return *this;}
+            iteratorT operator++(int) {auto temp(m_data); ++m_data; return *this;}
         private:
             pointer m_data;
         };

@@ -174,7 +174,10 @@ void Uws_Server::serverThread(unsigned int port) {
                 return;
              case MessageReply::AddExtensionSocket:
                  m_broadcaster->setType(ws, Server::TargetSocket::Extension);
-                return;    
+                return;
+            default:
+                assert(false);
+                return;        
         }
     };;
     behavior.close = [this](auto ws, auto code, auto message) {

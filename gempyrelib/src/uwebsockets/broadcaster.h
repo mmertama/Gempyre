@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <cassert>
 
-using namespace std::chrono_literals;;
+using namespace std::chrono_literals;
 
 namespace Gempyre {
 
@@ -29,7 +29,7 @@ class Broadcaster {
 
     bool has_backpressure(WSSocket* s, size_t len) {
         const auto webSocketContextData = static_cast<uWS::WebSocketContextData<false, ExtraSocketData>*>
-        (us_socket_context_ext(false, static_cast<us_socket_context_t *> (us_socket_context(false, reinterpret_cast<us_socket_t *> (s)))));
+        (us_socket_context_ext(false, us_socket_context(false, reinterpret_cast<us_socket_t *> (s))));
         const auto free_space =  webSocketContextData->maxBackpressure - s->getBufferedAmount(); 
         if(len > webSocketContextData->maxBackpressure) {
             GempyreUtils::log(GempyreUtils::LogLevel::Fatal,
@@ -43,7 +43,8 @@ class Broadcaster {
             }
         return false;    
     }
-
+    Broadcaster(const Gempyre::Broadcaster&) = delete;
+    Broadcaster& operator=(const Gempyre::Broadcaster&) = delete;
 public:
     
     Broadcaster(const std::function<void(WSSocket*, WSSocket::SendStatus)>& resendRequest) : m_resendRequest{resendRequest} {}
@@ -263,13 +264,13 @@ private:
 
 private:
     std::function<void (WSSocket*, WSSocket::SendStatus)> m_resendRequest;
-    std::unordered_map<WSSocket*, Server::TargetSocket> m_sockets;
-    std::mutex m_sendTxtMutex;
-    std::mutex m_sendBinMutex;
-    std::vector<std::tuple<WSSocket*, std::string>> m_textQueue;
-    std::vector<std::tuple<WSSocket*, DataPtr, bool>> m_dataQueue;
-    mutable std::mutex m_socketMutex;
-    uWS::Loop* m_loop = nullptr;
+    std::unordered_map<WSSocket*, Server::TargetSocket> m_sockets{};
+    std::mutex m_sendTxtMutex{};
+    std::mutex m_sendBinMutex{};
+    std::vector<std::tuple<WSSocket*, std::string>> m_textQueue{};
+    std::vector<std::tuple<WSSocket*, DataPtr, bool>> m_dataQueue{};
+    mutable std::mutex m_socketMutex{};
+    uWS::Loop* m_loop{nullptr};
     };
 }
 

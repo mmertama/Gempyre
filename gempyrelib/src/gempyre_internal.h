@@ -74,7 +74,7 @@ public:
         public:
         LoopWatch(GempyreInternal& gi, bool is_main) : m_gi(gi) {
             gempyre_utils_assert_x(!is_main || m_gi.m_loop == 0,
-             std::to_string(is_main) + " " + std::to_string(m_gi.m_loop));
+             std::to_string(static_cast<unsigned int>(is_main)) + " " + std::to_string(m_gi.m_loop));
             m_gi.m_loop++;
         }
         ~LoopWatch() {
@@ -94,6 +94,9 @@ public:
         const std::unordered_map<std::string, std::string>& parameters,
         WindowType windowType
         );
+
+     GempyreInternal(const Gempyre::GempyreInternal&) = delete;
+     GempyreInternal& operator=(const Gempyre::GempyreInternal&) = delete;  
 
     bool operator==(State state) const {return m_status == state;}
     bool operator!=(State state) const {return m_status != state;}
@@ -488,26 +491,26 @@ public:
 private:
     Ui* m_app_ui;
     std::atomic<State> m_status = State::NOTSTARTED;
-    EventQueue<HandlerEvent> m_eventqueue;
-    EventMap<std::string, Server::Value> m_responsemap;
-    Semaphore  m_sema;
-    TimerMgr m_timers;
-    std::unordered_map<std::string, HandlerMap> m_elements;
-    std::list<std::function<bool ()>> m_requestqueue;
-    std::list<std::function<void ()>> m_timerqueue;
+    EventQueue<HandlerEvent> m_eventqueue{};
+    EventMap<std::string, Server::Value> m_responsemap{};
+    Semaphore  m_sema{};
+    TimerMgr m_timers{};
+    std::unordered_map<std::string, HandlerMap> m_elements{};
+    std::list<std::function<bool ()>> m_requestqueue{};
+    std::list<std::function<void ()>> m_timerqueue{};
     std::function<void ()> m_onUiExit{nullptr};
     std::function<void ()> m_onReload{nullptr};
     std::function<void ()> m_onOpen{nullptr};
     std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
-    Ui::Filemap m_filemap;
-    WindowType m_windowType;
-    std::function<void ()> m_startup;
-    std::unique_ptr<Server> m_server;
+    Ui::Filemap m_filemap{};
+    WindowType m_windowType{};
+    std::function<void ()> m_startup{};
+    std::unique_ptr<Server> m_server{};
     // protect request_queue
-    std::mutex m_requestMutex;
+    std::mutex m_requestMutex{};
     bool m_hold{false};
     unsigned m_msgId{1};
-    int m_loop = 0;
+    int m_loop{0};
 };
 }
 

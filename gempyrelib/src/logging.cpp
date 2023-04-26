@@ -63,15 +63,16 @@ GempyreUtils::LogLevel GempyreUtils::log_level() {
    return g_serverLogLevel;
 }
 
+// \033 for ISO, \e is GCC spesific 
 #ifndef WINDOWS_OS
 
-#define CLEAR "\e[0m"
-#define RED "\e[1;31m"
-#define ORANGE "\e[1;48:5:166m"
-#define CYAN_TEXT "\e[0;106m\e[1;90m"
-#define YELLOW "\e[0;33m"
-#define DARK_RED_WITH_UNDERLINE "\e[4;31m"
-#define WHITE_BACKGROUND_BLACK_TEXT "\e[0;47m\e[1;90m"
+#define CLEAR "\033[0m"
+#define RED "\033[1;31m"
+#define ORANGE "\033[1;48:5:166m"
+#define CYAN_TEXT "\033[0;106m\033[1;90m"
+#define YELLOW "\033[0;33m"
+#define DARK_RED_WITH_UNDERLINE "\033[4;31m"
+#define WHITE_BACKGROUND_BLACK_TEXT "\033[0;47m\033[1;90m"
 
 #else
 
@@ -145,6 +146,10 @@ public:
     void setWriter(LogWriter* writer) {
         m_logWriter = writer;
     }
+    LogStream (const LogStream&) = delete;
+    LogStream& operator=(const LogStream&) = delete;
+
+
 private:
     int_type overflow(int_type ch) override {
         if(ch != traits_type::eof()){
