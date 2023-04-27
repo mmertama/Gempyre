@@ -18,13 +18,14 @@ Gempyre itself does not contain an application window. The UI is drawn using ext
 Gempyre is a library that is linked with the application, except for Android, see [Gempyre-Android](https://github.com/mmertama/Gempyre-Android). For Python, install [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) on top of Gempyre library.
 
 
-### Gempyre API has few headers (deprecated)
+### Gempyre API 
 
-* [Gempyre core in _gempyre.h_](gempyre.md), everything that basic application needs.
-* [Gempyre Utils in _gempyre_utils.h_](gempyre_utils.md), miscellaneous collection or function that helps writing applications. 
-* [Gempyre Graphics in _gempyre_graphics.h_](gempyre_graphics.md),  helps developing graphics intensive applications and games.
+* gempyre.h, everything that basic application needs.
+* gempyre_utils.h, miscellaneous collection or function that helps writing applications. 
+* gempyre_graphics.h,  helps developing graphics intensive applications and games.
 * gempyre_client.h, provides file dialogs for Gempyre application. 
 
+LINK_TO_DOXYGEN - https://dev.to/denvercoder1/using-github-actions-to-publish-doxygen-docs-to-github-pages-177g
 
 ### Linux
 
