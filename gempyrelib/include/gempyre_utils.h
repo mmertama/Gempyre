@@ -17,28 +17,36 @@
 #include <any>
 
 /**
+  * @file
+  * 
   * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
   *
-  * gempyre_utils.h
-  * =====
-  * Gempyre GUI Framework
-  * -------------
-  *
   * gempyre_utils.h contains a collection utility functions used internally within Gempyre
-  * implementation and test applications.
-  *
+  * implementation and test applications. The are in API as they may be useful for any 
+  * developer. Gempyre-Python do not wrap these as Python asset have similar functins
+  * in internal or pip packages.
   */
 
+
+/// @cond INTERNAL
 #define GEMPYREUTILSDEBUG(x) GempyreUtils::log(Utils::LogLevel::Debug, x, __FILE__, __LINE__)
-//also release build assert
+/// @endcond
+/// Release build assert
 #define gempyre_utils_assert(b) (b || GempyreUtils::do_fatal("Panic!", nullptr, __FILE__, __LINE__))
+/// Release build assert with a message
 #define gempyre_utils_assert_x(b, x) (b || GempyreUtils::do_fatal(x, nullptr, __FILE__, __LINE__))
+/// Release build assert with a message and a function executed before forced exit
 #define gempyre_utils_assert_x_f(b, x, f) (b || GempyreUtils::do_fatal(x, f, __FILE__, __LINE__))
+/// Forced exit with a message
 #define gempyre_utils_fatal(x) GempyreUtils::do_fatal(x, nullptr, __FILE__, __LINE__)
+/// Forced exit with a message and a function executed before forced exit
 #define gempyre_utils_fatal_f(x, f) GempyreUtils::do_fatal(x, f, __FILE__, __LINE__)
+/// RAII helper for pointer
 #define gempyre_utils_auto_clean(p, f) std::unique_ptr<std::remove_pointer<decltype(p)>::type, decltype(&f)> _ ## p (p, &f)
+/// RAII helper for non-pointer
 #define gempyre_utils_auto_close(p, f) GempyreUtils::_Close<std::decay_t<decltype(p)>, decltype(&f)> _ ## p (p, &f)
 
+/// @cond INTERNAL
 
 #ifdef WINDOWS_EXPORT
 	#define UTILS_EX __declspec(dllexport)
@@ -52,30 +60,49 @@ using SSIZE_T = long long;
 using SSIZE_T = ssize_t;
 #endif
 
+
+/// @endcond
+
 namespace GempyreUtils {
 /**
  * @brief The LogLevel enum
  */
-enum class LogLevel : int {None, Fatal, Error, Warning, Info, Debug, Debug_Trace};
+enum class LogLevel : int {
+    None,       /// All logs disabled
+    Fatal,      /// Execution ends here
+    Error,      /// Something is wrong, Default
+    Warning,    /// At least developer should be worried
+    Info,       /// Something developer should know
+    Debug,      /// What is going on
+    Debug_Trace /// What is going on, and telling it floods output and impacts performance
+    };
 
-/// Parent class for LogWriters
+/// @brief Parent class for LogWriters
 class LogWriter {
 public:
+    /// @brief Constuctor
     LogWriter();
-    virtual ~LogWriter();
+    /// @brief Destuctor
+    virtual ~LogWriter(); 
     LogWriter(const GempyreUtils::LogWriter&) = delete;
-    LogWriter& operator=(const GempyreUtils::LogWriter&) = delete;
-    /// Return header of class, called before every line, default just returns a timestamp and loglevel string.
+    LogWriter& operator=(const GempyreUtils::LogWriter&) = delete; 
+    /// @brief header of class, called before every line, default just returns a timestamp and loglevel string.
+    /// @param logLevel 
+    /// @return 
     virtual std::string header(LogLevel logLevel);
-    /// Implement to do the write to the medium. The buffer is 0 terminated, at position count.
+
+    /// @brief Implement write to the medium.
+    /// @param buffer Buffer's address
+    /// @param count  it's size
+    /// @return 
     virtual bool do_write(const char* buffer, size_t count) = 0;
-    /// override to return true if this write supports ANSI colors, default false
+    /// @bried  override to return true if this write supports ANSI colors, default just return false
     virtual bool has_ansi() const;
 private:
     LogWriter* m_previousLogWriter{nullptr};
 };
 
-/// Courtesy class to write log into files, see  setLogWriter
+/// @brief Courtesy class to write log into files, see  setLogWriter
 class UTILS_EX FileLogWriter : public LogWriter {
 public:
     FileLogWriter(const std::string& path);
@@ -85,6 +112,7 @@ protected:
     std::ofstream m_file;
 };
 
+/// @brief Writes log to stdout
 class UTILS_EX StreamLogWriter : public LogWriter {
 public:
     StreamLogWriter(std::ostream& os);
@@ -94,9 +122,20 @@ protected:
     std::ostream& m_os;
 };
 
+/// @brief set current log level
+/// @param level  
 UTILS_EX void set_log_level(LogLevel level);
+
+/// @brief  current log level
+/// @return current log level
 UTILS_EX LogLevel log_level(); 
+
+/// @brief Log Level to string
+/// @param LogLevel
+/// @return log level as a string
 UTILS_EX std::string to_str(LogLevel l);
+
+/// @cond INTERNAL
 UTILS_EX std::ostream log_stream(LogLevel logLevel);
 
 template <typename T, typename ...Args>
@@ -105,7 +144,7 @@ inline void log_line(LogLevel level, std::ostream& os, const T& e, Args... args)
     log_line(level, os, args...);
 }
 
-// predeclation
+
 UTILS_EX void process_exit(int);
 
 template<typename T>
@@ -115,7 +154,11 @@ inline void log_line(LogLevel level, std::ostream& os, const T& e) {
         process_exit(99);
     }
 }
+/// @endcond
 
+/// @brief Write a log line
+/// @param level 
+/// @param list of values to print
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
     if(level <= log_level()) {
@@ -124,31 +167,36 @@ inline void log(LogLevel level, const T& e, Args... args) {
     }
 }
 
-
+/// @cond INTERNAL
 template <LogLevel level, typename T, typename ...Args>
 inline void write_log(const T& e, Args... args) {
     log(level, e, args...);
 }
+/// @endcond
 
+/// @brief Write a debug log
 template <typename T, typename ...Args>
 inline void log_debug(const T& e, Args... args) {
     write_log<LogLevel::Debug, T, Args...>(e, args...);
 }
 
 
+/// @cond INTERNAL
 inline bool do_fatal(const std::string_view txt, std::function<void()> f, const char* file, int line) {
     if(f) f();
     log(LogLevel::Fatal, txt, "at", file, "line:", line);
     return false;
 }
+/// @endcond
 
 
 #ifdef _MSC_VER
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
+/// @cond INTERNAL
 #define GEM_DEBUG(...) GempyreUtils::log(GempyreUtils::LogLevel::Debug, __PRETTY_FUNCTION__, __VA_ARGS__)
-
+/// @endcond
 }
 
 
@@ -159,6 +207,7 @@ inline bool do_fatal(const std::string_view txt, std::function<void()> f, const 
  */
 namespace GempyreUtils {
 
+/// @cond INTERNAL
 //Helper for C memory management
 template <typename T, typename A>
 class _Close {
@@ -173,35 +222,63 @@ private:
     T t;
     A d;
 };
+/// @endcond
 
-enum class ArgType{NO_ARG, REQ_ARG, OPT_ARG};
+/// @brief Option Argument type for parse_args
+enum class ArgType{
+    NO_ARG, /// Option does not have an argument
+    REQ_ARG,    /// Option has an argument 
+    OPT_ARG /// Option may have an argument
+    };
 using ParamList = std::vector<std::string>;
 using Options = std::multimap<std::string, std::string>;
 using Params = std::tuple<ParamList, Options>;
 /// parse arguments
+/// @param argc argc from main
+/// @param argv argv from main
+/// @param args Optional arguments, each tuple of 'long name', 'short name' and type
+/// @return tuple of ParamList and Options, where ParamtList is vector of positional parameters and Options is map of options and their possible values.
 UTILS_EX Params parse_args(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
 
-
+/// @cond INTERNAL
 UTILS_EX void init();
 UTILS_EX std::string current_time_string();
-
 UTILS_EX std::string last_error();
-
+/// @endcond
 
 /**
-  * String Utils
+  * ## String Utils
   */
 
+/// @brief make quoted
+/// @param s string
+/// @return  quoted string
 UTILS_EX std::string qq(const std::string& s);
 
+/// @brief remove newline from end of string
+/// @param s string 
+/// @return string
 UTILS_EX std::string chop(const std::string& s);
 
+/// @brief remove a string from end 
+/// @param s 
+/// @param chopped 
+/// @return string
 UTILS_EX std::string chop(const std::string& s, const std::string& chopped);
 
+/// @brief replace a substrings from a string
+/// @param str orginal string
+/// @param substring  regular expression
+/// @param substitution  replacement
+/// @return string
 UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
 
-UTILS_EX std::string trimmed(const std::string& s);
+/// @brief remove 
+/// @param remove spaces from a string
+/// @return string
+UTILS_EX std::string remove_spaces(const std::string& s);
 
+/// @cond INTERNAL
 template <typename T>
 T convert(const std::string& source) {
     std::istringstream ss(source);
@@ -215,7 +292,12 @@ inline std::string convert<std::string>(const std::string& source)
 {
     return source;
 }
+/// @endcond
 
+/// @brief parse string to value
+/// @tparam T 
+/// @param source 
+/// @return value
 template <typename T>
 std::optional<T> parse(const std::string& source) {
     std::istringstream ss(source);
@@ -224,7 +306,9 @@ std::optional<T> parse(const std::string& source) {
     return !ss.fail() ? std::make_optional(v) : std::nullopt;
 }
 
-
+/// @brief make lower case string
+/// @param str 
+/// @return string
 template <class T>
 std::string to_low(const T& str) {
     std::string n;
@@ -234,6 +318,9 @@ std::string to_low(const T& str) {
 }
 
 
+ /// @brief Hex presentation of the value
+ /// @param ival 
+ /// @return string
  template< typename T >
  std::string to_hex(T ival) {
    std::stringstream stream;
@@ -243,13 +330,17 @@ std::string to_low(const T& str) {
  }
 
 
-/// Get a levenshtein distance of strings
+/// @brief Get a levenshtein distance of strings
+/// @param s1 
+/// @param s2 
+/// @return their distance
 UTILS_EX int levenshtein_distance(std::string_view s1, std::string_view s2);
 
 /**
- * Container Utils
+ * ## Container Utils
  */
 
+/// @cond INTERNAL
 template<typename C, typename T>
 std::optional<T> at(const C& container, const std::string& s, unsigned index = 0) {
     const auto range = container.equal_range(s);
@@ -263,13 +354,13 @@ T at_or(const C& container, const std::string& s, const T& defaultValue, unsigne
     const auto v = at<C, T>(container, s, index);
     return v.has_value() ? *v : defaultValue;
 }
+/// @endcond
 
-template<typename C, typename T>
-T atOr(const C& container, const std::string& s, const T& defaultValue, unsigned index = 0) {
-    return at_or(container, s, defaultValue, index);
-}
-
-
+/// @brief Split sting to container
+/// @tparam Container defaults to std::vector<std::string>
+/// @param str 
+/// @param splitChar 
+/// @return container
 template <class Container = std::vector<std::string>>
 Container split(const std::string& str, const char splitChar = ' ') {
     Container con;
@@ -280,14 +371,19 @@ Container split(const std::string& str, const char splitChar = ' ') {
     return con;
 }
 
-
+/// @cond INTERNAL
 template <typename IT>
 inline constexpr std::string_view make_string_view(IT begin, IT end)
 {
     return   (begin == end) ? std::string_view{nullptr} : std::string_view{&*begin, std::distance(begin, end)};
 }
+/// @endcond
 
-
+/// @brief Get keys from map
+/// @tparam T map type
+/// @tparam K key type, defaults to key type
+/// @param map 
+/// @return vector
 template <class T, typename K = typename T::key_type>
 std::vector<K> keys(const T& map) {
     std::vector<K> ks; ks.resize(map.size());
@@ -295,6 +391,15 @@ std::vector<K> keys(const T& map) {
     return ks;
 }
 
+/// @brief Join container values, try 1st if compiler can deduct types
+/// @tparam IT container
+/// @tparam In default container value type
+/// @tparam Out default to container type
+/// @param begin begin iterator
+/// @param end  end iterator
+/// @param joinChar optional glue string
+/// @param f optional transform function
+/// @return string
 template <class IT, typename In=typename IT::value_type, typename Out=typename IT::value_type>
 std::string join(const IT& begin,
                  const IT& end,
@@ -313,6 +418,14 @@ std::string join(const IT& begin,
     return iss.str();
 }
 
+/// @brief Join container values, try 1st if compiler can deduct types
+/// @tparam IT container
+/// @tparam In default container value type
+/// @tparam Out default to container type
+/// @param t container
+/// @param joinChar optional glue string
+/// @param f optional transform function
+/// @return string
 template <class T, typename In=typename T::value_type, typename Out=typename T::value_type>
 std::string join(const T& t,
                  const std::string joinChar = "",
@@ -320,6 +433,15 @@ std::string join(const T& t,
     return join(t.begin(), t.end(), joinChar, f);
 }
 
+/// @brief Join container values, try 1st if compiler can deduct types
+/// @tparam IT container
+/// @tparam In default container value type
+/// @tparam Out default to container type
+/// @param begin begin iterator
+/// @param end  end iterator
+/// @param joinChar optional glue string
+/// @param f optional transform function
+/// @return string 
 template <class IT, typename In=typename std::remove_pointer<IT>::type,
           typename Out=typename std::remove_pointer<IT>::type,
           typename = std::enable_if_t<std::is_pointer<IT>::value>>
@@ -340,7 +462,7 @@ std::string join(const IT begin,
     return iss.str();
 }
 
-
+/// @cond INTERNAL
 template <class T>
 T merge(const T& b1, const T& b2) {
        T bytes(b1.size() + b2.size());
@@ -351,7 +473,7 @@ T merge(const T& b1, const T& b2) {
        return bytes;
    }
 
-
+// I just wonder why copy instead of move hence not public
 template <class T, typename ...Arg>
 T merge(const T& b1, const T& b2, Arg ...args) {
     T bytes(b1.size() + b2.size());
@@ -361,6 +483,7 @@ T merge(const T& b1, const T& b2, Arg ...args) {
     std::copy(b2.begin(), b2.end(), begin);
     return merge(bytes, args...);
 }
+/// @endcond
 
 /// Const version of std::advance
 template <typename IT> IT advanced(IT it, int distance) {
@@ -378,14 +501,11 @@ std::optional<V> get_value(const std::multimap<K, V>& map, const K& key, int ind
 }
 
 
-template <typename K, typename V >
-std::optional<V> getValue(const std::multimap<K, V>& map, const K& key, int index = 0) {
-    return get_value(map, key, index);
-}
-
  /*
  *  Misc Utils
  */
+
+/// @cond INTERNAL
 
 class expiror;
 [[nodiscard]]
@@ -400,62 +520,112 @@ private:
     friend std::shared_ptr<GempyreUtils::expiror> GempyreUtils::wait_expire(std::chrono::seconds s, const std::function<void ()>& onExpire);
 };
 
+/// @endcond
+
+/// @brief URL hexify string
+/// @param src source
+/// @param pat regex pattern that are separated in hexified sequences
+/// @return  string
 UTILS_EX  std::string hexify(const std::string& src, const std::string pat);
+
+/// @brief un hexify hexified string
+/// @param src 
+/// @return string
 UTILS_EX  std::string unhexify(const std::string& src);
 
+/// @brief OS id
 enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};
 
+/// Get
 UTILS_EX OS current_os();
 
-
+/// @cond INTERNAL
 UTILS_EX std::string html_file_launch_cmd();
+/// @endcond
 
 
-enum AddressType{Ipv4 = 0x1, Ipv6 = 0x2};
-UTILS_EX std::vector<std::string> ip_addresses(int addressType);
+/// @brief address type
+enum  AddressType : unsigned {Ipv4 = 0x1, Ipv6 = 0x2};
+/// @brief  Try to resolve own ipaddresses
+/// @param addressType 
+/// @return list of addresses
+UTILS_EX std::vector<std::string> ip_addresses(unsigned addressType);
 
 
 /**
-  * File Utils
+  * ## File Utils
   */
 
-#if 0
-UTILS_EX long timeStamp(const std::string& filename);
-UTILS_EX std::string appPath();
-#endif
 
+/// Get symbolic link source 
 UTILS_EX std::string get_link(const std::string& fname);
+/// Is dir
 UTILS_EX bool is_dir(const std::string& fname);
+/// Current source dir
 UTILS_EX std::string working_dir();
+/// Current source dir
 UTILS_EX std::string home_dir();
+/// Current root dir - 'C:\' or '/'
 UTILS_EX std::string root_dir();
+/// Absolute path
 UTILS_EX std::string abs_path(const std::string& rpath);
+/// @brief Remove elements from path
+/// @param filename 
+/// @param steps - number of elements removed, default 1
+/// @return - remaining path
 UTILS_EX std::string path_pop(const std::string& filename, int steps = 1);
-UTILS_EX std::vector<std::string> directory(const std::string& dirname);
+/// Directory entries
+UTILS_EX std::vector<std::string> entries(const std::string& dirname);
+
+/// @cond INTERNAL
+[[deprecated("use entries")]]
+inline std::vector<std::string> directory(const std::string& dirname) {return entries(dirname);}
+/// @endcond
+
+/// @brief Read stdout from the process - wait process to end
+/// @param processName 
+/// @param params process parameters
+/// @return optional parameters
 UTILS_EX std::optional<std::string> read_process(const std::string& processName, const std::vector<std::string>& params);
-UTILS_EX std::string base_name(const std::string& filename);
+/// Base name
+UTILS_EX std::string base_name(const std::string& filename); 
+/// Name and extension
 UTILS_EX std::tuple<std::string, std::string> split_name(const std::string& filename);
 /// Generate unique name (prefer <filesystem> if available)
 UTILS_EX std::string temp_name();
+/// Machine host name
 UTILS_EX std::string host_name();
+/// Read environment value
 UTILS_EX std::optional<std::string> system_env(const std::string& env);
+/// Is entry hidden
 UTILS_EX bool is_hidden_entry(const std::string& filename);
+/// is executable
 UTILS_EX bool is_executable(const std::string& filename);
+/// File size
 UTILS_EX SSIZE_T file_size(const std::string& filename);
+/// Rename a file
 UTILS_EX bool rename(const std::string& of, const std::string& nf);
+/// Delete file
 UTILS_EX void remove_file(const std::string& filename);
+/// Test if file with name exits
 UTILS_EX bool file_exists(const std::string& filename);
+/// Try to find a executable from PATH
 UTILS_EX std::optional<std::string> which(const std::string& filename);
 /// push name to path
 UTILS_EX std::string push_path(const std::string& path, const std::string& name);
+/// Construct a path from parameters
 template<class ...NAME>
 std::string push_path(const std::string& path, const std::string& name, NAME...names) {
     return push_path(push_path(path, name), names...);
 }
-///execute a prog
+/// Execute a program
 UTILS_EX int execute(const std::string& prog, const std::string& parameters);
 
 
+/// @brief Write data to temp file
+/// @tparam T 
+/// @param data 
+/// @return filename where data was written to
 template <class T>
 std::string write_to_temp(const T& data) {
     const auto name = GempyreUtils::temp_name();
@@ -465,7 +635,11 @@ std::string write_to_temp(const T& data) {
     return name;
 }
 
-
+/// @brief Read a file data in one read
+/// @tparam T 
+/// @param file 
+/// @param max maximum fule size
+/// @return Vector of data read
 template <class T>
 std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max()) {
    std::vector<T> vec;
@@ -485,14 +659,27 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
    return vec;
  }
 
+/// @brief Read a file in one read 
+/// @param file 
+/// @param max maximum string size
+/// @return string containing file
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
+/// @brief Convert any type to json string, if possible
+/// @param any - assumed to be a type convertive to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values
+/// @return json string
 UTILS_EX std::optional<std::string> to_json_string(const std::any& any);
+/// @brief Concert json string to any type
+/// @param str 
+/// @return 
 UTILS_EX std::optional<std::any> json_to_any(const std::string& str);
 
+/// Check if port is free
 UTILS_EX bool is_available(int port);
 
+/// Base64 encode
 UTILS_EX std::string base64_encode(const unsigned char* bytes, size_t sz);
+/// Base64 decode
 UTILS_EX std::vector<unsigned char> base64_decode(const std::string_view& data);
 
 }

@@ -170,7 +170,7 @@ GempyreUtils::Params GempyreUtils::parse_args(int argc, char* argv[], const std:
 
         const auto index = std::find_if(longOptions, longOptions + args.size(), [opt](const ::option& o){return o.val == opt;});
 
-        const std::string opt_value{optarg ? trimmed(optarg) : std::string{}};
+        const std::string opt_value{optarg ? remove_spaces(optarg) : std::string{}};
         options.emplace(longOptions[std::distance(longOptions, index)].name, opt_value);
     }
 
@@ -405,7 +405,7 @@ bool GempyreUtils::file_exists(const std::string& filename) {
 }
 
 
-std::vector<std::string> GempyreUtils::directory(const std::string& dirname) {
+std::vector<std::string> GempyreUtils::entries(const std::string& dirname) {
     std::vector<std::string> entries;
     if(dirname.empty())
         return entries;
@@ -659,7 +659,7 @@ std::optional<std::string> GempyreUtils::which(const std::string& filename) {
         if(d.empty())
             continue;
         const auto dir = d.back() == '\\' || d.back() == '/' ? d.substr(0, d.size() - 1) : d;
-        for(const auto& name  : directory(dir)) {
+        for(const auto& name  : entries(dir)) {
 #ifdef WINDOWS_OS
              const auto longName = dir + '\\' + name;
 #else
@@ -837,7 +837,7 @@ bool GempyreUtils::is_available(int port) {
     return true;
 }
 
-std::vector<std::string> GempyreUtils::ip_addresses(int addressType) {
+std::vector<std::string> GempyreUtils::ip_addresses(unsigned addressType) {
     std::vector<std::string> addresses;
 #ifndef WINDOWS_OS
     struct ifaddrs *ifaddr;
@@ -968,7 +968,7 @@ int GempyreUtils::execute(const std::string& executable, const std::string& para
 #endif
 }
 
-std::string GempyreUtils::trimmed(const std::string& s) {
+std::string GempyreUtils::remove_spaces(const std::string& s) {
     return substitute(s, R"(\s+)", std::string{});
 }
 

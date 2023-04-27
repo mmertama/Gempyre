@@ -53,7 +53,7 @@ int main(int /*argc*/, char** /*argv*/) {
     openDir.subscribe("click", [&content](const Gempyre::Event&) {
         const auto out = Gempyre::Dialog::open_dir_dialog("dir");
         if(out && !out->empty()) {
-            const auto dirlist = GempyreUtils::directory(*out);
+            const auto dirlist = GempyreUtils::entries(*out);
             std::string line;
             for(const auto& d : dirlist) {
                 line += d +"</br>";

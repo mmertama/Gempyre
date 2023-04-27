@@ -346,6 +346,18 @@ if(PEDANTIC_WARNINGS)
     )
 endif()
 
+if(DOXYGEN)
+# apt-get install doxygen
+# apt-get install graphviz
+    find_package(Doxygen REQUIRED dot)
+    set(DOXYGEN_EXTRACT_ALL FALSE)
+    set(DOXYGEN_INTERNAL_DOCS NO)
+    set(DOXYGEN_EXTRACT_PRIVATE NO)
+    set(BUILTIN_STL_SUPPORT TRUE)
+    doxygen_add_docs(docs
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ALL)
+endif()
 
 #if(APPLE)
 #    if(USE_UWEBSOCKETS)
