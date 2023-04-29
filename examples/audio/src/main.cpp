@@ -10,7 +10,7 @@ int main(int /*argc*/, char** /*argv*/) {
     audio.set_attribute("src", "gempyre.ogg");
     const auto id = audio.id();
     const auto playIt = "document.getElementById(" + GempyreUtils::qq(id) + ").play();";
-    play.subscribe("click", [&ui, playIt] (auto) {
+    play.subscribe(Gempyre::Event::CLICK, [&ui, playIt] (auto) {
         ui.eval(playIt);
     });
     ui.run();

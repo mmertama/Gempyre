@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     //Five ways to load image
 
     //1) external resource using http/https from somewhere
-    Gempyre::Element(ui, "salcat").subscribe("load", [&canvas](const auto&) {
+    Gempyre::Element(ui, "salcat").subscribe(Gempyre::Event::LOAD, [&canvas](const auto&) {
         canvas.paint_image("salcat",  {400, 400, 200, 200});
     }, {"complete"}); // with images its good to wait complete need complate 
    

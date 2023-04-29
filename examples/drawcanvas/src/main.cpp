@@ -114,7 +114,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     bool erase = false;
     //canvas is no KB focus, use root instead!
-    ui.root().subscribe("keydown", [&canvas, &erase](const auto& e) {
+    ui.root().subscribe(Gempyre::Event::KEY_DOWN, [&canvas, &erase](const auto& e) {
         if(GempyreUtils::convert<int>(e.properties.at("keyCode")) != 'T')
             return;
         if(erase) {

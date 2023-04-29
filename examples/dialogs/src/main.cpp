@@ -26,12 +26,12 @@ int main(int /*argc*/, char** /*argv*/) {
     Gempyre::Element openDir(ui, "open_dir");
     Gempyre::Element saveFile(ui, "save_file");
 
-    Gempyre::Element(ui, "exit").subscribe("click", [&ui](const Gempyre::Event&) {
+    Gempyre::Element(ui, "exit").subscribe(Gempyre::Event::CLICK, [&ui](const Gempyre::Event&) {
         ui.exit();
     });
 
 
-    openFile.subscribe("click", [&content](const Gempyre::Event&) {
+    openFile.subscribe(Gempyre::Event::CLICK, [&content](const Gempyre::Event&) {
         const auto out = Gempyre::Dialog::open_file_dialog("Open something", GempyreUtils::home_dir(), {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
             const auto stuff = GempyreUtils::slurp(*out);
@@ -39,7 +39,7 @@ int main(int /*argc*/, char** /*argv*/) {
         }
     });
 
-    openFiles.subscribe("click", [&content](const Gempyre::Event&) {
+    openFiles.subscribe(Gempyre::Event::CLICK, [&content](const Gempyre::Event&) {
         const auto out = Gempyre::Dialog::open_files_dialog();
         if(out && !out->empty()) {
             std::string line;
@@ -50,7 +50,7 @@ int main(int /*argc*/, char** /*argv*/) {
         }
     });
 
-    openDir.subscribe("click", [&content](const Gempyre::Event&) {
+    openDir.subscribe(Gempyre::Event::CLICK, [&content](const Gempyre::Event&) {
         const auto out = Gempyre::Dialog::open_dir_dialog("dir");
         if(out && !out->empty()) {
             const auto dirlist = GempyreUtils::entries(*out);
@@ -62,7 +62,7 @@ int main(int /*argc*/, char** /*argv*/) {
         }
     });
 
-    saveFile.subscribe("click", [&content](const Gempyre::Event&) {
+    saveFile.subscribe(Gempyre::Event::CLICK, [&content](const Gempyre::Event&) {
         const auto out = Gempyre::Dialog::save_file_dialog("", "", {{"Text", {"*.txt", "*.text"}}, {"Log", {"*.log"}}});
         if(out && !out->empty()) {
             if(GempyreUtils::file_exists(*out)) {

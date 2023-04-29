@@ -74,7 +74,7 @@ int main(int /*argc*/, char** /*argv*/) {
           flakes_label.set_html("Iterations: " + std::to_string(iterations));
     };
 
-    flakes_count.subscribe("change", [&draw_a_flake, &update_a_label](const Gempyre::Event& ev) {
+    flakes_count.subscribe(Gempyre::Event::CHANGE, [&draw_a_flake, &update_a_label](const Gempyre::Event& ev) {
         const auto v = GempyreUtils::convert<int>(ev.properties.at("value"));
         update_a_label(v);
         draw_a_flake(v);

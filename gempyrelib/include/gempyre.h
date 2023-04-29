@@ -12,6 +12,7 @@
 #include <tuple>
 
 /**
+  * @file 
   * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
   *
   * gempyre.h
@@ -24,11 +25,13 @@
 
 using namespace std::chrono_literals;
 
+/// @cond INTERNAL
 #ifdef WINDOWS_EXPORT
 #define GEMPYRE_EX __declspec( dllexport )
 #else
 #define GEMPYRE_EX
 #endif
+/// @endcond
 
 
 namespace Gempyre {
@@ -53,52 +56,110 @@ namespace Gempyre {
     GEMPYRE_EX std::tuple<int, int, int> version();
 
     class Data;
+
+     /// @cond INTERNAL
     using DataPtr = std::shared_ptr<Data>;
     using dataT = uint32_t;
+    /// @endcond
 
     struct Event;
 
+    /// @brief Represents all HTML elements on UI
     class GEMPYRE_EX Element {
     public:
         using Attributes = std::unordered_map<std::string, std::string>;
         using Values = std::unordered_map<std::string, std::string>;
         using Elements = std::vector<Element>;
         using SubscribeFunction = std::function<void(const Event&)>;
+
+        /// @brief Rect
         struct Rect {
             int x;
             int y;
             int width;
             int height;
         };
+        
     public:
         /// Copy constructor
         Element(const Element& other) = default;
         /// Move constructor
         Element(Element&& other) = default;
+        /// Copy operator 
         Element& operator=(const Element& other) {m_ui = other.m_ui; m_id = other.m_id; return *this;}
+        /// Move operator
         Element& operator=(Element&& other) {m_ui = other.m_ui; m_id = std::move(other.m_id); return *this;}
 
+        /// @brief Constructor for existing elements
+        /// @param ui - ui ref
+        /// @param id - if of element assumed to exists in HTML document (or DOM)
+        /// @details Constructor is very lightweight and many cases its easier
+        /// to create a new element rather than copy or move one.
         Element(Ui& ui, const std::string& id);
+        /// @brief Constructor for exitting elements
+        /// @param ui - ui ref
+        /// @param id - assumed be unique, if id is not important to preset, use constructor without id.
+        /// @param htmlElement - element type
+        /// @param parent - parent element where this element is created
         Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent);
+        /// @brief Constructor for exitting elements
+        /// @param ui - ui ref
+        /// @param htmlElement - element type
+        /// @param parent - parent element where this element is created
         Element(Ui& ui, const std::string& htmlElement, const Element& parent);
-
+        /// Destructor
         virtual ~Element();
+        /// Get Ui
         [[nodiscard]] const Ui& ui() const { return *m_ui; }
+        /// Get Ui 
         [[nodiscard]] Ui& ui() { return *m_ui;}
-
+        /// Get id of element
         [[nodiscard]] std::string id() const {return m_id;}
+        /// @brief Subscribe UI event
+        /// @param name - name of the event. 
+        /// @param handler - function executed on event.
+        /// @param properties - optional, event properties to listen.
+        /// @param throttle - optional, throttle callback calls
+        /// @return this element
+        /// @details Listen element events. The callback properties is populated only with values listed in properties parameter.
+        /// Some events (like mouse move) can emit so often that it would impact to perormance, that can be eased
+        /// with a suitable throttle value. If two (or more) messages are received in shorted period than throttle value, only the
+        /// last is received.
         Element& subscribe(const std::string& name, const SubscribeFunction& handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
+        /// @brief Set HTML text value of the element
+        /// @param htmlText - HTML encoded string
+        /// @return this element
         Element& set_html(const std::string& htmlText);
+        /// @brief Set HTML a attribute of this element
+        /// @param attr - attribute name
+        /// @param value - attribute value
+        /// @return this element
         Element& set_attribute(const std::string& attr, const std::string& value = "");
+        /// Get this element attributes 
         std::optional<Attributes> attributes() const;
+        /// @brief Set CSS style of this element
+        /// @param style - style name 
+        /// @param value - CSS style value
+        /// @return this element
         Element& set_style(const std::string& style, const std::string& value);
+        /// @brief Remove attribute
+        /// @param attr - attribue name
+        /// @return this Element
         Element& remove_attribute(const std::string& attr);
+        /// @brief Get element styles
+        /// @param keys - style keys to fetch.
         [[nodiscard]] std::optional<Values> styles(const std::vector<std::string>& keys) const;
+        /// Get element children
         [[nodiscard]] std::optional<Elements> children() const;
+        /// Applies to form elements only - receive values bound to the element
         [[nodiscard]] std::optional<Values> values() const;
+        /// Get HTML value bound to this element (does not apply all elements)
         [[nodiscard]] std::optional<std::string> html() const;
+        /// Remove this element from UI
         void remove();
+        /// Get this element type, mostly a HTML tag.
         [[nodiscard]] std::optional<std::string> type() const;
+        /// Get this element UI rect. I.e area it occupies on screen (if applicable)
         [[nodiscard]] std::optional<Rect> rect() const;
     protected:    
         const GempyreInternal& ref() const;
@@ -112,6 +173,43 @@ namespace Gempyre {
     };
 
     struct Event {
+        /// Mouse moving
+        static constexpr auto MOUSE_MOVE = "mousemove";
+        /// Mouse button up
+        static constexpr auto  MOUSE_UP = "mouseup";
+        /// Mouse button down
+        static constexpr auto  MOUSE_DOWN = "mousedown";
+        /// Click event
+        static constexpr auto  MOUSE_CLICK = "click";
+        /// Mouse button double click 
+        static constexpr auto  MOUSE_DBLCLICK = "dblclick";
+        /// Key up
+        static constexpr auto  KEY_UP = "keyup";
+        /// Key pressed
+        static constexpr auto  KEY_PRESS = "keypress";
+        /// Key down
+        static constexpr auto  KEY_DOWN = "keydown";
+        /// Scroll
+        static constexpr auto  SCROLL = "scroll";
+        /// Generic click
+        static constexpr auto  CLICK = "click";
+        /// Generic change
+        static constexpr auto  CHANGE = "change";
+        /// Generic select
+        static constexpr auto  SELECT = "select";
+        /// On focus 
+        static constexpr auto  FOCUS = "focus";
+        /// Off focus
+        static constexpr auto  BLUR = "blur";
+        /// In Focus
+        static constexpr auto  FOCUS_IN = "focusin";
+        /// Focus Out
+        static constexpr auto  FOCUS_OUT = "focusout";
+        /// Load
+        static constexpr auto  LOAD = "load";
+       
+       
+
         Element element;
         std::unordered_map<std::string, std::string> properties;
     };
@@ -119,6 +217,7 @@ namespace Gempyre {
 
     class GEMPYRE_EX Ui {
     public:
+        /// UI flags for a Window UI
         enum UiFlags : unsigned {
             NoResize = 0x1,
             FullScreen = 0x2,
@@ -132,24 +231,39 @@ namespace Gempyre {
             Transparent = 0x200
         };
         
+        /// Resource map type
         using Filemap = std::unordered_map<std::string, std::string>;
+
+        /// @cond INTERNAL
         using TimerId = int;
-        
         static constexpr unsigned short UseDefaultPort = 0; //zero means default port
         static constexpr auto UseDefaultRoot = "";   //zero means default root
-        /// Create UI using default ui app or gempyre.conf
+        /// @endcond
+        
+        /// @brief  Create UI using default ui app or gempyre.conf
+        /// @param filemap resource map used
+        /// @param indexHtml page to show
         Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
-        //Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title = "",  int width = -1, int height = -1, unsigned flags = 0, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
-
-        /// Create UI using given ui app and command line
+        /// @brief Create a browser UI using given ui app and command line.
+        /// @param filemap resource map used.
+        /// @param indexHtml page to show.
+        /// @param browser browser to use.
+        /// @param browser_params params passed to browse.
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser,  const std::string& browser_params, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
-        /// Create window UI
+        /// @brief Create a window UI
+        /// @param filemap resource map used.
+        /// @param indexHtml page to show.
+        /// @param title window title.
+        /// @param width window width - this may be less than a window client area.
+        /// @param height window height - this may be less than a window client area. 
+        /// @param flags flags passed to the window - see UiFlags.
+        /// @param ui_params extra parameters passed to the window.
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height, unsigned flags = 0,
             const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
-
+        /// Destructor.
         ~Ui();
         Ui(const Ui& other) = delete;
         Ui(Ui&& other) = delete;
@@ -165,81 +279,139 @@ namespace Gempyre {
         using ErrorFunction = std::function<void (const std::string& element, const std::string& info)>;
 
 
-        ///The callback is called before before the eventloop exit.
+        /// @brief The callback is called before before the eventloop exit.
+        /// @param onExitFunction 
+        /// @return previous exit function.
         ExitFunction on_exit(const ExitFunction& onExitFunction);
-        ///The callback is called on UI reload.
-        ReloadFunction on_reload(const ReloadFunction& onReleadFunction);
-        ///The callback is called on UI open.
+
+        /// @brief The callback is called on UI reload.
+        /// @param onReloadFunction 
+        /// @return previous reload function.
+        ReloadFunction on_reload(const ReloadFunction& onReloadFunction);
+
+        /// @brief The callback is called on UI open.
+        /// @param onOpenFunction 
+        /// @return previous open function
+        /// @details this function is 1st function that is called when UI is initialized. 
+        /// Hence it can used for tasks that requires fetching information from UI. See <run>.
         OpenFunction on_open(const OpenFunction& onOpenFunction);
-        ///The callback is called on error.
+        /// @brief The callback called on UI error.
+        /// @param onErrorFunction 
+        /// @return previous error function
         ErrorFunction on_error(const ErrorFunction& onErrorFunction);
-        ///Starts the event loop.
+
+        /// @brief Starts the event loop.
+        /// @details The window or browser UI is called only after 'run' and callbacks can be received.
+        /// this also means that no queries can be done before, therefore it is suggested that initialization
+        /// of UI is finalished in <onOpenFunction> callback. 'run' return on UI exit.  
         void run();
 
-        ///Set broser to verbose mode
+        /// @brief Set broser to verbose mode
+        /// @param logging 
         void set_logging(bool logging);
-        ///Executes eval string in UI context.
+        /// @brief Executes eval string in UI context.
+        /// @param eval Javascript to be executed.
         void eval(const std::string& eval);
-        ///Send a debug message on UI.
+        ///Send a debug message to UI. Message is get received is set_logging is true.
         void debug(const std::string& msg);
         ///Show an alert window.
         void alert(const std::string& msg);
-        ///Opens an url in the UI view
+        /// @brief Opens an url in the UI view
+        /// @param url address
+        /// @param name title
         void open(const std::string& url, const std::string& name = "");
 
-        ///Starts a perdiodic timer.
+        /// @brief Start a periodic timer
+        /// @param ms period.
+        /// @param timerFunc callback  
+        /// @return timer id that can be used to cancel this timer.
         TimerId start_periodic(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
-        ///Starts a perdiodic timer.
+        /// @brief Start a periodic timer
+        /// @param ms period.
+        /// @param timerFunc callback  
+        /// @return timer id that can be used to cancel this timer.
         TimerId start_periodic(const std::chrono::milliseconds& ms, const std::function<void ()>& timerFunc);
 
-        ///Starts a single shot timer.
+        /// @brief Starts a single shot timer.
+        /// @param ms period
+        /// @param timerFunc - callback 
+        /// @return timer id that can be used to cancel this timer.
         TimerId after(const std::chrono::milliseconds& ms, const std::function<void (TimerId id)>& timerFunc);
 
-        ///Starts a perdiodic timer.
+        /// @brief Starts a single shot timer.
+        /// @param ms period
+        /// @param timerFunc - callback 
+        /// @return timer id that can be used to cancel this timer.
         TimerId after(const std::chrono::milliseconds& ms, const std::function<void ()>& timerFunc);
 
-        ///Stops a timer.
+        /// Stop a timer.
         bool cancel_timer(TimerId timerId);
 
 
-        ///Get a (virtual) root element.
+        /// Get a (virtual) root element.
         [[nodiscard]] Element root() const;
-        ///Get a local file path an URL, can be used with open.
+        
+        /// Get a local file path an URL, can be used with open.
         [[nodiscard]] std::string address_of(const std::string& filepath) const;
-        ///Get elements by class name
+        
+        /// Get elements by class name
         [[nodiscard]] std::optional<Element::Elements> by_class(const std::string& className) const;
-        ///Get elements by name
+        
+        /// Get elements by name
         [[nodiscard]] std::optional<Element::Elements> by_name(const std::string& className) const;
-        ///Test function to measure round trip time
+        
+        /// Test function to measure round trip time
         [[nodiscard]] std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> ping() const;
-        ///Access an UI extension
+        
+        /// @cond INTERNAL
+        // do extension call - document upon request
         void extension_call(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
-        ///Access an UI extension
+        // get value from extension - document upon request
         [[nodiscard]] std::optional<std::any> extension_get(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        /// @endcond
 
-        ///Get a compiled in resource string.
+        /// @brief Read a resource.
+        /// @param url resource name.
+        /// @return resource as bytes.
         [[nodiscard]] std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
-        ///Add a file data into Gempyre to be accessed via url
+        
+        /// @brief Add a file data into Gempyre to be accessed via url.
+        /// @param url string bound to data.
+        /// @param file filename to read.
+        /// @return success.
         bool add_file(const std::string& url, const std::string& file);
-        ///Add file data into map to be added as a map
+
+        /// @brief Add file data into map to be added as a map.
+        /// @param map resource data.
+        /// @param filename filename to read.
+        /// @return name bound to the file 
         static std::optional<std::string> add_file(Filemap& map, const std::string& filename);
-        ///Starts an UI write batch, no messages are sent to USER until endBatch
+        
+        /// Starts an UI write batch, no messages are sent to USER until endBatch
         void begin_batch();
-        ///Ends an UI read batch, push all stored messages at once.
+        
+        /// Ends an UI read batch, push all stored messages at once.
         void end_batch();
-        ///Set all timers to hold. Can be used to pause UI actions.
+        
+        /// Set all timers to hold. Can be used to pause UI actions.
         void set_timer_on_hold(bool on_hold);
-        ///Tells if timers are on hold.
+        
+        /// Tells if timers are on hold.
         [[nodiscard]] bool is_timer_on_hold() const;
-        ///Get an native UI device pixel ratio.
+        
+        /// Get an native UI device pixel ratio.
         [[nodiscard]] std::optional<double> device_pixel_ratio() const;
-        ///Set application icon, fail silently if backend wont support
+        
+        /// Set application icon, fail silently if backend wont support
         void set_application_icon(const uint8_t* data, size_t dataLen, const std::string& type);
-        /// resize, fail silently if backend wont support
+        
+        /// Resize, fail silently if backend wont support
         void resize(int width, int height);
-        /// set title, fail silently if backend wont support
+        
+        /// Set title, fail silently if backend wont support
         void set_title(const std::string& name);
-        /// load file as a maps
+        
+        /// Read list files as a maps
         static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
 
         // for testing

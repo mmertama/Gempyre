@@ -14,7 +14,7 @@ int main(int /*argc*/, char** /*argv*/) {
     Gempyre::Element text(*ui, "content");
     Gempyre::Element button(*ui, "startbutton");
     button.set_html("Hello?");
-    button.subscribe("click", [&ui, &text](auto) {
+    button.subscribe(Gempyre::Event::CLICK, [&ui, &text](auto) {
         text.set_html("Hello World!");
         const auto p = ui->ping();
         if(p.has_value()) {
@@ -24,12 +24,12 @@ int main(int /*argc*/, char** /*argv*/) {
        }
     });
 
-    Gempyre::Element(*ui, "title").subscribe("change", [&ui](const auto& event)  {
+    Gempyre::Element(*ui, "title").subscribe(Gempyre::Event::CHANGE, [&ui](const auto& event)  {
         const auto title_name = event.properties.at("value");
         ui->set_title(title_name);
     }, {"value"});
 
-    Gempyre::Element(*ui, "open_icon").subscribe("click", [&ui](const auto&)  {
+    Gempyre::Element(*ui, "open_icon").subscribe(Gempyre::Event::CLICK, [&ui](const auto&)  {
         const auto icon_name = Gempyre::Dialog::open_file_dialog("Open Image");
         if(!icon_name)
             return;
@@ -49,7 +49,7 @@ int main(int /*argc*/, char** /*argv*/) {
        }
     });
 
-    Gempyre::Element(*ui, "width").subscribe("change", [&ui](const auto& event)  {
+    Gempyre::Element(*ui, "width").subscribe(Gempyre::Event::CHANGE, [&ui](const auto& event)  {
         const auto w = GempyreUtils::convert<int>(event.properties.at("value"));
         const auto r = ui->root().rect();
         assert(r);
@@ -57,7 +57,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }, {"value"});
 
 
-    Gempyre::Element(*ui, "height").subscribe("change", [&ui](const auto& event)  {
+    Gempyre::Element(*ui, "height").subscribe(Gempyre::Event::CHANGE, [&ui](const auto& event)  {
         const auto h = GempyreUtils::convert<int>(event.properties.at("value"));
         const auto r = ui->root().rect();
         assert(r);

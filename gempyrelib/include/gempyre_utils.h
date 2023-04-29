@@ -96,7 +96,7 @@ public:
     /// @param count  it's size
     /// @return 
     virtual bool do_write(const char* buffer, size_t count) = 0;
-    /// @bried  override to return true if this write supports ANSI colors, default just return false
+    /// @brief  override to return true if this write supports ANSI colors, default just return false
     virtual bool has_ansi() const;
 private:
     LogWriter* m_previousLogWriter{nullptr};
@@ -156,9 +156,10 @@ inline void log_line(LogLevel level, std::ostream& os, const T& e) {
 }
 /// @endcond
 
-/// @brief Write a log line
-/// @param level 
-/// @param list of values to print
+/// @brief Write a log line.
+/// @param log level.
+/// @param e param to print. 
+/// @param args optional more paramters to print.
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
     if(level <= log_level()) {
@@ -230,9 +231,16 @@ enum class ArgType{
     REQ_ARG,    /// Option has an argument 
     OPT_ARG /// Option may have an argument
     };
+
+/// string vector of parameters. Used for parse_params.    
 using ParamList = std::vector<std::string>;
+
+/// string - string value pairs of options. Used for parse_params.
 using Options = std::multimap<std::string, std::string>;
+
+/// a tuple containign ParamList and Options. Used for parse_params.
 using Params = std::tuple<ParamList, Options>;
+
 /// parse arguments
 /// @param argc argc from main
 /// @param argv argv from main
@@ -274,9 +282,9 @@ UTILS_EX std::string chop(const std::string& s, const std::string& chopped);
 UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
 
 /// @brief remove 
-/// @param remove spaces from a string
+/// @param str spaces from a string
 /// @return string
-UTILS_EX std::string remove_spaces(const std::string& s);
+UTILS_EX std::string remove_spaces(const std::string& str);
 
 /// @cond INTERNAL
 template <typename T>
@@ -591,7 +599,7 @@ UTILS_EX std::optional<std::string> read_process(const std::string& processName,
 UTILS_EX std::string base_name(const std::string& filename); 
 /// Name and extension
 UTILS_EX std::tuple<std::string, std::string> split_name(const std::string& filename);
-/// Generate unique name (prefer <filesystem> if available)
+/// Generate unique name (prefer std::filesystem if available)
 UTILS_EX std::string temp_name();
 /// Machine host name
 UTILS_EX std::string host_name();
@@ -637,8 +645,8 @@ std::string write_to_temp(const T& data) {
 
 /// @brief Read a file data in one read
 /// @tparam T 
-/// @param file 
-/// @param max maximum fule size
+/// @param file to read.
+/// @param max maximum amout of data to read.
 /// @return Vector of data read
 template <class T>
 std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max()) {
@@ -660,7 +668,7 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
  }
 
 /// @brief Read a file in one read 
-/// @param file 
+/// @param file file to read
 /// @param max maximum string size
 /// @return string containing file
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
