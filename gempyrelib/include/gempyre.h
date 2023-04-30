@@ -67,25 +67,33 @@ namespace Gempyre {
     /// @brief Represents all HTML elements on UI
     class GEMPYRE_EX Element {
     public:
+        /// @brief Attribute key, value pairs.
         using Attributes = std::unordered_map<std::string, std::string>;
+        /// @brief Value key, value pairs.
         using Values = std::unordered_map<std::string, std::string>;
+        /// @brief Vector of Elements.
         using Elements = std::vector<Element>;
+        /// @brief Callback function for event subcriptions. @see Element::subscribe.
         using SubscribeFunction = std::function<void(const Event&)>;
 
         /// @brief Rect
         struct Rect {
+            /// @brief rectangle x coordinate.
             int x;
+            /// @brief rectangle y coordinate.
             int y;
+            /// @brief rectangle width.
             int width;
+            /// @brief rectangle height.
             int height;
         };
         
     public:
-        /// Copy constructor
+        /// Copy constructor.
         Element(const Element& other) = default;
-        /// Move constructor
+        /// Move constructor.
         Element(Element&& other) = default;
-        /// Copy operator 
+        /// Copy operator. 
         Element& operator=(const Element& other) {m_ui = other.m_ui; m_id = other.m_id; return *this;}
         /// Move operator
         Element& operator=(Element&& other) {m_ui = other.m_ui; m_id = std::move(other.m_id); return *this;}
@@ -161,17 +169,20 @@ namespace Gempyre {
         [[nodiscard]] std::optional<std::string> type() const;
         /// Get this element UI rect. I.e area it occupies on screen (if applicable)
         [[nodiscard]] std::optional<Rect> rect() const;
-    protected:    
+    protected:
+    /// @cond INTERNAL    
         const GempyreInternal& ref() const;
         GempyreInternal& ref();
-        static const std::string generateId(const std::string& prefix);    
+        static const std::string generateId(const std::string& prefix);        
     protected:
         Ui* m_ui;
         std::string m_id;
+    /// @endcond    
     private:   
         friend class GempyreInternal;
     };
 
+    /// @brief Event received
     struct Event {
         /// Mouse moving
         static constexpr auto MOUSE_MOVE = "mousemove";
@@ -208,13 +219,13 @@ namespace Gempyre {
         /// Load
         static constexpr auto  LOAD = "load";
        
-       
-
+        /// @brief element that has emitted the event, the same that did subscription.
         Element element;
+        /// @brief List of requested properties. @see Element::subscribe()
         std::unordered_map<std::string, std::string> properties;
     };
 
-
+    /// @brief The application UI 
     class GEMPYRE_EX Ui {
     public:
         /// UI flags for a Window UI
@@ -243,6 +254,8 @@ namespace Gempyre {
         /// @brief  Create UI using default ui app or gempyre.conf
         /// @param filemap resource map used
         /// @param indexHtml page to show
+        /// @param port optional
+        /// @param root optional
         Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         /// @brief Create a browser UI using given ui app and command line.
@@ -250,6 +263,8 @@ namespace Gempyre {
         /// @param indexHtml page to show.
         /// @param browser browser to use.
         /// @param browser_params params passed to browse.
+        /// @param port optional
+        /// @param root optional
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser,  const std::string& browser_params, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
         /// @brief Create a window UI
@@ -260,6 +275,8 @@ namespace Gempyre {
         /// @param height window height - this may be less than a window client area. 
         /// @param flags flags passed to the window - see UiFlags.
         /// @param ui_params extra parameters passed to the window.
+        /// @param port optional
+        /// @param root optional
         Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height, unsigned flags = 0,
             const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
 
@@ -273,9 +290,13 @@ namespace Gempyre {
         ///Requires Client window to close (that cause the application to close).
         [[deprecated("Prefer exit")]] void close();
 
+        /// @brief Funtion called on exit.
         using ExitFunction = std::function<void ()>;
+        /// @brief Function called on reload. (page reload)
         using ReloadFunction = std::function<void ()>;
+        /// @brief Functin called on open.
         using OpenFunction = std::function<void ()>;
+        /// @brief Function called on UI error.
         using ErrorFunction = std::function<void (const std::string& element, const std::string& info)>;
 
 
@@ -293,7 +314,7 @@ namespace Gempyre {
         /// @param onOpenFunction 
         /// @return previous open function
         /// @details this function is 1st function that is called when UI is initialized. 
-        /// Hence it can used for tasks that requires fetching information from UI. See <run>.
+        /// Hence it can used for tasks that requires fetching information from UI. @see run.
         OpenFunction on_open(const OpenFunction& onOpenFunction);
         /// @brief The callback called on UI error.
         /// @param onErrorFunction 
@@ -303,7 +324,7 @@ namespace Gempyre {
         /// @brief Starts the event loop.
         /// @details The window or browser UI is called only after 'run' and callbacks can be received.
         /// this also means that no queries can be done before, therefore it is suggested that initialization
-        /// of UI is finalished in <onOpenFunction> callback. 'run' return on UI exit.  
+        /// of UI is finalished in @see onOpenFunction callback. 'run' return on UI exit.  
         void run();
 
         /// @brief Set broser to verbose mode
@@ -414,11 +435,12 @@ namespace Gempyre {
         /// Read list files as a maps
         static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
 
+        /// @cond INTERNAL
         // for testing
         void resume();
         // for testing
         void suspend();
-        
+        /// @endcond
     private:
         Ui(const Filemap& filemap, const std::string& indexHtml,
             unsigned short port, const std::string& root,

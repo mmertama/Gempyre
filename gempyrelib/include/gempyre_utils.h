@@ -102,7 +102,7 @@ private:
     LogWriter* m_previousLogWriter{nullptr};
 };
 
-/// @brief Courtesy class to write log into files, see  setLogWriter
+/// @cond INTERNAL
 class UTILS_EX FileLogWriter : public LogWriter {
 public:
     FileLogWriter(const std::string& path);
@@ -112,7 +112,6 @@ protected:
     std::ofstream m_file;
 };
 
-/// @brief Writes log to stdout
 class UTILS_EX StreamLogWriter : public LogWriter {
 public:
     StreamLogWriter(std::ostream& os);
@@ -121,19 +120,20 @@ protected:
 protected:
     std::ostream& m_os;
 };
+/// @endcond
 
-/// @brief set current log level
+/// @brief Set current log level.
 /// @param level  
 UTILS_EX void set_log_level(LogLevel level);
 
-/// @brief  current log level
-/// @return current log level
+/// @brief  Get current log level.
+/// @return current log level.
 UTILS_EX LogLevel log_level(); 
 
 /// @brief Log Level to string
-/// @param LogLevel
-/// @return log level as a string
-UTILS_EX std::string to_str(LogLevel l);
+/// @param log_level that is converted to string.
+/// @return std::string
+UTILS_EX std::string to_str(LogLevel log_level);
 
 /// @cond INTERNAL
 UTILS_EX std::ostream log_stream(LogLevel logLevel);
@@ -157,7 +157,7 @@ inline void log_line(LogLevel level, std::ostream& os, const T& e) {
 /// @endcond
 
 /// @brief Write a log line.
-/// @param log level.
+/// @param level log level of this message.
 /// @param e param to print. 
 /// @param args optional more paramters to print.
 template <typename T, typename ...Args>
@@ -633,7 +633,7 @@ UTILS_EX int execute(const std::string& prog, const std::string& parameters);
 /// @brief Write data to temp file
 /// @tparam T 
 /// @param data 
-/// @return filename where data was written to
+/// @return filename where data was written to.
 template <class T>
 std::string write_to_temp(const T& data) {
     const auto name = GempyreUtils::temp_name();
@@ -643,8 +643,8 @@ std::string write_to_temp(const T& data) {
     return name;
 }
 
-/// @brief Read a file data in one read
-/// @tparam T 
+/// @brief Read a file data in one read.
+/// @tparam T type of value packed in the returned vector.
 /// @param file to read.
 /// @param max maximum amout of data to read.
 /// @return Vector of data read
@@ -668,26 +668,24 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
  }
 
 /// @brief Read a file in one read 
-/// @param file file to read
-/// @param max maximum string size
 /// @return string containing file
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
-/// @brief Convert any type to json string, if possible
-/// @param any - assumed to be a type convertive to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values
-/// @return json string
+/// @brief Convert any type to json string, if possible.
+/// @param any - assumed to be a type convertive to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values.
+/// @return json string.
 UTILS_EX std::optional<std::string> to_json_string(const std::any& any);
 /// @brief Concert json string to any type
 /// @param str 
 /// @return 
 UTILS_EX std::optional<std::any> json_to_any(const std::string& str);
 
-/// Check if port is free
+/// Check if port is free.
 UTILS_EX bool is_available(int port);
 
-/// Base64 encode
+/// Base64 encode.
 UTILS_EX std::string base64_encode(const unsigned char* bytes, size_t sz);
-/// Base64 decode
+/// Base64 decode.
 UTILS_EX std::vector<unsigned char> base64_decode(const std::string_view& data);
 
 }

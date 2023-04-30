@@ -66,6 +66,9 @@ CanvasElement::CanvasElement(Ui& ui, const std::string& id)
     
 CanvasElement::CanvasElement(Ui& ui, const std::string& id, const Element& parent)
         : Element(ui, id, "canvas", parent) {}
+
+CanvasElement::CanvasElement(Ui& ui, const Element& parent)
+        : Element(ui, "canvas", parent) {}
         
 
 CanvasElement::~CanvasElement() {

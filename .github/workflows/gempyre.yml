@@ -72,6 +72,7 @@ jobs:
         
         message("Currenly: ${CMAKE_CURRENT_SOURCE_DIR}, ${CMAKE_CURRENT_LIST_DIR}")
 
+        # is this really executed?
         if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
           execute_process(
             COMMAND "${{ matrix.config.environment_script }}" && set
@@ -86,8 +87,12 @@ jobs:
 
         endif()
 
+        if ("${{ runner.os }}" STREQUAL "ubuntu-latest"
+          set(DOX "-DDOXYGEN=1")
+        endif()
+
         execute_process(
-                COMMAND cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCI_ACTIONS=ON -G Ninja -DACTIONS=TRUE
+                COMMAND cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCI_ACTIONS=ON -G Ninja -DACTIONS=TRUE ${DOX}
                 RESULT_VARIABLE result
                 )
 
