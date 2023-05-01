@@ -25,7 +25,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 * gempyre_graphics.h,  helps developing graphics intensive applications and games.
 * gempyre_client.h, provides file dialogs for Gempyre application. 
 
-LINK_TO_DOXYGEN - https://dev.to/denvercoder1/using-github-actions-to-publish-doxygen-docs-to-github-pages-177g
+[Gempyre Documentation](https://mmertama.github.io/Gempyre/)
 
 ### Linux
 

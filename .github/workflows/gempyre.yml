@@ -52,6 +52,8 @@ jobs:
       if: startsWith(matrix.config.name, 'ubuntu')
       run: |
         sudo apt-get update
+        sudo apt-get install doxygen
+        sudo apt-get install graphviz
         sudo apt-get install ninja-build cmake
         ninja --version
         cmake --version
@@ -87,7 +89,7 @@ jobs:
 
         endif()
 
-        if ("${{ runner.os }}" STREQUAL "ubuntu-latest"
+        if ("${{ matrix.config.os }}" STREQUAL "ubuntu-latest")
           set(DOX "-DDOXYGEN=1")
         endif()
 
@@ -129,6 +131,13 @@ jobs:
           message(FATAL_ERROR "Bad exit status")
         endif()
 
+    - name: Deploy docs
+      if: startsWith(matrix.config.name, 'ubuntu')
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/gempyrelib/html       
+
     - name: Setup Chrome
       uses: browser-actions/setup-chrome@v1  
 
@@ -163,7 +172,7 @@ jobs:
        
     - name: List this folder
       shell: bash
-      run: ls -R
+      run: pwd && ls -R
 
     - name: Install Strip
       run: cmake --install build --prefix install_dir --strip
@@ -175,7 +184,6 @@ jobs:
     - name: Pack
       working-directory: install_dir
       run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
-
 
     - name: Upload
       uses: actions/upload-artifact@v1
@@ -244,4 +252,5 @@ jobs:
     - id: set_upload_url
       run: |
         upload_url=`cat ./upload_url`
-        echo ::set-output name=upload_url::$upload_url        
+        echo ::set-output name=upload_url::$upload_url
+           
