@@ -80,6 +80,110 @@ Gempyre is a library that is linked with the application, except for Android, se
          pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
    ```     
 
+## Example
+
+### Hello world
+As an example, here is a simple Gempyre application with a single button. The UI is written using HTML; please note the <b> <code> &lt;script type="text/javascript" src="gempyre.js"&gt; &lt;/script&gt; </code> </b> line is required for every Gempyre application. The HTML widgets are accessed by their HTML element ids from the C++.
+
+```html 
+
+ <!doctype html>
+
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+
+        <title>Hello</title>
+
+    </head>
+
+    <body>
+
+        <script type="text/javascript" src="gempyre.js"></script>
+
+        <button id="startbutton">...</button>
+
+        <div id="content"></div>
+
+    </body>
+
+</html>
+``` 
+
+And then we have a main.cpp. I discuss here every line by line. At first, gempyre.h is included so it can be used.
+
+```cpp 
+
+#include  <gempyre.h>
+
+ ```
+
+Within Gempyre you normally build in the HTML and other resources, to compose a single file executable. It is preferred that Gempyre is statically linked in, thus the application is just a single file. Therefore distributing and executing Gempyre applications shall be very easy: just run it! There are no runtimes to install nor DLLs to be dependent on; just a single binary executable.
+
+The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ std::string object that will be passed then to the Gempyre::Ui constructor.
+
+```cpp 
+
+#include "hello_resources.h"
+
+int main(int /*argc*/, char** /*argv*/)  {
+
+```
+ 
+
+In the constructor, you provide a mapping between file names and generated data and the HTML page that will be shown.
+
+ ```cpp
+
+   Gempyre::Ui ui({ {"/hello.html", Hellohtml} }, "hello.html");
+
+``` 
+
+HTML elements are represented by Gempyre::Element. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The Gempyre::Element represents any of the HTML elements. It's only inherited class is Gempyre::CanvasElement that implements specific graphics functionalities.
+
+ ```cpp
+
+  Gempyre::Element text(ui, "content");
+
+  Gempyre::Element button(ui, "startbutton");
+
+```
+ 
+
+The Gempyre API provides a set of methods to get and set HTML content, values, and attributes. Here we just use setHTML to apply a given string as an element HTML content.
+
+```cpp 
+
+   button.setHTML("Hello?");
+
+```
+
+The subscribe method listens for element events, and when the button is "clicked" a given function is executed.
+
+ ```cpp
+
+ button.subscribe("click", [&text]() {
+
+      text.setHTML("Hello World!");
+
+    });
+
+```
+
+The Gempyre::Ui::run starts an event loop. In this example, the system default web browser is opened, and the UI is executed on tab (there are more alternatives to have a system looking application) and the application is waiting for the button to be pressed or the browser window to be closed.
+
+```cpp 
+
+  ui.run();
+
+  return 0;
+
+}
+
+```
+
  ### Some example projects using Gempyre
  
  * [Examples](https://github.com/mmertama/Gempyre/tree/raspberry/examples)
