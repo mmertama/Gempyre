@@ -5,10 +5,14 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>gempyre: Main Page</title>
+<title>Gempyre UI Framework: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -21,7 +25,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">gempyre
+   <div id="projectname">Gempyre UI Framework
    &#160;<span id="projectnumber">1.2.1</span>
    </div>
   </td>
@@ -47,6 +51,22 @@ $(function() {
 /* @license-end */</script>
 <div id="main-nav"></div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('index.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -61,15 +81,158 @@ $(function() {
 </iframe>
 </div>
 
-<div class="header">
+<div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">gempyre Documentation</div>  </div>
+<div class="title">Gempyre UI Framework Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="textblock"><p><a class="anchor" id="md__home_runner_work_Gempyre_Gempyre_README"></a> <img src="https://avatars1.githubusercontent.com/u/7837709?s=400&amp;v=4" alt="wqe" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md5"></a>
+Gempyre</h1>
+<h2><a class="anchor" id="autotoc_md6"></a>
+UI Framework</h2>
+<p>Gempyre is a UI multiplatform framework. Supporting Windows, Mac OSX, Linux, Raspberry OS and Android. Gempyre is minimalistic and simple; It is a UI framework without widgets - instead, the UI is composed using common web tools and frameworks. Therefore Gempyre is small, easy to learn and quick to take in use.</p>
+<p>For the application, Gempyre let engine to be implemented using C++ (or Python), the UI can be constructed using CSS and HTML like any front end. All common tools from the web technologies are be available. Gempyre library provides a simple and easy C++ API for a application development and the whole API is only a few dozen calls.</p>
+<p>Gempyre is intended for applications that has a solid C++ core (or C), and allows rapid UI development without extra hassle with platform specific UI development.</p>
+<p>Gempyre is multiplatform, its core is written using C++17 (tested OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.</p>
+<p>Gempyre itself does not contain an application window. The UI is drawn using external application. Some OSes defaults to system browser, some Python webview. However that is fully configurable per application.</p>
+<p>Gempyre is a library that is linked with the application, except for Android, see <a href="https://github.com/mmertama/Gempyre-Android">Gempyre-Android</a>. For Python, install <a href="https://github.com/mmertama/Gempyre-Python">Gempyre-Python</a> on top of Gempyre library.</p>
+<h3><a class="anchor" id="autotoc_md7"></a>
+Gempyre API</h3>
+<ul>
+<li><a class="el" href="gempyre_8h.html">gempyre.h</a>, everything that basic application needs.</li>
+<li><a class="el" href="gempyre__utils_8h.html">gempyre_utils.h</a>, miscellaneous collection or function that helps writing applications.</li>
+<li><a class="el" href="gempyre__graphics_8h_source.html">gempyre_graphics.h</a>, helps developing graphics intensive applications and games.</li>
+<li><a class="el" href="gempyre__client_8h_source.html">gempyre_client.h</a>, provides file dialogs for Gempyre application.</li>
+</ul>
+<p><a href="https://mmertama.github.io/Gempyre/">Gempyre Documentation</a></p>
+<h3><a class="anchor" id="autotoc_md8"></a>
+Linux</h3>
+<ul>
+<li>Run <div class="fragment"><div class="line">linux_install.sh</div>
+</div><!-- fragment --></li>
+</ul>
+<h3><a class="anchor" id="autotoc_md9"></a>
+Mac OSX</h3>
+<ul>
+<li>Run <div class="fragment"><div class="line">osx_install.sh</div>
+</div><!-- fragment --></li>
+</ul>
+<h3><a class="anchor" id="autotoc_md10"></a>
+Windows</h3>
+<ul>
+<li>Install git bash from <a href="https://gitforwindows.org/">https://gitforwindows.org/</a></li>
+<li>Run git clone <a href="https://github.com/mmertama/Gempyre.git">https://github.com/mmertama/Gempyre.git</a> on git bash console.</li>
+</ul>
+<h4><a class="anchor" id="autotoc_md11"></a>
+MSVC</h4>
+<ul>
+<li>Install cmake <a href="https://cmake.org/download/">https://cmake.org/download/</a> (let it to be added in path)</li>
+<li>Install Visual Studio <a href="https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019">https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019</a>, and pick Desktop development with C++</li>
+<li>Install Python (latest, yet tested mostly with 3.10, but 3.6 &gt;= shall be ok) <a href="https://www.python.org/downloads/windows/">https://www.python.org/downloads/windows/</a></li>
+<li>From Windows menu, Visual Studio: Open "x64 Native Tools Command Prompt for VS 2019" (later probably ok)</li>
+<li>Run <div class="fragment"><div class="line">msvc_install.bat</div>
+</div><!-- fragment --></li>
+</ul>
+<h4><a class="anchor" id="autotoc_md12"></a>
+MinGW</h4>
+<ul>
+<li>Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))</li>
+<li>See Instructions <a href="https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc">https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc</a></li>
+<li>Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"</li>
+<li>Run <div class="fragment"><div class="line">mingw_install.sh</div>
+</div><!-- fragment --></li>
+</ul>
+<h3><a class="anchor" id="autotoc_md13"></a>
+Raspberry OS</h3>
+<ul>
+<li>Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17). Tested Raspberry Pi 3 and Raspberry Pi 4. <br  />
+</li>
+<li>Quite late CMake is required, here are <a href="https://snapcraft.io/install/cmake/raspbian#install">snap instructions</a>.</li>
+<li>Run <div class="fragment"><div class="line">pi@raspberrypi:~/Development/Gempyre ./raspberry_install.sh</div>
+</div><!-- fragment --></li>
+<li>When building on Raspberry, please pass -DRASPBERRY=1 for your cmake call. E.g. <div class="fragment"><div class="line">pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1</div>
+</div><!-- fragment --></li>
+</ul>
+<h3><a class="anchor" id="autotoc_md14"></a>
+Some example projects using Gempyre</h3>
+<ul>
+<li><a href="https://github.com/mmertama/Gempyre/tree/raspberry/examples">Examples</a></li>
+<li><a href="https://github.com/mmertama/mandelbrot-Gempyre">mandelbrot-Gempyre</a></li>
+<li><a href="https://github.com/mmertama/treeview-Gempyre">treeview-Gempyre</a></li>
+<li><a href="https://github.com/mmertama/hexview-Gempyre">hexview-Gempyre</a></li>
+<li><a href="https://github.com/mmertama/calc-Gempyre">calc-Gempyre</a></li>
+</ul>
+<h2><a class="anchor" id="autotoc_md15"></a>
+Some future development directions</h2>
+<ul>
+<li>Update / improve documentation (C++ and Python) <br  />
+</li>
+<li>Binary releases (Maybe installer / some packet manager support / pip)</li>
+<li>Support for secure web socket (nice for remote UIs)</li>
+<li>Testing coverage and perf measurements.</li>
+<li>JS testing <br  />
+</li>
+</ul>
+<p>maybe not</p><ul>
+<li>Flatbuffer/protobuf instead of JSON</li>
+<li>Using WASM instead of JS</li>
+<li>POC of Gempyre-Android style architecture also in core.git</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md16"></a>
+Late updates</h2>
+<h3><a class="anchor" id="autotoc_md17"></a>
+2021 1</h3>
+<ul>
+<li>Proper build and install with cmake</li>
+<li>Use GTest for API testing</li>
+<li>Rewrote timers + other smaller fixes</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md18"></a>
+2021 2</h3>
+<ul>
+<li>Lot of fixes and some new utils</li>
+<li>Native application window for OSX, Linux and Windows are using <a href="https://github.com/mmertama/Hiillos">Hiillos</a> <br  />
+</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md19"></a>
+2022 1</h3>
+<ul>
+<li>Lot of fixes</li>
+<li>CI using Github actions</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md20"></a>
+2022 2</h3>
+<ul>
+<li>Lot of fixes</li>
+<li>Raspberry, and improved MinGW support</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md21"></a>
+2023 1</h3>
+<ul>
+<li>Lot of fixed</li>
+<li>API changes and harmonize with GemGui-rs</li>
+<li>Testing coverage</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md22"></a>
+2023 2</h3>
+<ul>
+<li>Python UI fixes</li>
+<li>Performance update</li>
+<li>Refactoring internals</li>
+<li>Ready to change uwebsockets to libwebsockets or websockets++. (however not completed)</li>
+<li>Pedantic and Sanitizers</li>
+<li>Suppress external library warnings (except MSVC not working, it seems :-/ )</li>
+</ul>
+<p>Copyright Markus Mertama 2020, 2021, 2022, 2023 </p>
+</div></div><!-- PageDoc -->
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+  </ul>
+</div>
 </body>
 </html>
