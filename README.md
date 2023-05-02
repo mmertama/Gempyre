@@ -51,7 +51,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 * Install cmake https://cmake.org/download/ (let it to be added in path)
 * Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
 * Install Python (latest, yet tested mostly with 3.10, but 3.6 >= shall be ok) https://www.python.org/downloads/windows/
-* From Windows menu, Visual Studio: Open "x64 Native Tools Command Prompt for VS 2019" (later propably ok)
+* From Windows menu, Visual Studio: Open "x64 Native Tools Command Prompt for VS 2019" (later probably ok)
 * Run 
    ```bat
     msvc_install.bat
@@ -70,7 +70,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 ### Raspberry OS
 
  * Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17). Tested Raspberry Pi 3 and Raspberry Pi 4.  
- * Quite late Cmake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
+ * Quite late CMake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
  * Run
   ```bash
         pi@raspberrypi:~/Development/Gempyre ./raspberry_install.sh
@@ -101,7 +101,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 
 maybe not
 * Flatbuffer/protobuf instead of JSON
-* Using WASM instean of JS
+* Using WASM instead of JS
 * POC of Gempyre-Android style architecture also in core.git
 
 
@@ -127,7 +127,7 @@ Late updates
 ### 2022 2
 
 * Lot of fixes
-* Raspberry, and imporoved MinGW support
+* Raspberry, and improved MinGW support
 
 ### 2023 1
 * Lot of fixed
@@ -139,8 +139,8 @@ Late updates
 * Performance update
 * Refactoring internals
 * Ready to change uwebsockets to libwebsockets or websockets++. (however not completed)
-* Pedantic and Sanizers
-* Supress external libry warnings (except MSVC not working, it seems :-/ )
+* Pedantic and Sanitizers
+* Suppress external library warnings (except MSVC not working, it seems :-/ )
 
 Copyright Markus Mertama 2020, 2021, 2022, 2023
 

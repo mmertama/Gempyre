@@ -353,9 +353,26 @@ if(DOXYGEN)
     set(DOXYGEN_EXTRACT_ALL FALSE)
     set(DOXYGEN_INTERNAL_DOCS NO)
     set(DOXYGEN_EXTRACT_PRIVATE NO)
-    set(BUILTIN_STL_SUPPORT TRUE)
+    set(DOXYGEN_BUILTIN_STL_SUPPORT TRUE)
+
+    set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
+    set(DOXYGEN_DOT_IMAGE_FORMAT svg) # use vector graphics, not png
+    set(DOXYGEN_DOT_TRANSPARENT YES) # especially good for dark mode (at least in firefox, currently not chrome)
+
+    set(DOXYGEN_GENERATE_TREEVIEW YES)
+    set(DOXYGEN_PROJECT_NAME "Gempyre UI Framework")
+    set(DOXYGEN_MARKDOWN_SUPPORT YES)
+
+    set(DOXYGEN_FILE_PATTERNS           *.c *.cc *.cxx *.cpp *.c++ *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp *.h++ *.inc README.md)
+    #set(DOXYGEN_WARN_NO_PARAMDOC        YES)
+
+
+    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/README.md")
+        message(FATAL_ERROR "${CMAKE_SOURCE_DIR}/README.md not found!")
+    endif()
     doxygen_add_docs(docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/README.md
         ALL)
     if(SPELL)
     set(DICT "${CMAKE_SOURCE_DIR}/aspell/dict.txt")

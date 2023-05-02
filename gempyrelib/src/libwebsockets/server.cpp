@@ -93,7 +93,7 @@ bool LWS_Server::get(const std::string_view get_param) const {
           m_send_buffer->apply(std::move(*serverData), std::string(mime_type));
           return true;
      }
-     // this propably could be replaced with lws_serve_http_file, tbd if works ok TODO
+     // this probably could be replaced with lws_serve_http_file, tbd if works ok TODO
      GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "server get does an file query");
      const auto fullPath = parseQuery(get_param);
      if(GempyreUtils::file_exists(fullPath)) {
