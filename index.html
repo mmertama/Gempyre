@@ -154,7 +154,65 @@ Raspberry OS</h3>
 <li>When building on Raspberry, please pass -DRASPBERRY=1 for your cmake call. E.g. <div class="fragment"><div class="line">pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md14"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
+Example</h2>
+<h3><a class="anchor" id="autotoc_md15"></a>
+Hello world</h3>
+<p>As an example, here is a simple Gempyre application with a single button. The UI is written using HTML; please note the <b> <code> &lt;script type="text/javascript" src="gempyre.js"&gt; &lt;/script&gt; </code> </b> line is required for every Gempyre application. The HTML widgets are accessed by their HTML element ids from the C++.</p>
+<div class="fragment"><div class="line"> &lt;!doctype html&gt;</div>
+<div class="line"> </div>
+<div class="line">&lt;html lang=&quot;en&quot;&gt;</div>
+<div class="line"> </div>
+<div class="line">    &lt;head&gt;</div>
+<div class="line"> </div>
+<div class="line">        &lt;meta charset=&quot;utf-8&quot;&gt;</div>
+<div class="line"> </div>
+<div class="line">        &lt;title&gt;Hello&lt;/title&gt;</div>
+<div class="line"> </div>
+<div class="line">    &lt;/head&gt;</div>
+<div class="line"> </div>
+<div class="line">    &lt;body&gt;</div>
+<div class="line"> </div>
+<div class="line">        &lt;script type=&quot;text/javascript&quot; src=&quot;gempyre.js&quot;&gt;&lt;/script&gt;</div>
+<div class="line"> </div>
+<div class="line">        &lt;button id=&quot;startbutton&quot;&gt;...&lt;/button&gt;</div>
+<div class="line"> </div>
+<div class="line">        &lt;div id=&quot;content&quot;&gt;&lt;/div&gt;</div>
+<div class="line"> </div>
+<div class="line">    &lt;/body&gt;</div>
+<div class="line"> </div>
+<div class="line">&lt;/html&gt;</div>
+</div><!-- fragment --><p>And then we have a main.cpp. I discuss here every line by line. At first, <a class="el" href="gempyre_8h.html">gempyre.h</a> is included so it can be used.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include  &lt;<a class="code" href="gempyre_8h.html">gempyre.h</a>&gt;</span></div>
+<div class="ttc" id="agempyre_8h_html"><div class="ttname"><a href="gempyre_8h.html">gempyre.h</a></div></div>
+</div><!-- fragment --><p>Within Gempyre you normally build in the HTML and other resources, to compose a single file executable. It is preferred that Gempyre is statically linked in, thus the application is just a single file. Therefore distributing and executing Gempyre applications shall be very easy: just run it! There are no runtimes to install nor DLLs to be dependent on; just a single binary executable.</p>
+<p>The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ std::string object that will be passed then to the <a class="el" href="classGempyre_1_1Ui.html" title="The application UI.">Gempyre::Ui</a> constructor.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;hello_resources.h&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> <span class="comment">/*argc*/</span>, <span class="keywordtype">char</span>** <span class="comment">/*argv*/</span>)  {</div>
+</div><!-- fragment --><p>In the constructor, you provide a mapping between file names and generated data and the HTML page that will be shown.</p>
+<div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Ui.html">Gempyre::Ui</a> ui({ {<span class="stringliteral">&quot;/hello.html&quot;</span>, Hellohtml} }, <span class="stringliteral">&quot;hello.html&quot;</span>);</div>
+<div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:230</div></div>
+</div><!-- fragment --><p>HTML elements are represented by <a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a>. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The <a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a> represents any of the HTML elements. It's only inherited class is <a class="el" href="classGempyre_1_1CanvasElement.html" title="Graphics element.">Gempyre::CanvasElement</a> that implements specific graphics functionalities.</p>
+<div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> text(ui, <span class="stringliteral">&quot;content&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> button(ui, <span class="stringliteral">&quot;startbutton&quot;</span>);</div>
+<div class="ttc" id="aclassGempyre_1_1Element_html"><div class="ttname"><a href="classGempyre_1_1Element.html">Gempyre::Element</a></div><div class="ttdoc">Represents all HTML elements on UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:69</div></div>
+</div><!-- fragment --><p>The Gempyre API provides a set of methods to get and set HTML content, values, and attributes. Here we just use setHTML to apply a given string as an element HTML content.</p>
+<div class="fragment"><div class="line">button.setHTML(<span class="stringliteral">&quot;Hello?&quot;</span>);</div>
+</div><!-- fragment --><p>The subscribe method listens for element events, and when the button is "clicked" a given function is executed.</p>
+<div class="fragment"><div class="line">button.subscribe(<span class="stringliteral">&quot;click&quot;</span>, [&amp;text]() {</div>
+<div class="line"> </div>
+<div class="line">     text.setHTML(<span class="stringliteral">&quot;Hello World!&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line">   });</div>
+</div><!-- fragment --><p>The <a class="el" href="classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d" title="Starts the event loop.">Gempyre::Ui::run</a> starts an event loop. In this example, the system default web browser is opened, and the UI is executed on tab (there are more alternatives to have a system looking application) and the application is waiting for the button to be pressed or the browser window to be closed.</p>
+<div class="fragment"><div class="line">  ui.run();</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">return</span> 0;</div>
+<div class="line"> </div>
+<div class="line">}</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md16"></a>
 Some example projects using Gempyre</h3>
 <ul>
 <li><a href="https://github.com/mmertama/Gempyre/tree/raspberry/examples">Examples</a></li>
@@ -163,7 +221,7 @@ Some example projects using Gempyre</h3>
 <li><a href="https://github.com/mmertama/hexview-Gempyre">hexview-Gempyre</a></li>
 <li><a href="https://github.com/mmertama/calc-Gempyre">calc-Gempyre</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 Some future development directions</h2>
 <ul>
 <li>Update / improve documentation (C++ and Python) <br  />
@@ -179,42 +237,42 @@ Some future development directions</h2>
 <li>Using WASM instead of JS</li>
 <li>POC of Gempyre-Android style architecture also in core.git</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md16"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Late updates</h2>
-<h3><a class="anchor" id="autotoc_md17"></a>
+<h3><a class="anchor" id="autotoc_md19"></a>
 2021 1</h3>
 <ul>
 <li>Proper build and install with cmake</li>
 <li>Use GTest for API testing</li>
 <li>Rewrote timers + other smaller fixes</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md18"></a>
+<h3><a class="anchor" id="autotoc_md20"></a>
 2021 2</h3>
 <ul>
 <li>Lot of fixes and some new utils</li>
 <li>Native application window for OSX, Linux and Windows are using <a href="https://github.com/mmertama/Hiillos">Hiillos</a> <br  />
 </li>
 </ul>
-<h3><a class="anchor" id="autotoc_md19"></a>
+<h3><a class="anchor" id="autotoc_md21"></a>
 2022 1</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>CI using Github actions</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md20"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 2022 2</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>Raspberry, and improved MinGW support</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md21"></a>
+<h3><a class="anchor" id="autotoc_md23"></a>
 2023 1</h3>
 <ul>
 <li>Lot of fixed</li>
 <li>API changes and harmonize with GemGui-rs</li>
 <li>Testing coverage</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md22"></a>
+<h3><a class="anchor" id="autotoc_md24"></a>
 2023 2</h3>
 <ul>
 <li>Python UI fixes</li>
