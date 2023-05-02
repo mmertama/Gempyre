@@ -47,7 +47,7 @@ namespace Gempyre {
     template <class T> class IdList;
     template <class K, class T> class EventMap;
 
-    /// set debuging on/off
+    /// set debugging on/off
     GEMPYRE_EX void set_debug(bool isDebug = true);
    
     /// Internal for Android
@@ -73,7 +73,7 @@ namespace Gempyre {
         using Values = std::unordered_map<std::string, std::string>;
         /// @brief Vector of Elements.
         using Elements = std::vector<Element>;
-        /// @brief Callback function for event subcriptions. @see Element::subscribe.
+        /// @brief Callback function for event subscriptions. @see Element::subscribe.
         using SubscribeFunction = std::function<void(const Event&)>;
 
         /// @brief Rect
@@ -104,13 +104,13 @@ namespace Gempyre {
         /// @details Constructor is very lightweight and many cases its easier
         /// to create a new element rather than copy or move one.
         Element(Ui& ui, const std::string& id);
-        /// @brief Constructor for exitting elements
+        /// @brief Constructor for exiting elements
         /// @param ui - ui ref
         /// @param id - assumed be unique, if id is not important to preset, use constructor without id.
         /// @param htmlElement - element type
         /// @param parent - parent element where this element is created
         Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent);
-        /// @brief Constructor for exitting elements
+        /// @brief Constructor for exiting elements
         /// @param ui - ui ref
         /// @param htmlElement - element type
         /// @param parent - parent element where this element is created
@@ -130,7 +130,7 @@ namespace Gempyre {
         /// @param throttle - optional, throttle callback calls
         /// @return this element
         /// @details Listen element events. The callback properties is populated only with values listed in properties parameter.
-        /// Some events (like mouse move) can emit so often that it would impact to perormance, that can be eased
+        /// Some events (like mouse move) can emit so often that it would impact to performance, that can be eased
         /// with a suitable throttle value. If two (or more) messages are received in shorted period than throttle value, only the
         /// last is received.
         Element& subscribe(const std::string& name, const SubscribeFunction& handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
@@ -151,7 +151,7 @@ namespace Gempyre {
         /// @return this element
         Element& set_style(const std::string& style, const std::string& value);
         /// @brief Remove attribute
-        /// @param attr - attribue name
+        /// @param attr - attribute name
         /// @return this Element
         Element& remove_attribute(const std::string& attr);
         /// @brief Get element styles
@@ -290,11 +290,11 @@ namespace Gempyre {
         ///Requires Client window to close (that cause the application to close).
         [[deprecated("Prefer exit")]] void close();
 
-        /// @brief Funtion called on exit.
+        /// @brief Function called on exit.
         using ExitFunction = std::function<void ()>;
         /// @brief Function called on reload. (page reload)
         using ReloadFunction = std::function<void ()>;
-        /// @brief Functin called on open.
+        /// @brief Function called on open.x
         using OpenFunction = std::function<void ()>;
         /// @brief Function called on UI error.
         using ErrorFunction = std::function<void (const std::string& element, const std::string& info)>;
@@ -327,7 +327,7 @@ namespace Gempyre {
         /// of UI is finalished in @see onOpenFunction callback. 'run' return on UI exit.  
         void run();
 
-        /// @brief Set broser to verbose mode
+        /// @brief Set browser to verbose mode
         /// @param logging 
         void set_logging(bool logging);
         /// @brief Executes eval string in UI context.

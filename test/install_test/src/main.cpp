@@ -5,7 +5,7 @@ int main(int /*argc*/, char** /*argv*/)  {
   Gempyre::Ui ui({{"/hello.html", Hellohtml}}, "hello.html", "\"Welcome!\"", 250, 150);
   Gempyre::Element text(ui, "content");
   Gempyre::Element button(ui, "startbutton");
-  button.subscribe("click", [&text](const Gempyre::Event&) {
+  button.subscribe(Gempyre::Event::CLICK, [&text](const Gempyre::Event&) {
     text.set_html("Hello World!");
     });
   int count = 5; 

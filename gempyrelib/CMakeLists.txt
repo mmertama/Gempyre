@@ -357,6 +357,21 @@ if(DOXYGEN)
     doxygen_add_docs(docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ALL)
+    if(SPELL)
+    set(DICT "${CMAKE_SOURCE_DIR}/aspell/dict.txt")
+    set(REPL "${CMAKE_SOURCE_DIR}/aspell/repl.txt")
+    # if spellchecker lists any words, either fix that or add into aspell/gempyre_words.txt
+    set(SPELL_CMD "find . -type f -name \"*.html\" -exec cat {} \\; | aspell list -H -p ${CMAKE_SOURCE_DIR}/aspell/gempyre_words.txt | sort | uniq")
+    set(SPELL_CMD_TEST_0 "if [[ $( ${SPELL_CMD} | wc -l) -ne 0 ]]; then echo Spelling errors:; fi")
+    set(SPELL_CMD_TEST_1 "if [[ $( ${SPELL_CMD} | wc -l) -ne 0 ]]; then exit 1; fi")
+    add_custom_command(TARGET docs POST_BUILD
+        COMMAND bash -c "${SPELL_CMD_TEST_0}"
+        COMMAND bash -c "${SPELL_CMD}"
+        COMMAND bash -c "${SPELL_CMD_TEST_1}"
+        COMMAND echo ""
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
+        VERBATIM)
+    endif()    
 endif()
 
 #if(APPLE)

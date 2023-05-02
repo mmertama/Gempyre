@@ -23,7 +23,7 @@
   *
   * gempyre_utils.h contains a collection utility functions used internally within Gempyre
   * implementation and test applications. The are in API as they may be useful for any 
-  * developer. Gempyre-Python do not wrap these as Python asset have similar functins
+  * developer. Gempyre-Python do not wrap these as Python asset have similar functions
   * in internal or pip packages.
   */
 
@@ -80,9 +80,9 @@ enum class LogLevel : int {
 /// @brief Parent class for LogWriters
 class LogWriter {
 public:
-    /// @brief Constuctor
+    /// @brief Constructor
     LogWriter();
-    /// @brief Destuctor
+    /// @brief Destructor
     virtual ~LogWriter(); 
     LogWriter(const GempyreUtils::LogWriter&) = delete;
     LogWriter& operator=(const GempyreUtils::LogWriter&) = delete; 
@@ -159,7 +159,7 @@ inline void log_line(LogLevel level, std::ostream& os, const T& e) {
 /// @brief Write a log line.
 /// @param level log level of this message.
 /// @param e param to print. 
-/// @param args optional more paramters to print.
+/// @param args optional more parameters to print.
 template <typename T, typename ...Args>
 inline void log(LogLevel level, const T& e, Args... args) {
     if(level <= log_level()) {
@@ -238,14 +238,14 @@ using ParamList = std::vector<std::string>;
 /// string - string value pairs of options. Used for parse_params.
 using Options = std::multimap<std::string, std::string>;
 
-/// a tuple containign ParamList and Options. Used for parse_params.
+/// a tuple containing ParamList and Options. Used for parse_params.
 using Params = std::tuple<ParamList, Options>;
 
 /// parse arguments
 /// @param argc argc from main
 /// @param argv argv from main
 /// @param args Optional arguments, each tuple of 'long name', 'short name' and type
-/// @return tuple of ParamList and Options, where ParamtList is vector of positional parameters and Options is map of options and their possible values.
+/// @return tuple of ParamList and Options, where ParamList is vector of positional parameters and Options is map of options and their possible values.
 UTILS_EX Params parse_args(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
 
 /// @cond INTERNAL
@@ -275,7 +275,7 @@ UTILS_EX std::string chop(const std::string& s);
 UTILS_EX std::string chop(const std::string& s, const std::string& chopped);
 
 /// @brief replace a substrings from a string
-/// @param str orginal string
+/// @param str original string
 /// @param substring  regular expression
 /// @param substitution  replacement
 /// @return string
@@ -310,7 +310,7 @@ template <typename T>
 std::optional<T> parse(const std::string& source) {
     std::istringstream ss(source);
     T v;
-    static_cast<std::istream&>(ss) >> v;   //MSVC said it would be othwerwise ambiguous
+    static_cast<std::istream&>(ss) >> v;   //MSVC said it would be otherwise ambiguous
     return !ss.fail() ? std::make_optional(v) : std::nullopt;
 }
 
@@ -646,7 +646,7 @@ std::string write_to_temp(const T& data) {
 /// @brief Read a file data in one read.
 /// @tparam T type of value packed in the returned vector.
 /// @param file to read.
-/// @param max maximum amout of data to read.
+/// @param max maximum amount of data to read.
 /// @return Vector of data read
 template <class T>
 std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max()) {
@@ -672,7 +672,7 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
 UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
 
 /// @brief Convert any type to json string, if possible.
-/// @param any - assumed to be a type convertive to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values.
+/// @param any - assumed to be a type convertible to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values.
 /// @return json string.
 UTILS_EX std::optional<std::string> to_json_string(const std::any& any);
 /// @brief Concert json string to any type

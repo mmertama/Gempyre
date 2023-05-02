@@ -34,7 +34,7 @@ public:
     /// @brief Function type for draw notifies. @see CanvasElement::draw_completed and @see DrawNotify.
     using DrawCallback = std::function<void()>;
     
-    /// set intial draw, @see CanvasElement::draw_completed()
+    /// set initial draw, @see CanvasElement::draw_completed()
     enum class DrawNotify{NoKick, Kick};
     
     /// Destructor.
@@ -69,7 +69,7 @@ public:
     CanvasElement& operator=(CanvasElement&& other);
 
     /// @brief Add an image into HTML DOM tree.
-    /// @param url address of image, can be either a resoure or any http url.
+    /// @param url address of image, can be either a resource or any http url.
     /// @param loaded callback called when image is loaded.
     /// @return image id.
     std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
@@ -112,7 +112,7 @@ public:
     /// @param kick - optional whether callback is called 1st time automatically.
     /// @details - When doing animation or frequent drawing, please do no call draw functions inside timer function.
     /// The preferred way is to to do animation in timer function, but use draw_completed to do the actual drawing. 
-    /// draw_completed do drawing in the optimamal frequncy (as fast the system can do it without consuming all CPU).
+    /// draw_completed do drawing in the optimal frequency (as fast the system can do it without consuming all CPU).
     /// @note
     /// @code{.cpp}
     /// canvas_element.draw_completed([this]() {draw_frame();}, Gempyre::CanvasElement::DrawNotify::Kick);
@@ -236,7 +236,7 @@ public:
     /// @brief Constructor - zero size, use @see create() to create the actual bitmap.
     Bitmap();
     
-    /// @brief Mve constructor. 
+    /// @brief Move constructor. 
     Bitmap(Bitmap&& other) = default;
     
     /// Copy constructor - does not copy the data, for deep copy @see clone() 
@@ -310,7 +310,7 @@ private:
 /// @brief - wrap up Javascript draw commands.
 class FrameComposer {
 public:
-    /// @brief Constrctor.
+    /// @brief Constructor.
     FrameComposer() {}
     /// @brief Construct from CommandList. 
     FrameComposer(Gempyre::CanvasElement::CommandList& lst) : m_composition(lst) {}
