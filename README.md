@@ -197,7 +197,6 @@ The Gempyre::Ui::run starts an event loop. In this example, the system default w
  Some future development directions
 ---------------------
 
-* Update / improve documentation (C++ and Python)  
 * Binary releases (Maybe installer / some packet manager support / pip)
 * Support for secure web socket (nice for remote UIs)
 * Testing coverage and perf measurements.
@@ -245,6 +244,7 @@ Late updates
 * Ready to change uwebsockets to libwebsockets or websockets++. (however not completed)
 * Pedantic and Sanitizers
 * Suppress external library warnings (except MSVC not working, it seems :-/ )
+* Update / improve documentation 
 
 Copyright Markus Mertama 2020, 2021, 2022, 2023
 
