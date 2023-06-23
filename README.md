@@ -81,7 +81,11 @@ Gempyre is a library that is linked with the application, except for Android, se
    ```     
 ## FAQ
 Q: After installation you get: "WARNING: webview is not installed -> verification is not completed!"
-A: Most likely python3 webview is not installed. See installation from [pywebview](https://pywebview.flowrl.com/guide/installation.html). The error is not fatal, but as a consequese the default UI is not drawn on its own window and it fallbacks to the default browser. 
+A: Most likely python3 webview is not installed. See installation from [pywebview](https://pywebview.flowrl.com/guide/installation.html). Please also make sure websockets python library is installed. 
+```bash
+$ pip3 install pywebview && pip3 install websockets
+```
+The error is not fatal, but as a consequese the default UI is not drawn on its own window and it fallbacks to the default browser. 
 
 ## Example
 
