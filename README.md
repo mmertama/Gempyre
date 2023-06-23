@@ -79,11 +79,38 @@ Gempyre is a library that is linked with the application, except for Android, se
   ```bash
          pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
    ```     
+## FAQ
+Q: After installation you get: "WARNING: webview is not installed -> verification is not completed!"
+A: Most likely python3 webview is not installed. Try install with pip. The error is not fatal, but as a consequese the default UI is not drawn on its own window and it fallbacks to the default browser.
 
 ## Example
 
 ### Hello world
 As an example, here is a simple Gempyre application with a single button. The UI is written using HTML; please note the <b> <code> &lt;script type="text/javascript" src="gempyre.js"&gt; &lt;/script&gt; </code> </b> line is required for every Gempyre application. The HTML widgets are accessed by their HTML element ids from the C++.
+
+```cmake
+cmake_minimum_required(VERSION 3.26)
+
+project( hello VERSION 1.0 LANGUAGES CXX)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+# Find Gempyre after installation 
+find_package(Gempyre REQUIRED)
+
+# Add gempyre_add_resources
+include(gempyre)
+
+gempyre_add_resources(PROJECT ${PROJECT_NAME}
+    TARGET include/hello_resources.h 
+    SOURCES gui/hello.html)
+
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+target_include_directories(${PROJECT_NAME} PRIVATE . include)
+target_link_libraries(${PROJECT_NAME} gempyre::gempyre)
+
+```
 
 ```html 
 
