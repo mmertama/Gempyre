@@ -80,12 +80,19 @@ Gempyre is a library that is linked with the application, except for Android, se
          pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
    ```     
 ## FAQ
-Q: After installation you get: "WARNING: webview is not installed -> verification is not completed!"
+Q: After installation you get: "WARNING: webview is not installed -> verification is not completed!", what is that?</br>
 A: Most likely python3 webview is not installed. See installation from [pywebview](https://pywebview.flowrl.com/guide/installation.html). Please also make sure websockets python library is installed. 
 ```bash
 $ pip3 install pywebview && pip3 install websockets
 ```
-The error is not fatal, but as a consequese the default UI is not drawn on its own window and it fallbacks to the default browser. 
+The error is not fatal, but as a consequese the default UI is not drawn on its own window and it fallbacks to the default browser.
+
+Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API?</br>
+A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I set a checkbox element checked programmatically.
+
+```cpp
+ui.eval("document.getElementById(\"" + check_box.id() + "\").checked = true;");
+```
 
 ## Example
 
