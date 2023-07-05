@@ -5,9 +5,13 @@ else()
     set(LIB_WS_VER "v4.3.2")
 endif()
 
+# this was GIT_REPOSITORY https://libwebsockets.org/repo/libwebsockets
+# but the respository seems not be that responding and hence changed
+# to github
+
 FetchContent_Declare(
   libwebsockets
-  GIT_REPOSITORY https://libwebsockets.org/repo/libwebsockets
+  GIT_REPOSITORY https://github.com/warmcat/libwebsockets.git
   GIT_TAG ${LIB_WS_VER}
   GIT_PROGRESS TRUE
 )
