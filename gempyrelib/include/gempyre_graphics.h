@@ -200,6 +200,11 @@ namespace  Color {
     return v;
     }
 
+    /// Get components as a HTML string 
+    [[nodiscard]] static inline std::string to_string(type r, type g, type b, type a = 0xFF) {
+        return a == 0xFF ? Gempyre::Color::rgb(Gempyre::Color::rgb(r, g, b)) : Gempyre::Color::rgba(Gempyre::Color::rgba(r, g, b, a));
+    }
+
     /// @brief Black
     static constexpr Color::type Black      = Color::rgba(0, 0, 0, 0xFF);
     /// @brief White
@@ -320,10 +325,13 @@ public:
     FrameComposer(const FrameComposer& other) = default;
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer stroke_rect(const Gempyre::Element::Rect& r) {return push({"strokeRect", r.x, r.y, r.width, r.height});}
+    FrameComposer stroke_rect(double x, double y, double w, double h) {return push({"strokeRect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer clear_rect(const Gempyre::Element::Rect& r) {return push({"clearRect", r.x, r.y, r.width, r.height});}
+    FrameComposer clear_rect(double x, double y, double w, double h) {return push({"clearRect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer fill_rect(const Gempyre::Element::Rect& r) {return push({"fillRect", r.x, r.y, r.width, r.height});}
+    FrameComposer fill_rect(double x, double y, double w, double h) {return push({"fillRect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer fill_text(const std::string& text, double x, double y) {return push({"fillText", text, x, y});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
@@ -353,6 +361,7 @@ public:
         return push({"arcTo", x1, y1, x2, y2, radius});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer rect(const Gempyre::Element::Rect& r) {return push({"rect", r.x, r.y, r.width, r.height});}
+    FrameComposer rect(double x, double y, double w, double h) {return push({"rect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer stroke() {return push({"stroke"});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
@@ -381,8 +390,10 @@ public:
     FrameComposer draw_image(const std::string& id, double x, double y)  {return push({"drawImage", id, x, y});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer draw_image(const std::string& id, const Gempyre::Element::Rect& rect)  {return push({"drawImageRect", id, rect.x, rect.y, rect.width, rect.height});}
+    FrameComposer draw_image(const std::string& id, double x, double y, double w, double h)  {return push({"drawImageRect", id, x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer draw_image(const std::string& id, const Gempyre::Element::Rect& clip, const Gempyre::Element::Rect& rect) {return push({"drawImageClip", id, clip.x, clip.y, clip.width, clip.height, rect.x, rect.y, rect.width, rect.height});}
+    FrameComposer draw_image(const std::string& id, double cx, double cy, double cw, double ch, double x, double y, double w, double h) {return push({"drawImageClip", id, cx, cy, cw, ch, x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer text_baseline(const std::string& textBaseline) {return push({"textBaseline", textBaseline});}
     /// @brief Get command list composed.
