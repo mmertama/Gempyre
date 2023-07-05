@@ -221,6 +221,35 @@ The Gempyre::Ui::run starts an event loop. In this example, the system default w
 }
 
 ```
+### Selection list
+Dynamic selection list (or combo box) is as easy as adding an empty <i>select</i> element in the Ui HTML code:
+```html
+<select name="levels" id="level_select">
+</select>
+```
+and then fill it in cpp side:
+
+```cpp
+Gempyre::Element select{ui, "level_select"};
+for(const std::string& level : wp.levels()) {
+   Gempyre::Element opt{ui, "option", select};
+   opt.set_attribute("value", level);
+   opt.set_html(level);
+   }
+```
+
+to read a value upon change you subscribe it's change:
+
+```cpp
+select.subscribe(Gempyre::Event::CHANGE, [](const auto& e) {
+    std::cout << e.properties.at("value") << std::endl;
+}, {"value"});
+```
+Please note that as each event has a lot of properties, you have to list what you 
+need. For a selection change (as well as most of the inputs) a <b>value</b> is used.   
+
+
+
 
  ### Some example projects using Gempyre
  
