@@ -85,7 +85,7 @@ A: Most likely python3 webview is not installed. See installation from [pywebvie
 ```bash
 $ pip3 install pywebview && pip3 install websockets
 ```
-The error is not fatal, but as a consequese the default UI is not drawn on its own window and it fallbacks to the default browser.
+The error is not fatal, but as a consequence the default UI is not drawn on its own window and it fallbacks to the default browser.
 
 Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API?</br>
 A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I set a checkbox element checked programmatically.

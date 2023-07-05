@@ -365,3 +365,13 @@ runtimes
 setHTML
 startbutton
 utf
+cout
+CXX
+cx
+cy
+fallbacks
+getElementById
+gui
+programmatically
+pywebview
+wp
