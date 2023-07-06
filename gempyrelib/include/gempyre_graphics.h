@@ -5,6 +5,16 @@
 #include <initializer_list>
 #include <variant>
 		
+/**
+  * @file
+  * 
+  * ![wqe](https://avatars1.githubusercontent.com/u/7837709?s=400&v=4)
+  *
+  * gempyre_graphics.h API for drawing on HTML canvas
+  * 
+  */
+
+
 
 #ifdef WINDOWS_EXPORT
     #ifndef GEMPYRE_EX
@@ -258,6 +268,10 @@ public:
     /// Bitmap bmp(bytes);
     /// @endcode
     Bitmap(const std::vector<uint8_t>& image_data);
+
+    /// @brief Convert a bitmat to PNG
+    /// @return PNG bytes
+    const std::vector<uint8_t> png_image() const;
 
     /// Copy operator does only shallow copy, for deep copy @see clone() 
     Bitmap& operator=(const Bitmap& other) = default;

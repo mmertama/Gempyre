@@ -39,7 +39,9 @@ function g_info(msg) {
 function g_error(msg) {
     const getTrace = function() {
       const obj = {};
-      Error.captureStackTrace(obj, getTrace);
+      if (Error.captureStackTrace !== undefined) {
+        Error.captureStackTrace(obj, getTrace);
+      }
       return obj.stack;
     };
     const logged = Array.prototype.slice.call(arguments).join(', ');
@@ -59,7 +61,9 @@ function errlog(source, text) {
 
     const getTrace = function() {
       const obj = {};
-      Error.captureStackTrace(obj, getTrace);
+      if (Error.captureStackTrace !== undefined) {
+        Error.captureStackTrace(obj, getTrace);
+      }
       return obj.stack;
     };
 

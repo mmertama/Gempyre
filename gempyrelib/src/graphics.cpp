@@ -316,6 +316,15 @@ Bitmap::Bitmap(const std::vector<unsigned char>& image_data)  {
     std::copy(image.begin(), image.end(), ptr);    
 }
 
+const std::vector<uint8_t> Bitmap::png_image() const {
+    std::vector<uint8_t> out;
+    lodepng::State state;
+    lodepng::encode(out, reinterpret_cast<const unsigned char*>(m_canvas->data()),
+        static_cast<unsigned>(width()),
+        static_cast<unsigned>(height()), state);
+    return out;
+}
+
 void Bitmap::create(int width, int height) {
         assert(width > 0);
         assert(height > 0);
