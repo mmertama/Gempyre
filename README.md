@@ -20,10 +20,10 @@ Gempyre is a library that is linked with the application, except for Android, se
 
 ### Gempyre API 
 
-* gempyre.h, everything that basic application needs.
-* gempyre_utils.h, miscellaneous collection or function that helps writing applications. 
-* gempyre_graphics.h,  helps developing graphics intensive applications and games.
-* gempyre_client.h, provides file dialogs for Gempyre application. 
+* gempyre.h, core classes for the application development.
+* gempyre_utils.h, miscellaneous collection of helper functions. These are not available for Python as there are plenty of analogous fuctionality.  
+* gempyre_graphics.h, HTML canvas functions for bitmap and vector graphics.
+* gempyre_client.h, file dialogs for Gempyre application. Not available when system browser is used as an application window. 
 
 [Gempyre Documentation](https://mmertama.github.io/Gempyre/)
 
