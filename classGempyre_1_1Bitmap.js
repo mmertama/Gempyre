@@ -15,6 +15,7 @@ var classGempyre_1_1Bitmap =
     [ "operator=", "classGempyre_1_1Bitmap.html#a8a6f16d22e88f8e9dffdfe002c125036", null ],
     [ "operator=", "classGempyre_1_1Bitmap.html#a7f9953ea556a5301bf4a7e0261a07587", null ],
     [ "pixel", "classGempyre_1_1Bitmap.html#a405be1aa874559566c8f25269bb5e09e", null ],
+    [ "png_image", "classGempyre_1_1Bitmap.html#a339d75ee49aa905e4d4f4da3e9a36b21", null ],
     [ "set_alpha", "classGempyre_1_1Bitmap.html#aff1ee976686b380939c4ff591077293e", null ],
     [ "set_pixel", "classGempyre_1_1Bitmap.html#aba233ebda03cd1a7d46e3d10f726fe01", null ],
     [ "swap", "classGempyre_1_1Bitmap.html#a6f7410625385574dab9cc899df0476eb", null ],

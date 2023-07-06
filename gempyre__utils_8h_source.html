@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Gempyre UI Framework
-   &#160;<span id="projectnumber">1.2.3</span>
+   &#160;<span id="projectnumber">1.2.4</span>
    </div>
   </td>
  </tr>
@@ -280,7 +280,7 @@ $(document).ready(function(){initNavTree('gempyre__utils_8h_source.html',''); in
 <div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;T convert(<span class="keyword">const</span> std::string&amp; source) {</div>
 <div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    std::istringstream ss(source);</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="keyword">typename</span> std::remove_const&lt;T&gt;::type v{};</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="keyword">typename</span> <a class="code" href="namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693">std::remove_const&lt;T&gt;::type</a> v{};</div>
 <div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    ss.operator&gt;&gt;(v); <span class="comment">//overloads have similar conversions MSVC19</span></div>
 <div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="keywordflow">return</span> v;</div>
 <div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;}</div>
@@ -381,8 +381,8 @@ $(document).ready(function(){initNavTree('gempyre__utils_8h_source.html',''); in
 <div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;    <span class="keywordflow">return</span> join(t.begin(), t.end(), joinChar, f);</div>
 <div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;}</div>
 <div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160; </div>
-<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;template &lt;class IT, typename In=typename std::remove_pointer&lt;IT&gt;::type,</div>
-<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;          <span class="keyword">typename</span> Out=<span class="keyword">typename</span> std::remove_pointer&lt;IT&gt;::type,</div>
+<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;<a class="code" href="namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693">template &lt;class IT, typename In=typename std::remove_pointer&lt;IT&gt;::type</a>,</div>
+<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;          <span class="keyword">typename</span> Out=<span class="keyword">typename</span> <a class="code" href="namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693">std::remove_pointer&lt;IT&gt;::type</a>,</div>
 <div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;          <span class="keyword">typename</span> = std::enable_if_t&lt;std::is_pointer&lt;IT&gt;::value&gt;&gt;</div>
 <div class="line"><a name="l00456"></a><span class="lineno"><a class="line" href="gempyre__utils_8h.html#a75eca7204bf57753fa0986863b0cab9e">  456</a></span>&#160;std::string <a class="code" href="gempyre__utils_8h.html#a6e855d8890010ff17c8ac361d6308d8b">join</a>(<span class="keyword">const</span> IT begin,</div>
 <div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;                 <span class="keyword">const</span> IT end,</div>
@@ -620,6 +620,7 @@ $(document).ready(function(){initNavTree('gempyre__utils_8h_source.html',''); in
 <div class="ttc" id="agempyre__utils_8h_html_ae937f6abdd81a1ec3c14ca1617046a1a"><div class="ttname"><a href="gempyre__utils_8h.html#ae937f6abdd81a1ec3c14ca1617046a1a">GempyreUtils::keys</a></div><div class="ttdeci">std::vector&lt; K &gt; keys(const T &amp;map)</div><div class="ttdoc">Get keys from map.</div><div class="ttdef"><b>Definition:</b> gempyre_utils.h:396</div></div>
 <div class="ttc" id="agempyre__utils_8h_html_afbf16726e2d24f70a8c9fcc0cb1f960d"><div class="ttname"><a href="gempyre__utils_8h.html#afbf16726e2d24f70a8c9fcc0cb1f960d">GempyreUtils::file_exists</a></div><div class="ttdeci">UTILS_EX bool file_exists(const std::string &amp;filename)</div><div class="ttdoc">Test if file with name exits.</div></div>
 <div class="ttc" id="agempyre__utils_8h_html_aff96ccb9536d58a983dccd215a090873"><div class="ttname"><a href="gempyre__utils_8h.html#aff96ccb9536d58a983dccd215a090873">GempyreUtils::remove_file</a></div><div class="ttdeci">UTILS_EX void remove_file(const std::string &amp;filename)</div><div class="ttdoc">Delete file.</div></div>
+<div class="ttc" id="anamespaceGempyre_1_1Color_html_aa8a9e69b9ae1cb78e2a3bc6a27f94693"><div class="ttname"><a href="namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693">Gempyre::Color::type</a></div><div class="ttdeci">Gempyre::dataT type</div><div class="ttdoc">pixel type</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:148</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

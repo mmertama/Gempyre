@@ -20,7 +20,7 @@
 <!-- Node2 -->
 <g id="node2" class="node">
 <title>Node2</title>
-<g id="a_node2"><a xlink:href="gempyre__graphics_8h_source.html" target="_top" xlink:title=" ">
+<g id="a_node2"><a xlink:href="gempyre__graphics_8h.html" target="_top" xlink:title=" ">
 <polygon fill="none" stroke="black" points="0,-0.5 0,-19.5 154,-19.5 154,-0.5 0,-0.5"/>
 <text text-anchor="middle" x="77" y="-7.5" font-family="Helvetica,sans-Serif" font-size="10.00">include/gempyre_graphics.h</text>
 </a>
