@@ -245,6 +245,13 @@ select.subscribe(Gempyre::Event::CHANGE, [](const auto& e) {
     std::cout << e.properties.at("value") << std::endl;
 }, {"value"});
 ```
+
+Applying an initial value is trivial:
+
+```cpp
+select.set_attribute("value", wp.levels[level_index]); // set value to some other than 1st
+```
+
 Please note that as each event has a lot of properties, you have to list what you 
 need. For a selection change (as well as most of the inputs) a <b>value</b> is used.   
 
