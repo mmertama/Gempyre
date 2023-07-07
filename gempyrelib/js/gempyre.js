@@ -222,10 +222,12 @@ function sendGempyreEvent(source, eventname, values) {
     return true;
 }
 
+id_inc = 0;
+
 function id(el) {
     assert(el.nodeType === 1, "Shall not get id of non element");
     if(!el.id) {
-        el.id = 'gempyre_' + Math.random().toString(32).substr(2,16);
+        el.id = 'gempyre_' + Math.random().toString(32).substring(2, 2 + 16) + '_' + (++id_inc).toString(32);
     }
     return el.id;
 }

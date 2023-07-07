@@ -274,7 +274,8 @@ GempyreInternal& Ui::ref() {
             } else if(type == "error") {
                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "JS says at:", params.at("element"),
                                 "error:", params.at("error"));
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS trace:", params.at("trace"));
+                if(params.find("trace") != params.end())
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "JS trace:", params.at("trace"));
                 call_error(params.at("element"), params.at("error"));
             } else if(type == "exit_request") {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "client kindly asks exit --> Status change Exit");
