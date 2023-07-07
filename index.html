@@ -257,7 +257,9 @@ Selection list</h3>
 <div class="line">    std::cout &lt;&lt; e.properties.at(<span class="stringliteral">&quot;value&quot;</span>) &lt;&lt; std::endl;</div>
 <div class="line">}, {<span class="stringliteral">&quot;value&quot;</span>});</div>
 <div class="ttc" id="astructGempyre_1_1Event_html_aa0080263ed91146b54f0f5c37404d979"><div class="ttname"><a href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a></div><div class="ttdeci">static constexpr auto CHANGE</div><div class="ttdoc">Generic change.</div><div class="ttdef"><b>Definition:</b> gempyre.h:209</div></div>
-</div><!-- fragment --><p> Please note that as each event has a lot of properties, you have to list what you need. For a selection change (as well as most of the inputs) a <b>value</b> is used. <br  />
+</div><!-- fragment --><p>Applying an initial value is trivial:</p>
+<div class="fragment"><div class="line">select.set_attribute(<span class="stringliteral">&quot;value&quot;</span>, wp.levels[level_index]); <span class="comment">// set value to some other than 1st</span></div>
+</div><!-- fragment --><p>Please note that as each event has a lot of properties, you have to list what you need. For a selection change (as well as most of the inputs) a <b>value</b> is used. <br  />
 </p>
 <h3><a class="anchor" id="autotoc_md18"></a>
 Some example projects using Gempyre</h3>
