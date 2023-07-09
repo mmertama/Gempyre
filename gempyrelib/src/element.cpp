@@ -5,7 +5,7 @@
 
 #include <random>
 #include <chrono>
-
+#include <charconv>
 
 using namespace Gempyre;
 
@@ -14,9 +14,12 @@ const std::string Element::generateId(const std::string& prefix) {
     std::default_random_engine generator(seed);
     std::uniform_int_distribution<int> distribution('a', 'z');
     std::string name = prefix + "_";
-    for(int i = 0; i < 8; i++) {
+    for(int i = 0; i < 4; i++) {
         name += static_cast<char>(distribution(generator));
     }
+    char seed_str[216] = { 0 };
+    std::to_chars(std::begin(seed_str), std::end(seed_str), seed, 32);
+    name += seed_str;
     return name;
 }
 
