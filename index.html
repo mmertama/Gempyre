@@ -161,7 +161,9 @@ FAQ</h2>
 </div><!-- fragment --><p> The error is not fatal, but as a consequence the default UI is not drawn on its own window and it fallbacks to the default browser.</p>
 <p>Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API? A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I set a checkbox element checked programmatically.</p>
 <div class="fragment"><div class="line">ui.eval(<span class="stringliteral">&quot;document.getElementById(\&quot;&quot;</span> + check_box.id() + <span class="stringliteral">&quot;\&quot;).checked = true;&quot;</span>);</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md15"></a>
+</div><!-- fragment --><p> Q: Why Canvas drawings seems to happen in random order? A: Canvas drawing is highly asynchronous operation and subsequent CanvasElement::draw operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use CanvasElement::draw_completed to wait until each draw has happen. CanvaElement::draw_completed should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Example: <a href="https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100">https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100</a> <br  />
+</p>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Example</h2>
 <h3><a class="anchor" id="autotoc_md16"></a>
 Hello world</h3>
