@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Gempyre UI Framework
-   &#160;<span id="projectnumber">1.2.5</span>
+   &#160;<span id="projectnumber">1.2.6</span>
    </div>
   </td>
  </tr>
@@ -159,8 +159,8 @@ Raspberry OS</h3>
 FAQ</h2>
 <p>Q: After installation you get: "WARNING: webview is not installed -&gt; verification is not completed!", what is that? A: Most likely python3 webview is not installed. See installation from <a href="https://pywebview.flowrl.com/guide/installation.html">pywebview</a>. Please also make sure websockets python library is installed. </p><div class="fragment"><div class="line">$ pip3 install pywebview &amp;&amp; pip3 install websockets</div>
 </div><!-- fragment --><p> The error is not fatal, but as a consequence the default UI is not drawn on its own window and it fallbacks to the default browser.</p>
-<p>Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API? A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I set a checkbox element checked programmatically.</p>
-<div class="fragment"><div class="line">ui.eval(<span class="stringliteral">&quot;document.getElementById(\&quot;&quot;</span> + check_box.id() + <span class="stringliteral">&quot;\&quot;).checked = true;&quot;</span>);</div>
+<p>Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API? A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I change a checkbox element so it fires a change event.</p>
+<div class="fragment"><div class="line">ui.eval(<span class="stringliteral">&quot;document.getElementById(\&quot;&quot;</span> + check_box.id() + <span class="stringliteral">&quot;\&quot;).click();&quot;</span>);</div>
 </div><!-- fragment --><p> Q: Why Canvas drawings seems to happen in random order? A: Canvas drawing is highly asynchronous operation and subsequent CanvasElement::draw operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use CanvasElement::draw_completed to wait until each draw has happen. CanvaElement::draw_completed should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Example: <a href="https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100">https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100</a> <br  />
 </p>
 <h2><a class="anchor" id="autotoc_md15"></a>
@@ -221,7 +221,7 @@ Hello world</h3>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> <span class="comment">/*argc*/</span>, <span class="keywordtype">char</span>** <span class="comment">/*argv*/</span>)  {</div>
 </div><!-- fragment --><p>In the constructor, you provide a mapping between file names and generated data and the HTML page that will be shown.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Ui.html">Gempyre::Ui</a> ui({ {<span class="stringliteral">&quot;/hello.html&quot;</span>, Hellohtml} }, <span class="stringliteral">&quot;hello.html&quot;</span>);</div>
-<div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:230</div></div>
+<div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:234</div></div>
 </div><!-- fragment --><p>HTML elements are represented by <a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a>. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The <a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a> represents any of the HTML elements. It's only inherited class is <a class="el" href="classGempyre_1_1CanvasElement.html" title="Graphics element.">Gempyre::CanvasElement</a> that implements specific graphics functionalities.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> text(ui, <span class="stringliteral">&quot;content&quot;</span>);</div>
 <div class="line"> </div>
@@ -249,16 +249,16 @@ Selection list</h3>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> select{ui, <span class="stringliteral">&quot;level_select&quot;</span>};</div>
 <div class="line"><span class="keywordflow">for</span>(<span class="keyword">const</span> std::string&amp; level : wp.levels()) {</div>
 <div class="line">   <a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> opt{ui, <span class="stringliteral">&quot;option&quot;</span>, select};</div>
-<div class="line">   opt.<a class="code" href="classGempyre_1_1Element.html#a58a794b66b420e612d550ca644e90cec">set_attribute</a>(<span class="stringliteral">&quot;value&quot;</span>, level);</div>
+<div class="line">   opt.<a class="code" href="classGempyre_1_1Element.html#a843a9040dc27de3a44a7b54e591b96dc">set_attribute</a>(<span class="stringliteral">&quot;value&quot;</span>, level);</div>
 <div class="line">   opt.<a class="code" href="classGempyre_1_1Element.html#aa3b623e1e11aa8f18c302b2f5ff29e13">set_html</a>(level);</div>
 <div class="line">   }</div>
-<div class="ttc" id="aclassGempyre_1_1Element_html_a58a794b66b420e612d550ca644e90cec"><div class="ttname"><a href="classGempyre_1_1Element.html#a58a794b66b420e612d550ca644e90cec">Gempyre::Element::set_attribute</a></div><div class="ttdeci">Element &amp; set_attribute(const std::string &amp;attr, const std::string &amp;value=&quot;&quot;)</div><div class="ttdoc">Set HTML a attribute of this element.</div></div>
+<div class="ttc" id="aclassGempyre_1_1Element_html_a843a9040dc27de3a44a7b54e591b96dc"><div class="ttname"><a href="classGempyre_1_1Element.html#a843a9040dc27de3a44a7b54e591b96dc">Gempyre::Element::set_attribute</a></div><div class="ttdeci">Element &amp; set_attribute(const std::string &amp;attr, const std::string &amp;value)</div><div class="ttdoc">Set HTML a attribute of this element.</div></div>
 <div class="ttc" id="aclassGempyre_1_1Element_html_aa3b623e1e11aa8f18c302b2f5ff29e13"><div class="ttname"><a href="classGempyre_1_1Element.html#aa3b623e1e11aa8f18c302b2f5ff29e13">Gempyre::Element::set_html</a></div><div class="ttdeci">Element &amp; set_html(const std::string &amp;htmlText)</div><div class="ttdoc">Set HTML text value of the element.</div></div>
 </div><!-- fragment --><p>to read a value upon change you subscribe it's change:</p>
 <div class="fragment"><div class="line">select.subscribe(<a class="code" href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a>, [](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; e) {</div>
 <div class="line">    std::cout &lt;&lt; e.properties.at(<span class="stringliteral">&quot;value&quot;</span>) &lt;&lt; std::endl;</div>
 <div class="line">}, {<span class="stringliteral">&quot;value&quot;</span>});</div>
-<div class="ttc" id="astructGempyre_1_1Event_html_aa0080263ed91146b54f0f5c37404d979"><div class="ttname"><a href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a></div><div class="ttdeci">static constexpr auto CHANGE</div><div class="ttdoc">Generic change.</div><div class="ttdef"><b>Definition:</b> gempyre.h:209</div></div>
+<div class="ttc" id="astructGempyre_1_1Event_html_aa0080263ed91146b54f0f5c37404d979"><div class="ttname"><a href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a></div><div class="ttdeci">static constexpr auto CHANGE</div><div class="ttdoc">Generic change.</div><div class="ttdef"><b>Definition:</b> gempyre.h:213</div></div>
 </div><!-- fragment --><p>Applying an initial value is trivial:</p>
 <div class="fragment"><div class="line">select.set_attribute(<span class="stringliteral">&quot;value&quot;</span>, wp.levels[level_index]); <span class="comment">// set value to some other than 1st</span></div>
 </div><!-- fragment --><p>Please note that as each event has a lot of properties, you have to list what you need. For a selection change (as well as most of the inputs) a <b>value</b> is used. <br  />

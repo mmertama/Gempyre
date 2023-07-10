@@ -5,7 +5,7 @@ var searchData=
   ['scale_368',['scale',['../classGempyre_1_1FrameComposer.html#a35faa6f3b4807d207ae73d9f871ee404',1,'Gempyre::FrameComposer']]],
   ['set_5falpha_369',['set_alpha',['../classGempyre_1_1Bitmap.html#aff1ee976686b380939c4ff591077293e',1,'Gempyre::Bitmap']]],
   ['set_5fapplication_5ficon_370',['set_application_icon',['../classGempyre_1_1Ui.html#ae11e5d754882493a001dab88ce78396c',1,'Gempyre::Ui']]],
-  ['set_5fattribute_371',['set_attribute',['../classGempyre_1_1Element.html#a58a794b66b420e612d550ca644e90cec',1,'Gempyre::Element']]],
+  ['set_5fattribute_371',['set_attribute',['../classGempyre_1_1Element.html#a843a9040dc27de3a44a7b54e591b96dc',1,'Gempyre::Element::set_attribute(const std::string &amp;attr, const std::string &amp;value)'],['../classGempyre_1_1Element.html#aae436aee382e4b0f59899c1c0664bebb',1,'Gempyre::Element::set_attribute(const std::string &amp;attr)']]],
   ['set_5fdebug_372',['set_debug',['../gempyre_8h.html#a036459f630f9cc50fc853ae12004e976',1,'Gempyre']]],
   ['set_5fhtml_373',['set_html',['../classGempyre_1_1Element.html#aa3b623e1e11aa8f18c302b2f5ff29e13',1,'Gempyre::Element']]],
   ['set_5flog_5flevel_374',['set_log_level',['../gempyre__utils_8h.html#ae2811b613a8d072990986241b3b2d94f',1,'GempyreUtils']]],
