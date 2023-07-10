@@ -88,10 +88,10 @@ $ pip3 install pywebview && pip3 install websockets
 The error is not fatal, but as a consequence the default UI is not drawn on its own window and it fallbacks to the default browser.
 
 Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API?</br>
-A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I set a checkbox element checked programmatically.
+A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I change a checkbox element so it fires a change event.
 
 ```cpp
-ui.eval("document.getElementById(\"" + check_box.id() + "\").checked = true;");
+ui.eval("document.getElementById(\"" + check_box.id() + "\").click();");
 ```
 Q: Why Canvas drawings seems to happen in random order?</br>
 A: Canvas drawing is highly asynchronous operation and subsequent CanvasElement::draw operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use CanvasElement::draw_completed to wait until each draw has happen. CanvaElement::draw_completed should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Example: https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100  

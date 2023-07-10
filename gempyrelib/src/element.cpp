@@ -62,6 +62,13 @@ Element& Element::set_attribute(const std::string &attr, const std::string &valu
     return *this;
 }
 
+Element& Element::set_attribute(const std::string &attr) {
+    ref().send(*this, "set_attribute", 
+        "attribute", attr,
+        "value", "true");
+    return *this;
+}
+
 Element& Element::remove_attribute(const std::string &attr) {
     ref().send(*this, "remove_attribute",
         "attribute", attr);

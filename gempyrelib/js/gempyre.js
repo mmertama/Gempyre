@@ -593,6 +593,17 @@ function handleJson(msg) {
     }
 }
 
+function setAttribute(el, attribute, value) {
+    let val = 0
+    try  {
+    val = JSON.parse(value);        // In case of number or boolean this works, but string gives Syntax error,
+    } catch(ex) {                       // There can be funny side effects with this....
+        val = value
+    }
+    el.setAttribute(attribute,  val); //This works in some cases
+    el[attribute] = val;              //...and this in some :-D
+}
+
 function handleJsonCommand(msg) {
         switch(msg.type) {
         case 'batch':
@@ -692,14 +703,7 @@ function handleJsonCommand(msg) {
                 el.innerHTML = msg.html;
                 break;
             case 'set_attribute':
-                let val = 0
-                try  {
-                   val = JSON.parse(msg.value); // In case of number or boolean this works, but string gives Syntax error,
-                } catch(ex) {                    // There can be funny side effects with this....
-                    val = msg.value
-                }
-                el.setAttribute(msg.attribute,  val); //This works in some cases
-                el[msg.attribute] = val;              //...and this in some :-D
+                setAttribute(el, msg.attribute, msg.value);
                 break;
             case 'create':
                 log("create", el, msg.html_element, msg.new_id);

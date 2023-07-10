@@ -143,7 +143,11 @@ namespace Gempyre {
         /// @param attr - attribute name
         /// @param value - attribute value
         /// @return this element
-        Element& set_attribute(const std::string& attr, const std::string& value = "");
+        Element& set_attribute(const std::string& attr, const std::string& value);
+         /// @brief Set HTML a attribute of this element
+        /// @param attr - attribute name
+        /// @return this element
+        Element& set_attribute(const std::string& attr);
         /// Get this element attributes 
         std::optional<Attributes> attributes() const;
         /// @brief Set CSS style of this element

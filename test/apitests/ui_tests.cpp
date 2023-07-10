@@ -139,6 +139,17 @@ TEST_F(TestUi, setAttribute) {
     });
 }
 
+TEST_F(TestUi, setBoolAttribute) {
+    Gempyre::Element el(ui(), "test-1");
+    el.set_attribute("value");
+    test([el]() {
+        const auto attrs = el.attributes();
+        ASSERT_TRUE(attrs.has_value());
+        ASSERT_NE(attrs->find("value"), attrs->end());
+        ASSERT_EQ(attrs.value().find("value")->second, "true");
+    });
+}
+
 
 TEST_F(TestUi, remove) {
     test([this]() {
