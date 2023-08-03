@@ -198,9 +198,11 @@ jobs:
 
     steps:
     - name: Create Release
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@v1.12.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: true
 
 
     - name: Store Release url
