@@ -240,6 +240,11 @@ jobs:
     needs: release
 
     steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2.1.1
+        with:
+          name: ${{ matrix.config.artifact }}
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
