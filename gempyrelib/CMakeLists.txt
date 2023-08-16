@@ -532,120 +532,123 @@ else()
         PRIVATE -lstdc++)
 endif()
 
-set(GEMPYRE_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-set(GEMPYRE_TARGETS_EXPORT_NAME       "${PROJECT_NAME}")
-set(GEMPYRE_CMAKE_CONFIG_TEMPLATE     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.in")
-set(GEMPYRE_CMAKE_CONFIG_DIR          "${CMAKE_CURRENT_BINARY_DIR}")
-set(GEMPYRE_CMAKE_VERSION_CONFIG_FILE   "${GEMPYRE_CMAKE_CONFIG_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
-set(GEMPYRE_CMAKE_PROJECT_CONFIG_FILE   "${GEMPYRE_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
-#set(GEMPYRE_CMAKE_PROJECT_TARGETS_FILE  "${GEMPYRE_CMAKE_CONFIG_DIR}/${PROJECT_TARGETS_FILE}")
-
-generate_export_header(${PROJECT_NAME})
-
-#set(RESOURCE_SCRIPTS_DIR "${CMAKE_PREFIX_PATH}/${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-set(LIBRARY_DIR ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME})
-set(LIBRARY_FULL_DIR "${LIBRARY_DIR}" CACHE PATH "" FORCE)
-set(INCLUDE_FULL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}" CACHE PATH "" FORCE)
-if(UNIX AND NOT APPLE)
-    set(PROJECT_CMAKE_DIR "${GEMPYRE_CONFIG_INSTALL_DIR}" CACHE PATH "" FORCE)
+if(NO_EXPORT)
+    message("Not installing")
 else()
-    set(PROJECT_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/${GEMPYRE_CONFIG_INSTALL_DIR}" CACHE PATH "" FORCE)
-endif()
-get_target_property(TARGET_LIBRARY_NAME ${PROJECT_NAME} OUTPUT_NAME)
+    set(GEMPYRE_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+    set(GEMPYRE_TARGETS_EXPORT_NAME       "${PROJECT_NAME}")
+    set(GEMPYRE_CMAKE_CONFIG_TEMPLATE     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.in")
+    set(GEMPYRE_CMAKE_CONFIG_DIR          "${CMAKE_CURRENT_BINARY_DIR}")
+    set(GEMPYRE_CMAKE_VERSION_CONFIG_FILE   "${GEMPYRE_CMAKE_CONFIG_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+    set(GEMPYRE_CMAKE_PROJECT_CONFIG_FILE   "${GEMPYRE_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
+    #set(GEMPYRE_CMAKE_PROJECT_TARGETS_FILE  "${GEMPYRE_CMAKE_CONFIG_DIR}/${PROJECT_TARGETS_FILE}")
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file(
-    ${GEMPYRE_CMAKE_CONFIG_TEMPLATE}
-    ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
-    INSTALL_DESTINATION ${GEMPYRE_CONFIG_INSTALL_DIR}
-    )
-write_basic_package_version_file(
-    ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
-    COMPATIBILITY SameMajorVersion
-    )
+    generate_export_header(${PROJECT_NAME})
 
-# all files in include and affiliates / include are exported    
-file(GLOB HEADERS include/*.h  ${CMAKE_SOURCE_DIR}/affiliates/include/*.h)
+    #set(RESOURCE_SCRIPTS_DIR "${CMAKE_PREFIX_PATH}/${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+    set(LIBRARY_DIR ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME})
+    set(LIBRARY_FULL_DIR "${LIBRARY_DIR}" CACHE PATH "" FORCE)
+    set(INCLUDE_FULL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}" CACHE PATH "" FORCE)
+    if(UNIX AND NOT APPLE)
+        set(PROJECT_CMAKE_DIR "${GEMPYRE_CONFIG_INSTALL_DIR}" CACHE PATH "" FORCE)
+    else()
+        set(PROJECT_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/${GEMPYRE_CONFIG_INSTALL_DIR}" CACHE PATH "" FORCE)
+    endif()
+    get_target_property(TARGET_LIBRARY_NAME ${PROJECT_NAME} OUTPUT_NAME)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
-
-if(ANDROID)
-    # Where to install for crosscompile? Maybe just use a ENV as this far
-else()
-    if(DEFINED CONNECTION_FIND)
-        set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${CONNECTION_FIND})
-        configure_file(
-            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CONNECTION_FIND}.in
-            ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
-            @ONLY)
-    endif()        
-
-    install(
-        TARGETS ${PROJECT_NAME}
-        EXPORT GempyreTargets
-        ARCHIVE DESTINATION ${LIBRARY_FULL_DIR}
-        PUBLIC_HEADER DESTINATION ${INCLUDE_FULL_DIR}
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(
+        ${GEMPYRE_CMAKE_CONFIG_TEMPLATE}
+        ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
+        INSTALL_DESTINATION ${GEMPYRE_CONFIG_INSTALL_DIR}
+        )
+    write_basic_package_version_file(
+        ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
+        COMPATIBILITY SameMajorVersion
         )
 
-       # internal testing
-    export(EXPORT GempyreTargets
-       FILE  "${PROJECT_TARGETS_FILE}"
-       NAMESPACE gempyre::
-       )
+    # all files in include and affiliates / include are exported    
+    file(GLOB HEADERS include/*.h  ${CMAKE_SOURCE_DIR}/affiliates/include/*.h)
 
-    install(FILES ${CONNECTION_LIB_FULL}
-        DESTINATION ${LIBRARY_FULL_DIR}
-        OPTIONAL
+    set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
+
+    if(ANDROID)
+        # Where to install for crosscompile? Maybe just use a ENV as this far
+    else()
+        if(DEFINED CONNECTION_FIND)
+            set(SOCKET_CMAKE_PROJECT_CONFIG_FILE ${GEMPYRE_CMAKE_CONFIG_DIR}/${CONNECTION_FIND})
+            configure_file(
+                ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CONNECTION_FIND}.in
+                ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
+                @ONLY)
+        endif()        
+
+        install(
+            TARGETS ${PROJECT_NAME}
+            EXPORT GempyreTargets
+            ARCHIVE DESTINATION ${LIBRARY_FULL_DIR}
+            PUBLIC_HEADER DESTINATION ${INCLUDE_FULL_DIR}
+            )
+
+        # internal testing
+        export(EXPORT GempyreTargets
+        FILE  "${PROJECT_TARGETS_FILE}"
+        NAMESPACE gempyre::
         )
 
-
-    if(MSVC)
-        # I really wont get why on some setup above works, and sometimes this is needed 8-\ win
-        install(FILES ${GEMPYRE_WS_LIB_FULL_R}
+        install(FILES ${CONNECTION_LIB_FULL}
             DESTINATION ${LIBRARY_FULL_DIR}
             OPTIONAL
             )
-    endif()
 
-    if(USE_UWEBSOCKETS)
-        set(SOCKET_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/uwebsockets_config.cmake")
-    endif()
 
-    if(DEFINED CONNECTION_FIND)
-        install(FILES
-            ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
-            DESTINATION ${PROJECT_CMAKE_DIR}
-            )
-    else()
-        message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
-    endif()    
+        if(MSVC)
+            # I really wont get why on some setup above works, and sometimes this is needed 8-\ win
+            install(FILES ${GEMPYRE_WS_LIB_FULL_R}
+                DESTINATION ${LIBRARY_FULL_DIR}
+                OPTIONAL
+                )
+        endif()
 
-   install(FILES
-       ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
-       ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
-       ${CMAKE_SOURCE_DIR}/scripts/genStringResource.py
-       ${CMAKE_SOURCE_DIR}/scripts/gempyre.cmake
-       ${SOCKET_CONFIG_FILE}
-       DESTINATION ${PROJECT_CMAKE_DIR}
-       )
+        if(USE_UWEBSOCKETS)
+            set(SOCKET_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/uwebsockets_config.cmake")
+        endif()
 
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts/jsmin-2.2.2
+        if(DEFINED CONNECTION_FIND)
+            install(FILES
+                ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
+                DESTINATION ${PROJECT_CMAKE_DIR}
+                )
+        else()
+            message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
+        endif()    
+
+    install(FILES
+        ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
+        ${GEMPYRE_CMAKE_VERSION_CONFIG_FILE}
+        ${CMAKE_SOURCE_DIR}/scripts/genStringResource.py
+        ${CMAKE_SOURCE_DIR}/scripts/gempyre.cmake
+        ${SOCKET_CONFIG_FILE}
         DESTINATION ${PROJECT_CMAKE_DIR}
         )
 
-    message("GempyreConfig.cmake is stored in ${PROJECT_CMAKE_DIR}")
-
-    if(MSVC)
-        install(FILES #CMAKE does not support (exp gen) static lib's pdb location
-            "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.dir/${CMAKE_BUILD_TYPE}/${PROJECT_NAME}.pdb"
-            DESTINATION ${LIBRARY_FULL_DIR}
-            OPTIONAL
+        install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts/jsmin-2.2.2
+            DESTINATION ${PROJECT_CMAKE_DIR}
             )
-    endif()
 
-    if(WIN32)
-      # make Windows easier to find the Gempyre
-      set(ENV{gempyre_ROOT} ${PROJECT_CMAKE_DIR})
-    endif()
+        message("GempyreConfig.cmake is stored in ${PROJECT_CMAKE_DIR}")
 
+        if(MSVC)
+            install(FILES #CMAKE does not support (exp gen) static lib's pdb location
+                "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.dir/${CMAKE_BUILD_TYPE}/${PROJECT_NAME}.pdb"
+                DESTINATION ${LIBRARY_FULL_DIR}
+                OPTIONAL
+                )
+        endif()
+
+        if(WIN32)
+        # make Windows easier to find the Gempyre
+        set(ENV{gempyre_ROOT} ${PROJECT_CMAKE_DIR})
+        endif()
+    endif() # NOT NO_EXPORT
 endif()
