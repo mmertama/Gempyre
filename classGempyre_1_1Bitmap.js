@@ -1,6 +1,7 @@
 var classGempyre_1_1Bitmap =
 [
     [ "Bitmap", "classGempyre_1_1Bitmap.html#a37db8371d38ea3d7fda70c6b0265e939", null ],
+    [ "Bitmap", "classGempyre_1_1Bitmap.html#a9e3201b03de21a4081b7a2ca128e8c77", null ],
     [ "Bitmap", "classGempyre_1_1Bitmap.html#ac3de733ba4a30175b6b5e55cab5e64d8", null ],
     [ "Bitmap", "classGempyre_1_1Bitmap.html#ab6d79e3dddf86ce5ca9bf5cdc7de1e54", null ],
     [ "Bitmap", "classGempyre_1_1Bitmap.html#ae802302d5ef52c0ce4e32935d9413d14", null ],
