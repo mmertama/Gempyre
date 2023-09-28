@@ -39,7 +39,7 @@ class GEMPYRE_EX CanvasElement : public Element {
 public:
     /// @brief Canvas draw command type.
     using Command = std::variant<std::string, double, int>;
-    /// @brief List on Canvas draw commands.
+    /// @brief List of Canvas draw commands.
     using CommandList = std::vector<Command>;
     /// @brief Function type for draw notifies. @see CanvasElement::draw_completed and @see DrawNotify.
     using DrawCallback = std::function<void()>;
@@ -56,7 +56,7 @@ public:
     /// Move constructor. 
     CanvasElement(CanvasElement&& other);
     
-    /// @brief Constructor using existing id.
+    /// @brief Constructor of canvas id.
     /// @param ui ref.
     /// @param id HTML id, should be canvas. 
     CanvasElement(Ui& ui, const std::string& id);
@@ -131,7 +131,7 @@ public:
     void draw_completed(const DrawCallback& drawCompletedCallback, DrawNotify kick = DrawNotify::NoKick);
     
     /// @brief erase bitmap
-    /// @param resized 
+    /// @param resized - make an explicit query to ask canvas current size
     void erase(bool resized = false);
 private:
     friend class Bitmap;
@@ -215,6 +215,15 @@ namespace  Color {
         return a == 0xFF ? Gempyre::Color::rgb(Gempyre::Color::rgb(r, g, b)) : Gempyre::Color::rgba(Gempyre::Color::rgba(r, g, b, a));
     }
 
+    /// Get color as a HYML string 
+    [[nodiscard]] static inline std::string to_string(Gempyre::Color::type color) {
+        return Gempyre::Color::to_string(
+            Gempyre::Color::r(color),
+            Gempyre::Color::g(color),
+            Gempyre::Color::b(color),
+            Gempyre::Color::alpha(color));
+    }
+
     /// @brief Black
     static constexpr Color::type Black      = Color::rgba(0, 0, 0, 0xFF);
     /// @brief White
@@ -243,10 +252,16 @@ namespace  Color {
 /// @brief Bitmap for Gempyre Graphics
 class GEMPYRE_EX Bitmap {
 public:
-    /// @brief Constructor
+    /// @brief Constructor - unitialialized data
     /// @param width 
     /// @param height 
     Bitmap(int width, int height);
+
+    /// @brief Constructor - with a single color data
+    /// @param width 
+    /// @param height 
+    /// @param color 
+    Bitmap(int width, int height, Gempyre::Color::type color);
     
     /// @brief Constructor - zero size, use @see create() to create the actual bitmap.
     Bitmap();
@@ -260,7 +275,7 @@ public:
     /// Destructor
     ~Bitmap();
 
-    /// @brief Crate bitmap from byte array. 
+    /// @brief Create bitmap from byte array. 
     /// @param image_data PNG image in bytes.
     /// @note
     /// @code{.cpp}
@@ -269,7 +284,7 @@ public:
     /// @endcode
     Bitmap(const std::vector<uint8_t>& image_data);
 
-    /// @brief Convert a bitmat to PNG
+    /// @brief Convert a bitmap to PNG
     /// @return PNG bytes
     const std::vector<uint8_t> png_image() const;
 

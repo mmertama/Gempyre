@@ -287,7 +287,14 @@ void CanvasElement::erase(bool resized) {
             return;
         }
     }
-    draw({"clearRect", 0, 0, m_width, m_height});
+    FrameComposer fc;
+    fc.begin_path();
+    if(resized)
+        fc.clear_rect(0, 0, m_width, m_height); 
+    else
+        fc.clear_rect(0, 0, 0x4000, 0x4000);
+    fc.close_path();
+    draw(fc);
 }
 
 void CanvasElement::draw(int x, int y, const Gempyre::Bitmap& bmp) {
@@ -300,6 +307,10 @@ Bitmap::Bitmap(int width, int height)  {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Graphics consructed", width, height);
 }
 
+
+Bitmap::Bitmap(int width, int height, Gempyre::Color::type color) : Bitmap(width, height) {
+    draw_rect({0, 0, width, height}, color);
+}
 
 Bitmap::Bitmap(const std::vector<unsigned char>& image_data)  {
     unsigned width, height;

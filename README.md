@@ -98,7 +98,7 @@ A: Canvas drawing is highly asynchronous operation and subsequent CanvasElement:
 
 Q: Why Bempyre::Bitmap merge is not working?</br>
 A: You are likely mergin on uninitialized bitmap. Gempyre::Bitmap(width, height) or Gempyre::Bitmap::create(width, height) does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
-is not drawn. To initialize the bitmap, call Gempyre::Bitmap::draw_rect(0, 0, width, height, Gempyre::Color::White) after the construction. 
+is not drawn. To initialize the bitmap, use Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White), or draw a rectangle to fill the Bitmap, after the construction. 
 
 ## Example
 
