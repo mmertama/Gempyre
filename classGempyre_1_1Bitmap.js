@@ -7,6 +7,7 @@ var classGempyre_1_1Bitmap =
     [ "Bitmap", "classGempyre_1_1Bitmap.html#ae802302d5ef52c0ce4e32935d9413d14", null ],
     [ "~Bitmap", "classGempyre_1_1Bitmap.html#a9ce10102506714f048f8475dbcb9d9da", null ],
     [ "Bitmap", "classGempyre_1_1Bitmap.html#af50b0da150ee60b0e0b969b7aacb4a02", null ],
+    [ "clip", "classGempyre_1_1Bitmap.html#af5a68ed9a946f32627a144ff079d1064", null ],
     [ "clone", "classGempyre_1_1Bitmap.html#a1491b8d9d3ae761892d175f573267132", null ],
     [ "create", "classGempyre_1_1Bitmap.html#a0bd41db0d02ed28264699b0ebdf19913", null ],
     [ "draw_rect", "classGempyre_1_1Bitmap.html#ad82dcde6704dc294334c05bc22b3d289", null ],
