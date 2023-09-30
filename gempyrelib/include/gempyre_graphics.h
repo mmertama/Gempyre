@@ -331,6 +331,9 @@ public:
 
     /// Draw a Bitmap on this bitmap.  
     void merge(const Bitmap& other) {merge(0, 0, other);}
+
+    /// Create a new bitmap from part of bitmap
+    Bitmap clip(const Element::Rect& rect) const;
 protected:
     /// @cond INTERNAL
     void copy_from(const Bitmap& other);

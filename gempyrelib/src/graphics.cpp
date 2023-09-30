@@ -479,6 +479,22 @@ void Bitmap::copy_from(const Bitmap& other) {
     std::copy(other.m_canvas->ptr()->begin(), other.m_canvas->ptr()->end(), m_canvas->data());
 }
 
+Bitmap Bitmap::clip(const Element::Rect& rect) const {
+    const auto x = std::max(0, rect.x);
+    const auto y = std::max(0, rect.y);
+    const auto w = std::min(rect.width - (x + rect.x), width());
+    const auto h = std::min(rect.height - (y + rect.y) , height());
+    Bitmap bmp(w, h);
+    auto source = m_canvas->data() + (rect.y * width() + x) * static_cast<int>(sizeof(dataT));
+    auto target = bmp.m_canvas->data();
+    for (auto row = 0; row < h; ++row) {
+        std::memcpy(
+            target + (row * h),
+            source + (row * width()),
+            static_cast<std::size_t>(w) * sizeof(dataT));
+    }
+    return bmp;
+}
 
  CanvasData::CanvasData(int w, int h, const std::string& owner) :
     m_data{std::make_shared<Data>(
