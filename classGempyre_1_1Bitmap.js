@@ -11,6 +11,7 @@ var classGempyre_1_1Bitmap =
     [ "clone", "classGempyre_1_1Bitmap.html#a1491b8d9d3ae761892d175f573267132", null ],
     [ "create", "classGempyre_1_1Bitmap.html#a0bd41db0d02ed28264699b0ebdf19913", null ],
     [ "draw_rect", "classGempyre_1_1Bitmap.html#ad82dcde6704dc294334c05bc22b3d289", null ],
+    [ "empty", "classGempyre_1_1Bitmap.html#a016e37fbfad186e8633bfb437d7ef85e", null ],
     [ "height", "classGempyre_1_1Bitmap.html#a5f5b596ee2032c3e942421315a997101", null ],
     [ "merge", "classGempyre_1_1Bitmap.html#ae46011028fa6e70b93953b0ff2929ac5", null ],
     [ "merge", "classGempyre_1_1Bitmap.html#a859c78efb853d337f6262cb2b0e0ab86", null ],
