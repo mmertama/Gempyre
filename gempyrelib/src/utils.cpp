@@ -924,7 +924,11 @@ std::string GempyreUtils::base64_encode(const unsigned char* bytes, size_t sz) {
     return Base64::encode(bytes, sz);
 }
 
-std::vector<unsigned char> GempyreUtils::base64_decode(const std::string_view& data) {
+std::string GempyreUtils::base64_encode(const std::vector<uint8_t>& bytes) {
+    return Base64::encode(bytes.data(), bytes.size());
+}
+
+std::vector<uint8_t> GempyreUtils::base64_decode(const std::string_view& data) {
     return Base64::decode(data);
 }
 

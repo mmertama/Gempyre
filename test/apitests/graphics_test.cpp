@@ -524,5 +524,62 @@ TEST(Graphics, bitmap_merge) {
     }
 }
 
+TEST(Graphics, bitmap_name) {
+    using namespace Gempyre;
+    ASSERT_EQ(Color::to_string(Color::Blue), "#0000FF");
+    ASSERT_EQ(Color::to_string(Color::Red), "#FF0000");
+    ASSERT_EQ(Color::to_string(Color::Green), "#00FF00");
+    ASSERT_EQ(Color::to_string(Color::rgb(0x12,0x34,0x56)), "#123456");
+    ASSERT_EQ(Color::to_string(Color::rgba(0x12, 0x34, 0x56, 0x78)), "#12345678");
+}
+
+
+TEST(Graphics, bitmap_clip0) {
+    using namespace Gempyre;
+    auto red = rect(100, 100, Color::Red);
+    red.draw_rect({10, 10, 20, 20}, Color::Blue);
+    auto blue_clip = red.clip({10, 10, 20, 20});
+    auto red_clip = red.clip({31, 31, 20, 20});
+
+    // for seeing is believing at https://base64.guru/converter/decode/image/png
+    std::cout << GempyreUtils::base64_encode(red.png_image()) << std::endl;
+    std::cout << GempyreUtils::base64_encode(blue_clip.png_image()) << std::endl;
+    std::cout << GempyreUtils::base64_encode(red_clip.png_image()) << std::endl;
+
+    ASSERT_EQ(blue_clip.width(),  20);
+    ASSERT_EQ(blue_clip.height(),  20);
+    ASSERT_EQ(red_clip.width(),  20);
+    ASSERT_EQ(red_clip.height(),  20);
+    
+    const Range<0, 20> range;
+    for(const auto row :  range) {
+        for(const auto col : range) {
+            ASSERT_EQ(blue_clip.pixel(row, col), Color::Blue) <<  Color::to_string(blue_clip.pixel(row, col)) << " vs " << Color::to_string(Color::Blue) << " " << row << " " << col;
+            ASSERT_EQ(red_clip.pixel(row, col), Color::Red) <<  Color::to_string(red_clip.pixel(row, col)) << " vs " << Color::to_string(Color::Red) << " " << row << " " << col;
+        }
+    }
+}
+
+TEST(Graphics, bitmap_clip1) {
+    using namespace Gempyre;
+    auto red = rect(100, 100, Color::Red);
+    red.draw_rect({0, 0, 20, 20}, Color::Blue);
+    red.draw_rect({90, 90, 10, 10}, Color::Blue);
+    auto blue_clip1 = red.clip({-10, -10, 20, 20});
+    auto blue_clip2 = red.clip({90, 90, 20, 20});
+
+    ASSERT_EQ(blue_clip1.width(),  10);
+    ASSERT_EQ(blue_clip1.height(),  10);
+    ASSERT_EQ(blue_clip2.width(),  10);
+    ASSERT_EQ(blue_clip2.height(),  10);
+
+    const Range<0, 10> range;
+    for(const auto row :  range) {
+        for(const auto col : range) {
+                ASSERT_EQ(blue_clip1.pixel(row, col), Color::Blue) <<  Color::to_string(blue_clip1.pixel(row, col)) << " vs " << Color::to_string(Color::Blue) << " " << row << " " << col;
+                ASSERT_EQ(blue_clip2.pixel(row, col), Color::Blue) <<  Color::to_string(blue_clip2.pixel(row, col)) << " vs " << Color::to_string(Color::Red) << " " << row << " " << col;
+        }
+    }
+}
 
 

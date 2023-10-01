@@ -419,9 +419,11 @@ void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
             assert(x + i < this->width());
             assert(y + j < this->height());
             const auto p = m_canvas->get(x + i, y + j);
+
             const auto po = bitmap.m_canvas->get(i, j);
             const auto ao = Color::alpha(po);
             const auto a = Color::alpha(p);
+            
             const auto r = Color::r(p) * (0xFF - ao);
             const auto g = Color::g(p) * (0xFF - ao);
             const auto b = Color::b(p) * (0xFF - ao);
@@ -430,7 +432,7 @@ void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
             const auto go = (Color::g(po) * ao);
             const auto bo = (Color::b(po) * ao);
 
-            const auto pix = Color::rgba_clamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a);
+            const auto pix = Color::rgba_clamped((r + ro) / 0xFF , (g + go) / 0xFF, (b + bo) / 0xFF, a + ao);
             m_canvas->put(x + i, y + j, pix);
         }
     }
@@ -482,16 +484,13 @@ void Bitmap::copy_from(const Bitmap& other) {
 Bitmap Bitmap::clip(const Element::Rect& rect) const {
     const auto x = std::max(0, rect.x);
     const auto y = std::max(0, rect.y);
-    const auto w = std::min(rect.width - (x + rect.x), width());
-    const auto h = std::min(rect.height - (y + rect.y) , height());
+    const auto w = std::min(rect.width - (x - rect.x), width() - x);
+    const auto h = std::min(rect.height - (y - rect.y), height() - y);
     Bitmap bmp(w, h);
-    auto source = m_canvas->data() + (rect.y * width() + x) * static_cast<int>(sizeof(dataT));
-    auto target = bmp.m_canvas->data();
     for (auto row = 0; row < h; ++row) {
-        std::memcpy(
-            target + (row * h),
-            source + (row * width()),
-            static_cast<std::size_t>(w) * sizeof(dataT));
+        for(auto col = 0; col < w; ++col) {
+            bmp.set_pixel(col, row, pixel(col + x, row + y)); // this could be a scanline copy, but really? show me the benefit
+        }
     }
     return bmp;
 }

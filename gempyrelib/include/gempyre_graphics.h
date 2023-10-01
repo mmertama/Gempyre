@@ -147,9 +147,10 @@ namespace  Color {
     /// @brief pixel type
     using type = Gempyre::dataT;
 
-    /// Pack r,g b and a components into pixel by taking low byte of the value. 
+    /// Pack r,g b and a components by saturating value range. 
     [[nodiscard]] static constexpr inline type rgba_clamped(type r, type g, type b, type a = 0xFF) {
-        return (0xFF & r) | ((0xFF & g) << 8) | ((0xFF & b) << 16) | ((0xFF & a) << 24);
+        const type FF = 0xFF;
+        return std::min(FF, r) | (std::min(FF, g) << 8) | (std::min(FF, b) << 16) | (std::min(FF, a) << 24);
     }
 
     /// Pack r,g b, and a components into pixel. Each component is expected to be less than 256. 
