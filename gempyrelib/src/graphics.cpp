@@ -43,8 +43,8 @@ public:
 #endif
 private:
     std::shared_ptr<Data> m_data;
-    const int m_width;
-    const int m_height;  
+    const int m_width{0};
+    const int m_height{0};  
 };
 
  CanvasElement::CanvasElement(const CanvasElement& other)
@@ -303,13 +303,15 @@ void CanvasElement::draw(int x, int y, const Gempyre::Bitmap& bmp) {
 }
 
 Bitmap::Bitmap(int width, int height)  {
-    create(width, height);
+    if(width > 0 && height > 0)
+        create(width, height);
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Graphics consructed", width, height);
 }
 
 
 Bitmap::Bitmap(int width, int height, Gempyre::Color::type color) : Bitmap(width, height) {
-    draw_rect({0, 0, width, height}, color);
+    if(width > 0 && height > 0)
+        draw_rect({0, 0, width, height}, color);
 }
 
 Bitmap::Bitmap(const std::vector<unsigned char>& image_data)  {
@@ -356,7 +358,7 @@ Bitmap::~Bitmap() {
 }
 
 void Bitmap::draw_rect(const Element::Rect& rect, Color::type color) {
-    if(rect.width <= 0 || rect.height <= 0)
+    if(empty())
         return;
     const auto x = std::max(0, rect.x);
     const auto y = std::max(0, rect.y);
@@ -372,6 +374,9 @@ void Bitmap::draw_rect(const Element::Rect& rect, Color::type color) {
 void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
     if(bitmap.m_canvas == m_canvas)
         return;
+
+    if(empty() || bitmap.empty())
+        return;    
 
     auto width = bitmap.width();
     auto height = bitmap.height();
@@ -467,8 +472,10 @@ void Bitmap::swap(Bitmap& other) {
 
 Bitmap Bitmap::clone() const {
         Bitmap other;
-        other.create(m_canvas->width(), m_canvas->height());
-        other.copy_from(*this);
+        if(!empty()) {
+            other.create(m_canvas->width(), m_canvas->height());
+            other.copy_from(*this);
+        }
         return other;
     }
 
@@ -493,6 +500,10 @@ Bitmap Bitmap::clip(const Element::Rect& rect) const {
         }
     }
     return bmp;
+}
+
+bool Bitmap::empty() const {
+    return !m_canvas || m_canvas->width() <= 0 || m_canvas->height() <= 0;
 }
 
  CanvasData::CanvasData(int w, int h, const std::string& owner) :

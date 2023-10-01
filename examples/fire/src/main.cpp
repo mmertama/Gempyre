@@ -69,7 +69,7 @@ void draw_frame(
     Gempyre::Bitmap& target,
     std::vector<Gempyre::Color::type>& fire,
     const std::array<Gempyre::Color::type, 256>& palette) {
-         const auto h = target.height();
+        const auto h = target.height();
         const auto w = target.width();    
         for(auto y = 0; y < h; y++) {
             for(auto x = 0; x < w; x++)  {

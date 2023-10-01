@@ -335,6 +335,9 @@ public:
 
     /// Create a new bitmap from part of bitmap
     Bitmap clip(const Element::Rect& rect) const;
+
+    /// return true if there is not data  
+    bool empty() const;
 protected:
     /// @cond INTERNAL
     void copy_from(const Bitmap& other);
