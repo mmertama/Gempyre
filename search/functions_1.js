@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['base64_5fdecode_262',['base64_decode',['../gempyre__utils_8h.html#a9808b0d8493f761c2984a053e3a59a7e',1,'GempyreUtils']]],
-  ['base64_5fencode_263',['base64_encode',['../gempyre__utils_8h.html#adbdbb8d9fdda122c62e6326a1aee9e13',1,'GempyreUtils']]],
+  ['base64_5fdecode_262',['base64_decode',['../gempyre__utils_8h.html#a32e6e894900899dd93a9bae410747a07',1,'GempyreUtils']]],
+  ['base64_5fencode_263',['base64_encode',['../gempyre__utils_8h.html#adbdbb8d9fdda122c62e6326a1aee9e13',1,'GempyreUtils::base64_encode(const unsigned char *bytes, size_t sz)'],['../gempyre__utils_8h.html#a37776ea5f3e1dd5da765e3a49a723256',1,'GempyreUtils::base64_encode(const std::vector&lt; uint8_t &gt; &amp;vec)']]],
   ['base_5fname_264',['base_name',['../gempyre__utils_8h.html#a14473162b1ad4a3caab89d919e9346cb',1,'GempyreUtils']]],
   ['begin_5fbatch_265',['begin_batch',['../classGempyre_1_1Ui.html#aa3b350ec16cfcf3becb36077e955a678',1,'Gempyre::Ui']]],
   ['begin_5fpath_266',['begin_path',['../classGempyre_1_1FrameComposer.html#a3a0d2f883b9653a3ec80dc5266b39790',1,'Gempyre::FrameComposer']]],
