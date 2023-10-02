@@ -395,6 +395,7 @@ void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
         width -= b_x;           // 100 + (-10) => 90 
     } else {
         x = x_pos;
+        b_x = 0;
     }
 
     if (y_pos < 0) {
@@ -403,6 +404,7 @@ void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
         height -= b_y;
     } else {
         y = y_pos;
+        b_y = 0;
     }
 
     if  (x + width >= this->width()) {
@@ -425,7 +427,7 @@ void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
             assert(y + j < this->height());
             const auto p = m_canvas->get(x + i, y + j);
 
-            const auto po = bitmap.m_canvas->get(i, j);
+            const auto po = bitmap.m_canvas->get(b_x + i, b_y + j);
             const auto ao = Color::alpha(po);
             const auto a = Color::alpha(p);
             
