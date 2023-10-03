@@ -1,5 +1,7 @@
 var NAVTREEINDEX0 =
 {
+"":[1,0,0],
+"":[1,0,1],
 "annotated.html":[2,0],
 "classGempyreUtils_1_1LogWriter.html":[2,0,1,0],
 "classGempyreUtils_1_1LogWriter.html#a162c6df7f2185fb27c5d942e182313ca":[2,0,1,0,2],
@@ -15,10 +17,11 @@ var NAVTREEINDEX0 =
 "classGempyre_1_1Bitmap.html#a1491b8d9d3ae761892d175f573267132":[2,0,0,8,8],
 "classGempyre_1_1Bitmap.html#a339d75ee49aa905e4d4f4da3e9a36b21":[2,0,0,8,18],
 "classGempyre_1_1Bitmap.html#a37db8371d38ea3d7fda70c6b0265e939":[2,0,0,8,0],
-"classGempyre_1_1Bitmap.html#a3d8cf9f3047fc26d6533db86e4e56195":[2,0,0,8,22],
+"classGempyre_1_1Bitmap.html#a3d8cf9f3047fc26d6533db86e4e56195":[2,0,0,8,23],
 "classGempyre_1_1Bitmap.html#a405be1aa874559566c8f25269bb5e09e":[2,0,0,8,17],
 "classGempyre_1_1Bitmap.html#a5f5b596ee2032c3e942421315a997101":[2,0,0,8,12],
 "classGempyre_1_1Bitmap.html#a6f7410625385574dab9cc899df0476eb":[2,0,0,8,21],
+"classGempyre_1_1Bitmap.html#a78d7b2b141f6751a49e89b3cc91dd503":[2,0,0,8,22],
 "classGempyre_1_1Bitmap.html#a7f9953ea556a5301bf4a7e0261a07587":[2,0,0,8,16],
 "classGempyre_1_1Bitmap.html#a859c78efb853d337f6262cb2b0e0ab86":[2,0,0,8,14],
 "classGempyre_1_1Bitmap.html#a8a6f16d22e88f8e9dffdfe002c125036":[2,0,0,8,15],
@@ -26,7 +29,7 @@ var NAVTREEINDEX0 =
 "classGempyre_1_1Bitmap.html#a9e3201b03de21a4081b7a2ca128e8c77":[2,0,0,8,1],
 "classGempyre_1_1Bitmap.html#ab6d79e3dddf86ce5ca9bf5cdc7de1e54":[2,0,0,8,3],
 "classGempyre_1_1Bitmap.html#aba233ebda03cd1a7d46e3d10f726fe01":[2,0,0,8,20],
-"classGempyre_1_1Bitmap.html#abdeb0ab6eaf88ae9496e81b3898bdfa9":[2,0,0,8,23],
+"classGempyre_1_1Bitmap.html#abdeb0ab6eaf88ae9496e81b3898bdfa9":[2,0,0,8,24],
 "classGempyre_1_1Bitmap.html#ac3de733ba4a30175b6b5e55cab5e64d8":[2,0,0,8,2],
 "classGempyre_1_1Bitmap.html#ad82dcde6704dc294334c05bc22b3d289":[2,0,0,8,10],
 "classGempyre_1_1Bitmap.html#ae46011028fa6e70b93953b0ff2929ac5":[2,0,0,8,13],
@@ -229,8 +232,8 @@ var NAVTREEINDEX0 =
 "gempyre__utils_8h.html#a1bd92998cc8e3c62ca9abac1af27c90a":[3,0,0,3,68],
 "gempyre__utils_8h.html#a1bd92998cc8e3c62ca9abac1af27c90a":[1,0,1,61],
 "gempyre__utils_8h.html#a1c850a41dd1a7d35e7483f7ec5e15c75":[3,0,0,3,4],
-"gempyre__utils_8h.html#a1cda60817e171621160a91b610c4bdc3":[3,0,0,3,47],
 "gempyre__utils_8h.html#a1cda60817e171621160a91b610c4bdc3":[1,0,1,40],
+"gempyre__utils_8h.html#a1cda60817e171621160a91b610c4bdc3":[3,0,0,3,47],
 "gempyre__utils_8h.html#a2428b107be77c1fb4684eda81a0692e4":[1,0,1,56],
 "gempyre__utils_8h.html#a2428b107be77c1fb4684eda81a0692e4":[3,0,0,3,63],
 "gempyre__utils_8h.html#a2484847c9a9fdfdea543129e9b0f0b4f":[3,0,0,3,60],
@@ -246,8 +249,5 @@ var NAVTREEINDEX0 =
 "gempyre__utils_8h.html#a32e6e894900899dd93a9bae410747a07":[3,0,0,3,17],
 "gempyre__utils_8h.html#a32e6e894900899dd93a9bae410747a07":[1,0,1,10],
 "gempyre__utils_8h.html#a33098ec3334bf0821f0c542713e9d237":[1,0,1,29],
-"gempyre__utils_8h.html#a33098ec3334bf0821f0c542713e9d237":[3,0,0,3,36],
-"gempyre__utils_8h.html#a37776ea5f3e1dd5da765e3a49a723256":[3,0,0,3,18],
-"gempyre__utils_8h.html#a37776ea5f3e1dd5da765e3a49a723256":[1,0,1,11],
-"gempyre__utils_8h.html#a3974e88dadf37d50df985cf9b8d14fa0":[3,0,0,3,62]
+"gempyre__utils_8h.html#a33098ec3334bf0821f0c542713e9d237":[3,0,0,3,36]
 };

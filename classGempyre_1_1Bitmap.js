@@ -22,6 +22,7 @@ var classGempyre_1_1Bitmap =
     [ "set_alpha", "classGempyre_1_1Bitmap.html#aff1ee976686b380939c4ff591077293e", null ],
     [ "set_pixel", "classGempyre_1_1Bitmap.html#aba233ebda03cd1a7d46e3d10f726fe01", null ],
     [ "swap", "classGempyre_1_1Bitmap.html#a6f7410625385574dab9cc899df0476eb", null ],
+    [ "tile", "classGempyre_1_1Bitmap.html#a78d7b2b141f6751a49e89b3cc91dd503", null ],
     [ "width", "classGempyre_1_1Bitmap.html#a3d8cf9f3047fc26d6533db86e4e56195", null ],
     [ "Gempyre::CanvasElement", "classGempyre_1_1Bitmap.html#abdeb0ab6eaf88ae9496e81b3898bdfa9", null ]
 ];
