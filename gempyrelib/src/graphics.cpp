@@ -371,6 +371,63 @@ void Bitmap::draw_rect(const Element::Rect& rect, Color::type color) {
     }
 }
 
+void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap) {
+    if(bitmap.m_canvas == m_canvas)
+        return;
+
+    if(empty() || bitmap.empty())
+        return;    
+
+    auto width = bitmap.width();
+    auto height = bitmap.height();
+        
+    if (x_pos >= this->width() || x_pos + bitmap.width() < 0)
+        return;
+
+    if (y_pos >= this->height() || y_pos + bitmap.height() < 0)
+            return;
+        
+    int x, y, b_x, b_y;
+
+    if (x_pos < 0) {              // if -10 and width 100
+        x = 0;                  // set 0  
+        b_x = (-x_pos);// (-10) => 10
+        width -= b_x;           // 100 + (-10) => 90 
+    } else {
+        x = x_pos;
+        b_x = 0;
+    }
+
+    if (y_pos < 0) {
+        y = 0;
+        b_y = (-y_pos);
+        height -= b_y;
+    } else {
+        y = y_pos;
+        b_y = 0;
+    }
+
+    if  (x + width >= this->width()) {
+        width = this->width() - x;
+    }
+
+    if  (y + height >= this->height()) {
+        height = this->height() - y;
+    }
+
+    assert(width <= this->width());
+    assert(height <= this->height());
+    assert(width <= bitmap.width());
+    assert(height <= bitmap.height());
+   
+
+    for (auto j = 0; j < height; ++j) {
+        const auto target = m_canvas->data() + (x + (y + j) * m_canvas->width());
+        const auto source = bitmap.m_canvas->data() + (b_x + (b_y + j) * bitmap.m_canvas->width());
+        std::memcpy(target, source, sizeof(dataT) * static_cast<size_t>(width));
+        }
+}
+
 void Bitmap::merge( int x_pos, int y_pos, const Bitmap& bitmap) {
     if(bitmap.m_canvas == m_canvas)
         return;
@@ -459,12 +516,16 @@ void Bitmap::set_alpha(int x, int y, Color::type alpha) {
     return m_canvas->get(x, y);
   }   
 
+
+// add this test in bitmap was long thinking - yes it may make it slower
+// but makes many things easier elsewhere (no need to call empty)
+// trust your compiler :-D
 int Bitmap::width() const {
-        return m_canvas->width();
+        return m_canvas ? m_canvas->width() : 0;
     }
 
 int Bitmap::height() const {
-        return m_canvas->height();
+        return m_canvas ? m_canvas->height() : 0; 
     }
 
 void Bitmap::swap(Bitmap& other) {

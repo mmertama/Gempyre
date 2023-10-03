@@ -583,3 +583,99 @@ TEST(Graphics, bitmap_clip1) {
 }
 
 
+TEST(Graphics, bitmap_tile) {
+    using namespace Gempyre;
+    const auto red_color = Color::rgb(0xFF, 0, 0);
+    const auto red = rect(100, 100, red_color);
+    const auto blue_color = Color::rgb(0, 0x0, 0xFF);
+    auto blue = rect(100, 100, blue_color);
+
+    const Range<0, 100> range;
+
+    const auto b = Color::rgba(blue_color);
+    auto bmp = red.clone();
+    bmp.tile(0, 0, blue);
+    for(const auto row : range) {
+        for(const auto col : range) {
+            ASSERT_EQ(bmp.pixel(row, col), blue_color)  
+                << Color::rgba(bmp.pixel(row, col)) << " vs " << b << " " << row << " " << col;
+        }
+    }
+    blue = rect(10, 10, blue_color);
+    bmp = red.clone();
+    bmp.tile(10, 10, blue);
+    for(const auto row : range) {
+        for(const auto col : range) {
+            if (row >= 10 && row < 20 && col >= 10 && col < 20) {
+                    ASSERT_EQ(bmp.pixel(row, col), blue_color) << bmp.pixel(row, col) << " vs " << blue_color;
+                } else {
+                    ASSERT_EQ(bmp.pixel(row, col), red_color) <<  bmp.pixel(row, col) << " vs " << red_color << " " << row << " " << col;
+                }
+            }
+        }
+
+    bmp = red.clone();
+    bmp.tile(-5, -5, blue);
+    for(const auto row :  range) {
+        for(const auto col : range) {
+            if (row < 5 && col < 5) {
+                ASSERT_EQ(bmp.pixel(row, col), blue_color) <<  bmp.pixel(row, col) << " vs " << blue_color << " " <<  row << " " <<  col;
+            } else {
+                ASSERT_EQ(bmp.pixel(row, col), red_color) << bmp.pixel(row, col) << " vs" << red_color << " " << row << " " << col;
+            }
+        }
+    }
+
+    bmp = red.clone();
+    bmp.tile(95, 95, blue);
+    for(const auto row : range) {
+        for(const auto col :  range) {
+            if (row >= 95 && col >= 95) {
+                ASSERT_EQ(bmp.pixel(row, col), blue_color) << bmp.pixel(row, col) << " vs " <<  blue_color;
+            } else {
+                ASSERT_EQ(bmp.pixel(row, col), red_color) << bmp.pixel(row, col) << " vs " << red_color << " " << row << " " << col;
+            }
+        }
+    }
+
+    bmp = red.clone();
+    bmp.tile(101, 101, blue);
+    for(const auto row :  range) {
+        for(const auto col : range) {
+            if (row >= 95 && col >= 95) {
+                ASSERT_EQ(bmp.pixel(row, col), red_color) <<  bmp.pixel(row, col) << " vs " << red_color << " " << row << " " << col;
+            }
+        }
+    }
+
+    bmp = red.clone();
+    bmp.tile(100, 100, blue);
+    for(const auto row :  range) {
+        for(const auto col : range) {
+            if (row >= 95 && col >= 95) {
+                ASSERT_EQ(bmp.pixel(row, col), red_color) <<  bmp.pixel(row, col) << " vs " << red_color << " " << row << " " << col;
+            }
+        }
+    }
+
+    bmp = red.clone();
+    bmp.tile(-11, -11, blue);
+    for(const auto row :  range) {
+        for(const auto col : range) {
+            if (row >= 95 && col >= 95) {
+                ASSERT_EQ(bmp.pixel(row, col), red_color) <<  bmp.pixel(row, col) << " vs " << red_color << " " << row << " " << col;
+            }
+        }
+    }
+
+    bmp = red.clone();
+    bmp.tile(-10, -10, blue);
+    for(const auto row :  range) {
+        for(const auto col : range) {
+            if (row >= 95 && col >= 95) {
+                ASSERT_EQ(bmp.pixel(row, col), red_color) <<  bmp.pixel(row, col) << " vs " << red_color << " " << row << " " << col;
+            }
+        }
+    }
+}
+

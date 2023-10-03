@@ -44,6 +44,20 @@ message("Found debug libraries ${gempyre_LIBRARIES}")
 find_library(LIB_NAME NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyre${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH}  NO_DEFAULT_PATH REQUIRED)
 message("Found release libraries ${gempyre_LIBRARIES}")
 
+find_library(LIB_NAME_RELWITHDEBINFO NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyrerd${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH)
+if( LIB_NAME_RELWITHDEBINFO )
+    message("Found rel with debug info libraries ${gempyre_LIBRARIES}")
+else()
+    message("Not found rel with debug info libraries")
+endif()    
+
+find_library(LIB_NAME_DEBUG_MINSIZEREL NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyrers${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH}  NO_DEFAULT_PATH)
+if( LIB_NAME_RELWITHDEBINFO )
+    message("Found min size release libraries ${gempyre_LIBRARIES}")
+else()
+    message("Not found in size release libraries")
+endif()    
+
 
 set_and_check(gempyre_legacy_INCLUDE_DIR "${ABSOLUTE_INSTALL_PREFIX}@INCLUDE_FULL_DIR@")
 set_and_check(gempyre_LIBRARY_DIR "${ABSOLUTE_INSTALL_PREFIX}@LIBRARY_FULL_DIR@")
@@ -54,6 +68,8 @@ add_library(gempyre::gempyre_lib STATIC IMPORTED)
 set_target_properties(gempyre::gempyre_lib PROPERTIES
     IMPORTED_LOCATION_RELEASE "${LIB_NAME}"
     IMPORTED_LOCATION_DEBUG "${LIB_NAME_DEBUG}"
+    IMPORTED_LOCATION_RELWITHDEBINFO "${LIB_NAME_RELWITHDEBINFO}"
+    IMPORTED_LOCATION_MINSIZEREL "${LIB_NAME_DEBUG_MINSIZEREL}"
     )
 
 if(WIN32)

@@ -11,6 +11,8 @@ include(GenerateExportHeader)
 include(../scripts/gempyre.cmake)
 
 set(CMAKE_DEBUG_POSTFIX "d")
+set(CMAKE_RELWITHDEBINFO_POSTFIX "rd")
+set(CMAKE_MINSIZEREL_POSTFIX "rs")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -33,18 +35,26 @@ if(MSYS OR MINGW)
     set(MinGW ON)
 endif()    
 
-string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER)
-if (${LOWER} STREQUAL debug)
+string(TOUPPER ${CMAKE_BUILD_TYPE} CONFIG_NAME)
+if (${CONFIG_NAME} STREQUAL "DEBUG")
     set(IS_RELEASE FALSE)
 else()
     set(IS_RELEASE TRUE)
 endif()
 
-if(IS_RELEASE)
-    message("Build is release")
+if( IS_RELEASE )
+    if (${CONFIG_NAME} STREQUAL "RELWITHDEBINFO")
+        message("Build is release with debug info")
+    elseif (${CONFIG_NAME} STREQUAL "MINSIZEREL")
+        message("Build is minimum size release")
+    else()           
+        message("Build is release")
+    endif()    
 else()
      message("Build is debug")
 endif()
+
+#message(WARNING "${IS_RELEASE} - ${CONFIG_NAME} - ${CMAKE_BUILD_TYPE} ")
 
 option(BLEEDING_EDGE OFF)
 
@@ -441,6 +451,9 @@ include_directories(SYSTEM
    )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+set_target_properties(${PROJECT_NAME} PROPERTIES MINSIZEREL_POSTFIX ${CMAKE_MINSIZEREL_POSTFIX})
+set_target_properties(${PROJECT_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX ${CMAKE_RELWITHDEBINFO_POSTFIX})
+
 
 if(CMAKE_BUILD_TYPE EQUAL "RELEASE")
     set(JSMIN MINIFY)

@@ -327,11 +327,14 @@ public:
     /// Draw a rect with a color in bitmap.
     void draw_rect(const Element::Rect& rect, Color::type color);
 
-    /// Draw a Bitmap on this bitmap.  
+    /// Draw a Bitmap on this bitmap - merge alpha.  
     void merge(int x, int y, const Bitmap& other);
 
-    /// Draw a Bitmap on this bitmap.  
+    /// Draw a Bitmap on this bitmap - merge alpha.  
     void merge(const Bitmap& other) {merge(0, 0, other);}
+
+     /// Draw a Bitmap on this bitmap - replace area.  
+    void tile(int x, int y, const Bitmap& other);
 
     /// Create a new bitmap from part of bitmap
     Bitmap clip(const Element::Rect& rect) const;
