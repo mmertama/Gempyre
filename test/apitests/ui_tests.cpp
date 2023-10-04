@@ -15,6 +15,17 @@
 using namespace std::chrono_literals;
 using namespace GempyreTest;
 
+// That was FISHY: I had had to more this test on top here as it fails if that last (after eval or so)
+// ... or was there something that eval has to be last?
+// cannot remember, but anyway the tests are independent! (what is FISHY as a trout)
+TEST_F(TestUi, parent) {
+    test([this]() {
+        EXPECT_FALSE(ui().root().parent());
+        EXPECT_EQ(Gempyre::Element(ui(), "test-1").parent()->id(), ui().root().id());
+        EXPECT_EQ(Gempyre::Element(ui(), "test-child-0").parent()->id(), Gempyre::Element(ui(), "test-1").id());
+    });
+}
+
 
 TEST_F(TestUi, onReload) {
     /** window.location.reload is deprecated **/
@@ -389,6 +400,4 @@ TEST_F(TestUi, eval) {
             EXPECT_EQ(html.value(), "foo bear");
         });
 }
-
-
 

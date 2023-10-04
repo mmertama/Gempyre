@@ -174,6 +174,8 @@ namespace Gempyre {
         [[nodiscard]] std::optional<std::string> type() const;
         /// Get this element UI rect. I.e area it occupies on screen (if applicable)
         [[nodiscard]] std::optional<Rect> rect() const;
+        /// Parent of this element. If query fails, element is root or parent id is not set, nullopt is returned.
+        [[nodiscard]] std::optional<Element> parent() const; 
     protected:
     /// @cond INTERNAL    
         const GempyreInternal& ref() const;

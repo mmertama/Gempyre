@@ -148,6 +148,19 @@ void Element::remove() {
 }
 
 
+std::optional<Element> Element::parent() const {
+    if(m_id == m_ui->root().m_id) {
+        return std::nullopt;
+    }
+    const auto pid = m_ui->ref().query<std::string>(m_id, "parent");
+    if(!pid || pid->empty())
+        return std::nullopt;
+    if(*pid == ": :") // see comment in JS
+        return m_ui->root();
+    return Gempyre::Element(*m_ui, *pid);
+} 
+
+
 Element::~Element() {}
 
 
@@ -231,6 +244,7 @@ DataPtr Data::clone() const {
     std::copy(begin(), end(), ptr->begin());
     return ptr;
 }
+
 
 #ifdef GEMPYRE_IS_DEBUG
         std::string Data::dump() const {
