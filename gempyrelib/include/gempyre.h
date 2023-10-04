@@ -442,6 +442,9 @@ namespace Gempyre {
         /// Read list files as a maps
         static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
 
+        /// Write pending requets to UI - e.g. when eventloop thread is blocked.
+        void flush();
+
         /// @cond INTERNAL
         // for testing
         void resume();

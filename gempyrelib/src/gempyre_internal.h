@@ -450,8 +450,8 @@ public:
     const std::function<bool ()> take_request() {
         m_requestMutex.lock();
         const std::function<bool ()> topRequest = m_requestqueue.front();
-        gempyre_utils_assert_x(topRequest, "Request is null");
-        m_requestqueue.pop_front();
+        if(!m_requestqueue.empty())
+            m_requestqueue.pop_front();
         m_requestMutex.unlock();
         return topRequest;
     }
@@ -487,7 +487,8 @@ public:
     bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters, int listen_port);
     static std::string to_string(const nlohmann::json& js);
     std::function<void(int)> makeCaller(const std::function<void (Ui::TimerId id)>& function);
-    void consume_events(); 
+    void consume_events();
+    void shoot_requests(); 
 private:
     Ui* m_app_ui;
     std::atomic<State> m_status = State::NOTSTARTED;

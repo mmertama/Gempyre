@@ -382,7 +382,6 @@ function handleBinary(buffer) {
 
         // if as_draw AND there is a notification request - send a notify
         if ((as_draw != 0) && event_notifiers.has("canvas_draw")) {
-            log("notify canvas draw");
             socket.send(JSON.stringify({
                                             'type': 'event',
                                             'element': id,
@@ -612,6 +611,25 @@ function setAttribute(el, attribute, value) {
     } catch(ex) {                       // There can be funny side effects with this....
         val = value
     }
+    const existing_type = typeof el[attribute];
+    const new_type =  typeof val;
+
+    log("setAttribute", existing_type, "as", new_type, "to", val, typeof value);
+
+    if(existing_type != new_type) {
+        if(existing_type =='boolean' && new_type == 'string')
+            val = val == 'true';
+        else if(existing_type =='boolean' && new_type == 'number')
+            val = val != 0;
+        else if(existing_type =='number' && new_type == 'boolean')
+            val = val ? 1 : 0;
+        else if(existing_type =='number' && new_type == 'string')
+            val = Number(new_type)
+        else if(existing_type =='string' && new_type == 'boolean')
+            val = val ? "true" : "false";
+        else if(existing_type =='string' && new_type == 'number')
+            val = String(new_type)            
+        }
     el.setAttribute(attribute,  val); //This works in some cases
     el[attribute] = val;              //...and this in some :-D
 }

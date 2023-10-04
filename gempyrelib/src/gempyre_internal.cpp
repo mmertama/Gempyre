@@ -502,16 +502,7 @@ void GempyreInternal::eventLoop(bool is_main) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip requestqueue", state_str());
         }
 
-        //shoot pending requests
-        while(has_requests() && *this == State::RUNNING && is_connected()) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "do request");
-            auto topRequest = take_request();
-            if(!topRequest()) { //yes I wanna  mutex to be unlocked
-                if( ! has_requests())
-                    std::this_thread::sleep_for(10ms); // busyness
-                put_request(std::move(topRequest));
-            }
-        }
+        shoot_requests();
 
         if(has_requests()) {
              GempyreUtils::log(GempyreUtils::LogLevel::Debug, "unfinished business", state_str(), is_connected());
@@ -539,6 +530,21 @@ void GempyreInternal::eventLoop(bool is_main) {
 
     }
     GEM_DEBUG("Eventloop exit");
+}
+
+void GempyreInternal::shoot_requests() {
+    //shoot pending requests
+    while(has_requests() && *this == State::RUNNING && is_connected()) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "do request");
+        auto topRequest = take_request();
+        if(!topRequest) // since "flush" can be called in another thread this can happen :-o
+            return;
+        if(!topRequest()) { //yes I wanna  mutex to be unlocked
+            if( ! has_requests())
+                std::this_thread::sleep_for(10ms); // busyness
+            put_request(std::move(topRequest));
+        }
+    }
 }
 
 void GempyreInternal::send(const DataPtr& data, bool droppable) {

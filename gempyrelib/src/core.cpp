@@ -504,3 +504,7 @@ void Ui::resume() {
     }
 }
 
+void Ui::flush() {
+    m_ui->shoot_requests();
+}
+
