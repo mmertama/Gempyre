@@ -38,6 +38,7 @@ var classGempyre_1_1Ui =
     [ "end_batch", "classGempyre_1_1Ui.html#aa04e354059c1aa9c38c5088b610953f3", null ],
     [ "eval", "classGempyre_1_1Ui.html#ae6628559a097e23ac3171a53d0d9f71a", null ],
     [ "exit", "classGempyre_1_1Ui.html#a004cb40aca777101c6eb2fa710be3ed1", null ],
+    [ "flush", "classGempyre_1_1Ui.html#a0301b6e4019fa78fbe76b6f0c476e37b", null ],
     [ "is_timer_on_hold", "classGempyre_1_1Ui.html#a1c6ab4e07e4089513bda8c8154ec0e30", null ],
     [ "on_error", "classGempyre_1_1Ui.html#ac786901194137db73b7c984b241e9632", null ],
     [ "on_exit", "classGempyre_1_1Ui.html#a705567e1b4774e195f39c6260d19e6ee", null ],

@@ -9,9 +9,10 @@ var searchData=
   ['fill_5fstyle_75',['fill_style',['../classGempyre_1_1FrameComposer.html#a792712c99562b90641b0afe058523f8c',1,'Gempyre::FrameComposer']]],
   ['fill_5ftext_76',['fill_text',['../classGempyre_1_1FrameComposer.html#a005f747590e915c36d708d0a1d8480b0',1,'Gempyre::FrameComposer']]],
   ['filter_77',['Filter',['../classGempyre_1_1Dialog.html#a8c2e56ec2fe48097035884d95e0b9bdf',1,'Gempyre::Dialog']]],
-  ['focus_78',['FOCUS',['../structGempyre_1_1Event.html#aa6c5411acb85017de87fb3033aaf14a1',1,'Gempyre::Event']]],
-  ['focus_5fin_79',['FOCUS_IN',['../structGempyre_1_1Event.html#ae53fdeedc678986b48abc7e9d5a1bcdf',1,'Gempyre::Event']]],
-  ['focus_5fout_80',['FOCUS_OUT',['../structGempyre_1_1Event.html#a98b304a806a5cba32a8c316542f13dbf',1,'Gempyre::Event']]],
-  ['font_81',['font',['../classGempyre_1_1FrameComposer.html#a2cdc27138640138572efcd009d736c6b',1,'Gempyre::FrameComposer']]],
-  ['framecomposer_82',['FrameComposer',['../classGempyre_1_1FrameComposer.html#ae9be303ef0994f028707e4b00576d59d',1,'Gempyre::FrameComposer::FrameComposer()'],['../classGempyre_1_1FrameComposer.html#adf4c9f884ccec38ab9feb3141c419285',1,'Gempyre::FrameComposer::FrameComposer(Gempyre::CanvasElement::CommandList &amp;lst)'],['../classGempyre_1_1FrameComposer.html#afb0d49ec830ee8ea13b1cdf0debedb7e',1,'Gempyre::FrameComposer::FrameComposer(FrameComposer &amp;&amp;other)=default'],['../classGempyre_1_1FrameComposer.html#a8cf4bd7f12126b5e349b76f66772a1ea',1,'Gempyre::FrameComposer::FrameComposer(const FrameComposer &amp;other)=default'],['../classGempyre_1_1FrameComposer.html',1,'Gempyre::FrameComposer']]]
+  ['flush_78',['flush',['../classGempyre_1_1Ui.html#a0301b6e4019fa78fbe76b6f0c476e37b',1,'Gempyre::Ui']]],
+  ['focus_79',['FOCUS',['../structGempyre_1_1Event.html#aa6c5411acb85017de87fb3033aaf14a1',1,'Gempyre::Event']]],
+  ['focus_5fin_80',['FOCUS_IN',['../structGempyre_1_1Event.html#ae53fdeedc678986b48abc7e9d5a1bcdf',1,'Gempyre::Event']]],
+  ['focus_5fout_81',['FOCUS_OUT',['../structGempyre_1_1Event.html#a98b304a806a5cba32a8c316542f13dbf',1,'Gempyre::Event']]],
+  ['font_82',['font',['../classGempyre_1_1FrameComposer.html#a2cdc27138640138572efcd009d736c6b',1,'Gempyre::FrameComposer']]],
+  ['framecomposer_83',['FrameComposer',['../classGempyre_1_1FrameComposer.html#ae9be303ef0994f028707e4b00576d59d',1,'Gempyre::FrameComposer::FrameComposer()'],['../classGempyre_1_1FrameComposer.html#adf4c9f884ccec38ab9feb3141c419285',1,'Gempyre::FrameComposer::FrameComposer(Gempyre::CanvasElement::CommandList &amp;lst)'],['../classGempyre_1_1FrameComposer.html#afb0d49ec830ee8ea13b1cdf0debedb7e',1,'Gempyre::FrameComposer::FrameComposer(FrameComposer &amp;&amp;other)=default'],['../classGempyre_1_1FrameComposer.html#a8cf4bd7f12126b5e349b76f66772a1ea',1,'Gempyre::FrameComposer::FrameComposer(const FrameComposer &amp;other)=default'],['../classGempyre_1_1FrameComposer.html',1,'Gempyre::FrameComposer']]]
 ];

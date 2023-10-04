@@ -314,23 +314,25 @@ $(document).ready(function(){initNavTree('gempyre_8h_source.html',''); initResiz
 <div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;        </div>
 <div class="line"><a name="l00443"></a><span class="lineno"><a class="line" href="classGempyre_1_1Ui.html#aec830e41fd57d6d8ed3fe3a0bfdc4f36">  443</a></span>&#160;        <span class="keyword">static</span> <a class="code" href="classGempyre_1_1Ui.html#adaa82cab31dc23de990a6f1236147087">Ui::Filemap</a> <a class="code" href="classGempyre_1_1Ui.html#aec830e41fd57d6d8ed3fe3a0bfdc4f36">to_file_map</a>(<span class="keyword">const</span> std::vector&lt;std::string&gt;&amp; filenames);</div>
 <div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160; </div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;        <span class="comment">// for testing</span></div>
-<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;        <span class="keywordtype">void</span> resume();</div>
-<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;        <span class="comment">// for testing</span></div>
-<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;        <span class="keywordtype">void</span> suspend();</div>
-<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;        <a class="code" href="classGempyre_1_1Ui.html">Ui</a>(<span class="keyword">const</span> <a class="code" href="classGempyre_1_1Ui.html#adaa82cab31dc23de990a6f1236147087">Filemap</a>&amp; filemap, <span class="keyword">const</span> std::string&amp; indexHtml,</div>
-<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;            <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> port, <span class="keyword">const</span> std::string&amp; root,</div>
-<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;            <span class="keyword">const</span> std::unordered_map&lt;std::string, std::string&gt;&amp; parameters, WindowType windowType);</div>
-<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;        <span class="keyword">const</span> GempyreInternal&amp; ref() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;        GempyreInternal&amp; ref();</div>
-<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;        <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classGempyre_1_1Element.html">Element</a>;</div>
-<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;        std::unique_ptr&lt;GempyreInternal&gt; m_ui;</div>
-<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;    };</div>
-<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;}</div>
-<div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160; </div>
-<div class="line"><a name="l00463"></a><span class="lineno">  463</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// GEMPYRE_H</span></div>
+<div class="line"><a name="l00446"></a><span class="lineno"><a class="line" href="classGempyre_1_1Ui.html#a0301b6e4019fa78fbe76b6f0c476e37b">  446</a></span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classGempyre_1_1Ui.html#a0301b6e4019fa78fbe76b6f0c476e37b">flush</a>();</div>
+<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160; </div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;        <span class="comment">// for testing</span></div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;        <span class="keywordtype">void</span> resume();</div>
+<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;        <span class="comment">// for testing</span></div>
+<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;        <span class="keywordtype">void</span> suspend();</div>
+<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;    <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;        <a class="code" href="classGempyre_1_1Ui.html">Ui</a>(<span class="keyword">const</span> <a class="code" href="classGempyre_1_1Ui.html#adaa82cab31dc23de990a6f1236147087">Filemap</a>&amp; filemap, <span class="keyword">const</span> std::string&amp; indexHtml,</div>
+<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;            <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> port, <span class="keyword">const</span> std::string&amp; root,</div>
+<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;            <span class="keyword">const</span> std::unordered_map&lt;std::string, std::string&gt;&amp; parameters, WindowType windowType);</div>
+<div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;        <span class="keyword">const</span> GempyreInternal&amp; ref() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;        GempyreInternal&amp; ref();</div>
+<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;    <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;        <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classGempyre_1_1Element.html">Element</a>;</div>
+<div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160;        std::unique_ptr&lt;GempyreInternal&gt; m_ui;</div>
+<div class="line"><a name="l00463"></a><span class="lineno">  463</span>&#160;    };</div>
+<div class="line"><a name="l00464"></a><span class="lineno">  464</span>&#160;}</div>
+<div class="line"><a name="l00465"></a><span class="lineno">  465</span>&#160; </div>
+<div class="line"><a name="l00466"></a><span class="lineno">  466</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// GEMPYRE_H</span></div>
 <div class="ttc" id="aclassGempyre_1_1Element_html"><div class="ttname"><a href="classGempyre_1_1Element.html">Gempyre::Element</a></div><div class="ttdoc">Represents all HTML elements on UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:69</div></div>
 <div class="ttc" id="aclassGempyre_1_1Element_html_a0871ed2126a4911a895080d967df32a5"><div class="ttname"><a href="classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5">Gempyre::Element::SubscribeFunction</a></div><div class="ttdeci">std::function&lt; void(const Event &amp;)&gt; SubscribeFunction</div><div class="ttdoc">Callback function for event subscriptions.</div><div class="ttdef"><b>Definition:</b> gempyre.h:78</div></div>
 <div class="ttc" id="aclassGempyre_1_1Element_html_a08f6580a58c3d9dfc95ad15d78fc29e8"><div class="ttname"><a href="classGempyre_1_1Element.html#a08f6580a58c3d9dfc95ad15d78fc29e8">Gempyre::Element::operator=</a></div><div class="ttdeci">Element &amp; operator=(const Element &amp;other)</div><div class="ttdoc">Copy operator.</div><div class="ttdef"><b>Definition:</b> gempyre.h:98</div></div>
@@ -367,6 +369,7 @@ $(document).ready(function(){initNavTree('gempyre_8h_source.html',''); initResiz
 <div class="ttc" id="aclassGempyre_1_1IdList_html"><div class="ttname"><a href="classGempyre_1_1IdList.html">Gempyre::IdList</a></div><div class="ttdef"><b>Definition:</b> gempyre.h:48</div></div>
 <div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:236</div></div>
 <div class="ttc" id="aclassGempyre_1_1Ui_html_a004cb40aca777101c6eb2fa710be3ed1"><div class="ttname"><a href="classGempyre_1_1Ui.html#a004cb40aca777101c6eb2fa710be3ed1">Gempyre::Ui::exit</a></div><div class="ttdeci">void exit()</div><div class="ttdoc">Application gracefully finish the event loop and exits.</div></div>
+<div class="ttc" id="aclassGempyre_1_1Ui_html_a0301b6e4019fa78fbe76b6f0c476e37b"><div class="ttname"><a href="classGempyre_1_1Ui.html#a0301b6e4019fa78fbe76b6f0c476e37b">Gempyre::Ui::flush</a></div><div class="ttdeci">void flush()</div><div class="ttdoc">Write pending requets to UI - e.g. when eventloop thread is blocked.</div></div>
 <div class="ttc" id="aclassGempyre_1_1Ui_html_a063deea043eee8d37366036c3401cacd"><div class="ttname"><a href="classGempyre_1_1Ui.html#a063deea043eee8d37366036c3401cacd">Gempyre::Ui::set_timer_on_hold</a></div><div class="ttdeci">void set_timer_on_hold(bool on_hold)</div><div class="ttdoc">Set all timers to hold. Can be used to pause UI actions.</div></div>
 <div class="ttc" id="aclassGempyre_1_1Ui_html_a06adb93a8c30ae00b1198bddd999ba65"><div class="ttname"><a href="classGempyre_1_1Ui.html#a06adb93a8c30ae00b1198bddd999ba65">Gempyre::Ui::address_of</a></div><div class="ttdeci">std::string address_of(const std::string &amp;filepath) const</div><div class="ttdoc">Get a local file path an URL, can be used with open.</div></div>
 <div class="ttc" id="aclassGempyre_1_1Ui_html_a1b3614c7b1dbbc8b9b11180a19d1f958"><div class="ttname"><a href="classGempyre_1_1Ui.html#a1b3614c7b1dbbc8b9b11180a19d1f958">Gempyre::Ui::debug</a></div><div class="ttdeci">void debug(const std::string &amp;msg)</div><div class="ttdoc">Send a debug message to UI. Message is get received is set_logging is true.</div></div>
