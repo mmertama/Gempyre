@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['qq_159',['qq',['../gempyre__utils_8h.html#a562337a7076cfd7664b2fb307d3852a2',1,'GempyreUtils']]],
-  ['quadratic_5fcurve_5fto_160',['quadratic_curve_to',['../classGempyre_1_1FrameComposer.html#a65d5f157516ab4c61c6c6e922d2e7fcb',1,'Gempyre::FrameComposer']]]
+  ['qq_160',['qq',['../gempyre__utils_8h.html#a562337a7076cfd7664b2fb307d3852a2',1,'GempyreUtils']]],
+  ['quadratic_5fcurve_5fto_161',['quadratic_curve_to',['../classGempyre_1_1FrameComposer.html#a65d5f157516ab4c61c6c6e922d2e7fcb',1,'Gempyre::FrameComposer']]]
 ];

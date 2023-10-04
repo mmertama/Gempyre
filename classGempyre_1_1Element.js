@@ -17,6 +17,7 @@ var classGempyre_1_1Element =
     [ "id", "classGempyre_1_1Element.html#a3f48d839969f29d375d460cfb8e57f41", null ],
     [ "operator=", "classGempyre_1_1Element.html#a08f6580a58c3d9dfc95ad15d78fc29e8", null ],
     [ "operator=", "classGempyre_1_1Element.html#a171f4b6da2a938d96ceba429a894be43", null ],
+    [ "parent", "classGempyre_1_1Element.html#a6b62eb11840d8e3cae8f4f46e1dd3bf4", null ],
     [ "rect", "classGempyre_1_1Element.html#a6f3f133807142e2847eae06b7f756efb", null ],
     [ "remove", "classGempyre_1_1Element.html#ab4f466f41d769a6a645ecf8ed12fb07a", null ],
     [ "remove_attribute", "classGempyre_1_1Element.html#a51d0492cf3572c3b7b4fe1e3c3f9a301", null ],
