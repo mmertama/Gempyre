@@ -88,17 +88,17 @@ $ pip3 install pywebview && pip3 install websockets
 The error is not fatal, but as a consequence the default UI is not drawn on its own window and it fallbacks to the default browser.
 
 Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API?</br>
-A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I change a checkbox element so it fires a change event.
+A: Try `Ui::eval()`, it let you execute javascript in the gui context: e.g. Here I change a checkbox element so it fires a change event.
 
 ```cpp
 ui.eval("document.getElementById(\"" + check_box.id() + "\").click();");
 ```
 Q: Why Canvas drawings seems to happen in random order?</br>
-A: Canvas drawing is highly asynchronous operation and subsequent CanvasElement::draw operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use CanvasElement::draw_completed to wait until each draw has happen. CanvaElement::draw_completed should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Example: https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100 
+A: Canvas drawing is highly asynchronous operation and subsequent `CanvasElement::draw` operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use `CanvasElement::draw_completed` to wait until each draw has happen. `CanvaElement::draw_completed` should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Example: https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100 
 
-Q: Why Bempyre::Bitmap merge is not working?</br>
-A: You are likely mergin on uninitialized bitmap. Gempyre::Bitmap(width, height) or Gempyre::Bitmap::create(width, height) does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
-is not drawn. To initialize the bitmap, use Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White), or draw a rectangle to fill the Bitmap, after the construction. 
+Q: Why `Bempyre::Bitmap` merge is not working?</br>
+A: You are likely mergin on uninitialized bitmap. `Gempyre::Bitmap(width, height)` or `Gempyre::Bitmap::create(width, height)` does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
+is not drawn. To initialize the bitmap, use `Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White)`, or draw a rectangle to fill the Bitmap, after the construction. 
 
 ## Example
 
@@ -156,7 +156,7 @@ target_link_libraries(${PROJECT_NAME} gempyre::gempyre)
 </html>
 ``` 
 
-And then we have a main.cpp. I discuss here every line by line. At first, gempyre.h is included so it can be used.
+And then we have a main.cpp. I discuss here every line by line. At first, *gempyre.h* is included so it can be used.
 
 ```cpp 
 
@@ -166,7 +166,7 @@ And then we have a main.cpp. I discuss here every line by line. At first, gempyr
 
 Within Gempyre you normally build in the HTML and other resources, to compose a single file executable. It is preferred that Gempyre is statically linked in, thus the application is just a single file. Therefore distributing and executing Gempyre applications shall be very easy: just run it! There are no runtimes to install nor DLLs to be dependent on; just a single binary executable.
 
-The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ std::string object that will be passed then to the Gempyre::Ui constructor.
+The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ `std::string` object that will be passed then to the `Gempyre::Ui` constructor.
 
 ```cpp 
 
@@ -185,7 +185,7 @@ In the constructor, you provide a mapping between file names and generated data 
 
 ``` 
 
-HTML elements are represented by Gempyre::Element. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The Gempyre::Element represents any of the HTML elements. It's only inherited class is Gempyre::CanvasElement that implements specific graphics functionalities.
+HTML elements are represented by `Gempyre::Element`. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The `Gempyre::Element` represents any of the HTML elements. It's only inherited class is `Gempyre::CanvasElement` that implements specific graphics functionalities.
 
  ```cpp
 
@@ -200,7 +200,7 @@ The Gempyre API provides a set of methods to get and set HTML content, values, a
 
 ```cpp 
 
-   button.setHTML("Hello?");
+   button.set_html("Hello?");
 
 ```
 
@@ -210,13 +210,13 @@ The subscribe method listens for element events, and when the button is "clicked
 
  button.subscribe("click", [&text]() {
 
-      text.setHTML("Hello World!");
+      text.set_html("Hello World!");
 
     });
 
 ```
 
-The Gempyre::Ui::run starts an event loop. In this example, the system default web browser is opened, and the UI is executed on tab (there are more alternatives to have a system looking application) and the application is waiting for the button to be pressed or the browser window to be closed.
+The `Gempyre::Ui::run()` starts an event loop. In this example, the system default web browser is opened, and the UI is executed on tab (there are more alternatives to have a system looking application) and the application is waiting for the button to be pressed or the browser window to be closed.
 
 ```cpp 
 
