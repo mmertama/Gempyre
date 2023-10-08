@@ -11,7 +11,7 @@ For the application, Gempyre let engine to be implemented using C++ (or Python),
 
 Gempyre is intended for applications that has a solid C++ core (or C), and allows rapid UI development without extra hassle with platform specific UI development. 
 
-Gempyre is multiplatform, its core is written using C++17  (tested OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.
+Gempyre is multiplatform, its core is written using C++17  (tested on OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.
 
 Gempyre itself does not contain an application window. The UI is drawn using external application. Some OSes defaults to system browser, some Python webview. However that is fully configurable per application. 
 
@@ -61,7 +61,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 
 * Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))
 * See Instructions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
-* Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"
+* Ensure Ninja is installed `pacman -S base-devel gcc vim cmake ninja`
 * Run
   ```bash
   mingw_install.sh
@@ -94,9 +94,9 @@ A: Try `Ui::eval()`, it let you execute javascript in the gui context: e.g. Here
 ui.eval("document.getElementById(\"" + check_box.id() + "\").click();");
 ```
 Q: Why Canvas drawings seems to happen in random order?</br>
-A: Canvas drawing is highly asynchronous operation and subsequent `CanvasElement::draw` operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use `CanvasElement::draw_completed` to wait until each draw has happen. `CanvaElement::draw_completed` should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Example: https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100 
+A: Canvas drawing is highly asynchronous operation and subsequent `CanvasElement::draw()` operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use `CanvasElement::draw_completed()` to wait until each draw has happen. `CanvaElement::draw_completed()` should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this [example](https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100)
 
-Q: Why `Bempyre::Bitmap` merge is not working?</br>
+Q: Why `Gempyre::Bitmap` merge is not working?</br>
 A: You are likely mergin on uninitialized bitmap. `Gempyre::Bitmap(width, height)` or `Gempyre::Bitmap::create(width, height)` does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
 is not drawn. To initialize the bitmap, use `Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White)`, or draw a rectangle to fill the Bitmap, after the construction. 
 
