@@ -94,7 +94,7 @@ UI Framework</h2>
 <p>Gempyre is a UI multiplatform framework. Supporting Windows, Mac OSX, Linux, Raspberry OS and Android. Gempyre is minimalistic and simple; It is a UI framework without widgets - instead, the UI is composed using common web tools and frameworks. Therefore Gempyre is small, easy to learn and quick to take in use.</p>
 <p>For the application, Gempyre let engine to be implemented using C++ (or Python), the UI can be constructed using CSS and HTML like any front end. All common tools from the web technologies are be available. Gempyre library provides a simple and easy C++ API for a application development and the whole API is only a few dozen calls.</p>
 <p>Gempyre is intended for applications that has a solid C++ core (or C), and allows rapid UI development without extra hassle with platform specific UI development.</p>
-<p>Gempyre is multiplatform, its core is written using C++17 (tested OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.</p>
+<p>Gempyre is multiplatform, its core is written using C++17 (tested on OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.</p>
 <p>Gempyre itself does not contain an application window. The UI is drawn using external application. Some OSes defaults to system browser, some Python webview. However that is fully configurable per application.</p>
 <p>Gempyre is a library that is linked with the application, except for Android, see <a href="https://github.com/mmertama/Gempyre-Android">Gempyre-Android</a>. For Python, install <a href="https://github.com/mmertama/Gempyre-Python">Gempyre-Python</a> on top of Gempyre library.</p>
 <h3><a class="anchor" id="autotoc_md7"></a>
@@ -140,7 +140,7 @@ MinGW</h4>
 <ul>
 <li>Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))</li>
 <li>See Instructions <a href="https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc">https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc</a></li>
-<li>Ensure Ninja is installed "packman -s base-devel gcc vim cmake ninja"</li>
+<li>Ensure Ninja is installed <code>pacman -S base-devel gcc vim cmake ninja</code></li>
 <li>Run <div class="fragment"><div class="line">mingw_install.sh</div>
 </div><!-- fragment --></li>
 </ul>
@@ -159,10 +159,10 @@ Raspberry OS</h3>
 FAQ</h2>
 <p>Q: After installation you get: "WARNING: webview is not installed -&gt; verification is not completed!", what is that? A: Most likely python3 webview is not installed. See installation from <a href="https://pywebview.flowrl.com/guide/installation.html">pywebview</a>. Please also make sure websockets python library is installed. </p><div class="fragment"><div class="line">$ pip3 install pywebview &amp;&amp; pip3 install websockets</div>
 </div><!-- fragment --><p> The error is not fatal, but as a consequence the default UI is not drawn on its own window and it fallbacks to the default browser.</p>
-<p>Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API? A: Try Ui::eval, it let you execute javascript in the gui context: e.g. Here I change a checkbox element so it fires a change event.</p>
+<p>Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API? A: Try <code>Ui::eval()</code>, it let you execute javascript in the gui context: e.g. Here I change a checkbox element so it fires a change event.</p>
 <div class="fragment"><div class="line">ui.eval(<span class="stringliteral">&quot;document.getElementById(\&quot;&quot;</span> + check_box.id() + <span class="stringliteral">&quot;\&quot;).click();&quot;</span>);</div>
-</div><!-- fragment --><p> Q: Why Canvas drawings seems to happen in random order? A: Canvas drawing is highly asynchronous operation and subsequent CanvasElement::draw operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use CanvasElement::draw_completed to wait until each draw has happen. CanvaElement::draw_completed should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Example: <a href="https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100">https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100</a></p>
-<p>Q: Why Bempyre::Bitmap merge is not working? A: You are likely mergin on uninitialized bitmap. <a class="el" href="classGempyre_1_1Bitmap.html" title="Bitmap for Gempyre Graphics.">Gempyre::Bitmap(width, height)</a> or Gempyre::Bitmap::create(width, height) does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap is not drawn. To initialize the bitmap, use Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White), or draw a rectangle to fill the Bitmap, after the construction.</p>
+</div><!-- fragment --><p> Q: Why Canvas drawings seems to happen in random order? A: Canvas drawing is highly asynchronous operation and subsequent <code>CanvasElement::draw()</code> operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use <code>CanvasElement::draw_completed()</code> to wait until each draw has happen. <code>CanvaElement::draw_completed()</code> should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this <a href="https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100">example</a></p>
+<p>Q: Why <code><a class="el" href="classGempyre_1_1Bitmap.html" title="Bitmap for Gempyre Graphics.">Gempyre::Bitmap</a></code> merge is not working? A: You are likely mergin on uninitialized bitmap. <code><a class="el" href="classGempyre_1_1Bitmap.html" title="Bitmap for Gempyre Graphics.">Gempyre::Bitmap(width, height)</a></code> or <code>Gempyre::Bitmap::create(width, height)</code> does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap is not drawn. To initialize the bitmap, use <code>Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White)</code>, or draw a rectangle to fill the Bitmap, after the construction.</p>
 <h2><a class="anchor" id="autotoc_md15"></a>
 Example</h2>
 <h3><a class="anchor" id="autotoc_md16"></a>
@@ -211,31 +211,31 @@ Hello world</h3>
 <div class="line">    &lt;/body&gt;</div>
 <div class="line"> </div>
 <div class="line">&lt;/html&gt;</div>
-</div><!-- fragment --><p>And then we have a main.cpp. I discuss here every line by line. At first, <a class="el" href="gempyre_8h.html">gempyre.h</a> is included so it can be used.</p>
+</div><!-- fragment --><p>And then we have a main.cpp. I discuss here every line by line. At first, <em><a class="el" href="gempyre_8h.html">gempyre.h</a></em> is included so it can be used.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include  &lt;<a class="code" href="gempyre_8h.html">gempyre.h</a>&gt;</span></div>
 <div class="ttc" id="agempyre_8h_html"><div class="ttname"><a href="gempyre_8h.html">gempyre.h</a></div></div>
 </div><!-- fragment --><p>Within Gempyre you normally build in the HTML and other resources, to compose a single file executable. It is preferred that Gempyre is statically linked in, thus the application is just a single file. Therefore distributing and executing Gempyre applications shall be very easy: just run it! There are no runtimes to install nor DLLs to be dependent on; just a single binary executable.</p>
-<p>The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ std::string object that will be passed then to the <a class="el" href="classGempyre_1_1Ui.html" title="The application UI.">Gempyre::Ui</a> constructor.</p>
+<p>The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ <code>std::string</code> object that will be passed then to the <code><a class="el" href="classGempyre_1_1Ui.html" title="The application UI.">Gempyre::Ui</a></code> constructor.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;hello_resources.h&quot;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> <span class="comment">/*argc*/</span>, <span class="keywordtype">char</span>** <span class="comment">/*argv*/</span>)  {</div>
 </div><!-- fragment --><p>In the constructor, you provide a mapping between file names and generated data and the HTML page that will be shown.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Ui.html">Gempyre::Ui</a> ui({ {<span class="stringliteral">&quot;/hello.html&quot;</span>, Hellohtml} }, <span class="stringliteral">&quot;hello.html&quot;</span>);</div>
 <div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:236</div></div>
-</div><!-- fragment --><p>HTML elements are represented by <a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a>. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The <a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a> represents any of the HTML elements. It's only inherited class is <a class="el" href="classGempyre_1_1CanvasElement.html" title="Graphics element.">Gempyre::CanvasElement</a> that implements specific graphics functionalities.</p>
+</div><!-- fragment --><p>HTML elements are represented by <code><a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a></code>. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The <code><a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a></code> represents any of the HTML elements. It's only inherited class is <code><a class="el" href="classGempyre_1_1CanvasElement.html" title="Graphics element.">Gempyre::CanvasElement</a></code> that implements specific graphics functionalities.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> text(ui, <span class="stringliteral">&quot;content&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> button(ui, <span class="stringliteral">&quot;startbutton&quot;</span>);</div>
 <div class="ttc" id="aclassGempyre_1_1Element_html"><div class="ttname"><a href="classGempyre_1_1Element.html">Gempyre::Element</a></div><div class="ttdoc">Represents all HTML elements on UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:69</div></div>
 </div><!-- fragment --><p>The Gempyre API provides a set of methods to get and set HTML content, values, and attributes. Here we just use setHTML to apply a given string as an element HTML content.</p>
-<div class="fragment"><div class="line">button.setHTML(<span class="stringliteral">&quot;Hello?&quot;</span>);</div>
+<div class="fragment"><div class="line">button.set_html(<span class="stringliteral">&quot;Hello?&quot;</span>);</div>
 </div><!-- fragment --><p>The subscribe method listens for element events, and when the button is "clicked" a given function is executed.</p>
 <div class="fragment"><div class="line">button.subscribe(<span class="stringliteral">&quot;click&quot;</span>, [&amp;text]() {</div>
 <div class="line"> </div>
-<div class="line">     text.setHTML(<span class="stringliteral">&quot;Hello World!&quot;</span>);</div>
+<div class="line">     text.set_html(<span class="stringliteral">&quot;Hello World!&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line">   });</div>
-</div><!-- fragment --><p>The <a class="el" href="classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d" title="Starts the event loop.">Gempyre::Ui::run</a> starts an event loop. In this example, the system default web browser is opened, and the UI is executed on tab (there are more alternatives to have a system looking application) and the application is waiting for the button to be pressed or the browser window to be closed.</p>
+</div><!-- fragment --><p>The <code><a class="el" href="classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d" title="Starts the event loop.">Gempyre::Ui::run()</a></code> starts an event loop. In this example, the system default web browser is opened, and the UI is executed on tab (there are more alternatives to have a system looking application) and the application is waiting for the button to be pressed or the browser window to be closed.</p>
 <div class="fragment"><div class="line">  ui.run();</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
