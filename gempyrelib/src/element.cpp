@@ -7,6 +7,13 @@
 #include <chrono>
 #include <charconv>
 
+// helper type for the visitor #4
+template<class... Ts>
+struct overloaded : Ts... { using Ts::operator()...; };
+// explicit deduction guide (not needed as of C++20)
+template<class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
+
 using namespace Gempyre;
 
 const std::string Element::generateId(const std::string& prefix) {
@@ -68,6 +75,25 @@ Element& Element::set_attribute(const std::string &attr) {
         "value", "true");
     return *this;
 }
+/*
+using AttrValueType = std::variant<bool, int, unsigned, float, double>;
+
+template <typename T>
+void Element::send(Element& el, const std::string& attr, const T& value) {
+    el.ref().send(el, "set_attribute",  "attribute", attr, "value", value);
+}
+
+Element& Element::set_attribute(const std::string& attr, const AttrValueType& value) {
+    std::visit(overloaded {
+        [&, this](const bool& v) {send(*this, attr, v);},
+        [&, this](const int& v) {send(*this, attr, v);},
+        [&, this](const double& v) {send(*this, attr, v);},
+        [&, this](const float& v) {send(*this, attr, v);},
+        [&, this](const unsigned& v) {send(*this, attr, v);},
+    }, value);
+    return *this;
+}
+*/
 
 Element& Element::remove_attribute(const std::string &attr) {
     ref().send(*this, "remove_attribute",
@@ -159,7 +185,7 @@ std::optional<Element> Element::parent() const {
         return m_ui->root();
     return Gempyre::Element(*m_ui, *pid);
 } 
-
+ 
 
 Element::~Element() {}
 

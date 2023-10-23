@@ -89,6 +89,7 @@ namespace Gempyre {
             int height;
         };
         
+
     public:
         /// Copy constructor.
         Element(const Element& other) = default;
@@ -144,7 +145,7 @@ namespace Gempyre {
         /// @param value - attribute value
         /// @return this element
         Element& set_attribute(const std::string& attr, const std::string& value);
-         /// @brief Set HTML a attribute of this element
+        /// @brief Set HTML a attribute of this element
         /// @param attr - attribute name
         /// @return this element
         Element& set_attribute(const std::string& attr);
@@ -180,7 +181,7 @@ namespace Gempyre {
     /// @cond INTERNAL    
         const GempyreInternal& ref() const;
         GempyreInternal& ref();
-        static const std::string generateId(const std::string& prefix);        
+        static const std::string generateId(const std::string& prefix);
     protected:
         Ui* m_ui;
         std::string m_id;
@@ -225,6 +226,8 @@ namespace Gempyre {
         static constexpr auto  FOCUS_OUT = "focusout";
         /// Load
         static constexpr auto  LOAD = "load";
+        /// Resize - use ui.root().subscribe(Event::RESIZE, [... for window resize 
+        static constexpr auto  RESIZE = "resize"; 
        
         /// @brief element that has emitted the event, the same that did subscription.
         Element element;
