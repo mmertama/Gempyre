@@ -11,10 +11,11 @@ var searchData=
   ['rename_171',['rename',['../gempyre__utils_8h.html#aa0e1da079e95279d3cdf2e7680f7536b',1,'GempyreUtils']]],
   ['req_5farg_172',['REQ_ARG',['../gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7ab1e952de82e89cc94bd74d80baa74f47',1,'GempyreUtils']]],
   ['resize_173',['resize',['../classGempyre_1_1Ui.html#a3001b664722f19fa975e79cc7664420b',1,'Gempyre::Ui']]],
-  ['resource_174',['resource',['../classGempyre_1_1Ui.html#ae8c5d85d8039c8a3f1cb6923c41f5852',1,'Gempyre::Ui']]],
-  ['restore_175',['restore',['../classGempyre_1_1FrameComposer.html#a057e71fe4e46d69a71a0313c54a800d9',1,'Gempyre::FrameComposer']]],
-  ['root_176',['root',['../classGempyre_1_1Ui.html#aada4cb3de6951419ed383a87068fb714',1,'Gempyre::Ui']]],
-  ['root_5fdir_177',['root_dir',['../gempyre__utils_8h.html#a51e1aac2b9e5c9dd9a19a2ecde999e44',1,'GempyreUtils']]],
-  ['rotate_178',['rotate',['../classGempyre_1_1FrameComposer.html#ad9b59edb183984a218c4cc27bba43eb8',1,'Gempyre::FrameComposer']]],
-  ['run_179',['run',['../classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d',1,'Gempyre::Ui']]]
+  ['resize_174',['RESIZE',['../structGempyre_1_1Event.html#a857be75f650b18ce11149d8ba79ff248',1,'Gempyre::Event']]],
+  ['resource_175',['resource',['../classGempyre_1_1Ui.html#ae8c5d85d8039c8a3f1cb6923c41f5852',1,'Gempyre::Ui']]],
+  ['restore_176',['restore',['../classGempyre_1_1FrameComposer.html#a057e71fe4e46d69a71a0313c54a800d9',1,'Gempyre::FrameComposer']]],
+  ['root_177',['root',['../classGempyre_1_1Ui.html#aada4cb3de6951419ed383a87068fb714',1,'Gempyre::Ui']]],
+  ['root_5fdir_178',['root_dir',['../gempyre__utils_8h.html#a51e1aac2b9e5c9dd9a19a2ecde999e44',1,'GempyreUtils']]],
+  ['rotate_179',['rotate',['../classGempyre_1_1FrameComposer.html#ad9b59edb183984a218c4cc27bba43eb8',1,'Gempyre::FrameComposer']]],
+  ['run_180',['run',['../classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d',1,'Gempyre::Ui']]]
 ];
