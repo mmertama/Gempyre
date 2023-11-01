@@ -22,8 +22,15 @@ using namespace GempyreTest;
 TEST_F(TestUi, parent) {
     test([this]() {
         EXPECT_FALSE(ui().root().parent());
-        EXPECT_EQ(Gempyre::Element(ui(), "test-1").parent()->id(), ui().root().id());
-        EXPECT_EQ(Gempyre::Element(ui(), "test-child-0").parent()->id(), Gempyre::Element(ui(), "test-1").id());
+        const Gempyre::Element t1 (ui(), "test-1");
+        const auto parent = t1.parent();
+        ASSERT_TRUE(parent.has_value());
+        const auto root = ui().root();
+        EXPECT_EQ(parent->id(), root.id());
+        Gempyre::Element t2(ui(), "test-child-0");
+        const auto parent2 = t2.parent();
+        ASSERT_TRUE(parent2.has_value());
+        EXPECT_EQ(parent2->id(), t1.id());
     });
 }
 

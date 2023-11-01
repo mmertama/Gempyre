@@ -334,7 +334,8 @@ inline std::string_view ltrim(std::string_view str) {
     const auto begin = std::find_if(str.begin(), str.end(), [](auto ch) {
         return (ch > ' ');
     });
-    return std::string_view(begin, static_cast<size_t>(std::distance(begin, str.end())));
+   return str.substr(static_cast<std::string_view::size_type>(
+    std::distance(str.begin(), begin)));
 }
 
 /// @brief trim from right
@@ -344,7 +345,8 @@ inline std::string_view rtrim(std::string_view str) {
     const auto end = std::find_if(str.rbegin(), str.rend(), [](auto ch) {
         return (ch > ' ');
     });
-    return std::string_view(str.begin(), static_cast<size_t>(std::distance(str.begin(), end.base())));
+    return str.substr(0, static_cast<std::string_view::size_type>(
+        std::distance(end, str.rend())));
 }
 
 /// @brief trim from left and right

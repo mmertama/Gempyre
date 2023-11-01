@@ -257,7 +257,9 @@ function serveQuery(element, query_id, query, query_params) {
             break;
         case 'parent':
             // ids are not allowed to have spaces, so we use that abonomination for a root :-D
-            const parentValue = (el.parentElement == document.body ? ": :" : el.parentElement.id); 
+            let parentValue = (
+                el.parentNode == document.body ||
+                el.parentElement == document.body) ? ": :" : el.parentElement.id;
             socket.send(JSON.stringify({
                 'type': 'query',
                 'query_id': query_id,
