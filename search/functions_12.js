@@ -10,6 +10,6 @@ var searchData=
   ['to_5flow_417',['to_low',['../gempyre__utils_8h.html#a8603f61a1077403d8fb5a0430113cc66',1,'GempyreUtils']]],
   ['to_5fstr_418',['to_str',['../gempyre__utils_8h.html#a1bd92998cc8e3c62ca9abac1af27c90a',1,'GempyreUtils']]],
   ['translate_419',['translate',['../classGempyre_1_1FrameComposer.html#a1846cb651bdc6754bdf9c554a1d2a906',1,'Gempyre::FrameComposer']]],
-  ['trim_420',['trim',['../gempyre__utils_8h.html#a4f386e6c1f70b76a0041b88e7479ff66',1,'GempyreUtils']]],
+  ['trim_420',['trim',['../gempyre__utils_8h.html#abaf7ec50ed8ee59c4f5b07a40c9060d4',1,'GempyreUtils']]],
   ['type_421',['type',['../classGempyre_1_1Element.html#a4ba6006921bd41c30df164230163951c',1,'Gempyre::Element']]]
 ];

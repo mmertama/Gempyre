@@ -17,6 +17,6 @@ var searchData=
   ['root_178',['root',['../classGempyre_1_1Ui.html#aada4cb3de6951419ed383a87068fb714',1,'Gempyre::Ui']]],
   ['root_5fdir_179',['root_dir',['../gempyre__utils_8h.html#a51e1aac2b9e5c9dd9a19a2ecde999e44',1,'GempyreUtils']]],
   ['rotate_180',['rotate',['../classGempyre_1_1FrameComposer.html#ad9b59edb183984a218c4cc27bba43eb8',1,'Gempyre::FrameComposer']]],
-  ['rtrim_181',['rtrim',['../gempyre__utils_8h.html#a5accaca06c0f94b3fa6463b03ffc330d',1,'GempyreUtils']]],
+  ['rtrim_181',['rtrim',['../gempyre__utils_8h.html#a45ab88f4716fd69f46f8301dd6f42bc7',1,'GempyreUtils']]],
   ['run_182',['run',['../classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d',1,'Gempyre::Ui']]]
 ];
