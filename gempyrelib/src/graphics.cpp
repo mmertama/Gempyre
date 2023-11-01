@@ -71,6 +71,22 @@ CanvasElement::CanvasElement(Ui& ui, const Element& parent)
         : Element(ui, "canvas", parent) {}
         
 
+// Copy operator. 
+CanvasElement& CanvasElement::operator=(const CanvasElement& other) {
+    m_tile = other.m_tile;
+    m_width = other.m_width;
+    m_height = other.m_height;
+    return *this;
+}
+
+/// Move operator.
+CanvasElement& CanvasElement::operator=(CanvasElement&& other) {
+    m_tile = std::move(other.m_tile);
+    m_width = other.m_width;
+    m_height = other.m_height;
+    return *this;
+}
+
 CanvasElement::~CanvasElement() {
     m_tile.reset();
 }
