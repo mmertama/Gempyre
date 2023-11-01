@@ -181,9 +181,12 @@ std::optional<Element> Element::parent() const {
     const auto pid = m_ui->ref().query<std::string>(m_id, "parent");
     if(!pid || pid->empty())
         return std::nullopt;
-    if(*pid == ": :") // see comment in JS
+    auto trimmed = std::string(GempyreUtils::trim(*pid));
+    if(trimmed.empty())
+        return std::nullopt;
+    if(trimmed == ": :") // see comment in JS
         return m_ui->root();
-    return Gempyre::Element(*m_ui, std::string(GempyreUtils::trim(*pid)));
+    return Gempyre::Element(*m_ui, std::move(trimmed));
 } 
  
 
