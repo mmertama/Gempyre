@@ -1,8 +1,8 @@
 #include <thread>
+#include <sstream>
 #include <gtest/gtest.h>
 #include "gempyre.h"
 #include "gempyre_graphics.h"
-
 #include "timequeue.h"
 
 TEST(Unittests, Test_rgb) {
@@ -363,6 +363,13 @@ TEST(Unitests, logs) {
 TEST(Unitests, fatal_logs) {
     EXPECT_EXIT(GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Red underscore"),
      testing::ExitedWithCode(99), "");
+}
+
+TEST(Unittests, trim_test) {
+    std::stringstream ss;
+    ss <<  GempyreUtils::ltrim(" d  Hello World < ") << "_" << GempyreUtils::rtrim(" q xxx t  \t ") << "_" 
+    << GempyreUtils::trim(" a v ") << "_" << GempyreUtils::trim("") << "_" << GempyreUtils::trim("   ") <<"_"<< GempyreUtils::trim("ganesh");
+   EXPECT_EQ(ss.str(), std::string("d  Hello World < _ q xxx t_a v___ganesh")); 
 }
 
 int main(int argc, char **argv) {

@@ -325,6 +325,26 @@ std::string to_low(const T& str) {
     return n;
 }
 
+ 
+inline auto ltrim(std::string_view str) {
+    const auto begin = std::find_if(str.begin(), str.end(), [](auto ch) {
+        return (ch > ' ');
+    });
+    return std::string_view(begin, static_cast<size_t>(std::distance(begin, str.end())));
+}
+
+inline auto rtrim(std::string_view str) {
+    const auto end = std::find_if(str.rbegin(), str.rend(), [](auto ch) {
+        return (ch > ' ');
+    });
+    return std::string_view(str.begin(), static_cast<size_t>(std::distance(str.begin(), end.base())));
+}
+
+inline auto trim(std::string_view str) {
+    return ltrim(rtrim(str));
+}
+
+
 
  /// @brief Hex presentation of the value
  /// @param ival 

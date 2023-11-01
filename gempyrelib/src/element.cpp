@@ -183,7 +183,7 @@ std::optional<Element> Element::parent() const {
         return std::nullopt;
     if(*pid == ": :") // see comment in JS
         return m_ui->root();
-    return Gempyre::Element(*m_ui, *pid);
+    return Gempyre::Element(*m_ui, std::string(GempyreUtils::trim(*pid)));
 } 
  
 
