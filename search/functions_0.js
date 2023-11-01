@@ -1,13 +1,13 @@
 var searchData=
 [
-  ['abs_5fpath_258',['abs_path',['../gempyre__utils_8h.html#a926f0d2add92f8889684fc1f19dc5eab',1,'GempyreUtils']]],
-  ['add_5ffile_259',['add_file',['../classGempyre_1_1Ui.html#a1eb5972f26dece5fc5f1dc6d17b55619',1,'Gempyre::Ui::add_file(const std::string &amp;url, const std::string &amp;file)'],['../classGempyre_1_1Ui.html#ab6988b649946cc62cfaac707c0db4374',1,'Gempyre::Ui::add_file(Filemap &amp;map, const std::string &amp;filename)']]],
-  ['add_5fimage_260',['add_image',['../classGempyre_1_1CanvasElement.html#a2d61c45a1525769f57b6687f392daa2d',1,'Gempyre::CanvasElement']]],
-  ['address_5fof_261',['address_of',['../classGempyre_1_1Ui.html#a06adb93a8c30ae00b1198bddd999ba65',1,'Gempyre::Ui']]],
-  ['advanced_262',['advanced',['../gempyre__utils_8h.html#a8ada0ce53427cd8b31850668006cf31c',1,'GempyreUtils']]],
-  ['after_263',['after',['../classGempyre_1_1Ui.html#a93abef76b2287f6ba6b38cb8ac35fe53',1,'Gempyre::Ui::after(const std::chrono::milliseconds &amp;ms, const std::function&lt; void(TimerId id)&gt; &amp;timerFunc)'],['../classGempyre_1_1Ui.html#a3f13e005fcc54121838f22f63dbf5fdc',1,'Gempyre::Ui::after(const std::chrono::milliseconds &amp;ms, const std::function&lt; void()&gt; &amp;timerFunc)']]],
-  ['alert_264',['alert',['../classGempyre_1_1Ui.html#a649d798b7bf8a1786a86db9b46f36ad0',1,'Gempyre::Ui']]],
-  ['arc_265',['arc',['../classGempyre_1_1FrameComposer.html#a5c402655072cc0dc4f7f7365214dea76',1,'Gempyre::FrameComposer']]],
-  ['arc_5fto_266',['arc_to',['../classGempyre_1_1FrameComposer.html#a313c9951b684e246fb0bc902668ac0d9',1,'Gempyre::FrameComposer']]],
-  ['attributes_267',['attributes',['../classGempyre_1_1Element.html#a49dcdd35dcd020573a6ec470431005a6',1,'Gempyre::Element']]]
+  ['abs_5fpath_261',['abs_path',['../gempyre__utils_8h.html#a926f0d2add92f8889684fc1f19dc5eab',1,'GempyreUtils']]],
+  ['add_5ffile_262',['add_file',['../classGempyre_1_1Ui.html#a1eb5972f26dece5fc5f1dc6d17b55619',1,'Gempyre::Ui::add_file(const std::string &amp;url, const std::string &amp;file)'],['../classGempyre_1_1Ui.html#ab6988b649946cc62cfaac707c0db4374',1,'Gempyre::Ui::add_file(Filemap &amp;map, const std::string &amp;filename)']]],
+  ['add_5fimage_263',['add_image',['../classGempyre_1_1CanvasElement.html#a2d61c45a1525769f57b6687f392daa2d',1,'Gempyre::CanvasElement']]],
+  ['address_5fof_264',['address_of',['../classGempyre_1_1Ui.html#a06adb93a8c30ae00b1198bddd999ba65',1,'Gempyre::Ui']]],
+  ['advanced_265',['advanced',['../gempyre__utils_8h.html#a8ada0ce53427cd8b31850668006cf31c',1,'GempyreUtils']]],
+  ['after_266',['after',['../classGempyre_1_1Ui.html#a93abef76b2287f6ba6b38cb8ac35fe53',1,'Gempyre::Ui::after(const std::chrono::milliseconds &amp;ms, const std::function&lt; void(TimerId id)&gt; &amp;timerFunc)'],['../classGempyre_1_1Ui.html#a3f13e005fcc54121838f22f63dbf5fdc',1,'Gempyre::Ui::after(const std::chrono::milliseconds &amp;ms, const std::function&lt; void()&gt; &amp;timerFunc)']]],
+  ['alert_267',['alert',['../classGempyre_1_1Ui.html#a649d798b7bf8a1786a86db9b46f36ad0',1,'Gempyre::Ui']]],
+  ['arc_268',['arc',['../classGempyre_1_1FrameComposer.html#a5c402655072cc0dc4f7f7365214dea76',1,'Gempyre::FrameComposer']]],
+  ['arc_5fto_269',['arc_to',['../classGempyre_1_1FrameComposer.html#a313c9951b684e246fb0bc902668ac0d9',1,'Gempyre::FrameComposer']]],
+  ['attributes_270',['attributes',['../classGempyre_1_1Element.html#a49dcdd35dcd020573a6ec470431005a6',1,'Gempyre::Element']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['logwriter_251',['LogWriter',['../classGempyreUtils_1_1LogWriter.html',1,'GempyreUtils']]]
+  ['logwriter_254',['LogWriter',['../classGempyreUtils_1_1LogWriter.html',1,'GempyreUtils']]]
 ];

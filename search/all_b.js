@@ -8,5 +8,6 @@ var searchData=
   ['log_5fdebug_124',['log_debug',['../gempyre__utils_8h.html#a5ecec5d2d73a0250469060787a9a8059',1,'GempyreUtils']]],
   ['log_5flevel_125',['log_level',['../gempyre__utils_8h.html#a4ec5eb75db7f0c5ac408e2c9f9fc4cea',1,'GempyreUtils']]],
   ['loglevel_126',['LogLevel',['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216e',1,'GempyreUtils']]],
-  ['logwriter_127',['LogWriter',['../classGempyreUtils_1_1LogWriter.html',1,'GempyreUtils::LogWriter'],['../classGempyreUtils_1_1LogWriter.html#ae5fa19f198a8a101207b6e28fd39bc5a',1,'GempyreUtils::LogWriter::LogWriter()']]]
+  ['logwriter_127',['LogWriter',['../classGempyreUtils_1_1LogWriter.html',1,'GempyreUtils::LogWriter'],['../classGempyreUtils_1_1LogWriter.html#ae5fa19f198a8a101207b6e28fd39bc5a',1,'GempyreUtils::LogWriter::LogWriter()']]],
+  ['ltrim_128',['ltrim',['../gempyre__utils_8h.html#a250d06a1b22f6bd66aac647da7b045d6',1,'GempyreUtils']]]
 ];
