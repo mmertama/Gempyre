@@ -34,6 +34,14 @@ TEST_F(TestUi, parent) {
     });
 }
 
+TEST_F(TestUi, available) {
+    test([this]() {
+        EXPECT_FALSE(ui().available("not found"));
+        EXPECT_TRUE(ui().available("test-1"));
+        EXPECT_TRUE(ui().available("test-child-0"));
+    });
+}
+
 
 TEST_F(TestUi, onReload) {
     /** window.location.reload is deprecated **/

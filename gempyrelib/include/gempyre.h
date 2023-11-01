@@ -448,12 +448,16 @@ namespace Gempyre {
         /// Write pending requets to UI - e.g. when eventloop thread is blocked.
         void flush();
 
+        /// test if Element can be accessed. Note that in false it's may be in HTML, but not available in DOM tree.
+        bool available(const std::string& id) const; 
+
         /// @cond INTERNAL
         // for testing
         void resume();
         // for testing
         void suspend();
         /// @endcond
+
     private:
         Ui(const Filemap& filemap, const std::string& indexHtml,
             unsigned short port, const std::string& root,

@@ -290,6 +290,10 @@ void Ui::open(const std::string& url, const std::string& name) {
     m_ui->send(root(), "open", json {{"url", url}, {"view", name}});
 }
 
+bool Ui::available(const std::string& id) const {
+    const auto is_available = m_ui->query<std::string>(id, "exists");
+    return is_available && is_available.value() == "true";
+}
 
 std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> Ui::ping() const {
     const auto milliseconds_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
