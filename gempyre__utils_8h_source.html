@@ -313,7 +313,7 @@ $(document).ready(function(){initNavTree('gempyre__utils_8h_source.html',''); in
 <div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> begin = std::find_if(str.begin(), str.end(), [](<span class="keyword">auto</span> ch) {</div>
 <div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;        return (ch &gt; <span class="stringliteral">&#39; &#39;</span>);</div>
 <div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    });</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;    <span class="keywordflow">return</span> std::string_view(begin, <span class="keyword">static_cast&lt;</span><span class="keywordtype">size_t</span><span class="keyword">&gt;</span>(std::distance(begin, str.end())));</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;    <span class="keywordflow">return</span> std::string_view(begin, str.size() - std::distance(begin, str.begin()));</div>
 <div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;}</div>
 <div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160; </div>
 <div class="line"><a name="l00343"></a><span class="lineno"><a class="line" href="gempyre__utils_8h.html#a45ab88f4716fd69f46f8301dd6f42bc7">  343</a></span>&#160;<span class="keyword">inline</span> std::string_view <a class="code" href="gempyre__utils_8h.html#a45ab88f4716fd69f46f8301dd6f42bc7">rtrim</a>(std::string_view str) {</div>
