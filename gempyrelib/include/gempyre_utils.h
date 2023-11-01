@@ -15,6 +15,7 @@
 #include <limits>
 #include <iomanip>
 #include <any>
+#include <string_view>
 
 /**
   * @file
@@ -326,6 +327,9 @@ std::string to_low(const T& str) {
 }
 
  
+/// @brief trim from left
+/// @param str 
+/// @return trimmed string view
 inline auto ltrim(std::string_view str) {
     const auto begin = std::find_if(str.begin(), str.end(), [](auto ch) {
         return (ch > ' ');
@@ -333,6 +337,9 @@ inline auto ltrim(std::string_view str) {
     return std::string_view(begin, static_cast<size_t>(std::distance(begin, str.end())));
 }
 
+/// @brief trim from right
+/// @param str 
+/// @return trimmed string view
 inline auto rtrim(std::string_view str) {
     const auto end = std::find_if(str.rbegin(), str.rend(), [](auto ch) {
         return (ch > ' ');
@@ -340,6 +347,9 @@ inline auto rtrim(std::string_view str) {
     return std::string_view(str.begin(), static_cast<size_t>(std::distance(str.begin(), end.base())));
 }
 
+/// @brief trim from left and right
+/// @param str 
+/// @return trimmed string view
 inline auto trim(std::string_view str) {
     return ltrim(rtrim(str));
 }
