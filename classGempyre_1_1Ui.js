@@ -28,6 +28,7 @@ var classGempyre_1_1Ui =
     [ "after", "classGempyre_1_1Ui.html#a3f13e005fcc54121838f22f63dbf5fdc", null ],
     [ "after", "classGempyre_1_1Ui.html#a93abef76b2287f6ba6b38cb8ac35fe53", null ],
     [ "alert", "classGempyre_1_1Ui.html#a649d798b7bf8a1786a86db9b46f36ad0", null ],
+    [ "available", "classGempyre_1_1Ui.html#ae2013e0037e009f6d69d31c00d5824a9", null ],
     [ "begin_batch", "classGempyre_1_1Ui.html#aa3b350ec16cfcf3becb36077e955a678", null ],
     [ "by_class", "classGempyre_1_1Ui.html#a836a62df9bf04d42c857b26fff358e87", null ],
     [ "by_name", "classGempyre_1_1Ui.html#aaed4194b02ff83319eecb3b287b83a4d", null ],

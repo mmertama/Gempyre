@@ -83,7 +83,7 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
+"annotated.html",
 "gempyre__utils_8h.html#a33098ec3334bf0821f0c542713e9d237"
 ];
 
