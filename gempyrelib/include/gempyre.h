@@ -412,6 +412,12 @@ namespace Gempyre {
         /// @return success.
         bool add_file(const std::string& url, const std::string& file);
 
+        /// @brief Add a data into Gempyre to be accessed via url.
+        /// @param url 
+        /// @param data 
+        /// @return 
+        bool add_data(const std::string& url, const std::vector<uint8_t>& data);
+
         /// @brief Add file data into map to be added as a map.
         /// @param map resource data.
         /// @param filename filename to read.

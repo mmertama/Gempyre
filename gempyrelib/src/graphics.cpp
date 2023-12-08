@@ -387,40 +387,51 @@ void Bitmap::draw_rect(const Element::Rect& rect, Color::type color) {
     }
 }
 
+void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap, int r_width, int r_height) {
+    tile(x_pos, y_pos, bitmap, 0, 0, r_width, r_height);
+}
+
 void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap) {
+    tile(x_pos, y_pos, bitmap, bitmap.width(), bitmap.height());
+}
+
+void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap, int rx_pos, int ry_pos, int r_width, int r_height) {
     if(bitmap.m_canvas == m_canvas)
         return;
 
     if(empty() || bitmap.empty())
         return;    
 
-    auto width = bitmap.width();
-    auto height = bitmap.height();
+    auto width = std::min(r_width, bitmap.width()) - rx_pos;
+    auto height = std::min(r_height, bitmap.height()) - ry_pos;
+
+    rx_pos = std::max(0, rx_pos);
+    ry_pos = std::max(0, ry_pos);
         
-    if (x_pos >= this->width() || x_pos + bitmap.width() < 0)
+    if (width <= 0 || x_pos >= this->width() || x_pos + width < 0)
         return;
 
-    if (y_pos >= this->height() || y_pos + bitmap.height() < 0)
-            return;
+    if (height <= 0 || y_pos >= this->height() || y_pos + height < 0)
+        return;
         
     int x, y, b_x, b_y;
 
     if (x_pos < 0) {              // if -10 and width 100
         x = 0;                  // set 0  
-        b_x = (-x_pos);// (-10) => 10
+        b_x = -x_pos + rx_pos;// (-10) => 10
         width -= b_x;           // 100 + (-10) => 90 
     } else {
         x = x_pos;
-        b_x = 0;
+        b_x = rx_pos;
     }
 
     if (y_pos < 0) {
         y = 0;
-        b_y = (-y_pos);
+        b_y = -y_pos + ry_pos;
         height -= b_y;
     } else {
         y = y_pos;
-        b_y = 0;
+        b_y = ry_pos;
     }
 
     if  (x + width >= this->width()) {

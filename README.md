@@ -100,6 +100,43 @@ Q: Why `Gempyre::Bitmap` merge is not working?</br>
 A: You are likely mergin on uninitialized bitmap. `Gempyre::Bitmap(width, height)` or `Gempyre::Bitmap::create(width, height)` does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
 is not drawn. To initialize the bitmap, use `Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White)`, or draw a rectangle to fill the Bitmap, after the construction. 
 
+Q: How to scale `Gempyre::Bitmap`?</br>
+A: You can use browser's bitmap scaling by applying the bitmap as image and then using `Gempyre::FrameComposer` for draw. Look the following snippet:
+
+cpp```
+
+// name the image
+const auto image_key = "/my_image.png";
+
+// I define a lambda for drawing to avoid copy-paste. texture_images maps image names and ids.
+const auto texture_draw = [&ui, &texture_images, image_key, clip, rect]() {
+  Gempyre::CanvasElement compose(ui, COMPOSE_CANVAS);
+  Gempyre::FrameComposer fc;
+  const auto id = texture_images[image_key];
+  fc.draw_image(id, clip, target);
+  compose.draw(fc);
+};
+
+ // test if image is already loaded
+ const auto res = ui.resource(image_key);
+    if(!res) {
+      const auto png = bmp.png_image();  // bmp is the image we want to scale - but we make a png out of it
+      if(ui.add_data(image_key, png)) {  // load the image
+        const auto id = compose.add_image(image_key, [texture_draw](auto){
+          texture_draw();                // draw when loaded, too early request wont draw anything
+        });
+        texture_images.emplace(image_key, id);    
+      }
+    } else {
+      assert(ui.available(texture_images[image_key]));
+      texture_draw();
+    }
+```
+
+Q: How to do multiple `Gempyre::FrameComposer` in a single draw? My second draw is not visible</br>
+A: Do you call erase? See `GempyreCanvas::draw_completed above. You may also try to call your drawn in a `Ui::after` timer with 0ms delay, that should ensure the correct drawing order.
+
+
 ## Example
 
 ### Hello world

@@ -336,6 +336,12 @@ public:
      /// Draw a Bitmap on this bitmap - replace area.  
     void tile(int x, int y, const Bitmap& other);
 
+    /// Draw a Bitmap withing extents on this bitmap - replace area.  
+    void tile(int x, int y, const Bitmap& other, int width, int height);
+
+     /// Draw a Bitmap withing extents on this bitmap - replace area.  
+    void tile(int x, int y, const Bitmap& other, int rx, int ry, int width, int height);
+
     /// Create a new bitmap from part of bitmap
     Bitmap clip(const Element::Rect& rect) const;
 

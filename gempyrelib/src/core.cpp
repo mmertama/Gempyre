@@ -423,6 +423,13 @@ bool Ui::add_file(const std::string& url, const std::string& file_name) {
     return true;
 }
 
+bool Ui::add_data(const std::string& url, const std::vector<uint8_t>& data) {
+    if(data.empty())
+        return false;
+    m_ui->add_data(url, data);    
+    return true;    
+}
+
 std::optional<double> Ui::device_pixel_ratio() const {
     const auto value = m_ui->query<std::string>("", "devicePixelRatio");
     return value.has_value() && *m_ui == State::RUNNING ? GempyreUtils::parse<double>(value.value()) : std::nullopt;

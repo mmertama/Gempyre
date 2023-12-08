@@ -266,10 +266,13 @@ public:
 
     void add_file(const std::string& url, const std::string& file_name) {
         const auto data = GempyreUtils::slurp<Base64::Byte>(file_name);
+        add_data(url, data);
+    }
+
+    void add_data(const std::string& url, const std::vector<uint8_t>& data) {
         const auto string = Base64::encode(data);
         m_filemap.insert_or_assign(url, std::move(string));
     }
-
 
     std::string query_id() const {
         return std::to_string(m_server->queryId());
