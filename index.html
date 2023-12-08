@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Gempyre UI Framework
-   &#160;<span id="projectnumber">1.3.2</span>
+   &#160;<span id="projectnumber">1.3.3</span>
    </div>
   </td>
  </tr>
@@ -163,12 +163,22 @@ FAQ</h2>
 <div class="fragment"><div class="line">ui.eval(<span class="stringliteral">&quot;document.getElementById(\&quot;&quot;</span> + check_box.id() + <span class="stringliteral">&quot;\&quot;).click();&quot;</span>);</div>
 </div><!-- fragment --><p> Q: Why Canvas drawings seems to happen in random order? A: Canvas drawing is highly asynchronous operation and subsequent <code>CanvasElement::draw()</code> operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use <code>CanvasElement::draw_completed()</code> to wait until each draw has happen. <code>CanvaElement::draw_completed()</code> should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this <a href="https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100">example</a></p>
 <p>Q: Why <code><a class="el" href="classGempyre_1_1Bitmap.html" title="Bitmap for Gempyre Graphics.">Gempyre::Bitmap</a></code> merge is not working? A: You are likely mergin on uninitialized bitmap. <code><a class="el" href="classGempyre_1_1Bitmap.html" title="Bitmap for Gempyre Graphics.">Gempyre::Bitmap(width, height)</a></code> or <code>Gempyre::Bitmap::create(width, height)</code> does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap is not drawn. To initialize the bitmap, use <code>Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White)</code>, or draw a rectangle to fill the Bitmap, after the construction.</p>
-<h2><a class="anchor" id="autotoc_md15"></a>
-Example</h2>
-<h3><a class="anchor" id="autotoc_md16"></a>
-Hello world</h3>
-<p>As an example, here is a simple Gempyre application with a single button. The UI is written using HTML; please note the <b> <code> &lt;script type="text/javascript" src="gempyre.js"&gt; &lt;/script&gt; </code> </b> line is required for every Gempyre application. The HTML widgets are accessed by their HTML element ids from the C++.</p>
-<div class="fragment"><div class="line">cmake_minimum_required(VERSION 3.26)</div>
+<p>Q: How to scale <code><a class="el" href="classGempyre_1_1Bitmap.html" title="Bitmap for Gempyre Graphics.">Gempyre::Bitmap</a></code>? A: You can use browser's bitmap scaling by applying the bitmap as image and then using <code><a class="el" href="classGempyre_1_1FrameComposer.html" title="wrap up Javascript draw commands.">Gempyre::FrameComposer</a></code> for draw. Look the following snippet:</p>
+<p>cpp```</p>
+<p>// name the image const auto image_key = "/my_image.png";</p>
+<p>// I define a lambda for drawing to avoid copy-paste. texture_images maps image names and ids. const auto texture_draw = [&amp;ui, &amp;texture_images, image_key, clip, rect]() { <a class="el" href="classGempyre_1_1CanvasElement.html" title="Graphics element.">Gempyre::CanvasElement</a> compose(ui, COMPOSE_CANVAS); <a class="el" href="classGempyre_1_1FrameComposer.html" title="wrap up Javascript draw commands.">Gempyre::FrameComposer</a> fc; const auto id = texture_images[image_key]; fc.draw_image(id, clip, target); compose.draw(fc); };</p>
+<p>// test if image is already loaded const auto res = ui.resource(image_key); if(!res) { const auto png = bmp.png_image(); // bmp is the image we want to scale - but we make a png out of it if(ui.add_data(image_key, png)) { // load the image const auto id = compose.add_image(image_key, [texture_draw](auto){ texture_draw(); // draw when loaded, too early request wont draw anything }); texture_images.emplace(image_key, id); <br  />
+ } } else { assert(ui.available(texture_images[image_key])); texture_draw(); } </p><div class="fragment"><div class="line">Q: How to do multiple `Gempyre::FrameComposer` in a single draw? My second draw is not visible&lt;/br&gt;</div>
+<div class="line">A: Do you call erase? See `GempyreCanvas::draw_completed above. You may also try to call your drawn in a `Ui::after` timer with 0ms delay, that should ensure the correct drawing order.</div>
+<div class="line"> </div>
+<div class="line"> </div>
+<div class="line">## Example</div>
+<div class="line"> </div>
+<div class="line">### Hello world</div>
+<div class="line">As an example, here is a simple Gempyre application with a single button. The UI is written using HTML; please note the &lt;b&gt; &lt;code&gt; &amp;lt;script type=&quot;text/javascript&quot; src=&quot;gempyre.js&quot;&amp;gt; &amp;lt;/script&amp;gt; &lt;/code&gt; &lt;/b&gt; line is required for every Gempyre application. The HTML widgets are accessed by their HTML element ids from the C++.</div>
+<div class="line"> </div>
+<div class="line">```cmake</div>
+<div class="line">cmake_minimum_required(VERSION 3.26)</div>
 <div class="line"> </div>
 <div class="line">project( hello VERSION 1.0 LANGUAGES CXX)</div>
 <div class="line"> </div>
@@ -241,7 +251,7 @@ Hello world</h3>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line"> </div>
 <div class="line">}</div>
-</div><!-- fragment --> <h3><a class="anchor" id="autotoc_md17"></a>
+</div><!-- fragment --> <h3><a class="anchor" id="autotoc_md15"></a>
 Selection list</h3>
 <p>Dynamic selection list (or combo box) is as easy as adding an empty <em>select</em> element in the Ui HTML code: </p><div class="fragment"><div class="line">&lt;select name=&quot;levels&quot; id=&quot;level_select&quot;&gt;</div>
 <div class="line">&lt;/select&gt;</div>
@@ -263,7 +273,7 @@ Selection list</h3>
 <div class="fragment"><div class="line">select.set_attribute(<span class="stringliteral">&quot;value&quot;</span>, wp.levels[level_index]); <span class="comment">// set value to some other than 1st</span></div>
 </div><!-- fragment --><p>Please note that as each event has a lot of properties, you have to list what you need. For a selection change (as well as most of the inputs) a <b>value</b> is used. <br  />
 </p>
-<h3><a class="anchor" id="autotoc_md18"></a>
+<h3><a class="anchor" id="autotoc_md16"></a>
 Some example projects using Gempyre</h3>
 <ul>
 <li><a href="https://github.com/mmertama/Gempyre/tree/raspberry/examples">Examples</a></li>
@@ -272,7 +282,7 @@ Some example projects using Gempyre</h3>
 <li><a href="https://github.com/mmertama/hexview-Gempyre">hexview-Gempyre</a></li>
 <li><a href="https://github.com/mmertama/calc-Gempyre">calc-Gempyre</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 Some future development directions</h2>
 <ul>
 <li>Binary releases (Maybe installer / some packet manager support / pip)</li>
@@ -286,42 +296,42 @@ Some future development directions</h2>
 <li>Using WASM instead of JS</li>
 <li>POC of Gempyre-Android style architecture also in core.git</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Late updates</h2>
-<h3><a class="anchor" id="autotoc_md21"></a>
+<h3><a class="anchor" id="autotoc_md19"></a>
 2021 1</h3>
 <ul>
 <li>Proper build and install with cmake</li>
 <li>Use GTest for API testing</li>
 <li>Rewrote timers + other smaller fixes</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md22"></a>
+<h3><a class="anchor" id="autotoc_md20"></a>
 2021 2</h3>
 <ul>
 <li>Lot of fixes and some new utils</li>
 <li>Native application window for OSX, Linux and Windows are using <a href="https://github.com/mmertama/Hiillos">Hiillos</a> <br  />
 </li>
 </ul>
-<h3><a class="anchor" id="autotoc_md23"></a>
+<h3><a class="anchor" id="autotoc_md21"></a>
 2022 1</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>CI using Github actions</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md24"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 2022 2</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>Raspberry, and improved MinGW support</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md25"></a>
+<h3><a class="anchor" id="autotoc_md23"></a>
 2023 1</h3>
 <ul>
 <li>Lot of fixed</li>
 <li>API changes and harmonize with GemGui-rs</li>
 <li>Testing coverage</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md26"></a>
+<h3><a class="anchor" id="autotoc_md24"></a>
 2023 2</h3>
 <ul>
 <li>Python UI fixes</li>

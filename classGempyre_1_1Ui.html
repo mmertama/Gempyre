@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Gempyre UI Framework
-   &#160;<span id="projectnumber">1.3.2</span>
+   &#160;<span id="projectnumber">1.3.3</span>
    </div>
   </td>
  </tr>
@@ -241,6 +241,9 @@ std::optional&lt; std::pair&lt; std::chrono::microseconds, std::chrono::microsec
 <tr class="memitem:a1eb5972f26dece5fc5f1dc6d17b55619"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Ui.html#a1eb5972f26dece5fc5f1dc6d17b55619">add_file</a> (const std::string &amp;url, const std::string &amp;file)</td></tr>
 <tr class="memdesc:a1eb5972f26dece5fc5f1dc6d17b55619"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a file data into Gempyre to be accessed via url.  <a href="classGempyre_1_1Ui.html#a1eb5972f26dece5fc5f1dc6d17b55619">More...</a><br /></td></tr>
 <tr class="separator:a1eb5972f26dece5fc5f1dc6d17b55619"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f50714af704688af73b4f6816192b45"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Ui.html#a7f50714af704688af73b4f6816192b45">add_data</a> (const std::string &amp;url, const std::vector&lt; uint8_t &gt; &amp;data)</td></tr>
+<tr class="memdesc:a7f50714af704688af73b4f6816192b45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a data into Gempyre to be accessed via url.  <a href="classGempyre_1_1Ui.html#a7f50714af704688af73b4f6816192b45">More...</a><br /></td></tr>
+<tr class="separator:a7f50714af704688af73b4f6816192b45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3b350ec16cfcf3becb36077e955a678"><td class="memItemLeft" align="right" valign="top"><a id="aa3b350ec16cfcf3becb36077e955a678"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Ui.html#aa3b350ec16cfcf3becb36077e955a678">begin_batch</a> ()</td></tr>
 <tr class="memdesc:aa3b350ec16cfcf3becb36077e955a678"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts an UI write batch, no messages are sent to USER until endBatch. <br /></td></tr>
@@ -504,6 +507,45 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Element</b></td></tr
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7f50714af704688af73b4f6816192b45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f50714af704688af73b4f6816192b45">&#9670;&nbsp;</a></span>add_data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Gempyre::Ui::add_data </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>url</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add a data into Gempyre to be accessed via url. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">url</td><td></td></tr>
+    <tr><td class="paramname">data</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><br  />
+ </dd></dl>
+
+</div>
+</div>
 <a id="a1eb5972f26dece5fc5f1dc6d17b55619"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1eb5972f26dece5fc5f1dc6d17b55619">&#9670;&nbsp;</a></span>add_file() <span class="overload">[1/2]</span></h2>
 

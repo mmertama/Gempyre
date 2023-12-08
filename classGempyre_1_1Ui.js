@@ -23,6 +23,7 @@ var classGempyre_1_1Ui =
     [ "~Ui", "classGempyre_1_1Ui.html#a84c49fc87246b258befb948cf870ed47", null ],
     [ "Ui", "classGempyre_1_1Ui.html#add51c1ea4ada362207247acc500f3ce4", null ],
     [ "Ui", "classGempyre_1_1Ui.html#a40e510f110eaa3ce69d88bc91bfc6775", null ],
+    [ "add_data", "classGempyre_1_1Ui.html#a7f50714af704688af73b4f6816192b45", null ],
     [ "add_file", "classGempyre_1_1Ui.html#a1eb5972f26dece5fc5f1dc6d17b55619", null ],
     [ "address_of", "classGempyre_1_1Ui.html#a06adb93a8c30ae00b1198bddd999ba65", null ],
     [ "after", "classGempyre_1_1Ui.html#a3f13e005fcc54121838f22f63dbf5fdc", null ],
