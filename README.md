@@ -103,7 +103,7 @@ is not drawn. To initialize the bitmap, use `Gempyre::Bitmap::Bitmap(0, 0, width
 Q: How to scale `Gempyre::Bitmap`?</br>
 A: You can use browser's bitmap scaling by applying the bitmap as image and then using `Gempyre::FrameComposer` for draw. Look the following snippet:
 
-cpp```
+```cpp
 
 // name the image
 const auto image_key = "/my_image.png";
@@ -136,6 +136,27 @@ const auto texture_draw = [&ui, &texture_images, image_key, clip, rect]() {
 Q: How to do multiple `Gempyre::FrameComposer` in a single draw? My second draw is not visible</br>
 A: Do you call erase? See `GempyreCanvas::draw_completed above. You may also try to call your drawn in a `Ui::after` timer with 0ms delay, that should ensure the correct drawing order.
 
+Q: Why my dynamic HTML `<select>` does not work with numbers?</br>
+A: The UI select uses strings, and hence the values has to be _quoted_ strings.
+```html
+  <select id="show_tags" disabled></select>  
+```
+
+```cpp
+
+   Gempyre::Element show_tags(ui, "show_tags");
+   show_tags.remove_attribute("disabled");  // remove disabled
+   // dynamical add items numerical keys
+   for(const int value : tag_keys) {
+        Gempyre::Element opt{ui, "option", show_tags};
+        const auto value = std::to_string(value);   // make numve as a string
+        opt.set_attribute("value", GempyreUtils::qq(value)); // The numerical values must be quoted, otherwise JS interpret them as numbers!
+        opt.set_attribute("name", "tag_option");
+        opt.set_html(value);
+    }
+
+  ```
+  
 
 ## Example
 
