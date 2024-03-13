@@ -1,7 +1,7 @@
 #cmake_minimum_required (VERSION 3.18)
 
 
-project (gempyre VERSION 1.3.3 LANGUAGES CXX C)
+project (gempyre VERSION 1.3.4 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -357,47 +357,33 @@ if(PEDANTIC_WARNINGS)
 endif()
 
 if(DOXYGEN)
-# apt-get install doxygen
-# apt-get install graphviz
-    find_package(Doxygen REQUIRED dot)
-    set(DOXYGEN_EXTRACT_ALL FALSE)
-    set(DOXYGEN_INTERNAL_DOCS NO)
-    set(DOXYGEN_EXTRACT_PRIVATE NO)
-    set(DOXYGEN_BUILTIN_STL_SUPPORT TRUE)
-
-    set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
-    set(DOXYGEN_DOT_IMAGE_FORMAT svg) # use vector graphics, not png
-    set(DOXYGEN_DOT_TRANSPARENT YES) # especially good for dark mode (at least in firefox, currently not chrome)
-
-    set(DOXYGEN_GENERATE_TREEVIEW YES)
-    set(DOXYGEN_PROJECT_NAME "Gempyre UI Framework")
-    set(DOXYGEN_MARKDOWN_SUPPORT YES)
-
-    set(DOXYGEN_FILE_PATTERNS           *.c *.cc *.cxx *.cpp *.c++ *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp *.h++ *.inc README.md)
-    #set(DOXYGEN_WARN_NO_PARAMDOC        YES)
+    FetchContent_Declare(
+        cmakedoc
+        GIT_REPOSITORY https://github.com/mmertama/cmakedoc.git
+        GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(cmakedoc)
+    include(${cmakedoc_SOURCE_DIR}/cmakedoc.cmake)
+    set(DOCUMENTATION_DOXYGEN_DOCUMENTS
+        include/gempyre.h
+        include/gempyre_utils.h
+        include/gempyre_graphics.h
+        include/gempyre_client.h
+    )
+    add_doxygen(${PROJECT_NAME})
 
 
-    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/README.md")
-        message(FATAL_ERROR "${CMAKE_SOURCE_DIR}/README.md not found!")
-    endif()
-    doxygen_add_docs(docs
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/README.md
-        ALL)
     if(SPELL)
-    set(DICT "${CMAKE_SOURCE_DIR}/aspell/dict.txt")
-    set(REPL "${CMAKE_SOURCE_DIR}/aspell/repl.txt")
-    # if spellchecker lists any words, either fix that or add into aspell/gempyre_words.txt
-    set(SPELL_CMD "find . -type f -name \"*.html\" -exec cat {} \\; | aspell list -H -p ${CMAKE_SOURCE_DIR}/aspell/gempyre_words.txt | sort | uniq")
-    set(SPELL_CMD_TEST_0 "if [[ $( ${SPELL_CMD} | wc -l) -ne 0 ]]; then echo Spelling errors:; fi")
-    set(SPELL_CMD_TEST_1 "if [[ $( ${SPELL_CMD} | wc -l) -ne 0 ]]; then exit 1; fi")
-    add_custom_command(TARGET docs POST_BUILD
-        COMMAND bash -c "${SPELL_CMD_TEST_0}"
-        COMMAND bash -c "${SPELL_CMD}"
-        COMMAND bash -c "${SPELL_CMD_TEST_1}"
-        COMMAND echo ""
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
-        VERBATIM)
+        set(CMAKEDOC_SPELL_EXCLUDE_DIRS
+            build
+            aspell
+            modules
+            res
+            .git
+            js
+            py
+            examples)
+        add_spellcheck(${PROJECT_NAME})    
     endif()    
 endif()
 

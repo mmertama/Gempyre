@@ -296,6 +296,14 @@ T convert(const std::string& source) {
     return v;
 }
 
+/// @brief  get p right most chars
+/// @param str 
+/// @param p 
+/// @return 
+std::string_view right(std::string_view str, size_t p) {
+    return str.substr(str.length() - p);
+}
+
 template <>
 inline std::string convert<std::string>(const std::string& source)
 {

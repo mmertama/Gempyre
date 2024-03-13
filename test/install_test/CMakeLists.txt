@@ -24,7 +24,8 @@ if(gempyre_FOUND)
    TARGET include/hello.html.h 
    SOURCES gui/hello.html gui/favicon.ico)
 
-   target_link_libraries (${PROJECT_NAME}  gempyre::gempyre)
+   target_link_libraries (${PROJECT_NAME}  gempyre::gempyre)   
+
 else()
    message(WARNING "Gempyre is not installed - its ok if just building it")
 endif()   

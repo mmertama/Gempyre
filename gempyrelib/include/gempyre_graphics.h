@@ -147,44 +147,51 @@ namespace  Color {
     /// @brief pixel type
     using type = Gempyre::dataT;
 
-    /// Pack r,g b and a components by saturating value range. 
-    [[nodiscard]] static constexpr inline type rgba_clamped(type r, type g, type b, type a = 0xFF) {
+    [[nodiscard]]
+     /// @brief  Pack r,g b and a components by saturating value range. 
+     static constexpr inline type rgba_clamped(type r, type g, type b, type a = 0xFF) {
         const type FF = 0xFF;
         return std::min(FF, r) | (std::min(FF, g) << 8) | (std::min(FF, b) << 16) | (std::min(FF, a) << 24);
     }
 
-    /// Pack r,g b, and a components into pixel. Each component is expected to be less than 256. 
-    [[nodiscard]] static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
+    [[nodiscard]] 
+    /// @brief   Pack r,g b, and a components into pixel. Each component is expected to be less than 256. 
+    static constexpr inline type rgba(type r, type g, type b, type a = 0xFF) {
         return r | (g << 8) | (b << 16) | (a << 24);
     }
 
+    [[nodiscard]] 
     /// Pack r,g and b components into pixel. 
-    [[nodiscard]] static constexpr inline type rgb(type r, type g, type b) {
+    static constexpr inline type rgb(type r, type g, type b) {
         return r | (g << 8) | (b << 16) | (static_cast<type>(0xFF) << 24);
     }
 
-    /// Get red component.
-    [[nodiscard]] static constexpr inline type r(type pixel) {
+    [[nodiscard]]
+    ///@brief   Get red component.
+     static constexpr inline type r(type pixel) {
         return pixel & static_cast<type>(0xFF);
     }
-
-    /// Get green component.
-    [[nodiscard]] static constexpr inline type g(type pixel) {
+    [[nodiscard]] 
+    ///@brief   Get green component.
+    static constexpr inline type g(type pixel) {
         return (pixel & static_cast<type>(0xFF00)) >> 8;
     }
 
-    /// Get blue compoennt.
-    [[nodiscard]] static constexpr inline type b(type pixel) {
+    [[nodiscard]] 
+    ///@brief   Get blue compoennt.
+    static constexpr inline type b(type pixel) {
         return (pixel & static_cast<type>(0xFF0000)) >> 16;
     }
 
-    /// Get alpha component.
-    [[nodiscard]] static constexpr inline type alpha(type pixel) {
+    [[nodiscard]] 
+    ///@brief   Get alpha component.
+    static constexpr inline type alpha(type pixel) {
         return (pixel & 0xFF000000) >> 24;
     }
 
-    /// Get pixel as a HTML string.
-    [[nodiscard]] static inline std::string rgba(type pixel) {
+    [[nodiscard]] 
+    ///@brief   Get pixel as a HTML string.
+    static inline std::string rgba(type pixel) {
         constexpr auto c = "0123456789ABCDEF";
         std::string v("#RRGGBBAA");
         v[1] =  c[r(pixel) >> 4];
@@ -198,8 +205,9 @@ namespace  Color {
         return v;
     }
 
-    /// Get pixel as a HTML string.
-    [[nodiscard]] static inline std::string rgb(type pixel) {
+    [[nodiscard]] 
+    ////@brief  Get pixel as a HTML string.
+    static inline std::string rgb(type pixel) {
         constexpr auto c = "0123456789ABCDEF";
         std::string v("#RRGGBB");
         v[1] =  c[r(pixel) >> 4];
@@ -211,13 +219,15 @@ namespace  Color {
     return v;
     }
 
-    /// Get components as a HTML string 
-    [[nodiscard]] static inline std::string to_string(type r, type g, type b, type a = 0xFF) {
+    [[nodiscard]] 
+    ////@brief  Get components as a HTML string 
+    static inline std::string to_string(type r, type g, type b, type a = 0xFF) {
         return a == 0xFF ? Gempyre::Color::rgb(Gempyre::Color::rgb(r, g, b)) : Gempyre::Color::rgba(Gempyre::Color::rgba(r, g, b, a));
     }
 
-    /// Get color as a HYML string 
-    [[nodiscard]] static inline std::string to_string(Gempyre::Color::type color) {
+    [[nodiscard]] 
+    ////@brief  Get color as a HYML string 
+    static inline std::string to_string(Gempyre::Color::type color) {
         return Gempyre::Color::to_string(
             Gempyre::Color::r(color),
             Gempyre::Color::g(color),

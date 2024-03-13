@@ -413,8 +413,8 @@ namespace Gempyre {
         bool add_file(const std::string& url, const std::string& file);
 
         /// @brief Add a data into Gempyre to be accessed via url.
-        /// @param url 
-        /// @param data 
+        /// @param url tring bound to data.
+        /// @param data dat to write.
         /// @return 
         bool add_data(const std::string& url, const std::vector<uint8_t>& data);
 
