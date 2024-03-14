@@ -79,6 +79,10 @@ else()
     set(LIB_PNG_VER master) # no version
 endif()
 
+if(LINUX)
+    set(DOXYGEN TRUE)
+    set(SPELL TRUE)
+endif()    
 
 if(USE_PYTHON_UI)
     message("Defaults to Python UI")

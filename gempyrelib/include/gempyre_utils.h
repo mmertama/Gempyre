@@ -300,6 +300,7 @@ T convert(const std::string& source) {
 /// @param str 
 /// @param p 
 /// @return 
+inline
 std::string_view right(std::string_view str, size_t p) {
     return str.substr(str.length() - p);
 }
