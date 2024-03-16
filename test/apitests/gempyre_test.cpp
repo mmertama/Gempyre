@@ -112,6 +112,7 @@ void TestUi::TearDownTestSuite() {
 }
 
 void TestUi::SetUp() {
+    Gempyre::set_debug();
     if(!m_ui) {
         const auto chrome = systemChrome();
         if(!chrome) {
@@ -130,7 +131,7 @@ void TestUi::SetUp() {
             std::exit(1);
         });
         const auto wait_start = GempyreUtils::wait_expire(30s, []() {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chorome not start");
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chrome not start");
             FAIL() << "Chrome not start!";
             std::exit(2);
             });

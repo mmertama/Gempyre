@@ -80,7 +80,6 @@ TEST(TestMockUi, openPage_with_page) {
 
 
 TEST(TestMockUi, openPage_with_browser) {
-    Gempyre::set_debug();
     Gempyre::Ui ui({{"/foobar.html", Apitestshtml}}, "foobar.html", TEST_BINARY, "");
     bool ok = false;
     ui.on_open([&ui, &ok]() {
