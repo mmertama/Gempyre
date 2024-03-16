@@ -80,6 +80,7 @@ TEST(TestMockUi, openPage_with_page) {
 
 
 TEST(TestMockUi, openPage_with_browser) {
+    Gempyre::set_debug();
     Gempyre::Ui ui({{"/foobar.html", Apitestshtml}}, "foobar.html", TEST_BINARY, "");
     bool ok = false;
     ui.on_open([&ui, &ok]() {
@@ -87,7 +88,7 @@ TEST(TestMockUi, openPage_with_browser) {
         ui.exit();
     });
     ui.on_error([](const auto& element, const auto& info){FAIL() << element << " err:" << info;});
-    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {ASSERT_TRUE(false);});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() {FAIL() << "timeout!";});
     ui.run();
     ASSERT_TRUE(ok);
 
