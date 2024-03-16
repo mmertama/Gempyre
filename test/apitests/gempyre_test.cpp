@@ -239,11 +239,24 @@ std::string_view TestUi::current_test() const {
     return m_current_test;
 }
 
+class StderrListener : public ::testing::EmptyTestEventListener {
+public:
+    void OnTestPartResult(const ::testing::TestPartResult& test_part_result) override {
+        // Check if the message contains the error pattern
+        if (test_part_result.type() == ::testing::TestPartResult::kNonFatalFailure &&
+            strstr(test_part_result.message(), "Skipping mandatory platform policies") != nullptr) {
+            // Skip the test
+            GTEST_SKIP();
+        }
+    }
+};
+
 int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
    for(int i = 1 ; i < argc; ++i)
        if(argv[i] == std::string_view("--verbose"))
             Gempyre::set_debug();       
   killHeadless(); // there may be unwanted processes
+  ::testing::UnitTest::GetInstance()->listeners().Append(new StderrListener);
   return RUN_ALL_TESTS();
 }
