@@ -35,3 +35,5 @@ set(GEMPYRE_WS_SOURCES
     )
 
 
+set(GEMPYRE_WEBSOCKET_LIBRARY_NAME "websocketcpp") 
+

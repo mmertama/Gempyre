@@ -656,3 +656,10 @@ else()
         endif()
     endif() # NOT NO_EXPORT
 endif()
+
+if(NOT DEFINED GEMPYRE_WEBSOCKET_LIBRARY_NAME)
+    message(FATAL_ERROR "Unknown Websocket library")
+else()
+    message("Websocket library is " ${GEMPYRE_WEBSOCKET_LIBRARY_NAME})    
+endif()
+

@@ -229,6 +229,9 @@ if(RASPBERRY)
     set(GEMPYRE_WS_LIB_NAME_CORE "${UVA_LIB_NAME_CORE}")
 endif()
 
+set(GEMPYRE_WEBSOCKET_LIBRARY_NAME "uwebsockets") 
+
+
 
 if(WIN32)
     set(CONNECTION_FIND Finduva.cmake)
