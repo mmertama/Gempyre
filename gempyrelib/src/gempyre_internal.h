@@ -467,7 +467,10 @@ public:
 
     void wait_events() {
         const auto start = std::chrono::steady_clock::now();
-        m_sema.wait();
+        if(*this == State::CLOSE || *this == State::EXIT)
+            m_sema.wait(300ms);
+        else    
+            m_sema.wait();
         const auto end = std::chrono::steady_clock::now();
         const auto duration = end - start;
         GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
