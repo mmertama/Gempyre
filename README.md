@@ -21,7 +21,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 ### Gempyre API 
 
 * gempyre.h, core classes for the application development.
-* gempyre_utils.h, miscellaneous collection of helper functions. These are not available for Python as there are plenty of analogous fuctionality.  
+* gempyre_utils.h, miscellaneous collection of helper functions. These are not available for Python as there are plenty of analogous functionality.  
 * gempyre_graphics.h, HTML canvas functions for bitmap and vector graphics.
 * gempyre_client.h, file dialogs for Gempyre application. Not available when system browser is used as an application window. 
 
@@ -94,10 +94,10 @@ A: Try `Ui::eval()`, it let you execute javascript in the gui context: e.g. Here
 ui.eval("document.getElementById(\"" + check_box.id() + "\").click();");
 ```
 Q: Why Canvas drawings seems to happen in random order?</br>
-A: Canvas drawing is highly asynchronous operation and subsequent `CanvasElement::draw()` operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use `CanvasElement::draw_completed()` to wait until each draw has happen. `CanvaElement::draw_completed()` should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this [example](https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100)
+A: Canvas drawing is highly asynchronous operation and subsequent `CanvasElement::draw()` operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use `CanvasElement::draw_completed()` to wait until each draw has happen. `CanvasElement::draw_completed()` should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this [example](https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100)
 
 Q: Why `Gempyre::Bitmap` merge is not working?</br>
-A: You are likely mergin on uninitialized bitmap. `Gempyre::Bitmap(width, height)` or `Gempyre::Bitmap::create(width, height)` does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
+A: You are likely merge an uninitialized bitmap. `Gempyre::Bitmap(width, height)` or `Gempyre::Bitmap::create(width, height)` does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
 is not drawn. To initialize the bitmap, use `Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White)`, or draw a rectangle to fill the Bitmap, after the construction. 
 
 Q: How to scale `Gempyre::Bitmap`?</br>
@@ -134,7 +134,7 @@ const auto texture_draw = [&ui, &texture_images, image_key, clip, rect]() {
 ```
 
 Q: How to do multiple `Gempyre::FrameComposer` in a single draw? My second draw is not visible</br>
-A: Do you call erase? See `GempyreCanvas::draw_completed above. You may also try to call your drawn in a `Ui::after` timer with 0ms delay, that should ensure the correct drawing order.
+A: Do you call erase? See `CanvasElement::draw_completed above. You may also try to call your drawn in a `Ui::after` timer with 0ms delay, that should ensure the correct drawing order.
 
 Q: Why my dynamic HTML `<select>` does not work with numbers?</br>
 A: The UI select uses strings, and hence the values has to be _quoted_ strings.
@@ -149,7 +149,7 @@ A: The UI select uses strings, and hence the values has to be _quoted_ strings.
    // dynamical add items numerical keys
    for(const int value : tag_keys) {
         Gempyre::Element opt{ui, "option", show_tags};
-        const auto value = std::to_string(value);   // make numve as a string
+        const auto value = std::to_string(value);   // number as a string
         opt.set_attribute("value", GempyreUtils::qq(value)); // The numerical values must be quoted, otherwise JS interpret them as numbers!
         opt.set_attribute("name", "tag_option");
         opt.set_html(value);

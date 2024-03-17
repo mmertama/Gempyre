@@ -81,3 +81,5 @@ set(GEMPYRE_WS_SOURCES
     src/libwebsockets/lws_server.h
     )
 
+ set(WEBSOCKET_LIBRARY_NAME "libwebsocket")   
+

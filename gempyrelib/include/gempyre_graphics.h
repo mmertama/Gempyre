@@ -263,7 +263,7 @@ namespace  Color {
 /// @brief Bitmap for Gempyre Graphics
 class GEMPYRE_EX Bitmap {
 public:
-    /// @brief Constructor - unitialialized data
+    /// @brief Constructor - uninitialized data
     /// @param width 
     /// @param height 
     Bitmap(int width, int height);
@@ -350,7 +350,7 @@ public:
     void tile(int x, int y, const Bitmap& other, int width, int height);
 
      /// Draw a Bitmap withing extents on this bitmap - replace area.  
-    void tile(int x, int y, const Bitmap& other, int rx, int ry, int width, int height);
+    void tile(int x, int y, const Bitmap& other, int other_x, int other_y, int width, int height);
 
     /// Create a new bitmap from part of bitmap
     Bitmap clip(const Element::Rect& rect) const;

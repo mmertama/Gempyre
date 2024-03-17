@@ -413,8 +413,8 @@ namespace Gempyre {
         bool add_file(const std::string& url, const std::string& file);
 
         /// @brief Add a data into Gempyre to be accessed via url.
-        /// @param url tring bound to data.
-        /// @param data dat to write.
+        /// @param url string bound to data.
+        /// @param data data to write.
         /// @return 
         bool add_data(const std::string& url, const std::vector<uint8_t>& data);
 
@@ -451,7 +451,7 @@ namespace Gempyre {
         /// Read list files as a maps
         static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
 
-        /// Write pending requets to UI - e.g. when eventloop thread is blocked.
+        /// Write pending requests to UI - e.g. when eventloop thread is blocked.
         void flush();
 
         /// test if Element can be accessed. Note that in false it's may be in HTML, but not available in DOM tree.
