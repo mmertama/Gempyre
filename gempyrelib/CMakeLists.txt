@@ -368,7 +368,7 @@ if(DOXYGEN)
     )
     FetchContent_MakeAvailable(cmakedoc)
     include(${cmakedoc_SOURCE_DIR}/cmakedoc.cmake)
-    set(DOCUMENTATION_DOXYGEN_DOCUMENTS
+    set(CMAKEDOC_DOXYGEN_DOCUMENTS
         include/gempyre.h
         include/gempyre_utils.h
         include/gempyre_graphics.h
@@ -378,6 +378,7 @@ if(DOXYGEN)
 
 
     if(SPELL)
+        set(CMAKEDOC_SPELL_DICTIONARY ${CMAKE_SOURCE_DIR}/aspell/gempyre_words.txt)
         set(CMAKEDOC_SPELL_EXCLUDE_DIRS
             build
             aspell
