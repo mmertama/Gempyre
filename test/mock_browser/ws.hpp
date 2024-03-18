@@ -12,7 +12,7 @@ namespace websocket {
     class App {
     public:
         int received(const char* cstr);
-        std::string on_status(Status status);
+        bool on_status(Status status);
         std::function<void ()> exit = nullptr;
         std::function<bool (const char* cstr)> send_message = nullptr;
     };

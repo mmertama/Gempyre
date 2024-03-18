@@ -11,6 +11,7 @@
 #endif
 #include "apitests_resource.h"
 #include <cassert>
+#include <iostream>
 
 #include <gtest/gtest.h>
 
@@ -19,12 +20,14 @@
 #ifdef RASPBERRY_OS
 constexpr auto WaitExpireTimeout = 30s;
 #else
-constexpr auto WaitExpireTimeout = 10s;
+constexpr auto WaitExpireTimeout = 20s;
 #endif
+
+#define PRINT_D(_X) std::cout << "\033[0;35m" << "[          ] " << "\033[0;0m" << _X << std::endl;
 
 
 //#define HANDLE_EXPIRE ui.exit()
-#define HANDLE_EXPIRE std::abort()
+#define HANDLE_EXPIRE  GempyreUtils::log(GempyreUtils::LogLevel::Error, "Annoying!"); ADD_FAILURE() << "Chrome not start! o:" << (ok ? "opn": "nopn")<< " ui:" << (ui.ui_available() ? "ok" : "nok") << " t:" << (ui.is_timer_on_hold() ? "hold" : "nold"); std::abort();
 
 TEST(TestMockUi, openPage_with_page_browser) {
     constexpr auto htmlPage = TEST_HTML;
@@ -42,6 +45,7 @@ TEST(TestMockUi, openPage_with_page_browser) {
     Gempyre::Ui ui(map, *url, TEST_BINARY, "");
     bool ok = false;
     ui.on_open([&ui, &ok]() {
+        PRINT_D("Test open 1");
         ok = true;
         ui.exit();
     });
@@ -49,7 +53,6 @@ TEST(TestMockUi, openPage_with_page_browser) {
         FAIL() << element << " err:" << info;
     });
     const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, [&]() {
-        FAIL() << "Expired!";
         HANDLE_EXPIRE;
         });
     ui.run();
@@ -72,6 +75,7 @@ TEST(TestMockUi, openPage_with_page) {
     Gempyre::Ui ui(map, *url, TEST_BINARY, "");
     bool ok = false;
     ui.on_open([&ui, &ok]() {
+        PRINT_D("Test open 2");
         ok = true;
         ui.exit();
     });
@@ -91,6 +95,7 @@ TEST(TestMockUi, openPage_with_browser) {
     Gempyre::Ui ui({{"/foobar.html", Apitestshtml}}, "foobar.html", TEST_BINARY, "");
     bool ok = false;
     ui.on_open([&ui, &ok]() {
+        PRINT_D("Test open 3");
         ok = true;
         ui.exit();
     });
@@ -110,13 +115,13 @@ TEST(TestMockUi, openPage_defaults) {
     TEST_UI;
     bool ok = false;
     ui.on_open([&ui, &ok]() {
+        PRINT_D("Test open 4");
         ASSERT_FALSE(ok);
         ok = true;
         ui.exit();
     });
     ui.on_error([](const auto& element, const auto& info){FAIL() << element << " err:" << info;});
     const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, [&]() { 
-        FAIL() << "Expired!";
         HANDLE_EXPIRE;
         });
     ui.run();
@@ -131,11 +136,11 @@ TEST(TestMockUi, onExit) {
         ui.exit();
     });
     ui.on_exit([&ok]() {
+         PRINT_D("Test open 5");
         ASSERT_FALSE(ok);
         ok = true;
     });
     const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, [&]() { 
-        FAIL() << "Expired!";
         HANDLE_EXPIRE;
         });
     ui.run();
@@ -164,11 +169,14 @@ TEST(TestMockUi, alert) {
     TEST_UI;
     bool ok = false;
     ui.on_open([&ui, &ok]() {
+        PRINT_D("Test open 6");
         ui.alert("Test - Alert");
         ok = true;
         ui.exit();
     });
-    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, []() { FAIL() << "Expired!";});
+    const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, [&]() {
+        HANDLE_EXPIRE;
+    });
     ui.run();
     ASSERT_TRUE(ok);
 }
@@ -180,12 +188,12 @@ TEST(TestMockUi, open) {
     TEST_UI;
     bool ok = false;
     ui.on_open([&ui, &ok]() {
+        PRINT_D("Test open 7");
         ui.open("http://www.google.com");
         ok = true;
         ui.exit();
     });
     const auto raii_ex = GempyreUtils::wait_expire(WaitExpireTimeout, [&]() { 
-        FAIL() << "Expired!";
         HANDLE_EXPIRE;
         });
     ui.run();

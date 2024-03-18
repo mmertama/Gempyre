@@ -457,11 +457,14 @@ namespace Gempyre {
         /// test if Element can be accessed. Note that in false it's may be in HTML, but not available in DOM tree.
         bool available(const std::string& id) const; 
 
+
         /// @cond INTERNAL
         // for testing
         void resume();
         // for testing
         void suspend();
+        // for testing 
+        bool ui_available() const;
         /// @endcond
 
     private:

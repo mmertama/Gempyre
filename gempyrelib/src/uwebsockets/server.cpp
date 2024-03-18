@@ -78,6 +78,7 @@ class Gempyre::SocketHandler {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS open");
         m_s.m_broadcaster->append(ws);
         m_s.m_onOpen();
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS opened");
     }
     
 
@@ -357,7 +358,7 @@ bool Uws_Server::retryStart() {
 }
 
 bool Uws_Server::isConnected() const {
-    return !m_broadcaster->empty() && m_uiready;
+    return !m_broadcaster->empty() /*&& m_uiready*/; // why was this - 
 }
 
 bool Uws_Server::beginBatch() {

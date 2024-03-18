@@ -968,6 +968,7 @@ int GempyreUtils::execute(const std::string& executable, const std::string& para
         return static_cast<int>((hi > 32 || hi < 0) ? 0 : hi); //If the function succeeds, it returns a value greater than 32. If the function fails, it returns an error value that indicates the cause of the failure.
     }
 #else
+    std::cout << std::endl; // flush
     return std::system((executable + " " + parameters + " &").c_str());
 #endif
 }

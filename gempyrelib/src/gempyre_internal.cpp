@@ -294,6 +294,7 @@ void GempyreInternal::openHandler() {
         set(State::RELOAD);
     }
     signal_pending();    // there may be some pending requests
+    shoot_requests();
 }
 
 void GempyreInternal::closeHandler(Gempyre::CloseStatus closeStatus, int code) { //close
@@ -488,6 +489,7 @@ void GempyreInternal::eventLoop(bool is_main) {
         }
 
         if(has_open() && *this == State::RUNNING && is_connected()) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "has open running", state_str());
             const auto fptr = take_open();
             set_hold(true);
             add_request([fptr, this]() {
@@ -581,6 +583,14 @@ std::function<void(int)> GempyreInternal::makeCaller(const std::function<void (U
 void GempyreInternal::consume_events() {
         while(has_events() && *this == State::RUNNING) {
             const auto it = m_eventqueue.take();
+            if(it.element.empty()) {
+                 GempyreUtils::log(GempyreUtils::LogLevel::Debug,
+                  "Root got event:", it.handler,
+                  "has open:", has_open(),
+                  "State:", state_str(),
+                  "Connected", is_connected());
+                 continue;
+            }
             const auto element = m_elements.find(it.element);
             if(element != m_elements.end()) {
                 const auto handlerName = it.handler;

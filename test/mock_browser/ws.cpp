@@ -119,7 +119,7 @@ callback(lws* wsi, lws_callback_reasons reason, void* user, void* in, size_t len
         lwsl_user("%s: established connection, wsi = %p\n",
                 __func__, wsi);
         mco->m_connections->emplace(wsi);
-        send_message(mco, mco->extension->on_status(websocket::Status::Established));
+        mco->extension->on_status(websocket::Status::Established);
         break;
 
     case LWS_CALLBACK_CLIENT_CLOSED:

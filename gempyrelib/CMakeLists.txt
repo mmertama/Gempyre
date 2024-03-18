@@ -1,7 +1,7 @@
 #cmake_minimum_required (VERSION 3.18)
 
 
-project (gempyre VERSION 1.3.4 LANGUAGES CXX C)
+project (gempyre VERSION 1.3.5 LANGUAGES CXX C)
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)

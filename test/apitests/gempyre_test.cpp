@@ -83,7 +83,7 @@ void GempyreTest::killHeadless() {
         ? R"(powershell.exe -command "Get-CimInstance -ClassName Win32_Process -Filter \"CommandLine LIKE '%--headless%'\" | %{Stop-Process -Id $_.ProcessId}")"
         : "pkill -f \"(chrome)?(--headless)\"";
     const auto killStatus = std::system(cmd);
-    (void) killStatus;
+    GempyreUtils::log(GempyreUtils::LogLevel::Info, "killHeadles", killStatus);
 }
 
 
@@ -131,12 +131,12 @@ void TestUi::SetUp() {
             std::exit(1);
         });
         const auto wait_start = GempyreUtils::wait_expire(30s, []() {
-            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chrome not start");
-            FAIL() << "Chrome not start!";
+            GempyreUtils::log(GempyreUtils::LogLevel::Error, "Chrome not started");
+            FAIL() << "Chrome not started!" << " ui:" << (m_ui->ui_available() ? "ok" : "nok")  << " t:" << (m_ui->is_timer_on_hold() ? "ok" : "nok");
             std::exit(2);
             });
         m_ui->on_open([wait_start](){
-            GEM_DEBUG("test ui on");
+            PRINT_D("test ui on");
         });
 #ifdef FAST
         m_ui->after(0ms, []() {
@@ -247,5 +247,7 @@ int main(int argc, char **argv) {
        if(argv[i] == std::string_view("--verbose"))
             Gempyre::set_debug();       
   killHeadless(); // there may be unwanted processes
-  return RUN_ALL_TESTS();
+  const auto exit_code =  RUN_ALL_TESTS();
+  killHeadless();
+  return exit_code;
 }

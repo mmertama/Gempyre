@@ -340,10 +340,12 @@ bool LWS_Server::isRunning() const {
      assert(isJoinable());
      return m_running;
      }  
+
 bool LWS_Server::isConnected() const {
      assert(isRunning());
      return m_connected;
      }
+     
 bool LWS_Server::retryStart() {std::abort();}
 
 void LWS_Server::close(bool wait) {

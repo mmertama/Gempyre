@@ -476,7 +476,7 @@ void Ui::set_timer_on_hold(bool on_hold) {
     }
 
 bool Ui::is_timer_on_hold() const {
-    return m_ui->hold();
+    return m_ui->is_hold();
     }
 
 
@@ -518,4 +518,8 @@ void Ui::resume() {
 void Ui::flush() {
     m_ui->shoot_requests();
 }
+
+ bool Ui::ui_available() const {
+    return m_ui->is_connected() && m_ui->is_running();
+ }
 

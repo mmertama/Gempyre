@@ -2,19 +2,33 @@
 #include "ws.hpp"
 #include <iostream>
 #include <chrono>
+#include <thread>
+
+using namespace std::chrono_literals;
 
 #include <nlohmann/json.hpp>
 using namespace websocket;
 using Json = nlohmann::json;
 
-std::string App::on_status(websocket::Status status) {
+bool App::on_status(websocket::Status status) {
     switch(status) {
-        case websocket::Status::Error:
-            return Json({{"type", "error"}}).dump();
-        case websocket::Status::Established:
-            return Json({{"type", "ui_ready"}}).dump();
+        case websocket::Status::Error: {
+            const auto err = Json({{"type", "error"}}).dump();
+            send_message(err.c_str());
+            return true;
+        }
+        case websocket::Status::Established: {
+            const auto ready = Json({{"type", "ui_ready"}}).dump();
+            send_message(ready.c_str());
+            std::this_thread::sleep_for(10ms);
+            const auto event = Json({{"type", "event"}, {"element", ""}, {"event", "ui_ready"}, {"properties", Json::object()}}).dump();
+            send_message(event.c_str());
+            return true;
+        }
+             // one guess is that in API tests there no events coming
+        default:
+            return false;
     }
-    return std::string();
 }
 
 void websocket::debug_print(int lvl, const char* cstr) {
@@ -22,8 +36,7 @@ void websocket::debug_print(int lvl, const char* cstr) {
         std::cout << lvl << ":" << cstr << std::endl;
 }
 
-int App::received(const char* cstr)
-{
+int App::received(const char* cstr) {
     const auto js = Json::parse(cstr);
     if(js["type"] == "exit_request") {
         exit();

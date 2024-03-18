@@ -8,8 +8,11 @@
 #include <functional>
 #include <chrono>
 #include <string_view>
+#include <iostream>
 
 using namespace std::chrono_literals;
+
+#define PRINT_D(_X) std::cout << "\033[0;32m" << "[          ] " << "\033[0;0m" << _X << std::endl;
 
 namespace GempyreTest {
     void killHeadless();

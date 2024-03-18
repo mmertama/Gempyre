@@ -777,6 +777,13 @@ socket.onopen = function(event) {
         if(socket.readyState === 1)
             socket.send(JSON.stringify({'type': 'keepalive'}));
     }, 10000); //decreased to help more intensive cal app messages (read mandelbrot) get passed
+
+    // one guess is that in API tests there no events coming
+    setTimeout(function() {
+        socket.send(JSON.stringify({'type': 'event', 
+        'element': '', 'event': 'ui_ready', 'properties':{}}));
+    }, 100);
+    
     socket.send(JSON.stringify({'type': 'ui_ready'}));
 };
 

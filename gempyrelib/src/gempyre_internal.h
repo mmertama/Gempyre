@@ -221,7 +221,7 @@ public:
 
 
     void signal_pending() {
-            m_sema.signal();    // there may be some pending requests
+        m_sema.signal();    // there may be some pending requests
     }
 
     void push_event(HandlerEvent&& event) {
@@ -292,7 +292,7 @@ public:
         m_hold = on_hold;
     }
 
-    bool hold() const {
+    bool is_hold() const {
         return m_hold;
     }
 
@@ -404,9 +404,10 @@ public:
     }
 
     std::function<void()> take_open() {
-         const auto fptr = std::move(m_onOpen);
-         m_onOpen = nullptr;
-         return fptr;
+        GEM_DEBUG("Take open");
+        const auto fptr = std::move(m_onOpen);
+        m_onOpen = nullptr;
+        return fptr;
     }
 
     void do_exit() {
@@ -467,7 +468,7 @@ public:
 
     void wait_events() {
         const auto start = std::chrono::steady_clock::now();
-        if(*this == State::CLOSE || *this == State::EXIT)
+        if(*this == State::CLOSE || *this == State::EXIT || !m_server || !m_server->isRunning())
             m_sema.wait(300ms);
         else    
             m_sema.wait();
