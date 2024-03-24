@@ -20,9 +20,8 @@ bool App::on_status(websocket::Status status) {
         case websocket::Status::Established: {
             const auto ready = Json({{"type", "ui_ready"}}).dump();
             send_message(ready.c_str());
-            std::this_thread::sleep_for(10ms);
-            const auto event = Json({{"type", "event"}, {"element", ""}, {"event", "ui_ready"}, {"properties", Json::object()}}).dump();
-            send_message(event.c_str());
+            //const auto event = Json({{"type", "event"}, {"element", ""}, {"event", "ui_ready"}, {"properties", Json::object()}}).dump();
+            //send_message(event.c_str());
             return true;
         }
              // one guess is that in API tests there no events coming

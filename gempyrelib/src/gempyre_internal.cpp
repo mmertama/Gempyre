@@ -253,7 +253,7 @@ GempyreInternal& Ui::ref() {
         const auto it = params.find("type");
         if(it != params.end())  {
             const auto type = it->second;
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "message", type);
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "message received:", type);
             if(type == "event") {
                 const auto element = params.at("element");
                 const auto event = params.at("event");
@@ -292,6 +292,8 @@ GempyreInternal& Ui::ref() {
                     shoot_requests();
                     return true;
                 });
+            } else {
+                  GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Message", type, "Not handled");        
             }
             signal_pending();
         }

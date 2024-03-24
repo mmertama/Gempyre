@@ -84,6 +84,7 @@ Server::Server(
 Server::MessageReply Server::messageHandler(std::string_view message) {
         auto object = json::parse(message);
         const auto f = object.find("type");
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "ServerMsg", f != object.end() ? *f : "N/A");
         if(f != object.end()) {
             if(*f == "keepalive") {
                 return MessageReply::DoNothing;
