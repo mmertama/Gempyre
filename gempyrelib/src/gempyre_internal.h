@@ -374,7 +374,7 @@ public:
         m_startup();
     }
 
-    void handle_requests() {
+    void handle_timer_requests() {
         while(has_timers() && *this != State::EXIT && !m_onOpen && !m_hold) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Do timer request", m_timerqueue.size());
             std::list<std::function<void ()>> timer(1);

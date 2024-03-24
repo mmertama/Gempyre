@@ -392,7 +392,6 @@ bool Uws_Server::endBatch() {
 }
 
 bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value) {
-
     if(m_batch) {
         m_batch->push_back(target, std::move(value));
     } else {

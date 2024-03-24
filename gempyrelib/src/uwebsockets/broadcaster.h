@@ -4,7 +4,7 @@
 #include "gempyre.h"
 #include "gempyre_utils.h"
 #include "data.h"
-
+#include "server.h"
 #ifndef UWS_NO_ZLIB
 #define UWS_NO_ZLIB
 #endif
@@ -52,18 +52,20 @@ public:
     bool send(Server::TargetSocket send_to, std::string&& text) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send txt", text.size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
+        const auto sz = text.size();
         if(send_to == Server::TargetSocket::All) {
             for(auto& [s, type] : m_sockets) {
                 auto copy_of_text = text;
                 add_queue(s, std::move(copy_of_text));
-                socket_send(s, text.size());    
+                socket_send(s, sz);
             }
         } else {
             for(auto& [s, type] : m_sockets) {
                 if(type != send_to)
                     continue;
-                add_queue(s, std::move(text));
-                socket_send(s, text.size());    
+                auto copy_of_text = text;
+                add_queue(s, std::move(copy_of_text));
+                socket_send(s, sz);
             }
         }
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "sent txt", !m_sockets.empty());

@@ -282,6 +282,16 @@ GempyreInternal& Ui::ref() {
                 set(State::EXIT);
             } else if(type == "extension_ready") {
                 //do nothing
+            } else if(type == "ui_ready") {
+                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "UI ready request");
+                const auto open_function = take_open();
+                add_request([open_function, this]() {
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
+                    open_function();
+                    //set_hold(false);
+                    shoot_requests();
+                    return true;
+                });
             }
             signal_pending();
         }
@@ -294,7 +304,7 @@ void GempyreInternal::openHandler() {
         set(State::RELOAD);
     }
     signal_pending();    // there may be some pending requests
-    shoot_requests();
+    //  shoot_requests();
 }
 
 void GempyreInternal::closeHandler(Gempyre::CloseStatus closeStatus, int code) { //close
@@ -479,32 +489,37 @@ void GempyreInternal::eventLoop(bool is_main) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip timerqueue", state_str());
         }
 
+        /*if(has_open() && *this == State::RUNNING && is_connected()) {
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "has open running", state_str());
+            //const auto open_function = take_open();
+            //set_hold(true);
+            //add_request([open_function, this]() {
+            //GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
+            //open_function();
+                //set_hold(false);
+            //shoot_requests();
+            //    return true;
+            //}); //we try to keep logic call order
+            continue;
+        }*/
 
-        if(is_connected())  
-            handle_requests();
+        if(!has_open() && is_connected()) {
+            assert(!m_onOpen);
+            handle_timer_requests();
+        }
         
 
         if(*this == State::PENDING) {
             continue;
         }
 
-        if(has_open() && *this == State::RUNNING && is_connected()) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "has open running", state_str());
-            const auto fptr = take_open();
-            set_hold(true);
-            add_request([fptr, this]() {
-                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
-                fptr();
-                set_hold(false);
-                return true;
-            }); //we try to keep logic call order
-        }
 
         if(has_requests() && *this != State::RUNNING) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip requestqueue", state_str());
         }
 
-        shoot_requests();
+        if(!has_open() && !is_hold())
+            shoot_requests();
 
         if(has_requests()) {
              GempyreUtils::log(GempyreUtils::LogLevel::Debug, "unfinished business", state_str(), is_connected());
