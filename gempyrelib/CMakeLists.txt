@@ -378,7 +378,8 @@ if(DOXYGEN)
 
 
     if(SPELL)
-        set(CMAKEDOC_SPELL_DICTIONARY ${CMAKE_SOURCE_DIR}/aspell/gempyre_words.txt)
+    	# CMAKE_SOURCE_DIR referds to wrong directory with CMAKE_SOURCE_DIR on Github actions context!
+        set(CMAKEDOC_SPELL_DICTIONARY ${CMAKE_CURRENT_SOURCE_DIR}/../aspell/gempyre_words.txt)
         set(CMAKEDOC_SPELL_EXCLUDE_DIRS
             build
             aspell
