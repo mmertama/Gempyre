@@ -79,7 +79,7 @@ else()
     set(LIB_PNG_VER master) # no version
 endif()
 
-if(LINUX)
+if(LINUX AND ${GEMPYRE_IS_MAIN_PROJECT})
     set(DOXYGEN TRUE)
     set(SPELL TRUE)
 endif()    

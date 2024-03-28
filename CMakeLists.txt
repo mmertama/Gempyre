@@ -8,6 +8,12 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+    set(GEMPYRE_IS_MAIN_PROJECT TRUE)
+else()
+    set(GEMPYRE_IS_MAIN_PROJECT FALSE)
+endif()        
+
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER)
 if (${LOWER} STREQUAL debug)
     set(IS_RELEASE FALSE)
@@ -112,13 +118,13 @@ endif()
 
 add_subdirectory(gempyrelib)
 
-option(HAS_AFFILIATES "Affiliates are built" ON)
+option(HAS_AFFILIATES "Affiliates are built" ${GEMPYRE_IS_MAIN_PROJECT})
 
-option(HAS_TEST "Test are built" ON)
+option(HAS_TEST "Test are built" ${GEMPYRE_IS_MAIN_PROJECT})
 
-option(HAS_EXAMPLES "Examples are built" ON)
+option(HAS_EXAMPLES "Examples are built" ${GEMPYRE_IS_MAIN_PROJECT})
 
-option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" OFF)
+option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" ON)
   
 
 if(HAS_AFFILIATES)
