@@ -520,6 +520,6 @@ void Ui::flush() {
 }
 
  bool Ui::ui_available() const {
-    return m_ui->is_connected() && m_ui->is_running();
+    return m_ui->is_ui_available();
  }
 

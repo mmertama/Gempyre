@@ -284,11 +284,15 @@ GempyreInternal& Ui::ref() {
                 //do nothing
             } else if(type == "ui_ready") {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "UI ready request");
+
                 const auto open_function = take_open();
                 add_request([open_function, this]() {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "call onOpen");
-                    open_function();
-                    //set_hold(false);
+                    if(open_function) {
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "calling onOpen");
+                        open_function();
+                    } else {
+                        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "missing onOpen");
+                    }
                     shoot_requests();
                     return true;
                 });
@@ -516,15 +520,15 @@ void GempyreInternal::eventLoop(bool is_main) {
         }
 
 
-        if(has_requests() && *this != State::RUNNING) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip requestqueue", state_str());
-        }
-
-        if(!has_open() && !is_hold())
-            shoot_requests();
+        if( has_requests() &&
+            *this == State::RUNNING &&
+            !has_open() &&
+            !is_hold()) {
+                shoot_requests();
+            }
 
         if(has_requests()) {
-             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "unfinished business", state_str(), is_connected());
+             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "unfinished business", state_str(), is_running());
         }
 
         //if there are responses they must be handled
@@ -552,8 +556,10 @@ void GempyreInternal::eventLoop(bool is_main) {
 }
 
 void GempyreInternal::shoot_requests() {
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, 
+    "shoot_requests",  has_requests(), "running", *this == State::RUNNING, "available", is_ui_available());
     //shoot pending requests
-    while(has_requests() && *this == State::RUNNING && is_connected()) {
+    while(has_requests() && *this == State::RUNNING && is_ui_available()) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "do request");
         auto topRequest = take_request();
         if(!topRequest) // since "flush" can be called in another thread this can happen :-o
@@ -606,7 +612,7 @@ void GempyreInternal::consume_events() {
                   "has open:", has_open(),
                   "State:", state_str(),
                   "Connected", is_connected());
-                 continue;
+                  //continue;
             }
             const auto element = m_elements.find(it.element);
             if(element != m_elements.end()) {

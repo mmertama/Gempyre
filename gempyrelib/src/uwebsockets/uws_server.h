@@ -34,6 +34,7 @@ private: // let's not use Server API
     // joinable does not mean it is running, and not running does not mean it soon wont :-)
     
     bool isConnected() const override;
+    bool isUiReady() const override;
     bool retryStart() override;
     void close(bool wait = false) override;
     bool send(Server::TargetSocket target, Server::Value&& value) override;

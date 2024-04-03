@@ -62,6 +62,7 @@ public:
     virtual bool isJoinable() const = 0;
     virtual bool isRunning() const = 0;
     virtual bool isConnected() const = 0;
+    virtual bool isUiReady() const = 0;
     
     int queryId() const {return ++m_queryId;}
     unsigned int port() const {return m_port;}

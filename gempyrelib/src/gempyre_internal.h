@@ -194,6 +194,10 @@ public:
         return has_server() && m_server->isRunning();
     }
 
+    bool is_ui_available() const {
+        return is_connected() && is_running() && m_server->isUiReady();
+    }
+
 
     void add_handler(const std::string& id, const std::string& name, const Element::SubscribeFunction& handler) {
         HandlerFunction hf = [handler](const Event& event) {
@@ -405,7 +409,7 @@ public:
 
     std::function<void()> take_open() {
         GEM_DEBUG("Take open");
-        const auto fptr = std::move(m_onOpen);
+        const auto fptr = m_onOpen;
         m_onOpen = nullptr;
         return fptr;
     }

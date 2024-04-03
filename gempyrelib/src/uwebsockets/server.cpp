@@ -358,7 +358,11 @@ bool Uws_Server::retryStart() {
 }
 
 bool Uws_Server::isConnected() const {
-    return !m_broadcaster->empty() /*&& m_uiready*/; // why was this - 
+    return !m_broadcaster->empty();
+}
+
+bool Uws_Server::isUiReady() const {
+    return m_uiready;
 }
 
 bool Uws_Server::beginBatch() {
