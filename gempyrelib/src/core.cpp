@@ -66,8 +66,6 @@ std::tuple<int, int, int> Gempyre::version() {
 
 
 
-
-
 /// Create UI using default ui app or gempyre.conf
 Ui::Ui(const Filemap& filemap,
        const std::string& indexHtml,

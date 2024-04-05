@@ -138,7 +138,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build/gempyrelib/html       
+        publish_dir: ./build/html       
 
     - name: Setup Chrome
       uses: browser-actions/setup-chrome@v1  

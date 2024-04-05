@@ -112,6 +112,18 @@ static std::optional<std::string> python3() {
     return py;
 }
 
+[[maybe_unused]]
+static std::optional<std::string> python3(const std::initializer_list<std::string>& required_libs) {
+    const auto  py3 = python3();
+    if(py3) {
+        for(const auto& r : required_libs) {
+            if(0 != GempyreUtils::execute(*py3, "-c \"import " + r + "\""))
+                return std::nullopt;
+        }
+    }
+    return py3;
+} 
+
 
 // figure out and construct gui app and command line
 static
@@ -139,7 +151,7 @@ std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
         windowType = WindowType::PYTHON;
 #endif
     if(windowType == WindowType::PYTHON) {
-        const auto py3 = python3();
+        const auto py3 = python3({"pywebview", "websockets"}); // OSX Sonoma + python12 made things more complex, hence I have to easier to fallback
         if(py3) {
             constexpr auto py_file = "/pyclient.py"; // let's not use definion in gempyrejsh as that may not be there
             const auto py_data = Gempyrejsh.find(py_file);
