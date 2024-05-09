@@ -10,6 +10,7 @@
 #include <optional>
 #include <vector>
 #include <tuple>
+#include <gempyre_types.h>
 
 /**
   * @file 
@@ -25,14 +26,6 @@
 
 
 using namespace std::chrono_literals;
-
-/// @cond INTERNAL
-#ifdef WINDOWS_EXPORT
-#define GEMPYRE_EX __declspec( dllexport )
-#else
-#define GEMPYRE_EX
-#endif
-/// @endcond
 
 
 namespace Gempyre {
@@ -56,13 +49,6 @@ namespace Gempyre {
     /// Return current version
     GEMPYRE_EX std::tuple<int, int, int> version();
 
-    class Data;
-
-     /// @cond INTERNAL
-    using DataPtr = std::shared_ptr<Data>;
-    using dataT = uint32_t;
-    /// @endcond
-
     struct Event;
 
     /// @brief Represents all HTML elements on UI
@@ -76,19 +62,8 @@ namespace Gempyre {
         using Elements = std::vector<Element>;
         /// @brief Callback function for event subscriptions. @see Element::subscribe.
         using SubscribeFunction = std::function<void(const Event&)>;
-
-        /// @brief Rect
-        struct Rect {
-            /// @brief rectangle x coordinate.
-            int x;
-            /// @brief rectangle y coordinate.
-            int y;
-            /// @brief rectangle width.
-            int width;
-            /// @brief rectangle height.
-            int height;
-        };
-        
+         /// @brief compatibility @see Gempyre::Rect.
+        using Rect = Gempyre::Rect;
 
     public:
         /// Copy constructor.

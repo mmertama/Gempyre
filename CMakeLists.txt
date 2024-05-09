@@ -65,6 +65,16 @@ elseif(UNIX)
     add_compile_options(-fPIC)
 endif()
 
+set(USE_DEFAULT_SUBPROJECTS ${GEMPYRE_IS_MAIN_PROJECT})
+set(USE_DEFAULT_PYTHON ON)
+
+if(EMSCRIPTEN)
+    message("Target is Emscripten")
+    add_compile_definitions(WASM)
+    set(USE_DEFAULT_SUBPROJECTS OFF)
+    set(USE_DEFAULT_PYTHON OFF)
+endif()
+
 option(CI_ACTIONS "Github Actions build" OFF)
 
 if(CI_ACTIONS)
@@ -118,15 +128,14 @@ endif()
 
 add_subdirectory(gempyrelib)
 
-option(HAS_AFFILIATES "Affiliates are built" ${GEMPYRE_IS_MAIN_PROJECT})
+option(HAS_AFFILIATES "Affiliates are built" ${USE_DEFAULT_SUBPROJECTS})
 
-option(HAS_TEST "Test are built" ${GEMPYRE_IS_MAIN_PROJECT})
+option(HAS_TEST "Test are built" ${USE_DEFAULT_SUBPROJECTS})
 
-option(HAS_EXAMPLES "Examples are built" ${GEMPYRE_IS_MAIN_PROJECT})
+option(HAS_EXAMPLES "Examples are built" ${USE_DEFAULT_SUBPROJECTS})
 
-option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" ON)
+option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" ${USE_DEFAULT_PYTHON})
   
-
 if(HAS_AFFILIATES)
     add_subdirectory(affiliates)
 endif()

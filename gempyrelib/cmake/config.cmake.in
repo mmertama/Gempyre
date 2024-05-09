@@ -83,7 +83,11 @@ endif()
 if(@USE_UWEBSOCKETS@)
     include(uwebsockets_config)
 else()
-    message(FATAL_ERROR "What WS is in use?")    
+    if(@HAS_WEBSOKETS@)
+        message(FATAL_ERROR "What WS is in use?")
+    else()
+         message("No Websockets")    
+    endif()        
 endif()
 
 if(WIN32)
@@ -121,18 +125,26 @@ elseif(RASPBERRY)
         )           
 else()
 
-    set_target_properties(gempyre::gempyre_usock PROPERTIES
-        IMPORTED_LOCATION "${uSockets_LIBRARY}"
-        IMPORTED_LOCATION_DEBUG "${uSockets_LIBRARY}" 
-        )
+    if(EMSCRIPTEN)
+        set_target_properties(gempyre::gempyre PROPERTIES
+            INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib"
+            )       
+    else()
+        set_target_properties(gempyre::gempyre_usock PROPERTIES
+            IMPORTED_LOCATION "${uSockets_LIBRARY}"
+            IMPORTED_LOCATION_DEBUG "${uSockets_LIBRARY}" 
+            )
 
-    set_target_properties(gempyre::gempyre_lib PROPERTIES
+        set_target_properties(gempyre::gempyre_lib PROPERTIES
             INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
-            )    
+            )
 
-    set_target_properties(gempyre::gempyre PROPERTIES
-        INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_usock"
-        )
+        set_target_properties(gempyre::gempyre PROPERTIES
+            INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_usock"
+        )        
+    endif()                
+
+   
 endif()
 
 

@@ -3,7 +3,6 @@
 
 #include <iterator>
 #include <vector>
-#include "gempyre.h"
 
 namespace Gempyre {
 class Data {

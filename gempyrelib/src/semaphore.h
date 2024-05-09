@@ -1,8 +1,14 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
+#ifdef WASM
+    #error "Semaphores are not supported in WASM builds"
+#endif
+
+
 #include <mutex>
 #include <condition_variable>
+
 
 namespace Gempyre {
 

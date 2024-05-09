@@ -31,6 +31,7 @@ else()
     message(FATAL_ERROR "Cannot identify compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
+
 if(MSYS OR MINGW)
     set(MinGW ON)
 endif()    
@@ -91,6 +92,12 @@ else()
     message("Defaults to Browser UI")
 endif()
 
+if(EMSCRIPTEN)
+    set(HAS_WEB_SOCKETS FALSE)
+else()
+    set(HAS_WEB_SOCKETS TRUE)    
+endif()
+
 # todo: use expternalproject_getproperty SOURCE DIR instead to simplify
 set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
 
@@ -121,54 +128,57 @@ endif()
 #    set(USE_LIBWEBSOCKETS TRUE)    
 #endif()
 
-if(USE_LIBWEBSOCKETS)
-    include(cmake/libwebsockets.cmake)    
-else()
-    include(cmake/uwebsockets.cmake)
-    set(USE_UWEBSOCKETS TRUE)
-endif()
-
-
 externalproject_add(libjson
-    GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG ${LIB_JSON_VER}
-    GIT_PROGRESS true
-    UPDATE_DISCONNECTED false
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-    TEST_COMMAND ""
-    INSTALL_COMMAND ""
-    CMAKE_ARGS -DJSON_BuildTests:STRING=OFF
-    )
-
-ExternalProject_Get_Property(libjson SOURCE_DIR)
-set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
-
-# store for testing json re-use
-set_property(TARGET libjson PROPERTY json_dir "${SOURCE_DIR}/include")
-
-
-if(CLIENT_DIALOGS)
-    set(DIALOG_SRC src/ui_client.cpp)
-else()
-    set(DIALOG_SRC src/ui_pfd.cpp)
-    message("skip libpfd version, use latest")
-    externalproject_add(libpfd
-        GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
-        #GIT_TAG ${LIB_PFD_VER}
-        GIT_TAG main
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG ${LIB_JSON_VER}
         GIT_PROGRESS true
         UPDATE_DISCONNECTED false
-        BUILD_COMMAND ""
-        CONFIGURE_COMMAND ""
-        INSTALL_COMMAND ""
         UPDATE_COMMAND ""
         PATCH_COMMAND ""
         TEST_COMMAND ""
+        INSTALL_COMMAND ""
+        CMAKE_ARGS -DJSON_BuildTests:STRING=OFF
         )
-    ExternalProject_Get_Property(libpfd SOURCE_DIR) 
-    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")
-endif()
+
+    ExternalProject_Get_Property(libjson SOURCE_DIR)
+    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
+
+    # store for testing json re-use
+    set_property(TARGET libjson PROPERTY json_dir "${SOURCE_DIR}/include")
+
+
+if(HAS_WEB_SOCKETS)
+
+    if(USE_LIBWEBSOCKETS)
+        include(cmake/libwebsockets.cmake)    
+    else()
+        include(cmake/uwebsockets.cmake)
+        set(USE_UWEBSOCKETS TRUE)
+    endif()
+
+    if(CLIENT_DIALOGS)
+        set(DIALOG_SRC src/ui_client.cpp)
+    else()
+        set(DIALOG_SRC src/ui_pfd.cpp)
+        message("skip libpfd version, use latest")
+        externalproject_add(libpfd
+            GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
+            #GIT_TAG ${LIB_PFD_VER}
+            GIT_TAG main
+            GIT_PROGRESS true
+            UPDATE_DISCONNECTED false
+            BUILD_COMMAND ""
+            CONFIGURE_COMMAND ""
+            INSTALL_COMMAND ""
+            UPDATE_COMMAND ""
+            PATCH_COMMAND ""
+            TEST_COMMAND ""
+            )
+        ExternalProject_Get_Property(libpfd SOURCE_DIR) 
+        set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")
+    endif()
+
+endif()    # emscripten
 
 FetchContent_Declare(
     lodepng
@@ -206,7 +216,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_definitions(_GLIBCXX_DEBUG)
-  add_compile_options(-stdlib=libc++)
+  if(NOT EMSCRIPTEN)
+    add_compile_options(-stdlib=libc++)
+  endif()  
 else()
  # set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
  add_link_options(-lstdc++)
@@ -220,37 +232,46 @@ endif()
 set(INCLUDES
     include
     )
+ 
+if(NOT EMSCRIPTEN)
+    set(GEMPYRE_SRC
+        src/semaphore.h
+        src/gempyre_internal.h
+        src/gempyre_internal.cpp
+        src/core.h
+        src/core.cpp
+        src/server.h
+        src/timer.h
+        src/timer.cpp
+        src/eventqueue.h
+        src/server.cpp
+        src/timequeue.h
+        src/graphics.cpp
+        src/element.cpp
+        ${DIALOG_SRC}
+        ${GEMPYRE_WS_SOURCES}
+        include/gempyre.h
+        include/gempyre_graphics.h
+        include/gempyre_client.h
+    )
+endif()
 
 set(GEMPYRE_SRC
-    include/gempyre.h
+    ${GEMPYRE_SRC}
     include/gempyre_utils.h
-    include/gempyre_graphics.h
-    include/gempyre_client.h
-    src/core.cpp
+    include/gempyre_bitmap.h
+    src/canvas_data.h
+    src/bitmap.cpp
     src/utils.cpp
     src/base64.cpp
-    src/timer.cpp
-    src/server.h
     src/base64.h
-    src/timer.h
-    src/eventqueue.h
-    src/semaphore.h
     src/idlist.h
     src/json.cpp
-    src/graphics.cpp
-    src/element.cpp
-    src/core.h
-    src/timequeue.h
     js/gempyre.js
     py/pyclient.py
     src/data.h
-    src/gempyre_internal.h
-    src/gempyre_internal.cpp
     src/logging.cpp
-    src/server.cpp
-    ${DIALOG_SRC}
     ${PNG_SRC}
-    ${GEMPYRE_WS_SOURCES}
     )
 
 
@@ -476,12 +497,14 @@ add_custom_target(target ${PROJECT_NAME} PRE_BUILD
 
 add_dependencies(${PROJECT_NAME} libjson)
 
-if(NOT CLIENT_DIALOGS)
+if(NOT CLIENT_DIALOGS AND NOT EMSCRIPTEN)
     add_dependencies(${PROJECT_NAME} libpfd)
 endif()
 
 
-socket_dependencies(${PROJECT_NAME})
+if(HAS_WEB_SOCKETS)
+    socket_dependencies(${PROJECT_NAME})
+endif()
 
 #add_dependencies(${PROJECT_NAME} gempyrejs)
 
@@ -620,14 +643,16 @@ else()
             set(SOCKET_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/uwebsockets_config.cmake")
         endif()
 
-        if(DEFINED CONNECTION_FIND)
-            install(FILES
-                ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
-                DESTINATION ${PROJECT_CMAKE_DIR}
-                )
-        else()
-            message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
-        endif()    
+        if(HAS_WEB_SOCKETS)
+            if(DEFINED CONNECTION_FIND)
+                install(FILES
+                    ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
+                    DESTINATION ${PROJECT_CMAKE_DIR}
+                    )
+            else()
+                message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
+            endif()
+        endif()        
 
     install(FILES
         ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}
@@ -659,9 +684,11 @@ else()
     endif() # NOT NO_EXPORT
 endif()
 
-if(NOT DEFINED GEMPYRE_WEBSOCKET_LIBRARY_NAME)
-    message(FATAL_ERROR "Unknown Websocket library")
-else()
-    message("Websocket library is " ${GEMPYRE_WEBSOCKET_LIBRARY_NAME})    
+if(HAS_WEB_SOCKETS)
+    if(NOT DEFINED GEMPYRE_WEBSOCKET_LIBRARY_NAME)
+        message(FATAL_ERROR "Unknown Websocket library")
+    else()
+        message("Websocket library is " ${GEMPYRE_WEBSOCKET_LIBRARY_NAME})    
+    endif()
 endif()
 
