@@ -127,24 +127,27 @@ endif()
 #    set(USE_LIBWEBSOCKETS TRUE)    
 #endif()
 
-externalproject_add(libjson
+if(CI_ACTIONS)
+    set(HAS_PROGRESS FALSE)
+else()
+    set(HAS_PROGRESS TRUE)
+endif()    
+
+set(JSON_BuildTests OFF)
+FetchContent_Declare(libjson
         GIT_REPOSITORY https://github.com/nlohmann/json.git
         GIT_TAG ${LIB_JSON_VER}
-        GIT_PROGRESS true
-        UPDATE_DISCONNECTED false
-        UPDATE_COMMAND ""
-        PATCH_COMMAND ""
-        TEST_COMMAND ""
-        INSTALL_COMMAND ""
+        GIT_PROGRESS ${HAS_PROGRESS}
         CMAKE_ARGS -DJSON_BuildTests:STRING=OFF
         )
 
-    ExternalProject_Get_Property(libjson SOURCE_DIR)
-    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/include")
+FetchContent_MakeAvailable(libjson)
+FetchContent_GetProperties(libjson SOURCE_DIR srcDirVar)        
+set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}/include")
+set(JSON_DIR "${srcDirVar}/include" PARENT_SCOPE)
 
-    # store for testing json re-use
-    set_property(TARGET libjson PROPERTY json_dir "${SOURCE_DIR}/include")
-
+# store for testing json re-use
+#set_property(TARGET libjson PROPERTY json_dir "${srcDirVar}/include")
 
 if(HAS_WEB_SOCKETS)
 
@@ -164,7 +167,7 @@ if(HAS_WEB_SOCKETS)
             GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
             #GIT_TAG ${LIB_PFD_VER}
             GIT_TAG main
-            GIT_PROGRESS true
+            GIT_PROGRESS ${HAS_PROGRESS}
             UPDATE_DISCONNECTED false
             BUILD_COMMAND ""
             CONFIGURE_COMMAND ""
@@ -183,6 +186,7 @@ FetchContent_Declare(
     lodepng
     GIT_REPOSITORY https://github.com/lvandeve/lodepng.git
     #GIT_TAG ${LIB_PNG_VER}
+    GIT_PROGRESS ${HAS_PROGRESS}
   )
   
 FetchContent_MakeAvailable(lodepng)
@@ -394,6 +398,7 @@ if(DOXYGEN)
         cmakedoc
         GIT_REPOSITORY https://github.com/mmertama/cmakedoc.git
         GIT_TAG        main
+        GIT_PROGRESS ${HAS_PROGRESS}
     )
     FetchContent_MakeAvailable(cmakedoc)
     include(${cmakedoc_SOURCE_DIR}/cmakedoc.cmake)
@@ -501,7 +506,7 @@ add_custom_target(target ${PROJECT_NAME} PRE_BUILD
     VERBATIM
     )
 
-add_dependencies(${PROJECT_NAME} libjson)
+#add_dependencies(${PROJECT_NAME} libjson)
 
 if(NOT CLIENT_DIALOGS AND NOT EMSCRIPTEN)
     add_dependencies(${PROJECT_NAME} libpfd)

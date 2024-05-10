@@ -224,7 +224,7 @@ And then we have a main.cpp. I discuss here every line by line. At first, *gempy
 
 Within Gempyre you normally build in the HTML and other resources, to compose a single file executable. It is preferred that Gempyre is statically linked in, thus the application is just a single file. Therefore distributing and executing Gempyre applications shall be very easy: just run it! There are no runtimes to install nor DLLs to be dependent on; just a single binary executable.
 
-The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ `std::string` object that will be passed then to the `Gempyre::Ui` constructor.
+The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a `Hellohtml`, a `std::string` object that will be passed then to the `Gempyre::Ui` constructor.
 
 ```cpp 
 

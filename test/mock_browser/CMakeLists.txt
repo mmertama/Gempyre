@@ -20,10 +20,10 @@ target_compile_definitions(${PROJECT_NAME}
 # dependency so that JSON_DIR would be there
 add_dependencies(${PROJECT_NAME} gempyre)
 
-get_property(JSON_DIR TARGET libjson PROPERTY json_dir)
+#get_property(JSON_DIR TARGET libjson PROPERTY json_dir)
 
 if(NOT EXISTS "${JSON_DIR}/nlohmann")
-    message(WARNING "JSON dir not found: ${JSON_DIR}")
+    message(FATAL_ERROR "JSON dir not found: ${JSON_DIR}/nlohmann")
 endif()
 
 include_directories("${JSON_DIR}")

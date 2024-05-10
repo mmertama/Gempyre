@@ -1,5 +1,6 @@
 #include <lodepng.h>
 #include <cassert>
+#include <cstring>
 #include "gempyre_bitmap.h"
 #include "gempyre_utils.h"
 #include "data.h"
