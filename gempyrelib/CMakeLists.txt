@@ -239,7 +239,7 @@ set(PUBLIC_HEADERS
  
 if(NOT EMSCRIPTEN)
     set(PUBLIC_HEADERS
-        ${PUBLIC_HEADER}
+        ${PUBLIC_HEADERS}
         include/gempyre.h
         include/gempyre_graphics.h
         include/gempyre_client.h
@@ -606,7 +606,8 @@ else()
     # all files in include and affiliates / include are exported
     if(NOT EMSCRIPTEN)    
         file(GLOB HEADERS ${CMAKE_SOURCE_DIR}/affiliates/include/*.h)
-    endif()    
+    endif()   
+
     set(HEADERS ${HEADERS} ${PUBLIC_HEADERS})
 
     set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
