@@ -143,6 +143,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 <tr class="memitem:a0871ed2126a4911a895080d967df32a5 inherit pub_types_classGempyre_1_1Element"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5">SubscribeFunction</a> = std::function&lt; void(const <a class="el" href="structGempyre_1_1Event.html">Event</a> &amp;)&gt;</td></tr>
 <tr class="memdesc:a0871ed2126a4911a895080d967df32a5 inherit pub_types_classGempyre_1_1Element"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for event subscriptions.  <a href="classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5">More...</a><br /></td></tr>
 <tr class="separator:a0871ed2126a4911a895080d967df32a5 inherit pub_types_classGempyre_1_1Element"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad661778373709e125ae4ae2c304984fe inherit pub_types_classGempyre_1_1Element"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Rect</a> = <a class="el" href="structGempyre_1_1Rect.html">Gempyre::Rect</a></td></tr>
+<tr class="memdesc:ad661778373709e125ae4ae2c304984fe inherit pub_types_classGempyre_1_1Element"><td class="mdescLeft">&#160;</td><td class="mdescRight">compatibility  <a href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">More...</a><br /></td></tr>
+<tr class="separator:ad661778373709e125ae4ae2c304984fe inherit pub_types_classGempyre_1_1Element"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -178,10 +181,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2d61c45a1525769f57b6687f392daa2d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1CanvasElement.html#a2d61c45a1525769f57b6687f392daa2d">add_image</a> (const std::string &amp;url, const std::function&lt; void(const std::string &amp;<a class="el" href="classGempyre_1_1Element.html#a3f48d839969f29d375d460cfb8e57f41">id</a>)&gt; &amp;loaded=nullptr)</td></tr>
 <tr class="memdesc:a2d61c45a1525769f57b6687f392daa2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an image into HTML DOM tree.  <a href="classGempyre_1_1CanvasElement.html#a2d61c45a1525769f57b6687f392daa2d">More...</a><br /></td></tr>
 <tr class="separator:a2d61c45a1525769f57b6687f392daa2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ae7534a7e7caaa2a63288ea86f1d2dd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1CanvasElement.html#a7ae7534a7e7caaa2a63288ea86f1d2dd">paint_image</a> (const std::string &amp;imageId, int x, int y, const <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Element::Rect</a> &amp;clippingRect={0, 0, 0, 0}) const</td></tr>
+<tr class="memitem:a7ae7534a7e7caaa2a63288ea86f1d2dd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1CanvasElement.html#a7ae7534a7e7caaa2a63288ea86f1d2dd">paint_image</a> (const std::string &amp;imageId, int x, int y, const <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Element::Rect</a> &amp;clippingRect={0, 0, 0, 0}) const</td></tr>
 <tr class="memdesc:a7ae7534a7e7caaa2a63288ea86f1d2dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draw image at position.  <a href="classGempyre_1_1CanvasElement.html#a7ae7534a7e7caaa2a63288ea86f1d2dd">More...</a><br /></td></tr>
 <tr class="separator:a7ae7534a7e7caaa2a63288ea86f1d2dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8fa528c283bab9a4cf103c62bea992d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1CanvasElement.html#ab8fa528c283bab9a4cf103c62bea992d">paint_image</a> (const std::string &amp;imageId, const <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Element::Rect</a> &amp;targetRect, const <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Element::Rect</a> &amp;clippingRect={0, 0, 0, 0}) const</td></tr>
+<tr class="memitem:ab8fa528c283bab9a4cf103c62bea992d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1CanvasElement.html#ab8fa528c283bab9a4cf103c62bea992d">paint_image</a> (const std::string &amp;imageId, const <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Element::Rect</a> &amp;targetRect, const <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Element::Rect</a> &amp;clippingRect={0, 0, 0, 0}) const</td></tr>
 <tr class="memdesc:ab8fa528c283bab9a4cf103c62bea992d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draw image in rectangle.  <a href="classGempyre_1_1CanvasElement.html#ab8fa528c283bab9a4cf103c62bea992d">More...</a><br /></td></tr>
 <tr class="separator:ab8fa528c283bab9a4cf103c62bea992d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada518283f82bdf3b2ccc7b4408ec521c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1CanvasElement.html#ada518283f82bdf3b2ccc7b4408ec521c">draw</a> (const <a class="el" href="classGempyre_1_1CanvasElement.html#aee91c32d55b38b716ea13caf6cf4edd0">CommandList</a> &amp;canvasCommands)</td></tr>
@@ -290,7 +293,7 @@ std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bo
 <tr class="memdesc:a4ba6006921bd41c30df164230163951c inherit pub_methods_classGempyre_1_1Element"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get this element type, mostly a HTML tag. <br /></td></tr>
 <tr class="separator:a4ba6006921bd41c30df164230163951c inherit pub_methods_classGempyre_1_1Element"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f3f133807142e2847eae06b7f756efb inherit pub_methods_classGempyre_1_1Element"><td class="memItemLeft" align="right" valign="top"><a id="a6f3f133807142e2847eae06b7f756efb"></a>
-std::optional&lt; <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Rect</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#a6f3f133807142e2847eae06b7f756efb">rect</a> () const</td></tr>
+std::optional&lt; <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Rect</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#a6f3f133807142e2847eae06b7f756efb">rect</a> () const</td></tr>
 <tr class="memdesc:a6f3f133807142e2847eae06b7f756efb inherit pub_methods_classGempyre_1_1Element"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get this element UI rect. I.e area it occupies on screen (if applicable) <br /></td></tr>
 <tr class="separator:a6f3f133807142e2847eae06b7f756efb inherit pub_methods_classGempyre_1_1Element"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b62eb11840d8e3cae8f4f46e1dd3bf4 inherit pub_methods_classGempyre_1_1Element"><td class="memItemLeft" align="right" valign="top"><a id="a6b62eb11840d8e3cae8f4f46e1dd3bf4"></a>
@@ -683,7 +686,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Bitmap</b></td></tr>
 <ul>
 <li>When doing animation or frequent drawing, please do no call draw functions inside timer function. The preferred way is to to do animation in timer function, but use draw_completed to do the actual drawing. draw_completed do drawing in the optimal frequency (as fast the system can do it without consuming all CPU). <dl class="section note"><dt>Note</dt><dd><div class="fragment"><div class="line">canvas_element.draw_completed([<span class="keyword">this</span>]() {draw_frame();}, Gempyre::CanvasElement::DrawNotify::Kick);</div>
 <div class="line"><a class="code" href="classGempyre_1_1Element.html#a7f35773958e732e0fa9126b6e0d89299">ui</a>.<a class="code" href="classGempyre_1_1Ui.html#a359e50dbf9736980d5819f2def65dc3e">start_periodic</a>(50ms, [<span class="keyword">this</span>]() {animate();});</div>
-<div class="ttc" id="aclassGempyre_1_1Element_html_a7f35773958e732e0fa9126b6e0d89299"><div class="ttname"><a href="classGempyre_1_1Element.html#a7f35773958e732e0fa9126b6e0d89299">Gempyre::Element::ui</a></div><div class="ttdeci">const Ui &amp; ui() const</div><div class="ttdoc">Get Ui.</div><div class="ttdef"><b>Definition:</b> gempyre.h:123</div></div>
+<div class="ttc" id="aclassGempyre_1_1Element_html_a7f35773958e732e0fa9126b6e0d89299"><div class="ttname"><a href="classGempyre_1_1Element.html#a7f35773958e732e0fa9126b6e0d89299">Gempyre::Element::ui</a></div><div class="ttdeci">const Ui &amp; ui() const</div><div class="ttdoc">Get Ui.</div><div class="ttdef"><b>Definition:</b> gempyre.h:98</div></div>
 <div class="ttc" id="aclassGempyre_1_1Ui_html_a359e50dbf9736980d5819f2def65dc3e"><div class="ttname"><a href="classGempyre_1_1Ui.html#a359e50dbf9736980d5819f2def65dc3e">Gempyre::Ui::start_periodic</a></div><div class="ttdeci">TimerId start_periodic(const std::chrono::milliseconds &amp;ms, const std::function&lt; void(TimerId id)&gt; &amp;timerFunc)</div><div class="ttdoc">Start a periodic timer.</div></div>
 </div><!-- fragment --> </dd></dl>
 </li>
@@ -732,13 +735,13 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Bitmap</b></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Element::Rect</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Element::Rect</a> &amp;&#160;</td>
           <td class="paramname"><em>targetRect</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Element::Rect</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Element::Rect</a> &amp;&#160;</td>
           <td class="paramname"><em>clippingRect</em> = <code>{0,&#160;0,&#160;0,&#160;0}</code>&#160;</td>
         </tr>
         <tr>
@@ -790,7 +793,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Bitmap</b></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Element::Rect</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Element::Rect</a> &amp;&#160;</td>
           <td class="paramname"><em>clippingRect</em> = <code>{0,&#160;0,&#160;0,&#160;0}</code>&#160;</td>
         </tr>
         <tr>

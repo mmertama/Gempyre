@@ -7,7 +7,7 @@ var searchData=
   ['chop_29',['chop',['../gempyre__utils_8h.html#a82494ba3139c669061253d7e620000fc',1,'GempyreUtils::chop(const std::string &amp;s, const std::string &amp;chopped)'],['../gempyre__utils_8h.html#a692c47a4093d69a36a2bd9db6835c202',1,'GempyreUtils::chop(const std::string &amp;s)']]],
   ['clear_5frect_30',['clear_rect',['../classGempyre_1_1FrameComposer.html#a10fc76776e56ae19ebfd0f826ab0ea0f',1,'Gempyre::FrameComposer']]],
   ['click_31',['CLICK',['../structGempyre_1_1Event.html#a445755ca435a92ab3e42345a0a5d0ef9',1,'Gempyre::Event']]],
-  ['clip_32',['clip',['../classGempyre_1_1Bitmap.html#af5a68ed9a946f32627a144ff079d1064',1,'Gempyre::Bitmap']]],
+  ['clip_32',['clip',['../classGempyre_1_1Bitmap.html#a14f86985b940108428a42af202fe2bfe',1,'Gempyre::Bitmap']]],
   ['clone_33',['clone',['../classGempyre_1_1Bitmap.html#a1491b8d9d3ae761892d175f573267132',1,'Gempyre::Bitmap']]],
   ['close_34',['close',['../classGempyre_1_1Ui.html#a4d50a0d65b9e0c3e4895f11181d380e3',1,'Gempyre::Ui']]],
   ['close_5fpath_35',['close_path',['../classGempyre_1_1FrameComposer.html#abad485b0c56a0930b376a8594cdb7970',1,'Gempyre::FrameComposer']]],

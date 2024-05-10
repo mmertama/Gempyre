@@ -190,9 +190,9 @@ FAQ</h2>
 <div class="line">      assert(ui.available(texture_images[image_key]));</div>
 <div class="line">      texture_draw();</div>
 <div class="line">    }</div>
-<div class="ttc" id="aclassGempyre_1_1CanvasElement_html"><div class="ttname"><a href="classGempyre_1_1CanvasElement.html">Gempyre::CanvasElement</a></div><div class="ttdoc">Graphics element.</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:38</div></div>
-<div class="ttc" id="aclassGempyre_1_1FrameComposer_html"><div class="ttname"><a href="classGempyre_1_1FrameComposer.html">Gempyre::FrameComposer</a></div><div class="ttdoc">wrap up Javascript draw commands.</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:371</div></div>
-<div class="ttc" id="aclassGempyre_1_1FrameComposer_html_ac6f503e87a3fe553f7a3b0cfd9d8809a"><div class="ttname"><a href="classGempyre_1_1FrameComposer.html#ac6f503e87a3fe553f7a3b0cfd9d8809a">Gempyre::FrameComposer::draw_image</a></div><div class="ttdeci">FrameComposer draw_image(const std::string &amp;id, double x, double y)</div><div class="ttdoc">Visit the Mozialla documentation</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:445</div></div>
+<div class="ttc" id="aclassGempyre_1_1CanvasElement_html"><div class="ttname"><a href="classGempyre_1_1CanvasElement.html">Gempyre::CanvasElement</a></div><div class="ttdoc">Graphics element.</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:36</div></div>
+<div class="ttc" id="aclassGempyre_1_1FrameComposer_html"><div class="ttname"><a href="classGempyre_1_1FrameComposer.html">Gempyre::FrameComposer</a></div><div class="ttdoc">wrap up Javascript draw commands.</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:144</div></div>
+<div class="ttc" id="aclassGempyre_1_1FrameComposer_html_ac6f503e87a3fe553f7a3b0cfd9d8809a"><div class="ttname"><a href="classGempyre_1_1FrameComposer.html#ac6f503e87a3fe553f7a3b0cfd9d8809a">Gempyre::FrameComposer::draw_image</a></div><div class="ttdeci">FrameComposer draw_image(const std::string &amp;id, double x, double y)</div><div class="ttdoc">Visit the Mozialla documentation</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:218</div></div>
 </div><!-- fragment --><p>Q: How to do multiple <code><a class="el" href="classGempyre_1_1FrameComposer.html" title="wrap up Javascript draw commands.">Gempyre::FrameComposer</a></code> in a single draw? My second draw is not visible A: Do you call erase? See <code>CanvasElement::draw_completed above. You may also try to call your drawn in a</code>Ui::after` timer with 0ms delay, that should ensure the correct drawing order.</p>
 <p>Q: Why my dynamic HTML <code>&lt;select&gt;</code> does not work with numbers? A: The UI select uses strings, and hence the values has to be <em>quoted</em> strings. </p><div class="fragment"><div class="line">&lt;select id=&quot;show_tags&quot; disabled&gt;&lt;/select&gt;  </div>
 </div><!-- fragment --><div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> show_tags(ui, <span class="stringliteral">&quot;show_tags&quot;</span>);</div>
@@ -205,7 +205,7 @@ FAQ</h2>
 <div class="line">     opt.set_attribute(<span class="stringliteral">&quot;name&quot;</span>, <span class="stringliteral">&quot;tag_option&quot;</span>);</div>
 <div class="line">     opt.set_html(value);</div>
 <div class="line"> }</div>
-<div class="ttc" id="aclassGempyre_1_1Element_html"><div class="ttname"><a href="classGempyre_1_1Element.html">Gempyre::Element</a></div><div class="ttdoc">Represents all HTML elements on UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:69</div></div>
+<div class="ttc" id="aclassGempyre_1_1Element_html"><div class="ttname"><a href="classGempyre_1_1Element.html">Gempyre::Element</a></div><div class="ttdoc">Represents all HTML elements on UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:55</div></div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md10"></a>
 Example</h2>
 <h3><a class="anchor" id="autotoc_md11"></a>
@@ -258,13 +258,13 @@ Hello world</h3>
 <div class="fragment"><div class="line"><span class="preprocessor">#include  &lt;<a class="code" href="gempyre_8h.html">gempyre.h</a>&gt;</span></div>
 <div class="ttc" id="agempyre_8h_html"><div class="ttname"><a href="gempyre_8h.html">gempyre.h</a></div></div>
 </div><!-- fragment --><p>Within Gempyre you normally build in the HTML and other resources, to compose a single file executable. It is preferred that Gempyre is statically linked in, thus the application is just a single file. Therefore distributing and executing Gempyre applications shall be very easy: just run it! There are no runtimes to install nor DLLs to be dependent on; just a single binary executable.</p>
-<p>The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a ‘Hellohtml’ <code>std::string</code> object that will be passed then to the <code><a class="el" href="classGempyre_1_1Ui.html" title="The application UI.">Gempyre::Ui</a></code> constructor.</p>
+<p>The resource composing is done in CMakeLists.txt (single line), yet here the generated header is included, it contains a <code>Hellohtml</code>, a <code>std::string</code> object that will be passed then to the <code><a class="el" href="classGempyre_1_1Ui.html" title="The application UI.">Gempyre::Ui</a></code> constructor.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;hello_resources.h&quot;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> <span class="comment">/*argc*/</span>, <span class="keywordtype">char</span>** <span class="comment">/*argv*/</span>)  {</div>
 </div><!-- fragment --><p>In the constructor, you provide a mapping between file names and generated data and the HTML page that will be shown.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Ui.html">Gempyre::Ui</a> ui({ {<span class="stringliteral">&quot;/hello.html&quot;</span>, Hellohtml} }, <span class="stringliteral">&quot;hello.html&quot;</span>);</div>
-<div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:239</div></div>
+<div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:214</div></div>
 </div><!-- fragment --><p>HTML elements are represented by <code><a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a></code>. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The <code><a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a></code> represents any of the HTML elements. It's only inherited class is <code><a class="el" href="classGempyre_1_1CanvasElement.html" title="Graphics element.">Gempyre::CanvasElement</a></code> that implements specific graphics functionalities.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> text(ui, <span class="stringliteral">&quot;content&quot;</span>);</div>
 <div class="line"> </div>
@@ -300,7 +300,7 @@ Selection list</h3>
 <div class="fragment"><div class="line">select.subscribe(<a class="code" href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a>, [](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; e) {</div>
 <div class="line">    std::cout &lt;&lt; e.properties.at(<span class="stringliteral">&quot;value&quot;</span>) &lt;&lt; std::endl;</div>
 <div class="line">}, {<span class="stringliteral">&quot;value&quot;</span>});</div>
-<div class="ttc" id="astructGempyre_1_1Event_html_aa0080263ed91146b54f0f5c37404d979"><div class="ttname"><a href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a></div><div class="ttdeci">static constexpr auto CHANGE</div><div class="ttdoc">Generic change.</div><div class="ttdef"><b>Definition:</b> gempyre.h:216</div></div>
+<div class="ttc" id="astructGempyre_1_1Event_html_aa0080263ed91146b54f0f5c37404d979"><div class="ttname"><a href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a></div><div class="ttdeci">static constexpr auto CHANGE</div><div class="ttdoc">Generic change.</div><div class="ttdef"><b>Definition:</b> gempyre.h:191</div></div>
 </div><!-- fragment --><p>Applying an initial value is trivial:</p>
 <div class="fragment"><div class="line">select.set_attribute(<span class="stringliteral">&quot;value&quot;</span>, wp.levels[level_index]); <span class="comment">// set value to some other than 1st</span></div>
 </div><!-- fragment --><p>Please note that as each event has a lot of properties, you have to list what you need. For a selection change (as well as most of the inputs) a <b>value</b> is used. <br  />

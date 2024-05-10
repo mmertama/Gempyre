@@ -11,6 +11,6 @@ var hierarchy =
     [ "Gempyre::FrameComposer", "classGempyre_1_1FrameComposer.html", null ],
     [ "Gempyre::IdList< T >", "classGempyre_1_1IdList.html", null ],
     [ "GempyreUtils::LogWriter", "classGempyreUtils_1_1LogWriter.html", null ],
-    [ "Gempyre::Element::Rect", "structGempyre_1_1Element_1_1Rect.html", null ],
+    [ "Gempyre::Rect", "structGempyre_1_1Rect.html", null ],
     [ "Gempyre::Ui", "classGempyre_1_1Ui.html", null ]
 ];

@@ -83,7 +83,6 @@ $(document).ready(function(){initNavTree('classGempyre_1_1Element.html',''); ini
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#friends">Friends</a> &#124;
@@ -104,12 +103,6 @@ Inheritance diagram for Gempyre::Element:</div>
 </div>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGempyre_1_1Element_1_1Rect.html">Rect</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structGempyre_1_1Element_1_1Rect.html" title="Rect.">Rect</a>.  <a href="structGempyre_1_1Element_1_1Rect.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a37b71d8798552e875ee55384433f5847"><td class="memItemLeft" align="right" valign="top"><a id="a37b71d8798552e875ee55384433f5847"></a>
@@ -127,6 +120,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 <tr class="memitem:a0871ed2126a4911a895080d967df32a5"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5">SubscribeFunction</a> = std::function&lt; void(const <a class="el" href="structGempyre_1_1Event.html">Event</a> &amp;)&gt;</td></tr>
 <tr class="memdesc:a0871ed2126a4911a895080d967df32a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for event subscriptions.  <a href="classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5">More...</a><br /></td></tr>
 <tr class="separator:a0871ed2126a4911a895080d967df32a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad661778373709e125ae4ae2c304984fe"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Rect</a> = <a class="el" href="structGempyre_1_1Rect.html">Gempyre::Rect</a></td></tr>
+<tr class="memdesc:ad661778373709e125ae4ae2c304984fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">compatibility  <a href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">More...</a><br /></td></tr>
+<tr class="separator:ad661778373709e125ae4ae2c304984fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -217,7 +213,7 @@ std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bo
 <tr class="memdesc:a4ba6006921bd41c30df164230163951c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get this element type, mostly a HTML tag. <br /></td></tr>
 <tr class="separator:a4ba6006921bd41c30df164230163951c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f3f133807142e2847eae06b7f756efb"><td class="memItemLeft" align="right" valign="top"><a id="a6f3f133807142e2847eae06b7f756efb"></a>
-std::optional&lt; <a class="el" href="structGempyre_1_1Element_1_1Rect.html">Rect</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#a6f3f133807142e2847eae06b7f756efb">rect</a> () const</td></tr>
+std::optional&lt; <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Rect</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Element.html#a6f3f133807142e2847eae06b7f756efb">rect</a> () const</td></tr>
 <tr class="memdesc:a6f3f133807142e2847eae06b7f756efb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get this element UI rect. I.e area it occupies on screen (if applicable) <br /></td></tr>
 <tr class="separator:a6f3f133807142e2847eae06b7f756efb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b62eb11840d8e3cae8f4f46e1dd3bf4"><td class="memItemLeft" align="right" valign="top"><a id="a6b62eb11840d8e3cae8f4f46e1dd3bf4"></a>
@@ -234,6 +230,23 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>GempyreInternal</b><
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Represents all HTML elements on UI. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="ad661778373709e125ae4ae2c304984fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad661778373709e125ae4ae2c304984fe">&#9670;&nbsp;</a></span>Rect</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe">Gempyre::Element::Rect</a> =  <a class="el" href="structGempyre_1_1Rect.html">Gempyre::Rect</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>compatibility </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structGempyre_1_1Rect.html" title="Rect.">Gempyre::Rect</a>. </dd></dl>
+
+</div>
+</div>
 <a id="a0871ed2126a4911a895080d967df32a5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0871ed2126a4911a895080d967df32a5">&#9670;&nbsp;</a></span>SubscribeFunction</h2>
 

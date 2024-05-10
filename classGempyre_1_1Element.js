@@ -1,8 +1,8 @@
 var classGempyre_1_1Element =
 [
-    [ "Rect", "structGempyre_1_1Element_1_1Rect.html", "structGempyre_1_1Element_1_1Rect" ],
     [ "Attributes", "classGempyre_1_1Element.html#a37b71d8798552e875ee55384433f5847", null ],
     [ "Elements", "classGempyre_1_1Element.html#aa6c53fa35f8b2d3bac68e16b3ae57715", null ],
+    [ "Rect", "classGempyre_1_1Element.html#ad661778373709e125ae4ae2c304984fe", null ],
     [ "SubscribeFunction", "classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5", null ],
     [ "Values", "classGempyre_1_1Element.html#afb2ecf9f84e40c7fb2df08a789b4e3be", null ],
     [ "Element", "classGempyre_1_1Element.html#ae0c0152d289b144d76d81e9bd6335c27", null ],

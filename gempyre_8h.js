@@ -1,7 +1,6 @@
 var gempyre_8h =
 [
     [ "Element", "classGempyre_1_1Element.html", "classGempyre_1_1Element" ],
-    [ "Rect", "structGempyre_1_1Element_1_1Rect.html", "structGempyre_1_1Element_1_1Rect" ],
     [ "Event", "structGempyre_1_1Event.html", "structGempyre_1_1Event" ],
     [ "Ui", "classGempyre_1_1Ui.html", "classGempyre_1_1Ui" ],
     [ "set_debug", "gempyre_8h.html#a036459f630f9cc50fc853ae12004e976", null ],

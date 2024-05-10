@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['color_86',['Color',['../namespaceGempyre_1_1Color.html',1,'Gempyre']]],
-  ['gempyre_2eh_87',['gempyre.h',['../gempyre_8h.html',1,'']]],
+  ['color_85',['Color',['../namespaceGempyre_1_1Color.html',1,'Gempyre']]],
+  ['gempyre_2eh_86',['gempyre.h',['../gempyre_8h.html',1,'']]],
+  ['gempyre_5fbitmap_2eh_87',['gempyre_bitmap.h',['../gempyre__bitmap_8h.html',1,'']]],
   ['gempyre_5fgraphics_2eh_88',['gempyre_graphics.h',['../gempyre__graphics_8h.html',1,'']]],
   ['gempyre_5futils_2eh_89',['gempyre_utils.h',['../gempyre__utils_8h.html',1,'']]],
   ['gempyre_5futils_5fassert_90',['gempyre_utils_assert',['../gempyre__utils_8h.html#ad004acaae56c57e1fc045430b922b093',1,'gempyre_utils.h']]],
