@@ -103,7 +103,6 @@ set(EXTRA_DIR "${CMAKE_CURRENT_BINARY_DIR}/extra")
 
 add_compile_definitions(GEMPYRE_PROJECT_VERSION=${PROJECT_VERSION} ${CMAKE_CXX_FLAGS})
 
-
 if(WIN32)
     add_compile_definitions(WINDOWS_EXPORT WIN32)
     add_compile_options(-DWINDOWS_EXPORT)
@@ -232,8 +231,19 @@ endif()
 set(INCLUDES
     include
     )
+
+set(PUBLIC_HEADERS
+    include/gempyre_utils.h
+    include/gempyre_bitmap.h
+)    
  
 if(NOT EMSCRIPTEN)
+    set(PUBLIC_HEADERS
+        ${PUBLIC_HEADER}
+        include/gempyre.h
+        include/gempyre_graphics.h
+        include/gempyre_client.h
+    )
     set(GEMPYRE_SRC
         src/semaphore.h
         src/gempyre_internal.h
@@ -250,13 +260,11 @@ if(NOT EMSCRIPTEN)
         src/element.cpp
         ${DIALOG_SRC}
         ${GEMPYRE_WS_SOURCES}
-        include/gempyre.h
-        include/gempyre_graphics.h
-        include/gempyre_client.h
     )
 endif()
 
 set(GEMPYRE_SRC
+    ${PUBLIC_HEADERS}
     ${GEMPYRE_SRC}
     include/gempyre_utils.h
     include/gempyre_bitmap.h
@@ -389,11 +397,9 @@ if(DOXYGEN)
     )
     FetchContent_MakeAvailable(cmakedoc)
     include(${cmakedoc_SOURCE_DIR}/cmakedoc.cmake)
+    file(GLOB DOX_HEADERS include/*.h)
     set(CMAKEDOC_DOXYGEN_DOCUMENTS
-        include/gempyre.h
-        include/gempyre_utils.h
-        include/gempyre_graphics.h
-        include/gempyre_client.h
+        ${DOX_HEADERS}
     )
     add_doxygen(${PROJECT_NAME})
 
@@ -596,8 +602,11 @@ else()
         COMPATIBILITY SameMajorVersion
         )
 
-    # all files in include and affiliates / include are exported    
-    file(GLOB HEADERS include/*.h  ${CMAKE_SOURCE_DIR}/affiliates/include/*.h)
+    # all files in include and affiliates / include are exported
+    if(NOT EMSCRIPTEN)    
+        file(GLOB HEADERS ${CMAKE_SOURCE_DIR}/affiliates/include/*.h)
+    endif()    
+    set(HEADERS ${HEADERS} ${PUBLIC_HEADERS})
 
     set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
