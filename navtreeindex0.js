@@ -1,5 +1,7 @@
 var NAVTREEINDEX0 =
 {
+"":[1,0,0],
+"":[1,0,1],
 "annotated.html":[2,0],
 "classGempyreUtils_1_1LogWriter.html":[2,0,1,0],
 "classGempyreUtils_1_1LogWriter.html#a162c6df7f2185fb27c5d942e182313ca":[2,0,1,0,2],
@@ -229,8 +231,8 @@ var NAVTREEINDEX0 =
 "gempyre__graphics_8h_source.html":[3,0,0,3],
 "gempyre__types_8h_source.html":[3,0,0,4],
 "gempyre__utils_8h.html":[3,0,0,5],
-"gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab":[1,0,1,3],
 "gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab":[3,0,0,5,10],
+"gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab":[1,0,1,3],
 "gempyre__utils_8h.html#a06a24f9f1cc3f90cbe600b9fb4ad1430":[1,0,1,22],
 "gempyre__utils_8h.html#a06a24f9f1cc3f90cbe600b9fb4ad1430":[3,0,0,5,29],
 "gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4":[1,0,1,36],
@@ -247,7 +249,5 @@ var NAVTREEINDEX0 =
 "gempyre__utils_8h.html#a2484847c9a9fdfdea543129e9b0f0b4f":[3,0,0,5,62],
 "gempyre__utils_8h.html#a2484847c9a9fdfdea543129e9b0f0b4f":[1,0,1,55],
 "gempyre__utils_8h.html#a283e8d3acde23ff43a7216694a692940":[3,0,0,5,68],
-"gempyre__utils_8h.html#a283e8d3acde23ff43a7216694a692940":[1,0,1,61],
-"gempyre__utils_8h.html#a294722a7d09593ec56f96708a1ea64f6":[3,0,0,5,54],
-"gempyre__utils_8h.html#a294722a7d09593ec56f96708a1ea64f6":[1,0,1,47]
+"gempyre__utils_8h.html#a283e8d3acde23ff43a7216694a692940":[1,0,1,61]
 };
