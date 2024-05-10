@@ -127,11 +127,6 @@ endif()
 #    set(USE_LIBWEBSOCKETS TRUE)    
 #endif()
 
-if(CI_ACTIONS)
-    set(HAS_PROGRESS FALSE)
-else()
-    set(HAS_PROGRESS TRUE)
-endif()    
 
 set(JSON_BuildTests OFF)
 FetchContent_Declare(libjson
@@ -143,7 +138,7 @@ FetchContent_Declare(libjson
 
 FetchContent_MakeAvailable(libjson)
 FetchContent_GetProperties(libjson SOURCE_DIR srcDirVar)        
-set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}/include")
+set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${srcDirVar}/include")
 set(JSON_DIR "${srcDirVar}/include" PARENT_SCOPE)
 
 # store for testing json re-use
@@ -177,7 +172,7 @@ if(HAS_WEB_SOCKETS)
             TEST_COMMAND ""
             )
         ExternalProject_Get_Property(libpfd SOURCE_DIR) 
-        set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")
+        set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${SOURCE_DIR}")
     endif()
 
 endif()    # emscripten
@@ -192,7 +187,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(lodepng)
 FetchContent_GetProperties(lodepng SOURCE_DIR srcDirVar)
 
-set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}")
+set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${srcDirVar}")
 set(PNG_SRC 
     ${srcDirVar}/lodepng.cpp
     ${srcDirVar}/lodepng.h )
@@ -460,9 +455,9 @@ if (LINUX OR RASPBERRY)
     endif()
 endif()
 
-string(REPLACE " " ";" SYSTEM_INCLUDES_LIST ${SYSTEM_INCLUDES})
+#string(REPLACE " " ";" SYSTEM_INCLUDES_LIST ${SYSTEM_INCLUDES})
 
-message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES_LIST}")
+message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES}")
 #message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES}")
 
 target_include_directories( ${PROJECT_NAME}
@@ -472,7 +467,7 @@ target_include_directories( ${PROJECT_NAME}
     )
 
 include_directories(SYSTEM
-    ${SYSTEM_INCLUDES_LIST}
+    ${SYSTEM_INCLUDES}
    )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})

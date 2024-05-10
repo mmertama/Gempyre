@@ -17,7 +17,7 @@ if (COMPILE_SOCKETS_IN)
     externalproject_add(libuv
     GIT_REPOSITORY https://github.com/libuv/libuv.git
     GIT_TAG ${LIB_UV_VER}
-    GIT_PROGRESS true
+    GIT_PROGRESS ${HAS_PROGRESS}
     CMAKE_ARGS
         -DLIBUV_BUILD_TESTS=OFF
         -DLIBUV_BUILD_BENCH=OFF
@@ -70,7 +70,7 @@ if (COMPILE_SOCKETS_IN)
         get_filename_component(UV_LIB_FULL "${UV_LIB_DIR}/${UVA_LIB_NAME}" ABSOLUTE)
     endif()
 
-    set(SYSTEM_INCLUDES "${UV_SRC_DIR}/include")
+    set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${UV_SRC_DIR}/include")
 
     message(STATUS "gempyre-libuv lib: ${UV_LIB_FULL} inc: ${SYSTEM_INCLUDES}")
 
@@ -95,13 +95,13 @@ if(COMPILE_SOCKETS_IN)
 
 
     set(SOCKETS_SOURCES ${srcDirVar})
-    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${srcDirVar}/src")
+    set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${srcDirVar}/src")
 
 else()
     externalproject_add(libsockets
         GIT_REPOSITORY https://github.com/uNetworking/uSockets.git
         GIT_TAG ${LIB_SOCKETS_VER}
-        GIT_PROGRESS true
+        GIT_PROGRESS ${HAS_PROGRESS}
         UPDATE_DISCONNECTED false
         BUILD_COMMAND  "" #make ${SOCKETS_SOURCES}/Makefile
         CONFIGURE_COMMAND ""
@@ -132,7 +132,7 @@ else()
     add_custom_target(makecmd DEPENDS ${SOCKETS_LIB})
 
     ExternalProject_Get_Property(libsockets SOURCE_DIR)
-    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/src")
+    set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${SOURCE_DIR}/src")
   
 endif()
 
@@ -144,7 +144,7 @@ endif()
 externalproject_add(libwebsockets
     GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
     GIT_TAG ${LIB_WS_VER}
-    GIT_PROGRESS true
+    GIT_PROGRESS ${HAS_PROGRESS}
     UPDATE_DISCONNECTED false
     BUILD_COMMAND ""
     CONFIGURE_COMMAND ""
@@ -156,7 +156,7 @@ externalproject_add(libwebsockets
 
 ExternalProject_Get_Property(libwebsockets SOURCE_DIR)
 set(WEBSOCKETS_SOURCES ${SOURCE_DIR})
-set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}/src")    
+set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${SOURCE_DIR}/src")    
 
 #set_property(DIRECTORY ${WEBSOCKETS_SOURCES}
 #    PROPERTY COMPILE_DEFINITIONS "DISABLE_WERROR=ON")
@@ -170,7 +170,7 @@ if(NOT ZLIB_H)
     externalproject_add(zlib
         GIT_REPOSITORY https://github.com/madler/zlib.git
         GIT_TAG ${LIB_ZLIB_VER}
-        GIT_PROGRESS true
+        GIT_PROGRESS ${HAS_PROGRESS}
         UPDATE_DISCONNECTED false
         BUILD_COMMAND ""
         CONFIGURE_COMMAND ""
@@ -183,7 +183,7 @@ if(NOT ZLIB_H)
     add_dependencies(libwebsockets zlib)
     ExternalProject_Get_Property(zlib SOURCE_DIR)
     set(ZLIB_SOURCES ${SOURCE_DIR})  
-    set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${ZLIB_SOURCES}/src/zlib")
+    set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${ZLIB_SOURCES}/src/zlib")
 endif()
 
 # LIB ZLib end

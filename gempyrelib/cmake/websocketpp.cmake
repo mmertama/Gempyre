@@ -9,7 +9,7 @@ endif()
 externalproject_add(libwebsockets
     GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
     GIT_TAG ${LIB_WS_VER}
-    GIT_PROGRESS true
+    GIT_PROGRESS ${HAS_PROGRESS}
     UPDATE_DISCONNECTED false
     BUILD_COMMAND ""
     CONFIGURE_COMMAND ""
@@ -22,7 +22,7 @@ externalproject_add(libwebsockets
 # set include path there    
 ExternalProject_Get_Property(libwebsockets SOURCE_DIR)
 set(WEBSOCKETS_SOURCES ${SOURCE_DIR})
-set(SYSTEM_INCLUDES "${SYSTEM_INCLUDES} ${SOURCE_DIR}")    
+set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${SOURCE_DIR}")    
 
 
 macro(socket_dependencies TARGET)

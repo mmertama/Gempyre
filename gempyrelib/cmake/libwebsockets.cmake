@@ -13,7 +13,7 @@ FetchContent_Declare(
   libwebsockets
   GIT_REPOSITORY https://github.com/warmcat/libwebsockets.git
   GIT_TAG ${LIB_WS_VER}
-  GIT_PROGRESS TRUE
+  GIT_PROGRESS ${HAS_PROGRESS}
 )
 
 set(LWS_WITH_SERVER ON)

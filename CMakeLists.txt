@@ -82,6 +82,11 @@ if(CI_ACTIONS)
     message(WARNING "This is for Github actions")
 endif()
 
+if(CI_ACTIONS)
+    set(HAS_PROGRESS FALSE)
+else()
+    set(HAS_PROGRESS TRUE)
+endif()    
 
 if(SANITIZER)
     set(ASAN_FLAGS
