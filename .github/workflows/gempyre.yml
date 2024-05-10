@@ -96,7 +96,7 @@ jobs:
         endif()
 
         execute_process(
-                COMMAND cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCI_ACTIONS=ON -G Ninja -DACTIONS=TRUE ${DOX}
+                COMMAND cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCI_ACTIONS=ON -G Ninja -DACTIONS=TRUE ${DOX} -DCMAKE_INSTALL_PREFIX=install_dir
                 RESULT_VARIABLE result
                 )
 
