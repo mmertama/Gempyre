@@ -129,6 +129,7 @@ endif()
 
 
 set(JSON_BuildTests OFF)
+set(JSON_Install OFF)
 FetchContent_Declare(libjson
         GIT_REPOSITORY https://github.com/nlohmann/json.git
         GIT_TAG ${LIB_JSON_VER}
