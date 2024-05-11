@@ -74,7 +74,7 @@ if(BLEEDING_EDGE)
     set(LIB_PFD_VER main)
     set(LIB_PNG_VER master)
 else()
-    set(LIB_JSON_VER v3.9.0)
+    set(LIB_JSON_VER v3.11.3)
     set(LIB_ZLIB_VER v1.2.11)
     set(LIB_PFD_VER main v0.1.0)
     set(LIB_PNG_VER master) # no version
