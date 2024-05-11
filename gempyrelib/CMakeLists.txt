@@ -146,7 +146,6 @@ set(JSON_DIR "${srcDirVar}/include" PARENT_SCOPE)
 #set_property(TARGET libjson PROPERTY json_dir "${srcDirVar}/include")
 
 if(HAS_WEB_SOCKETS)
-
     if(USE_LIBWEBSOCKETS)
         include(cmake/libwebsockets.cmake)    
     else()
@@ -155,9 +154,9 @@ if(HAS_WEB_SOCKETS)
     endif()
 
     if(CLIENT_DIALOGS)
-        set(DIALOG_SRC src/ui_client.cpp)
+        set(DIALOG_SRC src/ui/ui_client.cpp)
     else()
-        set(DIALOG_SRC src/ui_pfd.cpp)
+        set(DIALOG_SRC src/ui/ui_pfd.cpp)
         message("skip libpfd version, use latest")
         externalproject_add(libpfd
             GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
@@ -235,9 +234,19 @@ set(INCLUDES
 set(PUBLIC_HEADERS
     include/gempyre_utils.h
     include/gempyre_bitmap.h
-)    
+)
+
+set(INCLUDE_DIRECTORIES
+    src
+    )
  
 if(NOT EMSCRIPTEN)
+    
+    set(INCLUDE_DIRECTORIES 
+        ${INCLUDE_DIRECTORIES} 
+        src/server
+        src/ui)
+
     set(PUBLIC_HEADERS
         ${PUBLIC_HEADERS}
         include/gempyre.h
@@ -245,19 +254,19 @@ if(NOT EMSCRIPTEN)
         include/gempyre_client.h
     )
     set(GEMPYRE_SRC
-        src/semaphore.h
-        src/gempyre_internal.h
-        src/gempyre_internal.cpp
-        src/core.h
-        src/core.cpp
-        src/server.h
-        src/timer.h
-        src/timer.cpp
-        src/eventqueue.h
-        src/server.cpp
-        src/timequeue.h
-        src/graphics.cpp
-        src/element.cpp
+        src/server/semaphore.h
+        src/server/gempyre_internal.h
+        src/server/gempyre_internal.cpp
+        src/server/core.h
+        src/server/core.cpp
+        src/server/server.h
+        src/server/timer.h
+        src/server/timer.cpp
+        src/server/eventqueue.h
+        src/server/server.cpp
+        src/server/timequeue.h
+        src/server/graphics.cpp
+        src/server/element.cpp
         ${DIALOG_SRC}
         ${GEMPYRE_WS_SOURCES}
     )
@@ -284,11 +293,14 @@ set(GEMPYRE_SRC
 
 
 if(ANDROID)
-    set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android.cpp)
+    set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android/android.cpp)
 endif()
 
         
 if(COMPILE_SOCKETS_IN)
+    if(EMSCIPTEN)
+        message(FATAL_ERROR "Sockets are not supported")
+    endif()    
     FILE(GLOB_RECURSE SOCKETS_SRC "${SOCKETS_SOURCES}/src/*.c") # its using plain Makefile so just add files IS easier
     FILE(GLOB_RECURSE SOCKETS_HRD "${SOCKETS_SOURCES}/src/*.h") # its using plain Makefile so just add files IS easier
     if(MSVC)
@@ -463,13 +475,12 @@ message("SYSTEM_INCLUDES: ${SYSTEM_INCLUDES}")
 
 target_include_directories( ${PROJECT_NAME}
     PUBLIC include
-    PRIVATE src
-    #PRIVATE SYSTEM INTERFACE "$<BUILD_INTERFACE:${SYSTEM_INCLUDES_LIST}>"
+    PRIVATE ${INCLUDE_DIRECTORIES}
     )
 
 include_directories(SYSTEM
     ${SYSTEM_INCLUDES}
-   )
+    )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 set_target_properties(${PROJECT_NAME} PROPERTIES MINSIZEREL_POSTFIX ${CMAKE_MINSIZEREL_POSTFIX})

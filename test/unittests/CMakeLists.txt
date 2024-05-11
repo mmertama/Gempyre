@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(
      ../../gempyrelib/include
      ../../gempyrelib/src
+     ../../gempyrelib/src/server
     include
     ${TEST_INCLUDE_DIR}
 )

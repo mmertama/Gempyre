@@ -39,9 +39,17 @@ endif()
 
 
 # Since msvc and mingw libraries are located in the same folder we have to be explicit with naming.
-find_library(LIB_NAME_DEBUG NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyred${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH REQUIRED)
+find_library(LIB_NAME_DEBUG NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyred${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH)
+if(NOT ${LIB_NAME_DEBUG})
+    message(WARNING "Cannot find debug libraries, (you may need to run build again) abort config")
+    return()
+endif()
 message("Found debug libraries ${gempyre_LIBRARIES}")
-find_library(LIB_NAME NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyre${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH}  NO_DEFAULT_PATH REQUIRED)
+find_library(LIB_NAME NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyre${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH}  NO_DEFAULT_PATH)
+if(NOT ${LIB_NAME})
+    message(WARNING "Cannot find release libraries, (you may need to run build again) abort config")
+    return()
+endif()
 message("Found release libraries ${gempyre_LIBRARIES}")
 
 find_library(LIB_NAME_RELWITHDEBINFO NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyrerd${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH)

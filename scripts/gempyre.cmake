@@ -27,8 +27,16 @@ function (gempyre_add_resources)
     find_file(GEN_RESOURCE
         genStringResource.py
         PATHS "${GEMPYRE_FUNCTION_DIR}" "${CMAKE_SOURCE_DIR}/scripts" "${CMAKE_CURRENT_LIST_DIR}"
-        REQUIRED
         )
+
+    if(NOT ${GEN_RESOURCE})
+        set(CMAKE_FIND_ROOT_PATH "/") # EMSCIPTEN HACK
+        find_file(GEN_RESOURCE
+            genStringResource.py
+            PATHS "${GEMPYRE_FUNCTION_DIR}" "${CMAKE_SOURCE_DIR}/scripts" "${CMAKE_CURRENT_LIST_DIR}"
+            REQUIRED
+            )
+    endif()    
 
     if (NOT DEFINED ADD_RESOURCE_PATH)
         set(ADD_RESOURCE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
