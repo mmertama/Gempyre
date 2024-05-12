@@ -234,6 +234,7 @@ set(INCLUDES
 set(PUBLIC_HEADERS
     include/gempyre_utils.h
     include/gempyre_bitmap.h
+    include/gempyre_types.h
 )
 
 set(INCLUDE_DIRECTORIES
