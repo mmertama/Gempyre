@@ -3,6 +3,8 @@
 
 #include <iterator>
 #include <vector>
+#include <string_view>
+#include <gempyre_types.h>
 
 namespace Gempyre {
 class Data {
@@ -49,7 +51,7 @@ class Data {
         [[nodiscard]] bool has_owner() const;
         [[nodiscard]] auto index() const {return m_index;}
         virtual ~Data() = default;
-        Data(size_t sz, dataT type, const std::string& owner, const std::vector<dataT>& header);
+        Data(size_t sz, dataT type, std::string_view owner, const std::vector<dataT>& header);
         std::tuple<const char*, size_t> payload() const; // char* ?? todo
 #ifdef GEMPYRE_IS_DEBUG
         std::string dump() const;

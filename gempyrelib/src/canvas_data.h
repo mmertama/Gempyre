@@ -1,15 +1,18 @@
 #pragma once
+#include <string>
+#include <string_view>
 #include "gempyre_types.h"
 #include "data.h"
 
-class Gempyre::CanvasData  {
+namespace Gempyre {
+class CanvasData  {
 private:
     enum DataTypes : dataT {
       CanvasId = 0xAAA
     };
 public:
     static constexpr auto NO_ID = "";
-    CanvasData(int w, int h, const std::string& owner);
+    CanvasData(int w, int h,  std::string_view owner);
     CanvasData(int w, int h) : CanvasData(w, h, NO_ID) {}
     ~CanvasData() = default;
     void put(int x, int y, dataT pixel) {
@@ -37,4 +40,5 @@ private:
     const int m_width{0};
     const int m_height{0};  
 };
+}
 

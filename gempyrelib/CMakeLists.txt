@@ -279,6 +279,7 @@ set(GEMPYRE_SRC
     include/gempyre_utils.h
     include/gempyre_bitmap.h
     src/canvas_data.h
+    src/canvas_data.cpp
     src/bitmap.cpp
     src/utils.cpp
     src/base64.cpp
@@ -288,6 +289,7 @@ set(GEMPYRE_SRC
     js/gempyre.js
     py/pyclient.py
     src/data.h
+    src/data.cpp
     src/logging.cpp
     ${PNG_SRC}
     )

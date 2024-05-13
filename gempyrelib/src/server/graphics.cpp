@@ -284,17 +284,3 @@ void CanvasElement::draw(int x, int y, const Gempyre::Bitmap& bmp) {
      if(bmp.m_canvas)
         paint(bmp.m_canvas, x, y, true);
 }
-
-
- CanvasData::CanvasData(int w, int h, const std::string& owner) :
-    m_data{std::make_shared<Data>(
-        static_cast<size_t>(w * h),
-        static_cast<dataT>(CanvasId),
-        owner,
-        std::vector<dataT>{0, 0, static_cast<dataT>(w), static_cast<dataT>(h),
-        false // no update cb
-        }
-        )},
-    m_width{w},
-    m_height{h} {}
-
