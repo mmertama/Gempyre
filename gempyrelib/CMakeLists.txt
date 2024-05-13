@@ -278,6 +278,7 @@ set(GEMPYRE_SRC
     ${GEMPYRE_SRC}
     include/gempyre_utils.h
     include/gempyre_bitmap.h
+    src/bitmap.cpp
     src/canvas_data.h
     src/canvas_data.cpp
     src/bitmap.cpp
