@@ -156,7 +156,14 @@ A: The UI select uses strings, and hence the values has to be _quoted_ strings.
     }
 
   ```
-  
+Q: I want to use Python window to have nice window and get file dialogs. But I do not get working in MacOS.
+A: The latest MacOS wish your run your Python in virtual environment. Look [venv](https://docs.python.org/3/library/venv.html). As in any environment you may need to install pywebview and websockets. For example in venv shell call: 
+
+`$ pip install pywebview websockets`
+
+However I noted that pywebview may not get successfully installed, and hence a link must be called, for example (please verify your python and pywebview versions): 
+
+`$ ln -s ./venv/lib/python3.12/site-packages/pywebview-5.1.dist-info ./venv/lib/python3.12/site-packages/pywebview`   
 
 ## Example
 
