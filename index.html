@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">gempyre
-   &#160;<span id="projectnumber">1.3.9</span>
+   &#160;<span id="projectnumber">1.3.10</span>
    </div>
   </td>
  </tr>
@@ -206,7 +206,12 @@ FAQ</h2>
 <div class="line">     opt.set_html(value);</div>
 <div class="line"> }</div>
 <div class="ttc" id="aclassGempyre_1_1Element_html"><div class="ttname"><a href="classGempyre_1_1Element.html">Gempyre::Element</a></div><div class="ttdoc">Represents all HTML elements on UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:55</div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md10"></a>
+</div><!-- fragment --><p> Q: I want to use Python window to have nice window and get file dialogs. But I do not get working in MacOS. A: The latest MacOS wish your run your Python in virtual environment. Look <a href="https://docs.python.org/3/library/venv.html">venv</a>. As in any environment you may need to install pywebview and websockets. For example in venv shell call:</p>
+<p><code>$ pip install pywebview websockets</code></p>
+<p>However I noted that pywebview may not get successfully installed, and hence a link must be called, for example (please verify your python and pywebview versions):</p>
+<p><code>$ ln -s ./venv/lib/python3.12/site-packages/pywebview-5.1.dist-info ./venv/lib/python3.12/site-packages/pywebview</code> <br  />
+</p>
+<h2><a class="anchor" id="autotoc_md10"></a>
 Example</h2>
 <h3><a class="anchor" id="autotoc_md11"></a>
 Hello world</h3>
