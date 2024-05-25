@@ -310,7 +310,7 @@ std::optional<std::string> GempyreUtils::read_process(const std::string& process
  #else
             ::_popen
  #endif
-            ((processName + " " + param_line).c_str(), "r");
+            ((processName + " " + param_line + " 2>&1 ").c_str(), "r");
 
     if(!fd)
         return std::nullopt;

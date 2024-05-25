@@ -117,8 +117,13 @@ static std::optional<std::string> python3(const std::initializer_list<std::strin
     const auto  py3 = python3();
     if(py3) {
         for(const auto& r : required_libs) {
-            if(0 != GempyreUtils::execute(*py3, "-c \"import " + r + "\""))
+            const auto result = GempyreUtils::read_process(*py3, {"-c", GempyreUtils::qq("import " + r)});
+            if(!result)
                 return std::nullopt;
+            if(result->find("ModuleNotFoundError") != std::string::npos) {
+                GempyreUtils::log(GempyreUtils::LogLevel::Warning,"Requested python libraries not found", *result);
+                return std::nullopt;
+            }    
         }
     }
     return py3;
