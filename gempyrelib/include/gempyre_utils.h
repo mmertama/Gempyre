@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <any>
 #include <string_view>
+#include <iostream>
 
 /**
   * @file
@@ -254,6 +255,95 @@ UTILS_EX void init();
 UTILS_EX std::string current_time_string();
 UTILS_EX std::string last_error();
 /// @endcond
+
+/// @cond INTERNAL
+template<typename E>
+struct ErrorValue {
+    ErrorValue(E&& ee) : e{ee} {}
+    ErrorValue(const E& ee) : e{ee} {}
+    E e;
+    };
+/// @endcond
+
+/// @brief Result is used like optional, but contains a fail reasoning
+/// @tparam T 
+/// @tparam E 
+template<typename T, typename E = std::string>
+class Result {
+    public:
+        /// @brief 
+        /// @param t 
+        Result(const T& t) : val(t) {}
+        /// @brief 
+        /// @param t 
+        Result(T&& t) : val(std::move(t)) {}
+        /// @brief 
+        /// @param e 
+        Result(ErrorValue<E>&& e) : val(std::move(e)) {}
+        /// @brief 
+        /// @param t 
+        /// @return 
+        Result& operator= (const T& t) {val = t; return *this;}
+        /// @brief 
+        /// @param t 
+        /// @return 
+        Result& operator= (T&& t) {val = std::move(t); return *this;}
+        /// @brief 
+        /// @param e 
+        /// @return 
+        static Result<T, E> make_error(const E& e) { return Result{ErrorValue{e}};}
+        /// @brief 
+        /// @param e 
+        /// @return 
+        static Result<T, E> make_error(E&& e) { return Result{ErrorValue{e}};}
+        /// @brief 
+        /// @return 
+        bool has_value() const noexcept {return std::get_if<T>(&val);}
+        /// @brief 
+        /// @return 
+        const T& value() const noexcept {return std::get<T>(val);}
+        /// @brief 
+        /// @return 
+        T& value() noexcept {return std::get<T>(val);}
+        /// @brief 
+        /// @return 
+        const E& error() const noexcept {return std::get<ErrorValue<E>>(val);}
+        /// @brief 
+        /// @return 
+        const T& operator->() const noexcept {return value();}
+        /// @brief 
+        /// @return 
+        T& operator->() noexcept {return value();}
+        /// @brief 
+        operator bool() const noexcept {return has_value();} 
+        /// @brief 
+        /// @param t 
+        void swap(T& t) noexcept {val.swap(t);}                  
+    private:
+    std::variant<T, ErrorValue<E>> val;
+};
+
+/// @brief 
+/// @tparam T 
+/// @tparam ...A 
+/// @param ...a 
+/// @return 
+template<typename T, typename... A>
+Result<T, std::string> make_error(A&&... a) {
+    std::stringstream str;
+    (std::cout << ... << a); //str << ... << a;
+    return Result<T, std::string>::make_error(str.str());
+}
+
+/// @brief 
+/// @tparam T 
+/// @param result 
+/// @return 
+template<typename T>
+Result<T, std::string> make_result(T&& result) {
+    return Result<T, std::string>(std::move(result));
+}
+
 
 /**
   * ## String Utils
@@ -715,11 +805,11 @@ UTILS_EX std::string slurp(const std::string& file, const size_t max = std::nume
 /// @brief Convert any type to json string, if possible.
 /// @param any - assumed to be a type convertible to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values.
 /// @return json string.
-UTILS_EX std::optional<std::string> to_json_string(const std::any& any);
+UTILS_EX Result<std::string> to_json_string(const std::any& any);
 /// @brief Concert json string to any type
 /// @param str 
 /// @return 
-UTILS_EX std::optional<std::any> json_to_any(const std::string& str);
+UTILS_EX Result<std::any> json_to_any(const std::string& str);
 
 /// Check if port is free.
 UTILS_EX bool is_available(int port);

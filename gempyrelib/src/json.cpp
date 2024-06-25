@@ -5,7 +5,7 @@
 using json = nlohmann::json;
 
 template<class T>
-static std::optional<std::string> containertoString(const std::any& any) {
+static GempyreUtils::Result<std::string> containertoString(const std::any& any) {
     if(const auto* v = std::any_cast<std::vector<T>>(&any)) {
         auto array = json::array();
         int p = 0;
@@ -13,8 +13,7 @@ static std::optional<std::string> containertoString(const std::any& any) {
             const auto o = GempyreUtils::to_json_string(a);
             ++p;
             if(!o.has_value()) {
-                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "Vec", p);
-                return std::nullopt;
+                return GempyreUtils::make_error<std::string>("Not Vec", p);
             }
             array.push_back(json::parse(o.value()));
         }
@@ -24,8 +23,7 @@ static std::optional<std::string> containertoString(const std::any& any) {
         for(const auto& [k, a] : *h) {
             const auto o = GempyreUtils::to_json_string(a);
             if(!o.has_value()) {
-                 GempyreUtils::log(GempyreUtils::LogLevel::Error, "Hash", k);
-                return std::nullopt;
+                 return GempyreUtils::make_error<std::string>("Not Hash", k);
             }
             obj.emplace(k, json::parse(o.value()));
         }
@@ -35,17 +33,16 @@ static std::optional<std::string> containertoString(const std::any& any) {
         for(const auto& [k, a] : *h0) {
             const auto o = GempyreUtils::to_json_string(a);
             if(!o.has_value()) {
-                GempyreUtils::log(GempyreUtils::LogLevel::Error, "Map", k);
-                return std::nullopt;
+                return GempyreUtils::make_error<std::string>("Not Map", k);
             }
             obj.emplace(k, json::parse(o.value()));
         }
         return obj.dump();
     }
-    return std::nullopt;
+    return GempyreUtils::make_error<std::string>("Invalid");
 }
 
-std::optional<std::string> GempyreUtils::to_json_string(const std::any& any) {
+GempyreUtils::Result<std::string> GempyreUtils::to_json_string(const std::any& any) {
     if(const auto* i = std::any_cast<int>(&any)) {
         return json(*i).dump();
     } else if(const auto* d = std::any_cast<double>(&any)) {
@@ -80,16 +77,15 @@ std::optional<std::string> GempyreUtils::to_json_string(const std::any& any) {
         const auto v7 = containertoString<const char*>(any);
         if(v7.has_value())
             return v7;
-        GempyreUtils::log(GempyreUtils::LogLevel::Error, "Invalid value:", any.type().name());
-        return std::nullopt;
+        return GempyreUtils::make_error<std::string>("Invalid value:", any.type().name());
     }
 }
 
 
-std::optional<std::any> GempyreUtils::json_to_any(const std::string& str) {
+GempyreUtils::Result<std::any> GempyreUtils::json_to_any(const std::string& str) {
     const auto j = json::parse(str);
     if(j.empty())
-        return std::nullopt;
+        return GempyreUtils::make_error<std::any>("Empty");
     if(j.is_null())
         return std::make_any<std::nullptr_t>(nullptr);
     if(j.is_boolean())
@@ -105,7 +101,7 @@ std::optional<std::any> GempyreUtils::json_to_any(const std::string& str) {
         for( auto it = j.begin(); it != j.end(); ++it) {
             const auto o = json_to_any(it.value().dump());
             if(!o.has_value())
-                return std::nullopt;
+                return GempyreUtils::make_error<std::any>("Bad object");
             map.emplace(it.key(), o.value());
         }
         return std::make_any<decltype (map)> (map);
@@ -115,11 +111,11 @@ std::optional<std::any> GempyreUtils::json_to_any(const std::string& str) {
         for( auto it = j.begin(); it != j.end(); ++it) {
             const auto o = json_to_any(it.value().dump());
             if(!o.has_value())
-                return std::nullopt;
+                return GempyreUtils::make_error<std::any>("Bad array");
             vec.push_back(o.value());
         }
         return std::make_any<decltype (vec)> (vec);
     }
-    return std::nullopt;
+    return GempyreUtils::make_error<std::any>("Bad value");
 }
 
