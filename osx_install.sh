@@ -4,6 +4,16 @@ ONOFF="OFF"
 TARGET=""
 ALL_TARGETS=false
 
+function build() {
+	build_folder=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+	mkdir -p $build_folder
+	pushd $build_folder
+	cmake ..  -DCMAKE_BUILD_TYPE=$1 -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF
+        cmake --build . --config $1
+        sudo cmake --install . --config $1
+	popd
+}
+
 while [ -n "$1" ]; do # while loop starts
 
    if [ "$1" == '-all' ]; then
@@ -21,7 +31,6 @@ while [ -n "$1" ]; do # while loop starts
     if [ "$1" == '-release' ]; then
         TARGET="RELEASE"
    fi
-
        shift
 done
 
@@ -36,23 +45,17 @@ mkdir -p build
 pushd build
 
 if [[ ! "$TARGET" == "RELEASE" && "$ALL_TARGETS" == "false" ]]; then
-    cmake ..  -DCMAKE_BUILD_TYPE=Debug -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF
-    cmake --build . --config Debug
-    sudo cmake --install . --config Debug
+    build "Debug"
 fi
 
 if [[ ! "$TARGET" == "DEBUG" && "$ALL_TARGETS" == "false" ]]; then
-cmake ..  -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF
-cmake --build . --config Release
-sudo cmake --install . --config Release
+    build "Release"	
 fi
 
 if [[ "$ALL_TARGETS" == "true" ]]; then
     build_types=("Debug" "Release" "RelWithDebInfo" "MinSizeRel")
     for build_type in "${build_types[@]}"; do
-        cmake ..  -DCMAKE_BUILD_TYPE=$build_type -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF
-        cmake --build . --config $build_type
-        sudo cmake --install . --config $build_type
+        build $build_type
     done
 fi
 

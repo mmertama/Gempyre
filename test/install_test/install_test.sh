@@ -73,8 +73,7 @@ if python3 -c "import webview" &> /dev/null
 then
     echo "webview module is installed."
 else
-    echo "WARNING: webview is not installed -> verification is not completed!"
-    exit 0   
+    echo "WARNING: webview is not installed"
 fi
 
 if [[ -n "$DISPLAY" ]] || [[ "$(uname -s)" == "MINGW"* ]] || [[ "$(uname -s)" == "Darwin"* ]] ; then 

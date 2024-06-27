@@ -259,9 +259,9 @@ UTILS_EX std::string last_error();
 /// @cond INTERNAL
 template<typename E>
 struct ErrorValue {
-    ErrorValue(E&& ee) : e{ee} {}
-    ErrorValue(const E& ee) : e{ee} {}
-    E e;
+    ErrorValue(E&& e) : err{e} {}
+    ErrorValue(const E& e) : err{e} {}
+    E err;
     };
 /// @endcond
 
@@ -307,7 +307,7 @@ class Result {
         T& value() noexcept {return std::get<T>(val);}
         /// @brief 
         /// @return 
-        const E& error() const noexcept {return std::get<ErrorValue<E>>(val);}
+        const E& error() const noexcept {return std::get<ErrorValue<E>>(val).err;}
         /// @brief 
         /// @return 
         const T& operator->() const noexcept {return value();}
