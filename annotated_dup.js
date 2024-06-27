@@ -14,6 +14,7 @@ var annotated_dup =
       [ "Rect", "structGempyre_1_1Rect.html", "structGempyre_1_1Rect" ]
     ] ],
     [ "GempyreUtils", null, [
-      [ "LogWriter", "classGempyreUtils_1_1LogWriter.html", "classGempyreUtils_1_1LogWriter" ]
+      [ "LogWriter", "classGempyreUtils_1_1LogWriter.html", "classGempyreUtils_1_1LogWriter" ],
+      [ "Result", "classGempyreUtils_1_1Result.html", "classGempyreUtils_1_1Result" ]
     ] ]
 ];

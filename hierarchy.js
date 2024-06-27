@@ -12,5 +12,6 @@ var hierarchy =
     [ "Gempyre::IdList< T >", "classGempyre_1_1IdList.html", null ],
     [ "GempyreUtils::LogWriter", "classGempyreUtils_1_1LogWriter.html", null ],
     [ "Gempyre::Rect", "structGempyre_1_1Rect.html", null ],
+    [ "GempyreUtils::Result< T, E >", "classGempyreUtils_1_1Result.html", null ],
     [ "Gempyre::Ui", "classGempyre_1_1Ui.html", null ]
 ];
