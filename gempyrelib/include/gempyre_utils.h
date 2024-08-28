@@ -268,60 +268,73 @@ struct ErrorValue {
 /// @brief Result is used like optional, but contains a fail reasoning
 /// @tparam T 
 /// @tparam E 
-template<typename T, typename E = std::string>
-class Result {
-    public:
-        /// @brief 
-        /// @param t 
-        Result(const T& t) : val(t) {}
-        /// @brief 
-        /// @param t 
-        Result(T&& t) : val(std::move(t)) {}
-        /// @brief 
-        /// @param e 
-        Result(ErrorValue<E>&& e) : val(std::move(e)) {}
-        /// @brief 
-        /// @param t 
-        /// @return 
-        Result& operator= (const T& t) {val = t; return *this;}
-        /// @brief 
-        /// @param t 
-        /// @return 
-        Result& operator= (T&& t) {val = std::move(t); return *this;}
-        /// @brief 
-        /// @param e 
-        /// @return 
-        static Result<T, E> make_error(const E& e) { return Result{ErrorValue{e}};}
-        /// @brief 
-        /// @param e 
-        /// @return 
-        static Result<T, E> make_error(E&& e) { return Result{ErrorValue{e}};}
-        /// @brief 
-        /// @return 
-        bool has_value() const noexcept {return std::get_if<T>(&val);}
-        /// @brief 
-        /// @return 
-        const T& value() const noexcept {return std::get<T>(val);}
-        /// @brief 
-        /// @return 
-        T& value() noexcept {return std::get<T>(val);}
-        /// @brief 
-        /// @return 
-        const E& error() const noexcept {return std::get<ErrorValue<E>>(val).err;}
-        /// @brief 
-        /// @return 
-        const T& operator->() const noexcept {return value();}
-        /// @brief 
-        /// @return 
-        T& operator->() noexcept {return value();}
-        /// @brief 
-        operator bool() const noexcept {return has_value();} 
-        /// @brief 
-        /// @param t 
-        void swap(T& t) noexcept {val.swap(t);}                  
-    private:
-    std::variant<T, ErrorValue<E>> val;
+// internal for Result
+template <typename E> struct Error {
+    using value_type = E;
+    E error;
 };
+/// similar as std::optional, but with error info (not 100% same, add delta if needed).
+template <typename R, typename E = std::string>
+struct Result : private std::variant<R, Error<E>> {
+    using Err = Error<E>;
+    using ParentType = std::variant<R, Error<E>>;
+    using value_type = R; // std compat
+    using error_type = E; // std compat
+    /// @brief
+    constexpr Result(R&& r) : std::variant<R, Err>{r} {}
+    /// @brief
+    constexpr Result(Err&& e) : std::variant<R, Err>{e} {} // use makeError
+    /// @brief
+    constexpr Result(const R& r) : std::variant<R, Err>{r} {}
+    /// @brief
+    constexpr Result(const Err& e) : std::variant<R,Err>{e} {}
+    /// @brief
+    constexpr Result& operator=(R&& r) {*this = std::move(r); return *this;}
+    /// @brief
+    constexpr Result& operator=(Err&& e) {*this = std::move(e); return *this;}
+    /// @brief
+    constexpr Result& operator=(const R& r) {*this = r; return *this;}
+    /// @brief
+    constexpr Result& operator=(const Err &e) {*this = e; return *this;}
+    /// @brief
+    constexpr operator bool() const {return std::get_if<R>(this);}
+    /// @brief
+    constexpr operator std::optional<R>() const {return has_value() ? std::make_optional<R>(value()) : std::nullopt;}
+    /// @brief
+    constexpr bool has_value() const {return operator bool();} 
+    /// @brief   
+    constexpr const R& value() const {return std::get<R>(*this);}
+    /// @brief
+    constexpr const E& error() const {return std::get<Err>(*this).error;}
+    /// @brief
+    constexpr R& value() {return std::get<R>(*this);}
+    /// @brief
+    constexpr R& operator *() {return std::get<R>(*this);}
+    /// @brief
+    constexpr const R& operator *() const {return std::get<R>(*this);}
+    /// @brief
+    constexpr R* operator ->() {return &std::get<R>(*this);}
+    /// @brief
+    constexpr const R* operator ->() const {return &std::get<R>(*this);}
+    /// @brief
+    constexpr static auto make_error(const E& e) {return Result<R, E>{Error<E>{e}};}
+    /// @brief
+    constexpr static auto make_error(E&& e) {return Result<R, E>{Error<E>{e}};}
+    /// @brief
+    constexpr static auto make_error() {return Result<R, E>{Error<E>{}};}    // valid only if errr has a default constructor
+    /// @brief
+    constexpr static auto ok() {return Result<R, E>{R{}};}                  // valid only if result has a default constructor
+};
+
+///@brief defined if underlaying types defines required operators
+template <typename R, typename E>
+constexpr inline bool operator==(const Result<R, E>& a, const Result<R, E>& b) {return Result<R, E>::ParentType::operator==(a, b);}
+///@brief defined if underlaying types defines required operators
+template <typename R, typename E>
+constexpr inline bool operator!=(const Result<R, E>& a, const Result<R, E>& b) {return !operator==(a, b);}
+
+///@brief the most simple Result that return
+using ResultTrue = Result<std::true_type, std::string>;
 
 /// @brief 
 /// @tparam T 
@@ -334,16 +347,6 @@ Result<T, std::string> make_error(A&&... a) {
     (std::cout << ... << a); //str << ... << a;
     return Result<T, std::string>::make_error(str.str());
 }
-
-/// @brief 
-/// @tparam T 
-/// @param result 
-/// @return 
-template<typename T>
-Result<T, std::string> make_result(T&& result) {
-    return Result<T, std::string>(std::move(result));
-}
-
 
 /**
   * ## String Utils
