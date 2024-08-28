@@ -57,13 +57,13 @@ public:
     /// @brief Constructor of canvas id.
     /// @param ui ref.
     /// @param id HTML id, should be canvas. 
-    CanvasElement(Ui& ui, const std::string& id);
+    CanvasElement(Ui& ui, std::string_view id);
     
     /// @brief Constructor to create a new CanvasElement
     /// @param ui ref
     /// @param id HTML id
     /// @param parent parent element
-    CanvasElement(Ui& ui, const std::string& id, const Element& parent);
+    CanvasElement(Ui& ui, std::string_view id, const Element& parent);
 
     /// @brief Constructor to create a new CanvasElement
     /// @param ui ref
@@ -80,7 +80,7 @@ public:
     /// @param url address of image, can be either a resource or any http url.
     /// @param loaded callback called when image is loaded.
     /// @return image id.
-    std::string add_image(const std::string& url, const std::function<void (const std::string& id)>& loaded = nullptr);
+    std::string add_image(std::string_view url, const std::function<void (const std::string& id)>& loaded = nullptr);
     
     /// @brief Draw image at position.
     /// @param imageId image id.
@@ -88,14 +88,14 @@ public:
     /// @param y image y coordinate.
     /// @param clippingRect optional imake clipping rectangle.
     /// @details paint image does not call draw_completed callback. 
-    void paint_image(const std::string& imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
+    void paint_image(std::string_view imageId, int x, int y, const Element::Rect& clippingRect  = {0, 0, 0, 0}) const;
     
     /// @brief Draw image in rectangle.
     /// @param imageId image id.
     /// @param targetRect image is resized in the rectangle.
     /// @param clippingRect optional imake clipping rectangle.
     /// @details paint image does not call draw_completed callback. 
-    void paint_image(const std::string& imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
+    void paint_image(std::string_view imageId, const Element::Rect& targetRect, const Element::Rect& clippingRect = {0, 0, 0, 0}) const;
     
     /// @brief Draw command list - please prefer @see draw(FrameComposer) 
     /// @param canvasCommands 

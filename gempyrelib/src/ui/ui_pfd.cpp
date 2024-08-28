@@ -16,14 +16,14 @@ static std::vector<std::string> makeFilters(const Gempyre::Dialog::Filter& f) {
     return filters;
 }
 
-std::optional<std::string> Dialog::open_file_dialog(const std::string& caption,
-                              const std::string& proot,
+std::optional<std::string> Dialog::open_file_dialog(std::string_view caption,
+                              std::string_view proot,
                               const Filter& filters) {
 
-    const auto root = !proot.empty() ? proot : GempyreUtils::root_dir();
+    const auto root = !proot.empty() ? std::string{proot} : GempyreUtils::root_dir();
     if(!GempyreUtils::is_dir(root))
         return std::nullopt;
-    const auto selection = pfd::open_file(caption, root, makeFilters(filters), pfd::opt::none).result();
+    const auto selection = pfd::open_file(std::string{caption}, root, makeFilters(filters), pfd::opt::none).result();
     if(!selection.empty()) {
         const auto filename = selection.at(0);
         return filename;
@@ -32,13 +32,13 @@ std::optional<std::string> Dialog::open_file_dialog(const std::string& caption,
 }
 
 
-std::optional<std::vector<std::string>> Dialog::open_files_dialog(const std::string& caption,
-                              const std::string& proot,
+std::optional<std::vector<std::string>> Dialog::open_files_dialog(std::string_view caption,
+                              std::string_view proot,
                               const Filter& filters) {
-    const auto root = !proot.empty() ? proot : GempyreUtils::root_dir();
+    const auto root = !proot.empty() ? std::string{proot} : GempyreUtils::root_dir();
     if(!GempyreUtils::is_dir(root))
         return std::nullopt;
-    const auto selection = pfd::open_file(caption, root, makeFilters(filters), pfd::opt::multiselect).result();
+    const auto selection = pfd::open_file(std::string{caption}, root, makeFilters(filters), pfd::opt::multiselect).result();
         if(!selection.empty()) {
             return selection;
         }
@@ -46,12 +46,12 @@ std::optional<std::vector<std::string>> Dialog::open_files_dialog(const std::str
 }
 
 
-std::optional<std::string> Dialog::open_dir_dialog(const std::string& caption,
-                               const std::string& proot) {
-    const auto root = !proot.empty() ? proot : GempyreUtils::root_dir();
+std::optional<std::string> Dialog::open_dir_dialog(std::string_view caption,
+                               std::string_view proot) {
+    const auto root = !proot.empty() ? std::string{proot} : GempyreUtils::root_dir();
     if(!GempyreUtils::is_dir(root))
         return std::nullopt;
-    const auto selection = pfd::select_folder(caption, root, pfd::opt::none).result();
+    const auto selection = pfd::select_folder(std::string{caption}, std::string{root}, pfd::opt::none).result();
         if(!selection.empty()) {
             return selection;
         }
@@ -59,13 +59,13 @@ std::optional<std::string> Dialog::open_dir_dialog(const std::string& caption,
 }
 
 
- std::optional<std::string> Dialog::save_file_dialog(const std::string& caption,
-                                  const std::string& proot,
+ std::optional<std::string> Dialog::save_file_dialog(std::string_view caption,
+                                  std::string_view proot,
                                   const Filter& filters) {
-     const auto root = !proot.empty() ? proot : GempyreUtils::root_dir();
+     const auto root = !proot.empty() ? std::string{proot} : GempyreUtils::root_dir();
      if(!GempyreUtils::is_dir(root))
          return std::nullopt;
-     const auto selection = pfd::save_file(caption, root, makeFilters(filters), pfd::opt::none).result();
+     const auto selection = pfd::save_file(std::string{caption}, root, makeFilters(filters), pfd::opt::none).result();
      if(!selection.empty()) {
          return selection;
      }

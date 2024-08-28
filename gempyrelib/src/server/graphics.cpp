@@ -28,10 +28,10 @@ CanvasElement::CanvasElement(CanvasElement&& other)
             m_height{other.m_height}{
     }
 
-CanvasElement::CanvasElement(Ui& ui, const std::string& id)
+CanvasElement::CanvasElement(Ui& ui, std::string_view id)
         : Element(ui, id) {}
     
-CanvasElement::CanvasElement(Ui& ui, const std::string& id, const Element& parent)
+CanvasElement::CanvasElement(Ui& ui, std::string_view id, const Element& parent)
         : Element(ui, id, "canvas", parent) {}
 
 CanvasElement::CanvasElement(Ui& ui, const Element& parent)
@@ -141,7 +141,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sent canvas data");
 }
 
-std::string CanvasElement::add_image(const std::string& url, const std::function<void (const std::string& id)> &loaded) {
+std::string CanvasElement::add_image(std::string_view url, const std::function<void (const std::string& id)> &loaded) {
     const auto name = generateId("image");
     Gempyre::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)
@@ -175,7 +175,7 @@ std::vector<std::string> CanvasElement::add_images(const std::vector<std::string
 }
 #endif
 
-void CanvasElement::paint_image(const std::string& imageId, int x, int y, const Rect& clippingRect) const {
+void CanvasElement::paint_image(std::string_view imageId, int x, int y, const Rect& clippingRect) const {
     auto ui = const_cast<GempyreInternal*>(&ref());
     if(clippingRect.width <= 0 || clippingRect.height <= 0)
         ui->send(*this, "paint_image",
@@ -188,7 +188,7 @@ void CanvasElement::paint_image(const std::string& imageId, int x, int y, const 
             "clip", std::vector<int>{clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height});
 }
 
-void CanvasElement::paint_image(const std::string& imageId, const Rect& targetRect, const Element::Rect& clippingRect) const {
+void CanvasElement::paint_image(std::string_view imageId, const Rect& targetRect, const Element::Rect& clippingRect) const {
     if(targetRect.width <= 0 || targetRect.height <= 0)
         return;
     auto ui = const_cast<GempyreInternal*>(&ref());
