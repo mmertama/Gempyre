@@ -68,22 +68,22 @@ std::tuple<int, int, int> Gempyre::version() {
 
 /// Create UI using default ui app or gempyre.conf
 Ui::Ui(const Filemap& filemap,
-       const std::string& indexHtml,
+       std::string_view indexHtml,
        unsigned short port,
-       const std::string& root) : Ui(filemap, indexHtml, port, root,
+       std::string_view root) : Ui(filemap, indexHtml, port, root,
        {{GempyreUtils::log_level() >= GempyreUtils::LogLevel::Debug ? BROWSER_PARAMS_KEY : "","" }},
        WindowType::BROWSER){}
 
 
 Ui::Ui(const Filemap& filemap,
-       const std::string& indexHtml,
-       const std::string& browser,
-       const std::string& browser_params,
+       std::string_view indexHtml,
+       std::string_view browser,
+       std::string_view browser_params,
        unsigned short port,
-       const std::string& root) : Ui(filemap, indexHtml, port, root,
+       std::string_view root) : Ui(filemap, indexHtml, port, root,
         {
-            {!browser.empty() ? BROWSER_KEY : "", browser},
-            {!browser_params.empty() ? BROWSER_PARAMS_KEY : "", browser_params}
+            {!browser.empty() ? BROWSER_KEY : "", std::string{browser}},
+            {!browser_params.empty() ? BROWSER_PARAMS_KEY : "", std::string{browser_params}}
         },
         WindowType::AUTO) {}
 
@@ -97,8 +97,8 @@ std::unordered_map<std::string, std::string> merge(const std::unordered_map<std:
     return result;
 }
 
-Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height, unsigned flags,
-            const std::unordered_map<std::string, std::string>& ui_params, unsigned short port, const std::string& root) : 
+Ui::Ui(const Filemap& filemap, std::string_view indexHtml, std::string_view title,  int width, int height, unsigned flags,
+            const std::unordered_map<std::string, std::string>& ui_params, unsigned short port, std::string_view root) : 
             Ui{filemap, indexHtml, port, root, merge({
             {!title.empty() ? TITLE_KEY : "", GempyreUtils::qq(title)},
             {flags != 0 ? FLAGS_KEY : "", std::to_string(flags)},
@@ -110,9 +110,9 @@ Ui::Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& 
 
 
 Ui::Ui(const Filemap& filemap,
-       const std::string& indexHtml,
+       std::string_view indexHtml,
        unsigned short port,
-       const std::string& root,
+       std::string_view root,
        const std::unordered_map<std::string, std::string>& parameters,
        WindowType windowType) :
     m_ui{std::make_unique<GempyreInternal>(
@@ -272,23 +272,23 @@ void Ui::set_logging(bool logging) {
     m_ui->send(root(), "logging", logging ? "true" : "false");
 }
 
-void Ui::eval(const std::string& eval) {
+void Ui::eval(std::string_view eval) {
     m_ui->send(root(), "eval", eval);
 }
 
-void Ui::debug(const std::string& msg) {
+void Ui::debug(std::string_view msg) {
     m_ui->send(root(), "debug", msg);
 }
 
-void Ui::alert(const std::string& msg) {
+void Ui::alert(std::string_view msg) {
     m_ui->send(root(), "alert", msg);
 }
 
-void Ui::open(const std::string& url, const std::string& name) {
+void Ui::open(std::string_view url, std::string_view name) {
     m_ui->send(root(), "open", json {{"url", url}, {"view", name}});
 }
 
-bool Ui::available(const std::string& id) const {
+bool Ui::available(std::string_view id) const {
     const auto is_available = m_ui->query<std::string>(id, "exists");
     return is_available && is_available.value() == "true";
 }
@@ -317,13 +317,13 @@ Element Ui::root() const {
 }
 
 
-std::string Ui::address_of(const std::string& filepath) const {
+std::string Ui::address_of(std::string_view filepath) const {
     gempyre_utils_assert_x(m_ui->is_connected(), "Not connected");
     return std::string(SERVER_ADDRESS) + ":" + std::to_string(m_ui->port()) +
            "?file=" + GempyreUtils::hexify(GempyreUtils::abs_path(filepath), R"([^a-zA-Z0-9-,.,_~])");
 }
 
-std::optional<Element::Elements> Ui::by_class(const std::string& className) const {
+std::optional<Element::Elements> Ui::by_class(std::string_view className) const {
     Element::Elements childArray;
     const auto childIds = m_ui->query<std::vector<std::string>>(className, "classes");
     if(!childIds.has_value()) {
@@ -335,7 +335,7 @@ std::optional<Element::Elements> Ui::by_class(const std::string& className) cons
     return *m_ui == State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
-std::optional<Element::Elements> Ui::by_name(const std::string& className) const {
+std::optional<Element::Elements> Ui::by_name(std::string_view className) const {
     Element::Elements childArray;
     const auto childIds = m_ui->query<std::vector<std::string>>(className, "names");
     if(!childIds.has_value()) {
@@ -347,7 +347,7 @@ std::optional<Element::Elements> Ui::by_name(const std::string& className) const
     return *m_ui == State::RUNNING ? std::make_optional(childArray) : std::nullopt;
 }
 
-void Ui::extension_call(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters) {
+void Ui::extension_call(std::string_view callId, const std::unordered_map<std::string, std::any>& parameters) {
     const auto json = GempyreUtils::to_json_string(parameters);
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
     m_ui->add_request([this, callId, json]() {
@@ -367,7 +367,7 @@ std::optional<std::any> Ui::extension(const std::string& callId, const std::unor
 }
 */
 
-std::optional<std::any> Ui::extension_get(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters)  {
+std::optional<std::any> Ui::extension_get(std::string_view callId, const std::unordered_map<std::string, std::any>& parameters)  {
     if(*m_ui != State::RUNNING) {
         return std::nullopt;
     }
@@ -400,7 +400,7 @@ std::optional<std::any> Ui::extension_get(const std::string& callId, const std::
     }
     return std::nullopt;
 }
-std::optional<std::vector<uint8_t>> Ui::resource(const std::string& url) const {
+std::optional<std::vector<uint8_t>> Ui::resource(std::string_view url) const {
     const auto file = m_ui->file(url);
     if(!file) {
         return std::nullopt;
@@ -409,7 +409,7 @@ std::optional<std::vector<uint8_t>> Ui::resource(const std::string& url) const {
     return std::make_optional(data);
 }
 
-bool Ui::add_file(const std::string& url, const std::string& file_name) {
+bool Ui::add_file(std::string_view url, std::string_view file_name) {
     if(!GempyreUtils::file_exists(file_name)) {
         return false;
     }
@@ -421,7 +421,7 @@ bool Ui::add_file(const std::string& url, const std::string& file_name) {
     return true;
 }
 
-bool Ui::add_data(const std::string& url, const std::vector<uint8_t>& data) {
+bool Ui::add_data(std::string_view url, const std::vector<uint8_t>& data) {
     if(data.empty())
         return false;
     m_ui->add_data(url, data);    
@@ -433,7 +433,7 @@ std::optional<double> Ui::device_pixel_ratio() const {
     return value.has_value() && *m_ui == State::RUNNING ? GempyreUtils::parse<double>(value.value()) : std::nullopt;
 }
 
-void Ui::set_application_icon(const uint8_t *data, size_t dataLen, const std::string& type) {
+void Ui::set_application_icon(const uint8_t *data, size_t dataLen, std::string_view type) {
     extension_call("setAppIcon", {{"image_data", Base64::encode(data, dataLen)}, {"type", type}});
 }
 
@@ -441,7 +441,7 @@ void Ui::resize(int width, int height) {
     extension_call("resize", {{"width", width}, {"height", height}});
 }
 
-void Ui::set_title(const std::string& name) {
+void Ui::set_title(std::string_view name) {
     extension_call("setTitle", {{"title", name}});
 }
 
@@ -452,7 +452,7 @@ std::string Ui::stdParams(int width, int height, const std::string& title) {
     return ss.str();
 }
 */
-std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, const std::string& file) {
+std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, std::string_view file) {
     if(!GempyreUtils::file_exists(file)) {
         return std::nullopt;
     }

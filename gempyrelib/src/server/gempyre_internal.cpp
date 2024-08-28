@@ -229,9 +229,9 @@ GempyreInternal& Ui::ref() {
  GempyreInternal::GempyreInternal(
         Ui* ui, 
         const Ui::Filemap& filemap,
-        const std::string& indexHtml,
+        std::string_view indexHtml,
         unsigned short port,
-        const std::string& root,
+        std::string_view root,
         const std::unordered_map<std::string, std::string>& parameters,
         WindowType windowType) :
         m_app_ui{ui}, 
@@ -251,12 +251,12 @@ GempyreInternal& Ui::ref() {
     // This is executed in m_startup 
     m_server = create_server(
                    port,
-                   root.empty() ? GempyreUtils::working_dir() : root,
+                   std::string{root.empty() ? GempyreUtils::working_dir() : root},
                    [this](){openHandler();},
                    [this](Server::Object&& obj){messageHandler(std::move(obj));},
                    [this](CloseStatus status, int code){closeHandler(status, code);},
                    [this](const std::string_view& name){return getHandler(name);},
-                   [indexHtml, parameters, this](int listen_port){return startListen(indexHtml, parameters, listen_port);},
+                   [indexHtml, parameters, this](int listen_port){return startListen(std::string{indexHtml}, parameters, listen_port);},
                    last_query_id + 1, // if m_server is created second time it is good that this is > as 1st as pending queries may cause confusion
                    [this]() {add_request([this](){m_app_ui->after(50ms, [this]() { // this is on send error
                             m_server->flush(); // try resend after 50ms

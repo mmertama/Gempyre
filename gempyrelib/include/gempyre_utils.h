@@ -352,35 +352,35 @@ Result<T, std::string> make_result(T&& result) {
 /// @brief make quoted
 /// @param s string
 /// @return  quoted string
-UTILS_EX std::string qq(const std::string& s);
+UTILS_EX std::string qq(std::string_view s);
 
 /// @brief remove newline from end of string
 /// @param s string 
 /// @return string
-UTILS_EX std::string chop(const std::string& s);
+UTILS_EX std::string chop(std::string_view s);
 
 /// @brief remove a string from end 
 /// @param s 
 /// @param chopped 
 /// @return string
-UTILS_EX std::string chop(const std::string& s, const std::string& chopped);
+UTILS_EX std::string chop(std::string_view s, std::string_view chopped);
 
 /// @brief replace a substrings from a string
 /// @param str original string
 /// @param substring  regular expression
 /// @param substitution  replacement
 /// @return string
-UTILS_EX std::string substitute(const std::string& str, const std::string& substring,  const std::string& substitution);
+UTILS_EX std::string substitute(std::string_view str, std::string_view substring,  std::string_view substitution);
 
 /// @brief remove 
 /// @param str spaces from a string
 /// @return string
-UTILS_EX std::string remove_spaces(const std::string& str);
+UTILS_EX std::string remove_spaces(std::string_view str);
 
 /// @cond INTERNAL
 template <typename T>
-T convert(const std::string& source) {
-    std::istringstream ss(source);
+T convert(std::string_view source) {
+    std::istringstream ss(std::string{source});
     typename std::remove_const<T>::type v{};
     ss.operator>>(v); //overloads have similar conversions MSVC19
     return v;
@@ -396,9 +396,9 @@ std::string_view right(std::string_view str, size_t p) {
 }
 
 template <>
-inline std::string convert<std::string>(const std::string& source)
+inline std::string convert<std::string>(std::string_view source)
 {
-    return source;
+    return std::string{source};
 }
 /// @endcond
 
@@ -481,7 +481,7 @@ UTILS_EX int levenshtein_distance(std::string_view s1, std::string_view s2);
 
 /// @cond INTERNAL
 template<typename C, typename T>
-std::optional<T> at(const C& container, const std::string& s, unsigned index = 0) {
+std::optional<T> at(const C& container, std::string_view s, unsigned index = 0) {
     const auto range = container.equal_range(s);
     const auto it = std::next(range.first, index);
     return (std::distance(range.first, it) < std::distance(range.first, range.second)) ?
@@ -489,7 +489,7 @@ std::optional<T> at(const C& container, const std::string& s, unsigned index = 0
 }
 
 template<typename C, typename T>
-T at_or(const C& container, const std::string& s, const T& defaultValue, unsigned index = 0) {
+T at_or(const C& container, std::string_view s, const T& defaultValue, unsigned index = 0) {
     const auto v = at<C, T>(container, s, index);
     return v.has_value() ? *v : defaultValue;
 }
@@ -501,9 +501,9 @@ T at_or(const C& container, const std::string& s, const T& defaultValue, unsigne
 /// @param splitChar 
 /// @return container
 template <class Container = std::vector<std::string>>
-Container split(const std::string& str, const char splitChar = ' ') {
+Container split(std::string_view str, const char splitChar = ' ') {
     Container con;
-    std::istringstream iss(str);
+    std::istringstream iss(std::string{str});
     for(std::string token; iss.good() && std::getline(iss, token, splitChar);) {
         con.insert(con.end(), convert<typename Container::value_type>(token));
     }
@@ -542,7 +542,7 @@ std::vector<K> keys(const T& map) {
 template <class IT, typename In=typename IT::value_type, typename Out=typename IT::value_type>
 std::string join(const IT& begin,
                  const IT& end,
-                 const std::string joinChar = "",
+                 std::string_view joinChar = "",
                  const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
     std::string s;
     std::ostringstream iss(s);
@@ -567,7 +567,7 @@ std::string join(const IT& begin,
 /// @return string
 template <class T, typename In=typename T::value_type, typename Out=typename T::value_type>
 std::string join(const T& t,
-                 const std::string joinChar = "",
+                 std::string_view joinChar = "",
                  const std::function<Out (const In&)>& f = [](const In& v)->Out{return v;}) {
     return join(t.begin(), t.end(), joinChar, f);
 }
@@ -665,12 +665,12 @@ private:
 /// @param src source
 /// @param pat regex pattern that are separated in hexified sequences
 /// @return  string
-UTILS_EX  std::string hexify(const std::string& src, const std::string pat);
+UTILS_EX  std::string hexify(std::string_view src, std::string_view pat);
 
 /// @brief un hexify hexified string
 /// @param src 
 /// @return string
-UTILS_EX  std::string unhexify(const std::string& src);
+UTILS_EX  std::string unhexify(std::string_view src);
 
 /// @brief OS id
 enum class OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};
@@ -697,9 +697,9 @@ UTILS_EX std::vector<std::string> ip_addresses(unsigned addressType);
 
 
 /// Get symbolic link source 
-UTILS_EX std::string get_link(const std::string& fname);
+UTILS_EX std::string get_link(std::string_view fname);
 /// Is dir
-UTILS_EX bool is_dir(const std::string& fname);
+UTILS_EX bool is_dir(std::string_view fname);
 /// Current source dir
 UTILS_EX std::string working_dir();
 /// Current source dir
@@ -707,58 +707,58 @@ UTILS_EX std::string home_dir();
 /// Current root dir - 'C:\' or '/'
 UTILS_EX std::string root_dir();
 /// Absolute path
-UTILS_EX std::string abs_path(const std::string& rpath);
+UTILS_EX std::string abs_path(std::string_view rpath);
 /// @brief Remove elements from path
 /// @param filename 
 /// @param steps - number of elements removed, default 1
 /// @return - remaining path
-UTILS_EX std::string path_pop(const std::string& filename, int steps = 1);
+UTILS_EX std::string path_pop(std::string_view filename, int steps = 1);
 /// Directory entries
-UTILS_EX std::vector<std::string> entries(const std::string& dirname);
+UTILS_EX std::vector<std::string> entries(std::string_view dirname);
 
 /// @cond INTERNAL
 [[deprecated("use entries")]]
-inline std::vector<std::string> directory(const std::string& dirname) {return entries(dirname);}
+inline std::vector<std::string> directory(std::string_view dirname) {return entries(dirname);}
 /// @endcond
 
 /// @brief Read stdout from the process - wait process to end
 /// @param processName 
 /// @param params process parameters
 /// @return optional parameters
-UTILS_EX std::optional<std::string> read_process(const std::string& processName, const std::vector<std::string>& params);
+UTILS_EX std::optional<std::string> read_process(std::string_view processName, const std::vector<std::string>& params);
 /// Base name
-UTILS_EX std::string base_name(const std::string& filename); 
+UTILS_EX std::string base_name(std::string_view filename); 
 /// Name and extension
-UTILS_EX std::tuple<std::string, std::string> split_name(const std::string& filename);
+UTILS_EX std::tuple<std::string, std::string> split_name(std::string_view filename);
 /// Generate unique name (prefer std::filesystem if available)
 UTILS_EX std::string temp_name();
 /// Machine host name
 UTILS_EX std::string host_name();
 /// Read environment value
-UTILS_EX std::optional<std::string> system_env(const std::string& env);
+UTILS_EX std::optional<std::string> system_env(std::string_view env);
 /// Is entry hidden
-UTILS_EX bool is_hidden_entry(const std::string& filename);
+UTILS_EX bool is_hidden_entry(std::string_view filename);
 /// is executable
-UTILS_EX bool is_executable(const std::string& filename);
+UTILS_EX bool is_executable(std::string_view filename);
 /// File size
-UTILS_EX SSIZE_T file_size(const std::string& filename);
+UTILS_EX SSIZE_T file_size(std::string_view filename);
 /// Rename a file
-UTILS_EX bool rename(const std::string& of, const std::string& nf);
+UTILS_EX bool rename(std::string_view of, std::string_view nf);
 /// Delete file
-UTILS_EX void remove_file(const std::string& filename);
+UTILS_EX void remove_file(std::string_view filename);
 /// Test if file with name exits
-UTILS_EX bool file_exists(const std::string& filename);
+UTILS_EX bool file_exists(std::string_view filename);
 /// Try to find a executable from PATH
-UTILS_EX std::optional<std::string> which(const std::string& filename);
+UTILS_EX std::optional<std::string> which(std::string_view filename);
 /// push name to path
-UTILS_EX std::string push_path(const std::string& path, const std::string& name);
+UTILS_EX std::string push_path(std::string_view path, std::string_view name);
 /// Construct a path from parameters
 template<class ...NAME>
-std::string push_path(const std::string& path, const std::string& name, NAME...names) {
+std::string push_path(std::string_view path, std::string_view name, NAME...names) {
     return push_path(push_path(path, name), names...);
 }
 /// Execute a program
-UTILS_EX int execute(const std::string& prog, const std::string& parameters);
+UTILS_EX int execute(std::string_view prog, std::string_view parameters);
 
 
 /// @brief Write data to temp file
@@ -780,7 +780,7 @@ std::string write_to_temp(const T& data) {
 /// @param max maximum amount of data to read.
 /// @return Vector of data read
 template <class T>
-std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max()) {
+std::vector<T> slurp(std::string_view file, const size_t max = std::numeric_limits<size_t>::max()) {
    std::vector<T> vec;
    std::ifstream stream(file, std::ios::in | std::ios::binary | std::ios::ate);
    if(!stream.is_open()) {
@@ -800,7 +800,7 @@ std::vector<T> slurp(const std::string& file, const size_t max = std::numeric_li
 
 /// @brief Read a file in one read 
 /// @return string containing file
-UTILS_EX std::string slurp(const std::string& file, const size_t max = std::numeric_limits<size_t>::max());
+UTILS_EX std::string slurp(std::string_view file, const size_t max = std::numeric_limits<size_t>::max());
 
 /// @brief Convert any type to json string, if possible.
 /// @param any - assumed to be a type convertible to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values.
@@ -809,7 +809,7 @@ UTILS_EX Result<std::string> to_json_string(const std::any& any);
 /// @brief Concert json string to any type
 /// @param str 
 /// @return 
-UTILS_EX Result<std::any> json_to_any(const std::string& str);
+UTILS_EX Result<std::any> json_to_any(std::string_view str);
 
 /// Check if port is free.
 UTILS_EX bool is_available(int port);

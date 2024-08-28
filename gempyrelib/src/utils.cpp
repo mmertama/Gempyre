@@ -90,21 +90,21 @@ void GempyreUtils::init() {
 }
 
 
-std::string GempyreUtils::qq(const std::string& s) {
+std::string GempyreUtils::qq(std::string_view s) {
    std::stringstream ss;
    ss << std::quoted(s);
    return ss.str();
 }
 
-std::string GempyreUtils::chop(const std::string& s) {
-    auto str = s;
+std::string GempyreUtils::chop(std::string_view s) {
+    auto str = std::string{s};
     str.erase(str.find_last_not_of('\0') + 1);
     str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
     return str;
 }
 
-std::string GempyreUtils::chop(const std::string& s, const std::string& chopped) {
-    auto str = s;
+std::string GempyreUtils::chop(std::string_view s, std::string_view chopped) {
+    auto str = std::string{s};
     str.erase(str.find_last_not_of(chopped) + 1);
     return str;
 }
@@ -257,9 +257,9 @@ GempyreUtils::Params GempyreUtils::parse_args(int argc, char* argv[], const std:
     return std::make_tuple(params, options);
 }
 
-std::string GempyreUtils::abs_path(const std::string& rpath) {
+std::string GempyreUtils::abs_path(std::string_view rpath) {
 #ifndef WINDOWS_OS
-    char* pathPtr = ::realpath(rpath.c_str(), nullptr);
+    char* pathPtr = ::realpath(std::string{rpath}.c_str(), nullptr);
     if(!pathPtr)
         return std::string();
     std::string path(pathPtr);
@@ -275,22 +275,22 @@ std::string GempyreUtils::abs_path(const std::string& rpath) {
 #endif
 }
 
-std::tuple<std::string, std::string> GempyreUtils::split_name(const std::string& filename) {
+std::tuple<std::string, std::string> GempyreUtils::split_name(std::string_view filename) {
     const auto name = base_name(filename);
     const auto index = name.find_last_of('.');
     return std::make_tuple(name.substr(0, index), name.substr(index + 1));
 }
 
 
-std::string GempyreUtils::base_name(const std::string& filename) {
+std::string GempyreUtils::base_name(std::string_view filename) {
     const auto dname = path_pop(filename);
-    return dname.empty() ? filename :
-        filename.substr(dname.length() + 1);
+    return dname.empty() ? std::string{filename} :
+        std::string{filename.substr(dname.length() + 1)};
 }
 
-std::string GempyreUtils::path_pop(const std::string& filename, int steps) {
+std::string GempyreUtils::path_pop(std::string_view filename, int steps) {
     if (steps <= 0)
-        return filename;
+        return std::string{filename};
     else {
          const auto p = filename.find_last_of(
     #ifndef WINDOWS_OS
@@ -302,7 +302,7 @@ std::string GempyreUtils::path_pop(const std::string& filename, int steps) {
     }
 }
 
-std::optional<std::string> GempyreUtils::read_process(const std::string& processName, const std::vector<std::string>& params) {
+std::optional<std::string> GempyreUtils::read_process(std::string_view processName, const std::vector<std::string>& params) {
     const auto param_line = join(params, " ");
     auto fd =
  #ifndef WINDOWS_OS
@@ -310,7 +310,7 @@ std::optional<std::string> GempyreUtils::read_process(const std::string& process
  #else
             ::_popen
  #endif
-            ((processName + " " + param_line + " 2>&1 ").c_str(), "r");
+            ((std::string{processName} + " " + param_line + " 2>&1 ").c_str(), "r");
 
     if(!fd)
         return std::nullopt;
@@ -358,14 +358,14 @@ std::string GempyreUtils::temp_name() {
     return name;
 }
 
-void GempyreUtils::remove_file(const std::string& name) {
-    ::remove(name.c_str());
+void GempyreUtils::remove_file(std::string_view name) {
+    ::remove(std::string{name}.c_str());
 }
 
 
-std::string GempyreUtils::substitute(const std::string& str, const std::string& substring, const std::string& subsitution) {
+std::string GempyreUtils::substitute(std::string_view str, std::string_view substring, std::string_view subsitution) {
     try {
-    return std::regex_replace(str, std::regex(substring) , subsitution);
+    return std::regex_replace(std::string{str}, std::regex(std::string{substring}) , std::string{subsitution});
     } catch (std::regex_error& e) {
          log(LogLevel::Error, "reg exp", substring, static_cast<unsigned>(e.code()));
          gempyre_utils_assert_x(false, "regexp");
@@ -396,7 +396,8 @@ std::string GempyreUtils::appPath() {
 
 
 
-bool GempyreUtils::file_exists(const std::string& filename) {
+bool GempyreUtils::file_exists(std::string_view filenamed) {
+    const auto filename = std::string{filenamed};
 #ifndef WINDOWS_OS
     return ::access(filename.c_str(), F_OK) != -1;
 #else
@@ -405,11 +406,11 @@ bool GempyreUtils::file_exists(const std::string& filename) {
 }
 
 
-std::vector<std::string> GempyreUtils::entries(const std::string& dirname) {
+std::vector<std::string> GempyreUtils::entries(std::string_view dirname) {
     std::vector<std::string> entries;
     if(dirname.empty())
         return entries;
-    const auto dname = dirname.back() != '/' ? dirname + '/' : dirname;
+    const auto dname = dirname.back() != '/' ? std::string{dirname} + '/' : std::string{dirname};
 #ifndef WINDOWS_OS
     auto dir = ::opendir(dname.c_str());
     if(!dir)
@@ -434,21 +435,24 @@ std::vector<std::string> GempyreUtils::entries(const std::string& dirname) {
 }    
 
 
+
+bool GempyreUtils::is_dir(std::string_view dpath) {
+    const auto path = std::string{dpath};
 #ifndef WINDOWS_OS
-bool GempyreUtils::is_dir(const std::string& path) {
    struct stat statbuf;
    if (::stat(path.c_str(), &statbuf) != 0)
        return 0;
    return S_ISDIR(statbuf.st_mode);
-}
 #else
-bool GempyreUtils::is_dir(const std::string& path) {
     return PathIsDirectory(path.c_str());
+#endif   
 }
-#endif
 
 
-std::string GempyreUtils::get_link(const std::string& lname) {
+
+
+std::string GempyreUtils::get_link(std::string_view ldname) {
+    const auto lname = std::string{ldname};
  #ifndef WINDOWS_OS
     size_t sz = 128;
     for(;;) {
@@ -465,9 +469,9 @@ std::string GempyreUtils::get_link(const std::string& lname) {
 #endif
 }
 
-std::optional<std::string> GempyreUtils::system_env(const std::string& env) {
+std::optional<std::string> GempyreUtils::system_env(std::string_view env) {
     if(env.length() > 0) {
-        auto str = std::getenv(env.c_str());
+        auto str = std::getenv(std::string{env}.c_str());
         if(str) {
             return str;
         }
@@ -491,7 +495,8 @@ std::string GempyreUtils::host_name() {
     return std::string();
 }
 
-bool GempyreUtils::is_hidden_entry(const std::string& filename) {
+bool GempyreUtils::is_hidden_entry(std::string_view filenamed) {
+    const auto filename = std::string{filenamed};
 #ifndef WINDOWS_OS
     char s[4096] = {0};
     filename.copy(s, filename.length());
@@ -519,7 +524,9 @@ long GempyreUtils::time_stamp(const std::string& filename) {
 }
 #endif
 
-bool GempyreUtils::rename(const std::string& of, const std::string& nf) {
+bool GempyreUtils::rename(std::string_view ofd, std::string_view nfd) {
+    const std::string of{ofd};
+    const std::string nf{nfd};
     if(std::rename(of.c_str(), nf.c_str())) {
         std::ifstream stream; //fallback
         stream.open(of, std::ios::in | std::ios::binary);
@@ -565,7 +572,7 @@ std::string GempyreUtils::working_dir() {
 #endif
 }
 
-std::string GempyreUtils::slurp(const std::string& file, size_t max) {
+std::string GempyreUtils::slurp(std::string_view file, size_t max) {
     std::ifstream stream(file, std::ios::in | std::ios::ate);
     if(!stream.is_open()) {
         log(LogLevel::Error, "Cannot open file", qq(file));
@@ -585,8 +592,9 @@ std::string GempyreUtils::slurp(const std::string& file, size_t max) {
     return str;
 }
 
-std::string GempyreUtils::hexify(const std::string& src, const std::string pat) {
-    std::regex rx(pat);
+std::string GempyreUtils::hexify(std::string_view srcd, std::string_view pat) {
+    std::regex rx(std::string{pat});
+    const std::string src{srcd};
     auto words_begin = std::sregex_iterator(src.begin(), src.end(),  rx);
     auto words_end = std::sregex_iterator();
     std::string out;
@@ -610,7 +618,7 @@ std::string GempyreUtils::hexify(const std::string& src, const std::string pat) 
 }
 
 
-std::string GempyreUtils::unhexify(const std::string& src) {
+std::string GempyreUtils::unhexify(std::string_view src) {
     std::string out;
     for(auto it = src.begin() ; it != src.end(); ++it) {
         if(*it == '%') {
@@ -628,15 +636,15 @@ std::string GempyreUtils::unhexify(const std::string& src) {
 #define S_IXUSR _S_IEXEC
 #endif
 
-bool GempyreUtils::is_executable(const std::string& filename) {
+bool GempyreUtils::is_executable(std::string_view filename) {
     if(!file_exists(filename)) {
         return false;
     }
     struct stat sb;
-    return (stat(filename.c_str(), &sb) == 0 && sb.st_mode & S_IXUSR);
+    return (stat(std::string{filename}.c_str(), &sb) == 0 && sb.st_mode & S_IXUSR);
 }
 
-SSIZE_T GempyreUtils::file_size(const std::string& filename) {
+SSIZE_T GempyreUtils::file_size(std::string_view filename) {
     std::ifstream stream(filename, std::ios::in | std::ios::binary | std::ios::ate);
     if(!stream.is_open()) {
         log(LogLevel::Error, "Cannot open file", qq(filename));
@@ -645,7 +653,7 @@ SSIZE_T GempyreUtils::file_size(const std::string& filename) {
     return static_cast<SSIZE_T>(stream.tellg());
 }
 
-std::optional<std::string> GempyreUtils::which(const std::string& filename) {
+std::optional<std::string> GempyreUtils::which(std::string_view filename) {
     const auto pe = system_env("PATH");
     if(!pe)
         return std::nullopt;
@@ -932,15 +940,19 @@ std::vector<uint8_t> GempyreUtils::base64_decode(const std::string_view& data) {
     return Base64::decode(data);
 }
 
-std::string GempyreUtils::push_path(const std::string& path, const std::string& name) {
+std::string GempyreUtils::push_path(std::string_view pathd, std::string_view named) {
+    const std::string path{pathd};
+    const std::string name{named}; 
 #ifdef OS_WIN
     return path + '\\' + name;
  #else
-    return path + '/' + name;
+    return path + '/' + name; // todo
 #endif
 }
 
-int GempyreUtils::execute(const std::string& executable, const std::string& parameters) {
+int GempyreUtils::execute(std::string_view executabled, std::string_view parametersd) {
+    const std::string executable{executabled};
+    const std::string parameters{parametersd}; 
 #if defined(WINDOWS_OS)
     if(executable.empty())
         return system(parameters.c_str()); // for compatibility with osbrowser
@@ -973,7 +985,7 @@ int GempyreUtils::execute(const std::string& executable, const std::string& para
 #endif
 }
 
-std::string GempyreUtils::remove_spaces(const std::string& s) {
+std::string GempyreUtils::remove_spaces(std::string_view s) {
     return substitute(s, R"(\s+)", std::string{});
 }
 

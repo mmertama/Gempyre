@@ -74,7 +74,7 @@ template<>
 inline bool is_error(const std::string& s) {return s == "query_error";}
 
 template<class T>
-std::optional<T> GempyreInternal::query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams)  {
+std::optional<T> GempyreInternal::query(std::string_view elId, std::string_view queryString, const std::vector<std::string>& queryParams)  {
     if(*this == State::RUNNING) {
         const auto queryId = query_id();
 

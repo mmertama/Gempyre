@@ -82,7 +82,7 @@ GempyreUtils::Result<std::string> GempyreUtils::to_json_string(const std::any& a
 }
 
 
-GempyreUtils::Result<std::any> GempyreUtils::json_to_any(const std::string& str) {
+GempyreUtils::Result<std::any> GempyreUtils::json_to_any(std::string_view str) {
     const auto j = json::parse(str);
     if(j.empty())
         return GempyreUtils::make_error<std::any>("Empty");

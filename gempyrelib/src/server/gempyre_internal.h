@@ -88,9 +88,9 @@ public:
     GempyreInternal(
         Ui* ui, 
         const Ui::Filemap& filemap,
-        const std::string& indexHtml,
+        std::string_view indexHtml,
         unsigned short port,
-        const std::string& root,
+        std::string_view root,
         const std::unordered_map<std::string, std::string>& parameters,
         WindowType windowType
         );
@@ -102,14 +102,14 @@ public:
     bool operator!=(State state) const {return m_status != state;}
 
     template<class T>
-    std::optional<T> query(const std::string& elId, const std::string& queryString, const std::vector<std::string>& queryParams = {});
+    std::optional<T> query(std::string_view elId, std::string_view queryString, const std::vector<std::string>& queryParams = {});
 
     void eventLoop(bool is_main);
 
     void send(const DataPtr& data, bool droppable);
 
     template<typename T>
-    void send_unique(const Element& el, const std::string& type, const T& value) {
+    void send_unique(const Element& el, std::string_view type, const T& value) {
         Server::Value params {
             {"element", el.m_id},
             {"type", type},
@@ -122,7 +122,7 @@ public:
     }
 
     template<typename K, typename V, typename... P>
-    void send_unique(const Element& el, const std::string& type, const K& key, const V& value, const P&... pairs) {
+    void send_unique(const Element& el, std::string_view type, const K& key, const V& value, const P&... pairs) {
         json params {
             {"element", el.m_id},
             {"type", type},
@@ -138,7 +138,7 @@ public:
     }
 
     template<typename T>
-    void send(const Element& el, const std::string& type, const T& value) {
+    void send(const Element& el, std::string_view type, const T& value) {
          json params {
             {"element", el.m_id},
             {"type", type},
@@ -268,14 +268,14 @@ public:
     }
 
 
-    void add_file(const std::string& url, const std::string& file_name) {
+    void add_file(std::string_view url, std::string_view file_name) {
         const auto data = GempyreUtils::slurp<Base64::Byte>(file_name);
         add_data(url, data);
     }
 
-    void add_data(const std::string& url, const std::vector<uint8_t>& data) {
+    void add_data(std::string_view url, const std::vector<uint8_t>& data) {
         const auto string = Base64::encode(data);
-        m_filemap.insert_or_assign(url, std::move(string));
+        m_filemap.insert_or_assign(std::string{url}, std::move(string));
     }
 
     std::string query_id() const {

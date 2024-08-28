@@ -10,6 +10,7 @@
 #include <optional>
 #include <vector>
 #include <tuple>
+#include <string_view>
 #include <gempyre_types.h>
 
 /**
@@ -80,18 +81,18 @@ namespace Gempyre {
         /// @param id - if of element assumed to exists in HTML document (or DOM)
         /// @details Constructor is very lightweight and many cases its easier
         /// to create a new element rather than copy or move one.
-        Element(Ui& ui, const std::string& id);
+        Element(Ui& ui, std::string_view id);
         /// @brief Constructor for exiting elements
         /// @param ui - ui ref
         /// @param id - assumed be unique, if id is not important to preset, use constructor without id.
         /// @param htmlElement - element type
         /// @param parent - parent element where this element is created
-        Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent);
+        Element(Ui& ui, std::string_view id, std::string_view htmlElement, const Element& parent);
         /// @brief Constructor for exiting elements
         /// @param ui - ui ref
         /// @param htmlElement - element type
         /// @param parent - parent element where this element is created
-        Element(Ui& ui, const std::string& htmlElement, const Element& parent);
+        Element(Ui& ui, std::string_view htmlElement, const Element& parent);
         /// Destructor
         virtual ~Element();
         /// Get Ui
@@ -110,31 +111,31 @@ namespace Gempyre {
         /// Some events (like mouse move) can emit so often that it would impact to performance, that can be eased
         /// with a suitable throttle value. If two (or more) messages are received in shorted period than throttle value, only the
         /// last is received.
-        Element& subscribe(const std::string& name, const SubscribeFunction& handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
+        Element& subscribe(std::string_view name, const SubscribeFunction& handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
         /// @brief Set HTML text value of the element
         /// @param htmlText - HTML encoded string
         /// @return this element
-        Element& set_html(const std::string& htmlText);
+        Element& set_html(std::string_view htmlText);
         /// @brief Set HTML a attribute of this element
         /// @param attr - attribute name
         /// @param value - attribute value
         /// @return this element
-        Element& set_attribute(const std::string& attr, const std::string& value);
+        Element& set_attribute(std::string_view attr, std::string_view value);
         /// @brief Set HTML a attribute of this element
         /// @param attr - attribute name
         /// @return this element
-        Element& set_attribute(const std::string& attr);
+        Element& set_attribute(std::string_view attr);
         /// Get this element attributes 
         std::optional<Attributes> attributes() const;
         /// @brief Set CSS style of this element
         /// @param style - style name 
         /// @param value - CSS style value
         /// @return this element
-        Element& set_style(const std::string& style, const std::string& value);
+        Element& set_style(std::string_view style, std::string_view value);
         /// @brief Remove attribute
         /// @param attr - attribute name
         /// @return this Element
-        Element& remove_attribute(const std::string& attr);
+        Element& remove_attribute(std::string_view attr);
         /// @brief Get element styles
         /// @param keys - style keys to fetch.
         [[nodiscard]] std::optional<Values> styles(const std::vector<std::string>& keys) const;
@@ -156,7 +157,7 @@ namespace Gempyre {
     /// @cond INTERNAL    
         const GempyreInternal& ref() const;
         GempyreInternal& ref();
-        static const std::string generateId(const std::string& prefix);
+        static const std::string generateId(std::string_view prefix);
     protected:
         Ui* m_ui;
         std::string m_id;
@@ -241,7 +242,7 @@ namespace Gempyre {
         /// @param indexHtml page to show
         /// @param port optional
         /// @param root optional
-        Ui(const Filemap& filemap, const std::string& indexHtml, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        Ui(const Filemap& filemap, std::string_view indexHtml, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
 
         /// @brief Create a browser UI using given ui app and command line.
         /// @param filemap resource map used.
@@ -250,7 +251,7 @@ namespace Gempyre {
         /// @param browser_params params passed to browse.
         /// @param port optional
         /// @param root optional
-        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& browser,  const std::string& browser_params, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        Ui(const Filemap& filemap, std::string_view indexHtml, std::string_view browser,  std::string_view browser_params, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
 
         /// @brief Create a window UI
         /// @param filemap resource map used.
@@ -262,8 +263,8 @@ namespace Gempyre {
         /// @param ui_params extra parameters passed to the window.
         /// @param port optional
         /// @param root optional
-        Ui(const Filemap& filemap, const std::string& indexHtml, const std::string& title,  int width, int height, unsigned flags = 0,
-            const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned short port = UseDefaultPort, const std::string& root = UseDefaultRoot);
+        Ui(const Filemap& filemap, std::string_view indexHtml, std::string_view title,  int width, int height, unsigned flags = 0,
+            const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
 
         /// Destructor.
         ~Ui();
@@ -317,15 +318,15 @@ namespace Gempyre {
         void set_logging(bool logging);
         /// @brief Executes eval string in UI context.
         /// @param eval Javascript to be executed.
-        void eval(const std::string& eval);
+        void eval(std::string_view eval);
         ///Send a debug message to UI. Message is get received is set_logging is true.
-        void debug(const std::string& msg);
+        void debug(std::string_view msg);
         ///Show an alert window.
-        void alert(const std::string& msg);
+        void alert(std::string_view msg);
         /// @brief Opens an url in the UI view
         /// @param url address
         /// @param name title
-        void open(const std::string& url, const std::string& name = "");
+        void open(std::string_view url, std::string_view name = "");
 
         /// @brief Start a periodic timer
         /// @param ms period.
@@ -358,46 +359,46 @@ namespace Gempyre {
         [[nodiscard]] Element root() const;
         
         /// Get a local file path an URL, can be used with open.
-        [[nodiscard]] std::string address_of(const std::string& filepath) const;
+        [[nodiscard]] std::string address_of(std::string_view filepath) const;
         
         /// Get elements by class name
-        [[nodiscard]] std::optional<Element::Elements> by_class(const std::string& className) const;
+        [[nodiscard]] std::optional<Element::Elements> by_class(std::string_view className) const;
         
         /// Get elements by name
-        [[nodiscard]] std::optional<Element::Elements> by_name(const std::string& className) const;
+        [[nodiscard]] std::optional<Element::Elements> by_name(std::string_view className) const;
         
         /// Test function to measure round trip time
         [[nodiscard]] std::optional<std::pair<std::chrono::microseconds, std::chrono::microseconds>> ping() const;
         
         /// @cond INTERNAL
         // do extension call - document upon request
-        void extension_call(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        void extension_call(std::string_view callId, const std::unordered_map<std::string, std::any>& parameters);
         // get value from extension - document upon request
-        [[nodiscard]] std::optional<std::any> extension_get(const std::string& callId, const std::unordered_map<std::string, std::any>& parameters);
+        [[nodiscard]] std::optional<std::any> extension_get(std::string_view callId, const std::unordered_map<std::string, std::any>& parameters);
         /// @endcond
 
         /// @brief Read a resource.
         /// @param url resource name.
         /// @return resource as bytes.
-        [[nodiscard]] std::optional<std::vector<uint8_t>> resource(const std::string& url) const;
+        [[nodiscard]] std::optional<std::vector<uint8_t>> resource(std::string_view url) const;
         
         /// @brief Add a file data into Gempyre to be accessed via url.
         /// @param url string bound to data.
         /// @param file filename to read.
         /// @return success.
-        bool add_file(const std::string& url, const std::string& file);
+        bool add_file(std::string_view url, std::string_view file);
 
         /// @brief Add a data into Gempyre to be accessed via url.
         /// @param url string bound to data.
         /// @param data data to write.
         /// @return 
-        bool add_data(const std::string& url, const std::vector<uint8_t>& data);
+        bool add_data(std::string_view url, const std::vector<uint8_t>& data);
 
         /// @brief Add file data into map to be added as a map.
         /// @param map resource data.
         /// @param filename filename to read.
         /// @return name bound to the file 
-        static std::optional<std::string> add_file(Filemap& map, const std::string& filename);
+        static std::optional<std::string> add_file(Filemap& map, std::string_view filename);
         
         /// Starts an UI write batch, no messages are sent to USER until endBatch
         void begin_batch();
@@ -415,13 +416,13 @@ namespace Gempyre {
         [[nodiscard]] std::optional<double> device_pixel_ratio() const;
         
         /// Set application icon, fail silently if backend wont support
-        void set_application_icon(const uint8_t* data, size_t dataLen, const std::string& type);
+        void set_application_icon(const uint8_t* data, size_t dataLen, std::string_view type);
         
         /// Resize, fail silently if backend wont support
         void resize(int width, int height);
         
         /// Set title, fail silently if backend wont support
-        void set_title(const std::string& name);
+        void set_title(std::string_view name);
         
         /// Read list files as a maps
         static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
@@ -430,7 +431,7 @@ namespace Gempyre {
         void flush();
 
         /// test if Element can be accessed. Note that in false it's may be in HTML, but not available in DOM tree.
-        bool available(const std::string& id) const; 
+        bool available(std::string_view id) const; 
 
 
         /// @cond INTERNAL
@@ -443,8 +444,8 @@ namespace Gempyre {
         /// @endcond
 
     private:
-        Ui(const Filemap& filemap, const std::string& indexHtml,
-            unsigned short port, const std::string& root,
+        Ui(const Filemap& filemap, std::string_view indexHtml,
+            unsigned short port, std::string_view root,
             const std::unordered_map<std::string, std::string>& parameters, WindowType windowType);
         const GempyreInternal& ref() const;
         GempyreInternal& ref();

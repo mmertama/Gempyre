@@ -16,11 +16,11 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 using namespace Gempyre;
 
-const std::string Element::generateId(const std::string& prefix) {
+const std::string Element::generateId(std::string_view prefix) {
     const auto seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
     std::default_random_engine generator(seed);
     std::uniform_int_distribution<int> distribution('a', 'z');
-    std::string name = prefix + "_";
+    std::string name = std::string{prefix} + std::string{"_"};
     for(int i = 0; i < 4; i++) {
         name += static_cast<char>(distribution(generator));
     }
@@ -30,26 +30,26 @@ const std::string Element::generateId(const std::string& prefix) {
     return name;
 }
 
-Element::Element(Ui& ui, const std::string& id) : m_ui(&ui), m_id(id) {
-    m_ui->ref().ensure_element_exists(id);
+Element::Element(Ui& ui, std::string_view id) : m_ui(&ui), m_id(id) {
+    m_ui->ref().ensure_element_exists(std::string{id});
 }
 
-Element::Element(Ui& ui, const std::string& id, const std::string& htmlElement, const Element& parent) : Element(ui, id) {
+Element::Element(Ui& ui, std::string_view id, std::string_view htmlElement, const Element& parent) : Element(ui, id) {
     ref().send(parent, "create",
         "new_id", m_id,
         "html_element", htmlElement);
 }
 
-Element::Element(Ui& ui, const std::string& htmlElement, const Element& parent) : Element(ui, generateId("__element")) {
+Element::Element(Ui& ui, std::string_view htmlElement, const Element& parent) : Element(ui, generateId("__element")) {
     ref().send(parent, "create",
         "new_id", m_id,
         "html_element", htmlElement);
 }
 
 
-Element& Element::subscribe(const std::string& name, const SubscribeFunction& handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
+Element& Element::subscribe(std::string_view name, const SubscribeFunction& handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
    
-    ref().add_handler(m_id, name, handler);
+    ref().add_handler(m_id, std::string{name}, handler);
     ref().send(*this, "event",
         "event", name,
         "properties", properties,
@@ -57,19 +57,19 @@ Element& Element::subscribe(const std::string& name, const SubscribeFunction& ha
     return *this;
 }
 
-Element& Element::set_html(const std::string& htmlText) {
+Element& Element::set_html(std::string_view htmlText) {
     ref().send(*this, "html", htmlText);
     return *this;
 }
 
-Element& Element::set_attribute(const std::string &attr, const std::string &value) {
+Element& Element::set_attribute(std::string_view attr, std::string_view value) {
     ref().send(*this, "set_attribute", 
         "attribute", attr,
         "value", value);
     return *this;
 }
 
-Element& Element::set_attribute(const std::string &attr) {
+Element& Element::set_attribute(std::string_view attr) {
     ref().send(*this, "set_attribute", 
         "attribute", attr,
         "value", "true");
@@ -95,13 +95,13 @@ Element& Element::set_attribute(const std::string& attr, const AttrValueType& va
 }
 */
 
-Element& Element::remove_attribute(const std::string &attr) {
+Element& Element::remove_attribute(std::string_view attr) {
     ref().send(*this, "remove_attribute",
         "attribute", attr);
     return *this;
 }
 
-Element& Element::set_style(const std::string &styleName, const std::string &value) {
+Element& Element::set_style(std::string_view styleName, std::string_view value) {
     ref().send(*this, "set_style",
         "style", styleName,
         "value", value);
