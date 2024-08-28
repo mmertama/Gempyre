@@ -31,16 +31,20 @@ const std::string Element::generateId(std::string_view prefix) {
 }
 
 Element::Element(Ui& ui, std::string_view id) : m_ui(&ui), m_id(id) {
+    assert(GempyreUtils::is_valid_utf8(id));
     m_ui->ref().ensure_element_exists(std::string{id});
 }
 
 Element::Element(Ui& ui, std::string_view id, std::string_view htmlElement, const Element& parent) : Element(ui, id) {
+    assert(GempyreUtils::is_valid_utf8(id));
+    assert(GempyreUtils::is_valid_utf8(htmlElement));
     ref().send(parent, "create",
         "new_id", m_id,
         "html_element", htmlElement);
 }
 
 Element::Element(Ui& ui, std::string_view htmlElement, const Element& parent) : Element(ui, generateId("__element")) {
+    assert(GempyreUtils::is_valid_utf8(htmlElement));
     ref().send(parent, "create",
         "new_id", m_id,
         "html_element", htmlElement);
@@ -48,7 +52,7 @@ Element::Element(Ui& ui, std::string_view htmlElement, const Element& parent) : 
 
 
 Element& Element::subscribe(std::string_view name, const SubscribeFunction& handler, const std::vector<std::string>& properties, const std::chrono::milliseconds& throttle) {
-   
+    assert(GempyreUtils::is_valid_utf8(name));
     ref().add_handler(m_id, std::string{name}, handler);
     ref().send(*this, "event",
         "event", name,
@@ -58,11 +62,14 @@ Element& Element::subscribe(std::string_view name, const SubscribeFunction& hand
 }
 
 Element& Element::set_html(std::string_view htmlText) {
+    assert(GempyreUtils::is_valid_utf8(htmlText));
     ref().send(*this, "html", htmlText);
     return *this;
 }
 
 Element& Element::set_attribute(std::string_view attr, std::string_view value) {
+    assert(GempyreUtils::is_valid_utf8(attr));
+    assert(GempyreUtils::is_valid_utf8(value));
     ref().send(*this, "set_attribute", 
         "attribute", attr,
         "value", value);
@@ -70,6 +77,7 @@ Element& Element::set_attribute(std::string_view attr, std::string_view value) {
 }
 
 Element& Element::set_attribute(std::string_view attr) {
+    assert(GempyreUtils::is_valid_utf8(attr));
     ref().send(*this, "set_attribute", 
         "attribute", attr,
         "value", "true");
@@ -96,12 +104,15 @@ Element& Element::set_attribute(const std::string& attr, const AttrValueType& va
 */
 
 Element& Element::remove_attribute(std::string_view attr) {
+     assert(GempyreUtils::is_valid_utf8(attr));
     ref().send(*this, "remove_attribute",
         "attribute", attr);
     return *this;
 }
 
 Element& Element::set_style(std::string_view styleName, std::string_view value) {
+    assert(GempyreUtils::is_valid_utf8(value));
+    assert(GempyreUtils::is_valid_utf8(styleName));
     ref().send(*this, "set_style",
         "style", styleName,
         "value", value);

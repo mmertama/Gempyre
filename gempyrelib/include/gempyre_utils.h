@@ -478,6 +478,11 @@ inline std::string_view trim(std::string_view str) {
 /// @return their distance
 UTILS_EX int levenshtein_distance(std::string_view s1, std::string_view s2);
 
+/// @brief Test if a given string is a valid UTF-8 string
+/// @param str 
+/// @return validity
+UTILS_EX bool is_valid_utf8(std::string_view str); 
+
 /**
  * ## Container Utils
  */

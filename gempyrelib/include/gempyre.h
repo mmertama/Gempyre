@@ -58,6 +58,21 @@ namespace Gempyre {
         public:
             ~HtmlStream();
             HtmlStream& flush();
+
+    #ifdef AUTO_UINT8_STREAM // obviously works, but gives warnings
+        template<typename T>
+        HtmlStream& operator<<(T&& value) { 
+            if constexpr (std::is_same_v<std::decay_t<T>, int8_t>) {
+                static_cast<std::ostringstream&>(*this) << static_cast<int>(value);
+            } else if constexpr (std::is_same_v<std::decay_t<T>, uint8_t>) {
+                static_cast<std::ostringstream&>(*this) << static_cast<unsigned int>(value);
+            } else {
+                static_cast<std::ostringstream&>(*this) << std::forward<T>(value);
+            }
+            return *this;
+        }  
+    #endif
+
         private:
             using FlushFunc = std::function<void (HtmlStream&)>; 
             friend Element;

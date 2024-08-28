@@ -165,6 +165,27 @@ TEST_F(TestUi, htmlStream) {
     });
 }
 
+TEST_F(TestUi, htmlStream_x) {
+    Gempyre::Element el(ui(), "test-1");
+    el.html_stream() <<  "Test-dyn" << 'x';
+    test([el]() {
+        const auto html = el.html();
+        ASSERT_TRUE(html.has_value());
+        ASSERT_EQ(html.value(), "Test-dynx");
+    });
+}
+
+TEST_F(TestUi, TestUi_htmlStream_f_Test) {
+    Gempyre::Element el(ui(), "test-1");
+    el.html_stream() <<  "Test-dyn" << 'x' << 12.2 << "kissa" << 9;
+    test([el]() {
+        const auto html = el.html();
+        ASSERT_TRUE(html.has_value());
+        ASSERT_EQ(html.value(), "Test-dynx12.2kissa9");
+    });
+}
+
+
 TEST_F(TestUi, setAttribute) {
     Gempyre::Element el(ui(), "test-1");
     el.set_attribute("value", "Test-attr-dyn");

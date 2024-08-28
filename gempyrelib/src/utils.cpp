@@ -1046,3 +1046,31 @@ void GempyreUtils::process_exit(int exitCode) {
 #endif
     std::exit(exitCode);
 }
+
+// Based on this one: http://www.zedwood.com/article/cpp-is-valid-utf8-string-function
+bool GempyreUtils::is_valid_utf8(std::string_view str) {
+    unsigned n;
+    for (unsigned i = 0; i < str.size(); ++i) {
+        const auto c = static_cast<unsigned char>(str[i]);
+        if (c <= 0x7f) {
+            n = 0; // 0bbbbbbb
+        } else if ((c & 0xE0) == 0xC0) {
+            n = 1 ; // 110bbbbb
+        } else if ( c == 0xed && i < str.size() - 1 && (static_cast<unsigned char>(str[i + 1]) & 0xa0) == 0xa0) {
+            return false; //U+d800 to U+dfff
+        } else if ((c & 0xF0) == 0xE0) {
+            n = 2; // 1110bbbb
+        } else if ((c & 0xF8) == 0xF0) {
+            n = 3; // 11110bbb
+        } else {
+            return false;
+        }
+
+        for (unsigned j = 0; j < n && i < str.size(); ++j) { // n bytes matching 10bbbbbb follow ?
+            if ((++i == str.size()) || (( static_cast<unsigned char>(str[i]) & 0xC0) != 0x80)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
