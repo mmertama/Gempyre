@@ -511,10 +511,10 @@ private:
     std::unordered_map<std::string, HandlerMap> m_elements{};
     std::list<std::function<bool ()>> m_requestqueue{};
     std::list<std::function<void ()>> m_timerqueue{};
-    std::function<void ()> m_onUiExit{nullptr};
-    std::function<void ()> m_onReload{nullptr};
-    std::function<void ()> m_onOpen{nullptr};
-    std::function<void (const std::string& element, const std::string& info)> m_onError{nullptr};
+    Ui::ExitFunction m_onUiExit{nullptr};
+    Ui::ReloadFunction m_onReload{nullptr};
+    Ui::OpenFunction m_onOpen{nullptr};
+    Ui::ErrorFunction m_onError{nullptr};
     Ui::Filemap m_filemap{};
     WindowType m_windowType{};
     std::function<void ()> m_startup{};
