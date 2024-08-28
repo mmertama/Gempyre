@@ -11,6 +11,7 @@
 #include <vector>
 #include <tuple>
 #include <string_view>
+#include <sstream>
 #include <gempyre_types.h>
 
 /**
@@ -51,6 +52,18 @@ namespace Gempyre {
     GEMPYRE_EX std::tuple<int, int, int> version();
 
     struct Event;
+    class Element;
+
+    class GEMPYRE_EX HtmlStream : public std::ostringstream {
+        public:
+            ~HtmlStream();
+            HtmlStream& flush();
+        private:
+            using FlushFunc = std::function<void (HtmlStream&)>; 
+            friend Element;
+            HtmlStream(const FlushFunc& flush);    
+            const FlushFunc m_flush;
+    };
 
     /// @brief Represents all HTML elements on UI
     class GEMPYRE_EX Element {
@@ -116,6 +129,9 @@ namespace Gempyre {
         /// @param htmlText - HTML encoded string
         /// @return this element
         Element& set_html(std::string_view htmlText);
+        /// @brief get a stream that writes to html part of this element
+        /// @return a string stream
+        HtmlStream html_stream();
         /// @brief Set HTML a attribute of this element
         /// @param attr - attribute name
         /// @param value - attribute value

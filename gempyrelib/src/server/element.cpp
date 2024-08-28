@@ -186,6 +186,22 @@ std::optional<Element> Element::parent() const {
     return Gempyre::Element(*m_ui, *pid);
 } 
  
+HtmlStream Element::html_stream() {
+    return HtmlStream{[this](HtmlStream& stream) {
+        set_html(stream.str()); // view not implemented in clang (yet?)
+    }};
+}
+
+HtmlStream::HtmlStream(const FlushFunc& flushf) : m_flush(flushf) {}
+
+HtmlStream::~HtmlStream() {
+    flush();
+}
+
+HtmlStream& HtmlStream::flush() {
+    m_flush(*this);
+    return *this;
+}
 
 Element::~Element() {}
 
