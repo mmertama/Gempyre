@@ -679,3 +679,37 @@ TEST(Graphics, bitmap_tile) {
     }
 }
 
+TEST(Graphics, to_png) {
+    const auto bmp = rect(100, 100, Gempyre::Color::Blue);
+    const auto png = bmp.png_image();
+    const uint8_t png_sig[] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
+    ASSERT_TRUE(png.size() > 8);
+    ASSERT_TRUE(std::memcmp(png.data(), png_sig, sizeof(png_sig)) == 0); 
+}
+
+#ifdef USE_WEBP
+const uint8_t web_sig[] = {'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'E', 'B', 'P'};
+TEST(Graphics, to_webp_one) {
+    const auto bmp = rect(100, 100, Gempyre::Color::Blue);
+    Gempyre::Webp w(bmp);
+    const auto webp = w.image();
+    ASSERT_TRUE(webp.size() > 8);
+    ASSERT_TRUE(std::memcmp(webp.data(), web_sig, 4) == 0);
+    ASSERT_TRUE(std::memcmp(webp.data() + 8, web_sig + 8, 4) == 0);  
+}
+
+TEST(Graphics, to_webp_two) {
+    const auto bmp1 = rect(100, 100, Gempyre::Color::Blue);
+    const auto bmp2 = rect(100, 100, Gempyre::Color::Red);
+    const auto bmp3 = rect(100, 100, Gempyre::Color::Cyan);
+    Gempyre::Webp w(bmp1);
+    w.add(bmp2, 1s);
+    w.add(bmp3, 2s);
+    const auto webp = w.image();
+    ASSERT_TRUE(webp.size() > 8);
+    ASSERT_TRUE(std::memcmp(webp.data(), web_sig, 4) == 0);
+    ASSERT_TRUE(std::memcmp(webp.data() + 8, web_sig + 8, 4) == 0);  
+}
+
+#endif
+

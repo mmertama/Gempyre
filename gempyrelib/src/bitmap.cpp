@@ -35,7 +35,7 @@ Bitmap::Bitmap(const std::vector<unsigned char>& image_data)  {
     std::copy(image.begin(), image.end(), ptr);    
 }
 
-const std::vector<uint8_t> Bitmap::png_image() const {
+std::vector<uint8_t> Bitmap::png_image() const {
     std::vector<uint8_t> out;
     lodepng::State state;
     lodepng::encode(out, reinterpret_cast<const unsigned char*>(m_canvas->data()),
@@ -284,4 +284,8 @@ Bitmap Bitmap::clip(const Gempyre::Rect& rect) const {
 
 bool Bitmap::empty() const {
     return !m_canvas || m_canvas->width() <= 0 || m_canvas->height() <= 0;
+}
+
+const uint8_t* Bitmap::const_data() const {
+    return reinterpret_cast<const uint8_t*>(m_canvas.get());
 }

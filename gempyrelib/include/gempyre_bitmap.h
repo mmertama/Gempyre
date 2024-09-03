@@ -184,7 +184,7 @@ namespace  Gempyre {
 
         /// @brief Convert a bitmap to PNG
         /// @return PNG bytes
-        const std::vector<uint8_t> png_image() const;
+        std::vector<uint8_t> png_image() const;
 
         /// Copy operator does only shallow copy, for deep copy @see clone() 
         Bitmap& operator=(const Bitmap& other) = default;
@@ -244,6 +244,9 @@ namespace  Gempyre {
 
         /// return true if there is not data  
         bool empty() const;
+
+        /// underlaying data
+        const uint8_t* const_data() const;
     protected:
         /// @cond INTERNAL
         void copy_from(const Bitmap& other);

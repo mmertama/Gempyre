@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.18)
+cmake_minimum_required (VERSION 3.25)
 project(gempyre LANGUAGES CXX)
 
 # enable ctests, starting from the top build folder
@@ -140,7 +140,8 @@ option(HAS_TEST "Test are built" ${USE_DEFAULT_SUBPROJECTS})
 option(HAS_EXAMPLES "Examples are built" ${USE_DEFAULT_SUBPROJECTS})
 
 option(USE_PYTHON_UI, "Use Python Webview as default UI instead of system browser" ${USE_DEFAULT_PYTHON})
-  
+ 
+
 if(HAS_AFFILIATES)
     add_subdirectory(affiliates)
 endif()

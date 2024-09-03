@@ -195,7 +195,7 @@ set(PNG_SRC
 # suppress warnings for the PNG folder 
 file(GLOB_RECURSE LODE_FILES LIST_DIRECTORIES FALSE ${srcDirVar}/*)
 set_source_files_properties(${LODE_FILES} PROPERTIES COMPILE_FLAGS "-w")
-  
+
 
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -294,7 +294,6 @@ set(GEMPYRE_SRC
     src/logging.cpp
     ${PNG_SRC}
     )
-
 
 if(ANDROID)
     set(GEMPYRE_SRC ${GEMPYRE_SRC} src/android/android.cpp)
@@ -532,7 +531,6 @@ endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs_path "${GEMPYRE_WS_LIB_PATH}")
 
-
 if(WIN32)
     if(MSVC)
         set(WIN_LIB 
@@ -561,12 +559,14 @@ if(WIN32)
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${GEMPYRE_WS_LIB}
         PUBLIC ${WIN_LIB}
+        PRIVATE ${EXT_LIBS}
         )
 elseif(ANDROID)
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs ${GEMPYRE_WS_LIB_NAME})
     target_link_libraries (${PROJECT_NAME}
         PRIVATE -l${GEMPYRE_WS_LIB_NAME_CORE}
         PRIVATE -lstdc++
+        PRIVATE ${EXT_LIBS}
         )
 elseif(RASPBERRY)
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs "${GEMPYRE_WS_LIB_NAME_CORE};${CMAKE_THREAD_LIBS_INIT}")
@@ -574,13 +574,16 @@ elseif(RASPBERRY)
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${GEMPYRE_WS_LIB_NAME_CORE}
         PRIVATE -lstdc++
+        PRIVATE ${EXT_LIBS}
         )        
 else()
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs  "${SOCKETS_LIB};${CMAKE_THREAD_LIBS_INIT}")
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
         PRIVATE ${SOCKETS_LIB}
-        PRIVATE -lstdc++)
+        PRIVATE -lstdc++
+        PRIVATE ${EXT_LIBS}
+        )
 endif()
 
 if(NO_EXPORT)

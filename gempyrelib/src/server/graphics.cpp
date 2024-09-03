@@ -281,6 +281,6 @@ void CanvasElement::erase(bool resized) {
 }
 
 void CanvasElement::draw(int x, int y, const Gempyre::Bitmap& bmp) {
-     if(bmp.m_canvas)
+     if(bmp.const_data())
         paint(bmp.m_canvas, x, y, true);
 }
