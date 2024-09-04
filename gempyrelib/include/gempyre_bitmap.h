@@ -143,7 +143,8 @@ namespace  Gempyre {
         static constexpr Color::type Fuchsia    = Magenta;
         /// @brief Lime
         static constexpr Color::type Lime       = Green;
-
+        /// @brief Transparent
+        static constexpr Color::type Transparent = Color::rgba(0, 0, 0, 0);
     }
 
 

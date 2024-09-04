@@ -1,3 +1,4 @@
+#include <string>
 #include <lodepng.h>
 #include <cassert>
 #include <cstring>
@@ -5,6 +6,8 @@
 #include "gempyre_utils.h"
 #include "data.h"
 #include "canvas_data.h"
+
+
 
 using namespace Gempyre;
 
@@ -287,5 +290,5 @@ bool Bitmap::empty() const {
 }
 
 const uint8_t* Bitmap::const_data() const {
-    return reinterpret_cast<const uint8_t*>(m_canvas.get());
+    return reinterpret_cast <const uint8_t*>(m_canvas->data());
 }
