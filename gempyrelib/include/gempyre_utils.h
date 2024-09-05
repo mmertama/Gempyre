@@ -278,8 +278,8 @@ template <typename R, typename E = std::string>
 struct Result : private std::variant<R, Error<E>> {
     using Err = Error<E>;
     using ParentType = std::variant<R, Error<E>>;
-    using value_type = R; // std compat
-    using error_type = E; // std compat
+    using value_type = R; // std compatibility
+    using error_type = E; // std compatibility
     /// @brief
     constexpr Result(R&& r) : std::variant<R, Err>{r} {}
     /// @brief
@@ -321,7 +321,7 @@ struct Result : private std::variant<R, Error<E>> {
     /// @brief
     constexpr static auto make_error(E&& e) {return Result<R, E>{Error<E>{e}};}
     /// @brief
-    constexpr static auto make_error() {return Result<R, E>{Error<E>{}};}    // valid only if errr has a default constructor
+    constexpr static auto make_error() {return Result<R, E>{Error<E>{}};}    // valid only if error has a default constructor
     /// @brief
     constexpr static auto ok() {return Result<R, E>{R{}};}                  // valid only if result has a default constructor
 };
@@ -790,7 +790,8 @@ std::string write_to_temp(const T& data) {
 template <class T>
 std::vector<T> slurp(std::string_view file, const size_t max = std::numeric_limits<size_t>::max()) {
    std::vector<T> vec;
-   std::ifstream stream(file, std::ios::in | std::ios::binary | std::ios::ate);
+   /// some platforms needs std::string
+   std::ifstream stream(std::string{file}, std::ios::in | std::ios::binary | std::ios::ate);
    if(!stream.is_open()) {
        log(LogLevel::Error, "Cannot open file", qq(file));
        return vec;

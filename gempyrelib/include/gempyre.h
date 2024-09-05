@@ -74,10 +74,10 @@ namespace Gempyre {
     #endif
 
         private:
-            using FlushFunc = std::function<void (HtmlStream&)>; 
+            using FlushFunction = std::function<void (HtmlStream&)>; 
             friend Element;
-            HtmlStream(const FlushFunc& flush);    
-            const FlushFunc m_flush;
+            HtmlStream(const FlushFunction& flush);    
+            const FlushFunction m_flush;
     };
 
     /// @brief Represents all HTML elements on UI

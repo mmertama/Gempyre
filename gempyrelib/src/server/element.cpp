@@ -203,7 +203,7 @@ HtmlStream Element::html_stream() {
     }};
 }
 
-HtmlStream::HtmlStream(const FlushFunc& flushf) : m_flush(flushf) {}
+HtmlStream::HtmlStream(const FlushFunction& flush_function) : m_flush(flush_function) {}
 
 HtmlStream::~HtmlStream() {
     flush();
