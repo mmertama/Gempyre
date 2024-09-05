@@ -647,7 +647,7 @@ bool GempyreUtils::is_executable(std::string_view filename) {
 }
 
 SSIZE_T GempyreUtils::file_size(std::string_view filename) {
-    std::ifstream stream(filename, std::ios::in | std::ios::binary | std::ios::ate);
+    std::ifstream stream(std::string{filename}, std::ios::in | std::ios::binary | std::ios::ate);
     if(!stream.is_open()) {
         log(LogLevel::Error, "Cannot open file", qq(filename));
         return -1;

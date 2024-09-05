@@ -1,10 +1,12 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
+#include <string> 
 #include <iterator>
 #include <vector>
 #include <string_view>
 #include <gempyre_types.h>
+
 
 namespace Gempyre {
 class Data {
