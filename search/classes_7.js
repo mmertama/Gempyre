@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['rect_265',['Rect',['../structGempyre_1_1Rect.html',1,'Gempyre']]],
-  ['result_266',['Result',['../classGempyreUtils_1_1Result.html',1,'GempyreUtils']]]
+  ['logwriter_269',['LogWriter',['../classGempyreUtils_1_1LogWriter.html',1,'GempyreUtils']]]
 ];

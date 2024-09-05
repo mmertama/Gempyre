@@ -4,6 +4,7 @@ var annotated_dup =
       [ "EventQueue", "classGempyre_1_1EventQueue.html", null ],
       [ "IdList", "classGempyre_1_1IdList.html", null ],
       [ "EventMap", "classGempyre_1_1EventMap.html", null ],
+      [ "HtmlStream", "classGempyre_1_1HtmlStream.html", "classGempyre_1_1HtmlStream" ],
       [ "Element", "classGempyre_1_1Element.html", "classGempyre_1_1Element" ],
       [ "Event", "structGempyre_1_1Event.html", "structGempyre_1_1Event" ],
       [ "Ui", "classGempyre_1_1Ui.html", "classGempyre_1_1Ui" ],
@@ -15,6 +16,7 @@ var annotated_dup =
     ] ],
     [ "GempyreUtils", null, [
       [ "LogWriter", "classGempyreUtils_1_1LogWriter.html", "classGempyreUtils_1_1LogWriter" ],
-      [ "Result", "classGempyreUtils_1_1Result.html", "classGempyreUtils_1_1Result" ]
+      [ "Error", "structGempyreUtils_1_1Error.html", "structGempyreUtils_1_1Error" ],
+      [ "Result", "structGempyreUtils_1_1Result.html", "structGempyreUtils_1_1Result" ]
     ] ]
 ];

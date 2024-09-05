@@ -122,9 +122,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af50b0da150ee60b0e0b969b7aacb4a02"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Bitmap.html#af50b0da150ee60b0e0b969b7aacb4a02">Bitmap</a> (const std::vector&lt; uint8_t &gt; &amp;image_data)</td></tr>
 <tr class="memdesc:af50b0da150ee60b0e0b969b7aacb4a02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create bitmap from byte array.  <a href="classGempyre_1_1Bitmap.html#af50b0da150ee60b0e0b969b7aacb4a02">More...</a><br /></td></tr>
 <tr class="separator:af50b0da150ee60b0e0b969b7aacb4a02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a339d75ee49aa905e4d4f4da3e9a36b21"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Bitmap.html#a339d75ee49aa905e4d4f4da3e9a36b21">png_image</a> () const</td></tr>
-<tr class="memdesc:a339d75ee49aa905e4d4f4da3e9a36b21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a bitmap to PNG.  <a href="classGempyre_1_1Bitmap.html#a339d75ee49aa905e4d4f4da3e9a36b21">More...</a><br /></td></tr>
-<tr class="separator:a339d75ee49aa905e4d4f4da3e9a36b21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a193ea0a8945155bc592a7ab5222db733"><td class="memItemLeft" align="right" valign="top">std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Bitmap.html#a193ea0a8945155bc592a7ab5222db733">png_image</a> () const</td></tr>
+<tr class="memdesc:a193ea0a8945155bc592a7ab5222db733"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a bitmap to PNG.  <a href="classGempyre_1_1Bitmap.html#a193ea0a8945155bc592a7ab5222db733">More...</a><br /></td></tr>
+<tr class="separator:a193ea0a8945155bc592a7ab5222db733"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f9953ea556a5301bf4a7e0261a07587"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGempyre_1_1Bitmap.html">Bitmap</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Bitmap.html#a7f9953ea556a5301bf4a7e0261a07587">operator=</a> (const <a class="el" href="classGempyre_1_1Bitmap.html">Bitmap</a> &amp;other)=default</td></tr>
 <tr class="memdesc:a7f9953ea556a5301bf4a7e0261a07587"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy operator does only shallow copy, for deep copy.  <a href="classGempyre_1_1Bitmap.html#a7f9953ea556a5301bf4a7e0261a07587">More...</a><br /></td></tr>
 <tr class="separator:a7f9953ea556a5301bf4a7e0261a07587"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,6 +201,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:a016e37fbfad186e8633bfb437d7ef85e"><td class="mdescLeft">&#160;</td><td class="mdescRight">return true if there is not data <br  />
  <br /></td></tr>
 <tr class="separator:a016e37fbfad186e8633bfb437d7ef85e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a0e31c450f6a0ba580025fb003594a4"><td class="memItemLeft" align="right" valign="top"><a id="a9a0e31c450f6a0ba580025fb003594a4"></a>
+const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Bitmap.html#a9a0e31c450f6a0ba580025fb003594a4">const_data</a> () const</td></tr>
+<tr class="memdesc:a9a0e31c450f6a0ba580025fb003594a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">underlaying data <br /></td></tr>
+<tr class="separator:a9a0e31c450f6a0ba580025fb003594a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -448,14 +452,14 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Gempyre::CanvasEleme
 
 </div>
 </div>
-<a id="a339d75ee49aa905e4d4f4da3e9a36b21"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a339d75ee49aa905e4d4f4da3e9a36b21">&#9670;&nbsp;</a></span>png_image()</h2>
+<a id="a193ea0a8945155bc592a7ab5222db733"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a193ea0a8945155bc592a7ab5222db733">&#9670;&nbsp;</a></span>png_image()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::vector&lt;uint8_t&gt; Gempyre::Bitmap::png_image </td>
+          <td class="memname">std::vector&lt;uint8_t&gt; Gempyre::Bitmap::png_image </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>

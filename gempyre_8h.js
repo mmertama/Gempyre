@@ -1,5 +1,6 @@
 var gempyre_8h =
 [
+    [ "HtmlStream", "classGempyre_1_1HtmlStream.html", "classGempyre_1_1HtmlStream" ],
     [ "Element", "classGempyre_1_1Element.html", "classGempyre_1_1Element" ],
     [ "Event", "structGempyre_1_1Event.html", "structGempyre_1_1Event" ],
     [ "Ui", "classGempyre_1_1Ui.html", "classGempyre_1_1Ui" ],
