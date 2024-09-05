@@ -40,16 +40,18 @@ var NAVTREE =
       [ "Example", "index.html#autotoc_md10", [
         [ "Hello world", "index.html#autotoc_md11", null ],
         [ "Selection list", "index.html#autotoc_md12", null ],
-        [ "Some example projects using Gempyre", "index.html#autotoc_md13", null ]
+        [ "WebP support", "index.html#autotoc_md13", null ],
+        [ "Some example projects using Gempyre", "index.html#autotoc_md14", null ]
       ] ],
-      [ "Some future development directions", "index.html#autotoc_md14", null ],
-      [ "Late updates", "index.html#autotoc_md15", [
-        [ "2021 1", "index.html#autotoc_md16", null ],
-        [ "2021 2", "index.html#autotoc_md17", null ],
-        [ "2022 1", "index.html#autotoc_md18", null ],
-        [ "2022 2", "index.html#autotoc_md19", null ],
-        [ "2023 1", "index.html#autotoc_md20", null ],
-        [ "2023 2", "index.html#autotoc_md21", null ]
+      [ "Some future development directions", "index.html#autotoc_md15", null ],
+      [ "Late updates", "index.html#autotoc_md16", [
+        [ "2021 1", "index.html#autotoc_md17", null ],
+        [ "2021 2", "index.html#autotoc_md18", null ],
+        [ "2022 1", "index.html#autotoc_md19", null ],
+        [ "2022 2", "index.html#autotoc_md20", null ],
+        [ "2023 1", "index.html#autotoc_md21", null ],
+        [ "2023 2", "index.html#autotoc_md22", null ],
+        [ "2024", "index.html#autotoc_md23", null ]
       ] ]
     ] ],
     [ "Namespaces", "namespaces.html", [
@@ -83,8 +85,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
-"gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4"
+"annotated.html",
+"gempyre__utils_8h.html#a166333d7d4680646cfac74cae6d2771d"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

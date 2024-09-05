@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">gempyre
-   &#160;<span id="projectnumber">1.3.10</span>
+   &#160;<span id="projectnumber">1.4.0</span>
    </div>
   </td>
  </tr>
@@ -311,6 +311,9 @@ Selection list</h3>
 </div><!-- fragment --><p>Please note that as each event has a lot of properties, you have to list what you need. For a selection change (as well as most of the inputs) a <b>value</b> is used. <br  />
 </p>
 <h3><a class="anchor" id="autotoc_md13"></a>
+WebP support</h3>
+<p>WebP is a image format that can be used to replace PNG and GIF (animations). There is an external project <a href="https://github.com/mmertama/webp-gempyre">WebP-Gempyre</a> that will help using WebP images with Gempyre.</p>
+<h3><a class="anchor" id="autotoc_md14"></a>
 Some example projects using Gempyre</h3>
 <ul>
 <li><a href="https://github.com/mmertama/Gempyre/tree/raspberry/examples">Examples</a></li>
@@ -319,7 +322,7 @@ Some example projects using Gempyre</h3>
 <li><a href="https://github.com/mmertama/hexview-Gempyre">hexview-Gempyre</a></li>
 <li><a href="https://github.com/mmertama/calc-Gempyre">calc-Gempyre</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md14"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Some future development directions</h2>
 <ul>
 <li>Binary releases (Maybe installer / some packet manager support / pip)</li>
@@ -333,42 +336,42 @@ Some future development directions</h2>
 <li>Using WASM instead of JS</li>
 <li>POC of Gempyre-Android style architecture also in core.git</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md16"></a>
 Late updates</h2>
-<h3><a class="anchor" id="autotoc_md16"></a>
+<h3><a class="anchor" id="autotoc_md17"></a>
 2021 1</h3>
 <ul>
 <li>Proper build and install with cmake</li>
 <li>Use GTest for API testing</li>
 <li>Rewrote timers + other smaller fixes</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md17"></a>
+<h3><a class="anchor" id="autotoc_md18"></a>
 2021 2</h3>
 <ul>
 <li>Lot of fixes and some new utils</li>
 <li>Native application window for OSX, Linux and Windows are using <a href="https://github.com/mmertama/Hiillos">Hiillos</a> <br  />
 </li>
 </ul>
-<h3><a class="anchor" id="autotoc_md18"></a>
+<h3><a class="anchor" id="autotoc_md19"></a>
 2022 1</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>CI using Github actions</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md19"></a>
+<h3><a class="anchor" id="autotoc_md20"></a>
 2022 2</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>Raspberry, and improved MinGW support</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md20"></a>
+<h3><a class="anchor" id="autotoc_md21"></a>
 2023 1</h3>
 <ul>
 <li>Lot of fixed</li>
 <li>API changes and harmonize with GemGui-rs</li>
 <li>Testing coverage</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md21"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 2023 2</h3>
 <ul>
 <li>Python UI fixes</li>
@@ -379,7 +382,13 @@ Late updates</h2>
 <li>Suppress external library warnings (except MSVC not working, it seems :-/ )</li>
 <li>Update / improve documentation</li>
 </ul>
-<p>Copyright Markus Mertama 2020, 2021, 2022, 2023 </p>
+<h3><a class="anchor" id="autotoc_md23"></a>
+2024</h3>
+<ul>
+<li>API change const std::string&amp; --&gt; std::string_view where incompatibility allows</li>
+<li>Some new methods and utilities</li>
+</ul>
+<p>Copyright Markus Mertama 2020, 2021, 2022, 2023, 2024 </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

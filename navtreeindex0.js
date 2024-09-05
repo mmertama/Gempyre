@@ -1,7 +1,5 @@
 var NAVTREEINDEX0 =
 {
-"":[1,0,0],
-"":[1,0,1],
 "annotated.html":[2,0],
 "classGempyreUtils_1_1LogWriter.html":[2,0,1,0],
 "classGempyreUtils_1_1LogWriter.html#a162c6df7f2185fb27c5d942e182313ca":[2,0,1,0,2],
@@ -218,10 +216,10 @@ var NAVTREEINDEX0 =
 "functions_type.html":[2,3,3],
 "functions_vars.html":[2,3,2],
 "gempyre_8h.html":[3,0,0,0],
-"gempyre_8h.html#a036459f630f9cc50fc853ae12004e976":[3,0,0,0,4],
 "gempyre_8h.html#a036459f630f9cc50fc853ae12004e976":[1,0,0,14],
-"gempyre_8h.html#aa768d1b49b8205feaeda63c3257ffea8":[3,0,0,0,5],
+"gempyre_8h.html#a036459f630f9cc50fc853ae12004e976":[3,0,0,0,4],
 "gempyre_8h.html#aa768d1b49b8205feaeda63c3257ffea8":[1,0,0,15],
+"gempyre_8h.html#aa768d1b49b8205feaeda63c3257ffea8":[3,0,0,0,5],
 "gempyre_8h.html#ad612d63f30c2b0fad47a7841138a6814":[1,0,0,16],
 "gempyre_8h.html#ad612d63f30c2b0fad47a7841138a6814":[3,0,0,0,6],
 "gempyre_8h_source.html":[3,0,0,0],
@@ -231,15 +229,15 @@ var NAVTREEINDEX0 =
 "gempyre__bitmap_8h_source.html":[3,0,0,1],
 "gempyre__client_8h_source.html":[3,0,0,2],
 "gempyre__graphics_8h.html":[3,0,0,3],
-"gempyre__graphics_8h.html#a1d98d8025b7348eec55cfa552398e46f":[3,0,0,3,2],
 "gempyre__graphics_8h.html#a1d98d8025b7348eec55cfa552398e46f":[1,0,0,13],
+"gempyre__graphics_8h.html#a1d98d8025b7348eec55cfa552398e46f":[3,0,0,3,2],
 "gempyre__graphics_8h_source.html":[3,0,0,3],
 "gempyre__types_8h_source.html":[3,0,0,4],
 "gempyre__utils_8h.html":[3,0,0,5],
 "gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab":[1,0,1,5],
 "gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab":[3,0,0,5,12],
-"gempyre__utils_8h.html#a027e3d93a4ca6726d30902dd540653d3":[3,0,0,5,30],
 "gempyre__utils_8h.html#a027e3d93a4ca6726d30902dd540653d3":[1,0,1,23],
+"gempyre__utils_8h.html#a027e3d93a4ca6726d30902dd540653d3":[3,0,0,5,30],
 "gempyre__utils_8h.html#a035c8e81a12bc3dd12686d7df833fc8f":[1,0,1,38],
 "gempyre__utils_8h.html#a035c8e81a12bc3dd12686d7df833fc8f":[3,0,0,5,45],
 "gempyre__utils_8h.html#a06a24f9f1cc3f90cbe600b9fb4ad1430":[1,0,1,25],
@@ -248,6 +246,8 @@ var NAVTREEINDEX0 =
 "gempyre__utils_8h.html#a0733a7d97778cbc5ac9b218ff947bde3":[3,0,0,5,24],
 "gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae":[3,0,0,5,31],
 "gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae":[1,0,1,24],
+"gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed":[3,0,0,5,68],
 "gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed":[1,0,1,61],
-"gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed":[3,0,0,5,68]
+"gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4":[1,0,1,40],
+"gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4":[3,0,0,5,47]
 };
