@@ -1,6 +1,7 @@
 #include "gempyre_test.h"
 #include "gempyre_graphics.h"
 #include "gempyre_utils.h"
+#include <cstring> // for std::memcmp
 #include <array>
 
 using namespace std::chrono_literals;
