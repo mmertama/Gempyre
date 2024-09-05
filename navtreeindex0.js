@@ -1,5 +1,7 @@
 var NAVTREEINDEX0 =
 {
+"":[1,0,0],
+"":[1,0,1],
 "annotated.html":[2,0],
 "classGempyreUtils_1_1LogWriter.html":[2,0,1,0],
 "classGempyreUtils_1_1LogWriter.html#a162c6df7f2185fb27c5d942e182313ca":[2,0,1,0,2],
@@ -247,7 +249,5 @@ var NAVTREEINDEX0 =
 "gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae":[3,0,0,5,31],
 "gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae":[1,0,1,24],
 "gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed":[1,0,1,61],
-"gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed":[3,0,0,5,68],
-"gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4":[1,0,1,40],
-"gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4":[3,0,0,5,47]
+"gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed":[3,0,0,5,68]
 };
