@@ -326,8 +326,8 @@ select.set_attribute("value", wp.levels[level_index]); // set value to some othe
 Please note that as each event has a lot of properties, you have to list what you 
 need. For a selection change (as well as most of the inputs) a <b>value</b> is used.   
 
-
-
+### WebP support
+WebP is a image format that can be used to replace PNG and GIF (animations). There is an external project [WebP-Gempyre](https://github.com/mmertama/webp-gempyre) that will help using WebP images with Gempyre.
 
  ### Some example projects using Gempyre
  
@@ -391,5 +391,9 @@ Late updates
 * Suppress external library warnings (except MSVC not working, it seems :-/ )
 * Update / improve documentation 
 
-Copyright Markus Mertama 2020, 2021, 2022, 2023
+### 2024
+* API change const std::string& --> std::string_view where incompatibility allows
+* Some new methods and utilities
+
+Copyright Markus Mertama 2020, 2021, 2022, 2023, 2024
 
