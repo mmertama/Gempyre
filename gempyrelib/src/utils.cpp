@@ -257,9 +257,10 @@ GempyreUtils::Params GempyreUtils::parse_args(int argc, char* argv[], const std:
     return std::make_tuple(params, options);
 }
 
-std::string GempyreUtils::abs_path(std::string_view rpath) {
+std::string GempyreUtils::abs_path(std::string_view rpath_view) {
+    const std::string rpath{rpath_view};
 #ifndef WINDOWS_OS
-    char* pathPtr = ::realpath(std::string{rpath}.c_str(), nullptr);
+    char* pathPtr = ::realpath(rpath.c_str(), nullptr);
     if(!pathPtr)
         return std::string();
     std::string path(pathPtr);
@@ -406,11 +407,12 @@ bool GempyreUtils::file_exists(std::string_view filenamed) {
 }
 
 
-std::vector<std::string> GempyreUtils::entries(std::string_view dirname) {
+std::vector<std::string> GempyreUtils::entries(std::string_view dirname_view) {
+    const std::string dirname{dirname_view};
     std::vector<std::string> entries;
     if(dirname.empty())
         return entries;
-    const auto dname = dirname.back() != '/' ? std::string{dirname} + '/' : std::string{dirname};
+    const auto dname = dirname.back() != '/' ? dirname + '/' : dirname;
 #ifndef WINDOWS_OS
     auto dir = ::opendir(dname.c_str());
     if(!dir)
@@ -573,7 +575,7 @@ std::string GempyreUtils::working_dir() {
 }
 
 std::string GempyreUtils::slurp(std::string_view file, size_t max) {
-    std::ifstream stream(file, std::ios::in | std::ios::ate);
+    std::ifstream stream(std::string{file}, std::ios::in | std::ios::ate);
     if(!stream.is_open()) {
         log(LogLevel::Error, "Cannot open file", qq(file));
         return "";
