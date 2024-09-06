@@ -37,7 +37,7 @@ TEST(TestMockUi, openPage_with_page_browser) {
     ASSERT_TRUE(GempyreUtils::file_exists(htmlPage));
 #endif
 
-    Gempyre::Ui::Filemap map;
+    Gempyre::Ui::FileMap map;
     const auto url = Gempyre::Ui::add_file(map, htmlPage);
 
     gempyre_utils_assert_x(url, std::string("Cannot load ") + htmlPage);
@@ -68,7 +68,7 @@ TEST(TestMockUi, openPage_with_page) {
     ASSERT_TRUE(GempyreUtils::file_exists(htmlPage));
 #endif
 
-    Gempyre::Ui::Filemap map;
+    Gempyre::Ui::FileMap map;
     const auto url = Gempyre::Ui::add_file(map, htmlPage);
 
     gempyre_utils_assert_x(url, std::string("Cannot load ") + htmlPage);

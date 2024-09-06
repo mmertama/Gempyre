@@ -260,7 +260,7 @@ namespace Gempyre {
         };
         
         /// Resource map type
-        using Filemap = std::unordered_map<std::string, std::string>;
+        using FileMap = std::vector<std::pair<std::string, std::string>>;
 
         /// @cond INTERNAL
         using TimerId = int;
@@ -273,7 +273,7 @@ namespace Gempyre {
         /// @param indexHtml page to show
         /// @param port optional
         /// @param root optional
-        Ui(const Filemap& filemap, std::string_view indexHtml, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
+        Ui(const FileMap& filemap, std::string_view indexHtml, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
 
         /// @brief Create a browser UI using given ui app and command line.
         /// @param filemap resource map used.
@@ -282,7 +282,7 @@ namespace Gempyre {
         /// @param browser_params params passed to browse.
         /// @param port optional
         /// @param root optional
-        Ui(const Filemap& filemap, std::string_view indexHtml, std::string_view browser,  std::string_view browser_params, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
+        Ui(const FileMap& filemap, std::string_view indexHtml, std::string_view browser,  std::string_view browser_params, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
 
         /// @brief Create a window UI
         /// @param filemap resource map used.
@@ -294,7 +294,7 @@ namespace Gempyre {
         /// @param ui_params extra parameters passed to the window.
         /// @param port optional
         /// @param root optional
-        Ui(const Filemap& filemap, std::string_view indexHtml, std::string_view title,  int width, int height, unsigned flags = 0,
+        Ui(const FileMap& filemap, std::string_view indexHtml, std::string_view title,  int width, int height, unsigned flags = 0,
             const std::unordered_map<std::string, std::string>& ui_params = {}, unsigned short port = UseDefaultPort, std::string_view root = UseDefaultRoot);
 
         /// Destructor.
@@ -419,17 +419,23 @@ namespace Gempyre {
         /// @return success.
         bool add_file(std::string_view url, std::string_view file);
 
+        /// @brief Add a file data into Gempyre to be accessed via url.
+        /// @param url string bound to data.
+        /// @param file filename to read.
+        /// @return success.
+        std::optional<std::string> add_file(std::string_view file);
+
         /// @brief Add a data into Gempyre to be accessed via url.
         /// @param url string bound to data.
         /// @param data data to write.
         /// @return 
         bool add_data(std::string_view url, const std::vector<uint8_t>& data);
-
+        
         /// @brief Add file data into map to be added as a map.
         /// @param map resource data.
         /// @param filename filename to read.
         /// @return name bound to the file 
-        static std::optional<std::string> add_file(Filemap& map, std::string_view filename);
+        [[deprecated("Use to_file_map or non static")]] static std::optional<std::string> add_file(FileMap& map, std::string_view filename);
         
         /// Starts an UI write batch, no messages are sent to USER until endBatch
         void begin_batch();
@@ -456,7 +462,7 @@ namespace Gempyre {
         void set_title(std::string_view name);
         
         /// Read list files as a maps
-        static Ui::Filemap to_file_map(const std::vector<std::string>& filenames);
+        static Ui::FileMap to_file_map(const std::vector<std::string>& filenames);
 
         /// Write pending requests to UI - e.g. when eventloop thread is blocked.
         void flush();
@@ -475,7 +481,7 @@ namespace Gempyre {
         /// @endcond
 
     private:
-        Ui(const Filemap& filemap, std::string_view indexHtml,
+        Ui(const FileMap& filemap, std::string_view indexHtml,
             unsigned short port, std::string_view root,
             const std::unordered_map<std::string, std::string>& parameters, WindowType windowType);
         const GempyreInternal& ref() const;

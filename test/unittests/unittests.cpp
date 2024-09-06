@@ -178,6 +178,15 @@ TEST(Unittests, test_pushpath) {
     EXPECT_EQ(p, std::string("cat/dog/mouse"));
 }
 
+TEST(Unittests, test_filenames) {
+    constexpr auto random_name = "/foo/bar/foobar.not";
+    const auto basename = GempyreUtils::base_name(random_name);
+    EXPECT_EQ(basename, "foobar.not");
+    const auto& [n, e] = GempyreUtils::split_name(basename);
+    EXPECT_EQ(n, "foobar");
+    EXPECT_EQ(e, "not");
+}
+
 TEST(Unittests, test_parseArgs) {
     const char* test1[] = {"bing", 0};
     const auto& [p1, o1]  = GempyreUtils::parse_args(1, (char**) test1, {});

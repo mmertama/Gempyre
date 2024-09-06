@@ -27,7 +27,8 @@ def main():
         file.write('#ifndef ' + cname + '\n')
         file.write('#define ' + cname + '\n')
         file.write('#include <string>\n')
-        file.write('#include <unordered_map>\n')
+        file.write('#include <vector>\n')
+        file.write('#include <utility>\n')
 
         item_list = {}
 
@@ -58,7 +59,7 @@ def main():
             file.write('");\n')
 
         list_name = re.sub('[^a-zA-Z_]', '', os.path.basename(outName)).capitalize()
-        file.write('const std::unordered_map<std::string, std::string> ' + list_name + '{\n')
+        file.write('const std::vector<std::pair<std::string, std::string>> ' + list_name + '{\n')
         for k, v in item_list.items():
             file.write('\t{"/' + k + '", ' + v + '},\n')
         file.write('};\n')

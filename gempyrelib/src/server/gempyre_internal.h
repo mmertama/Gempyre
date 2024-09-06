@@ -14,6 +14,17 @@
 
 namespace Gempyre {
 
+    using FileMapping = std::unordered_map<std::string, std::string>;
+
+    template <class M>
+    bool contains(const M& map, const std::string& url) {
+        return std::find_if(map.begin(), map.end(), [&url](const auto& p){return p.first == url;}) != map.end();
+    }
+
+    inline
+    Ui::FileMap::const_iterator find(const Ui::FileMap& map, const std::string& url) {
+        return std::find_if(map.begin(), map.end(), [&url](const auto& p){return p.first == url;});
+    }
 
     constexpr auto SERVER_ADDRESS{"http://localhost"};
 
@@ -85,9 +96,11 @@ public:
         GempyreInternal& m_gi;
     };
 
+
+
     GempyreInternal(
         Ui* ui, 
-        const Ui::Filemap& filemap,
+        const Ui::FileMap& filemap,
         std::string_view indexHtml,
         unsigned short port,
         std::string_view root,
@@ -276,6 +289,10 @@ public:
     void add_data(std::string_view url, const std::vector<uint8_t>& data) {
         const auto string = Base64::encode(data);
         m_filemap.insert_or_assign(std::string{url}, std::move(string));
+    }
+
+    void add_data(FileMapping::value_type&& value) {
+        m_filemap.insert(std::move(value));
     }
 
     std::string query_id() const {
@@ -501,6 +518,11 @@ public:
     std::function<void(int)> makeCaller(const std::function<void (Ui::TimerId id)>& function);
     void consume_events();
     void shoot_requests(); 
+
+    auto filemap() const {
+        return std::cref(m_filemap);
+    }
+
 private:
     Ui* m_app_ui;
     std::atomic<State> m_status = State::NOTSTARTED;
@@ -515,7 +537,7 @@ private:
     Ui::ReloadFunction m_onReload{nullptr};
     Ui::OpenFunction m_onOpen{nullptr};
     Ui::ErrorFunction m_onError{nullptr};
-    Ui::Filemap m_filemap{};
+    FileMapping m_filemap{};
     WindowType m_windowType{};
     std::function<void ()> m_startup{};
     std::unique_ptr<Server> m_server{};

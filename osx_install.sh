@@ -1,14 +1,14 @@
-set -e 
+set -e
 
 ONOFF="OFF"
 TARGET=""
 ALL_TARGETS=false
 
 function build() {
-	build_folder=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+	build_folder=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 	mkdir -p $build_folder
 	pushd $build_folder
-	cmake ..  -DCMAKE_BUILD_TYPE=$1 -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF
+	cmake ../..  -G Ninja -DCMAKE_BUILD_TYPE=$1 -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF
         cmake --build . --config $1
         sudo cmake --install . --config $1
 	popd

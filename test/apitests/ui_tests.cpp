@@ -53,7 +53,7 @@ TEST_F(TestUi, addressOf) {
 #ifdef HAS_FS
     ASSERT_TRUE(std::filesystem::exists(htmlPage));
 #else
-    ASSERT_TRUE(GempyreUtils::file_exists(htmlPage));
+    ASSERT_TRUE(GempyreUtils::file_exists(htmlPage)) << "Not found " << htmlPage;
 #endif
     test([htmlPage, this]() {
         ASSERT_TRUE(ui().address_of(htmlPage).length() > 0); //TODO better test would be write this as html and open it
@@ -314,6 +314,12 @@ TEST_F(TestUi, addFile) {
     EXPECT_EQ(text.length(), test.length()) << "Mismatch file length" << text.length() << " expected:" << test.length();
 }
 
+TEST_F(TestUi, addFile2) {
+    ASSERT_TRUE(GempyreUtils::file_exists(TEST_IMAGE));
+    const auto url = ui().add_file(TEST_IMAGE);
+    ASSERT_TRUE(url) << "Cannot load " << TEST_IMAGE;
+    ASSERT_TRUE(ui().resource(*url)) << *url;
+}
 
 
 TEST_F(TestUi, ping) {

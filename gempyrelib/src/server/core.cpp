@@ -46,14 +46,31 @@ void Gempyre::setJNIENV(void*, void*) {
 #define STR(x) #x
 #define TOSTRING(x) STR(x)
 
+template<class M>
+static std::optional<std::pair<std::string, std::string>> add_to_map(const M& map, std::string_view filename) {
+    if (!GempyreUtils::file_exists(filename)) {
+        return std::nullopt;
+    }
+    const auto bytes = GempyreUtils::slurp<Base64::Byte>(filename);
+    const auto encoded = Base64::encode(bytes);
+    int count = 0;
+    const auto basename = GempyreUtils::base_name(filename);
+    auto url = '/' +  basename;
+    while (contains(map, url)) {
+        const auto& [n, e] = GempyreUtils::split_name(basename);
+        url = '/' + n + std::to_string(count++) + '.' + e;
+    }
+    return std::make_pair(url, encoded);
+}
 
-Ui::Filemap Ui::to_file_map(const std::vector<std::string>& filenames) {
-    Ui::Filemap map;
+Ui::FileMap Ui::to_file_map(const std::vector<std::string>& filenames) {
+    Ui::FileMap map;
     for(const auto& filename : filenames) {
-        const auto bytes = GempyreUtils::slurp<Base64::Byte>(filename);
-        const auto encoded = Base64::encode(bytes);
-        const auto name = GempyreUtils::base_name(filename);
-        map.emplace('/' + name, encoded);
+        auto p = add_to_map(map, filename);
+        if(!p) {
+            return {};
+        }
+        map.push_back(std::move(*p));
     }
     return map;
 }
@@ -67,7 +84,7 @@ std::tuple<int, int, int> Gempyre::version() {
 
 
 /// Create UI using default ui app or gempyre.conf
-Ui::Ui(const Filemap& filemap,
+Ui::Ui(const FileMap& filemap,
        std::string_view indexHtml,
        unsigned short port,
        std::string_view root) : Ui(filemap, indexHtml, port, root,
@@ -75,7 +92,7 @@ Ui::Ui(const Filemap& filemap,
        WindowType::BROWSER){}
 
 
-Ui::Ui(const Filemap& filemap,
+Ui::Ui(const FileMap& filemap,
        std::string_view indexHtml,
        std::string_view browser,
        std::string_view browser_params,
@@ -97,7 +114,7 @@ std::unordered_map<std::string, std::string> merge(const std::unordered_map<std:
     return result;
 }
 
-Ui::Ui(const Filemap& filemap, std::string_view indexHtml, std::string_view title,  int width, int height, unsigned flags,
+Ui::Ui(const FileMap& filemap, std::string_view indexHtml, std::string_view title,  int width, int height, unsigned flags,
             const std::unordered_map<std::string, std::string>& ui_params, unsigned short port, std::string_view root) : 
             Ui{filemap, indexHtml, port, root, merge({
             {!title.empty() ? TITLE_KEY : "", GempyreUtils::qq(title)},
@@ -109,7 +126,7 @@ Ui::Ui(const Filemap& filemap, std::string_view indexHtml, std::string_view titl
             }
 
 
-Ui::Ui(const Filemap& filemap,
+Ui::Ui(const FileMap& filemap,
        std::string_view indexHtml,
        unsigned short port,
        std::string_view root,
@@ -409,6 +426,14 @@ std::optional<std::vector<uint8_t>> Ui::resource(std::string_view url) const {
     return std::make_optional(data);
 }
 
+std::optional<std::string> Ui::add_file(std::string_view file) {
+    const auto p = add_to_map(m_ui->filemap().get(), file);
+    if(!p)
+        return std::nullopt;
+    m_ui->add_data(*p);
+    return p->first;
+}
+
 bool Ui::add_file(std::string_view url, std::string_view file_name) {
     if(!GempyreUtils::file_exists(file_name)) {
         return false;
@@ -452,12 +477,12 @@ std::string Ui::stdParams(int width, int height, const std::string& title) {
     return ss.str();
 }
 */
-std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, std::string_view file) {
-    if(!GempyreUtils::file_exists(file)) {
+std::optional<std::string> Ui::add_file(Gempyre::Ui::FileMap& map, std::string_view file) {
+    if (!GempyreUtils::file_exists(file)) {
         return std::nullopt;
     }
     auto url = GempyreUtils::substitute(file, R"([\/\\])", "_");
-    if(map.find(url) != map.end()) {
+    if (contains(map, url)) {
         return std::nullopt;
     }
 
@@ -465,7 +490,7 @@ std::optional<std::string> Ui::add_file(Gempyre::Ui::Filemap& map, std::string_v
 
     const auto data = GempyreUtils::slurp<Base64::Byte>(file);
     const auto string = Base64::encode(data);
-    map.insert_or_assign(url, std::move(string));
+    map.push_back(std::make_pair(url, std::move(string)));
     return url;
 }
 

@@ -26,16 +26,16 @@ std::string osName() {
 
 template <class T>
 static std::optional<T> getConf(const std::string& key) {
-    const auto find = []() {
+    const auto ffind = []() {
         const std::vector<std::string> conf_names({"/gempyre.conf",  "/gempyre_default.conf"}); // How we look, at this order
         for(const auto& c_name : conf_names) {
-             const auto conf = Gempyrejsh.find(c_name);
+             const auto conf = find(Gempyrejsh, c_name);
              if(conf != Gempyrejsh.end())
                 return conf;
         }
         return Gempyrejsh.end();
     }; 
-    const auto conf = find();
+    const auto conf = ffind();
     if(conf == Gempyrejsh.end())
         return std::nullopt;    
     const auto js_data = Base64::decode(conf->second);
@@ -159,7 +159,7 @@ std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
         const auto py3 = python3({"pywebview", "websockets"}); // OSX Sonoma + python12 made things more complex, hence I have to easier to fallback
         if(py3) {
             constexpr auto py_file = "/pyclient.py"; // let's not use definion in gempyrejsh as that may not be there
-            const auto py_data = Gempyrejsh.find(py_file);
+            const auto py_data = find(Gempyrejsh, py_file);
             if(py_data != Gempyrejsh.end()) {
                 const auto py_code = Base64::decode(py_data->second);
                 const std::string py = GempyreUtils::join(py_code);
@@ -189,8 +189,8 @@ std::tuple<std::string, std::string> guiCmdLine(const std::string& indexHtml,
 /**
  * The server assumes that file are found at root, therefore we add a '/' if missing
  */
-static Ui::Filemap normalizeNames(const Ui::Filemap& files) {
-    Ui::Filemap normalized;
+static FileMapping normalizeNames(const Ui::FileMap& files) {
+    FileMapping normalized;
     for(const auto& [k, v] : files) {
         if(k.length() > 0 && k[0] != '/') {
             normalized.emplace('/' + k, v);
@@ -228,7 +228,7 @@ GempyreInternal& Ui::ref() {
 
  GempyreInternal::GempyreInternal(
         Ui* ui, 
-        const Ui::Filemap& filemap,
+        const Ui::FileMap& filemap,
         std::string_view indexHtml,
         unsigned short port,
         std::string_view root,

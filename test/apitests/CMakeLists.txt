@@ -49,8 +49,12 @@ set_source_files_properties(graphics_test.cpp PROPERTIES OBJECT_DEPENDS
     )    
 
 # copy HTML to binary for tests
-add_compile_definitions(TEST_HTML="${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html")
-configure_file(gui/${PROJECT_NAME}.html ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html COPYONLY)
+add_compile_definitions(
+    TEST_HTML="${CMAKE_CURRENT_SOURCE_DIR}/gui/apitests.html"
+    TEST_IMAGE="${CMAKE_CURRENT_SOURCE_DIR}/gui/spiderman1.png"
+    )
+
+#configure_file(gui/${PROJECT_NAME}.html ${CMAKE_CURRENT_SOURCE_DIR}/apitests.html COPYONLY)
 
 # set test app name
 if(HAS_MOCK)
