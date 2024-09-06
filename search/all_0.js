@@ -2,7 +2,7 @@ var searchData=
 [
   ['abs_5fpath_0',['abs_path',['../gempyre__utils_8h.html#a6e2faf89b81aec7b103762727db3ee93',1,'GempyreUtils']]],
   ['add_5fdata_1',['add_data',['../classGempyre_1_1Ui.html#a124c144ea5953c95f13b0d9186610a8b',1,'Gempyre::Ui']]],
-  ['add_5ffile_2',['add_file',['../classGempyre_1_1Ui.html#ab740f5495e503ad9f0dad525c58692cc',1,'Gempyre::Ui::add_file(std::string_view url, std::string_view file)'],['../classGempyre_1_1Ui.html#aa71221f1e9c788e7a567f453c650f7e2',1,'Gempyre::Ui::add_file(Filemap &amp;map, std::string_view filename)']]],
+  ['add_5ffile_2',['add_file',['../classGempyre_1_1Ui.html#ab740f5495e503ad9f0dad525c58692cc',1,'Gempyre::Ui::add_file(std::string_view url, std::string_view file)'],['../classGempyre_1_1Ui.html#aeffbb3c7403cfae4f09e42e743794377',1,'Gempyre::Ui::add_file(std::string_view file)'],['../classGempyre_1_1Ui.html#abdd69e580ea360789aa80926724e361c',1,'Gempyre::Ui::add_file(FileMap &amp;map, std::string_view filename)']]],
   ['add_5fimage_3',['add_image',['../classGempyre_1_1CanvasElement.html#a3b4e0c279ad0fec61252012aa82cde18',1,'Gempyre::CanvasElement']]],
   ['address_5fof_4',['address_of',['../classGempyre_1_1Ui.html#a969c93425ef855fe38c3d06d617cc4c8',1,'Gempyre::Ui']]],
   ['addresstype_5',['AddressType',['../gempyre__utils_8h.html#a602fcba524815e199da0290ef1b5b31d',1,'GempyreUtils']]],

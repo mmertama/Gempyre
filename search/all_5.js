@@ -3,7 +3,7 @@ var searchData=
   ['fatal_71',['Fatal',['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea882384ec38ce8d9582b57e70861730e4',1,'GempyreUtils']]],
   ['file_5fexists_72',['file_exists',['../gempyre__utils_8h.html#a1db725c0ed7d13e653e9386674557478',1,'GempyreUtils']]],
   ['file_5fsize_73',['file_size',['../gempyre__utils_8h.html#a027e3d93a4ca6726d30902dd540653d3',1,'GempyreUtils']]],
-  ['filemap_74',['Filemap',['../classGempyre_1_1Ui.html#adaa82cab31dc23de990a6f1236147087',1,'Gempyre::Ui']]],
+  ['filemap_74',['FileMap',['../classGempyre_1_1Ui.html#a025809608397ef780eac20e85456e939',1,'Gempyre::Ui']]],
   ['fill_75',['fill',['../classGempyre_1_1FrameComposer.html#a9988878f24f7c3e908e584810ffd41a6',1,'Gempyre::FrameComposer']]],
   ['fill_5frect_76',['fill_rect',['../classGempyre_1_1FrameComposer.html#a31bbc56b72a6d32000aab621d42a1311',1,'Gempyre::FrameComposer']]],
   ['fill_5fstyle_77',['fill_style',['../classGempyre_1_1FrameComposer.html#a792712c99562b90641b0afe058523f8c',1,'Gempyre::FrameComposer']]],

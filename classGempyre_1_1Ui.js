@@ -2,7 +2,7 @@ var classGempyre_1_1Ui =
 [
     [ "ErrorFunction", "classGempyre_1_1Ui.html#ac659ff4372851402a76fa77db328cd43", null ],
     [ "ExitFunction", "classGempyre_1_1Ui.html#af6b50bdd08104311a10f63c8dcfd710c", null ],
-    [ "Filemap", "classGempyre_1_1Ui.html#adaa82cab31dc23de990a6f1236147087", null ],
+    [ "FileMap", "classGempyre_1_1Ui.html#a025809608397ef780eac20e85456e939", null ],
     [ "OpenFunction", "classGempyre_1_1Ui.html#a369caa0a39fdd6341c7698be39031170", null ],
     [ "ReloadFunction", "classGempyre_1_1Ui.html#a5b29938990ed72178e04e10c56bdd4e5", null ],
     [ "UiFlags", "classGempyre_1_1Ui.html#a2eff03dc285b8e60eb3e31098441094f", [
@@ -17,13 +17,14 @@ var classGempyre_1_1Ui =
       [ "EasyDrag", "classGempyre_1_1Ui.html#a2eff03dc285b8e60eb3e31098441094fa98c74f78ba2be2c15a18dd0202c7827d", null ],
       [ "Transparent", "classGempyre_1_1Ui.html#a2eff03dc285b8e60eb3e31098441094fa97e76073b4bac10e00cf2fc06d434523", null ]
     ] ],
-    [ "Ui", "classGempyre_1_1Ui.html#a753166a4e3f3fd3ce04d61dcbd6dfcfc", null ],
-    [ "Ui", "classGempyre_1_1Ui.html#a9bf6f9040d74f582cc45b12199345ae8", null ],
-    [ "Ui", "classGempyre_1_1Ui.html#a83c11fcae7095b943456c2b296922fb9", null ],
+    [ "Ui", "classGempyre_1_1Ui.html#acdf52ef6627607d7a7d8ba54610ca488", null ],
+    [ "Ui", "classGempyre_1_1Ui.html#ad582a33d6b9d87f896a427a3ad583bf5", null ],
+    [ "Ui", "classGempyre_1_1Ui.html#a412e7decb2d01beed52ae7954e2b09dd", null ],
     [ "~Ui", "classGempyre_1_1Ui.html#a84c49fc87246b258befb948cf870ed47", null ],
     [ "Ui", "classGempyre_1_1Ui.html#add51c1ea4ada362207247acc500f3ce4", null ],
     [ "Ui", "classGempyre_1_1Ui.html#a40e510f110eaa3ce69d88bc91bfc6775", null ],
     [ "add_data", "classGempyre_1_1Ui.html#a124c144ea5953c95f13b0d9186610a8b", null ],
+    [ "add_file", "classGempyre_1_1Ui.html#aeffbb3c7403cfae4f09e42e743794377", null ],
     [ "add_file", "classGempyre_1_1Ui.html#ab740f5495e503ad9f0dad525c58692cc", null ],
     [ "address_of", "classGempyre_1_1Ui.html#a969c93425ef855fe38c3d06d617cc4c8", null ],
     [ "after", "classGempyre_1_1Ui.html#a3f13e005fcc54121838f22f63dbf5fdc", null ],
