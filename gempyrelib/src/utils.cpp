@@ -276,30 +276,35 @@ std::string GempyreUtils::abs_path(std::string_view rpath_view) {
 #endif
 }
 
-std::tuple<std::string, std::string> GempyreUtils::split_name(std::string_view filename) {
-    const auto name = base_name(filename);
+std::tuple<std::string, std::string> GempyreUtils::split_name(std::string_view filename, PathStyle path_style) {
+    const auto name = base_name(filename, path_style);
     const auto index = name.find_last_of('.');
     return std::make_tuple(name.substr(0, index), name.substr(index + 1));
 }
 
 
-std::string GempyreUtils::base_name(std::string_view filename) {
-    const auto dname = path_pop(filename);
+std::string GempyreUtils::base_name(std::string_view filename, PathStyle path_style) {
+    const auto dname = path_pop(filename, 1, path_style);
     return dname.empty() ? std::string{filename} :
         std::string{filename.substr(dname.length() + 1)};
 }
 
-std::string GempyreUtils::path_pop(std::string_view filename, int steps) {
+std::string GempyreUtils::path_pop(std::string_view filename, int steps, PathStyle path_style) {
+    auto sep =  
+    #ifndef WINDOWS_OS
+       '/';
+    #else
+       '\\';
+    #endif
+    if(path_style == PathStyle::Win)
+        sep = '\\';
+    else if(path_style == PathStyle::Unix)
+        sep = '/';
     if (steps <= 0)
         return std::string{filename};
     else {
-         const auto p = filename.find_last_of(
-    #ifndef WINDOWS_OS
-       '/');
-    #else
-       '\\');
-    #endif
-        return path_pop(p != std::string::npos ? filename.substr(0, p) : "", steps - 1);
+        const auto p = filename.find_last_of(sep);
+        return path_pop(p != std::string::npos ? filename.substr(0, p) : "", steps - 1, path_style);
     }
 }
 

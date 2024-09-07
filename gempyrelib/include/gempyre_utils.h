@@ -703,6 +703,7 @@ UTILS_EX std::vector<std::string> ip_addresses(unsigned addressType);
   * ## File Utils
   */
 
+enum class PathStyle {Native, Unix, Win};
 
 /// Get symbolic link source 
 UTILS_EX std::string get_link(std::string_view fname);
@@ -719,8 +720,9 @@ UTILS_EX std::string abs_path(std::string_view rpath);
 /// @brief Remove elements from path
 /// @param filename 
 /// @param steps - number of elements removed, default 1
+/// @param path_style - fs hs slash or back slach , default 1
 /// @return - remaining path
-UTILS_EX std::string path_pop(std::string_view filename, int steps = 1);
+UTILS_EX std::string path_pop(std::string_view filename, int steps = 1, PathStyle path_style = PathStyle::Native);
 /// Directory entries
 UTILS_EX std::vector<std::string> entries(std::string_view dirname);
 
@@ -735,9 +737,9 @@ inline std::vector<std::string> directory(std::string_view dirname) {return entr
 /// @return optional parameters
 UTILS_EX std::optional<std::string> read_process(std::string_view processName, const std::vector<std::string>& params);
 /// Base name
-UTILS_EX std::string base_name(std::string_view filename); 
+UTILS_EX std::string base_name(std::string_view filename, PathStyle path_style = PathStyle::Native); 
 /// Name and extension
-UTILS_EX std::tuple<std::string, std::string> split_name(std::string_view filename);
+UTILS_EX std::tuple<std::string, std::string> split_name(std::string_view filename, PathStyle path_style = PathStyle::Native);
 /// Generate unique name (prefer std::filesystem if available)
 UTILS_EX std::string temp_name();
 /// Machine host name

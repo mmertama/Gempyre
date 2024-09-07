@@ -180,7 +180,7 @@ TEST(Unittests, test_pushpath) {
 
 TEST(Unittests, test_filenames) {
     constexpr auto random_name = "/foo/bar/foobar.not";
-    const auto basename = GempyreUtils::base_name(random_name);
+    const auto basename = GempyreUtils::base_name(random_name, GempyreUtils::PathStyle::Unix);
     EXPECT_EQ(basename, "foobar.not");
     const auto& [n, e] = GempyreUtils::split_name(basename);
     EXPECT_EQ(n, "foobar");
