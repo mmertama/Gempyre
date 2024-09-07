@@ -14,7 +14,7 @@ using namespace Gempyre;
 Bitmap::Bitmap(int width, int height)  {
     if(width > 0 && height > 0)
         create(width, height);
-    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Graphics consructed", width, height);
+    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Graphics constructed", width, height);
 }
 
 
@@ -291,4 +291,12 @@ bool Bitmap::empty() const {
 
 const uint8_t* Bitmap::const_data() const {
     return reinterpret_cast <const uint8_t*>(m_canvas->data());
+}
+
+Color::type* Bitmap::inner_data() {
+    return m_canvas->data();
+}
+
+std::size_t Bitmap::size() const {
+    return m_canvas->size();
 }
