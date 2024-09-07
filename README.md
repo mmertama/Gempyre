@@ -11,7 +11,7 @@ For the application, Gempyre let engine to be implemented using C++ (or Python),
 
 Gempyre is intended for applications that has a solid C++ core (or C), and allows rapid UI development without extra hassle with platform specific UI development. 
 
-Gempyre is multiplatform, its core is written using C++17  (tested on OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.
+Gempyre is multiplatform, its core is built using C++20  (tested on OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.
 
 Gempyre itself does not contain an application window. The UI is drawn using external application. Some OSes defaults to system browser, some Python webview. However that is fully configurable per application. 
 

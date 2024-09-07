@@ -248,9 +248,24 @@ namespace  Gempyre {
 
         /// underlaying data
         const uint8_t* const_data() const;
+
+        /// @brief  Copy pixels into bitmap
+        /// @param bytes (TODO will change to std::span when moving to C++20)
+        /// @param offset 
+        /// @return false on overflow, otherwise true
+        template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, Color::type>, int> = 0>
+        bool set_data(const T& bytes, size_t offset = 0) {
+            if(bytes.size() + offset > size())
+                return false;
+            std::memcpy(inner_data() + offset, bytes.data(), sizeof(Color::type) *  bytes.size());
+            return true;
+        }
+
     protected:
         /// @cond INTERNAL
         void copy_from(const Bitmap& other);
+        Color::type* inner_data();
+        std::size_t size() const;
         /// @endcond
     private:
         friend class Gempyre::CanvasElement;
