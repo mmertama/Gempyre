@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.18)
 set(NAME affiliates_test_rpc)
 project (${NAME})
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
     ../../gempyrelib/include

@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.18)
 set(NAME tick)
 project (${NAME})
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 if(MSVC)
     if (MSVC_VERSION GREATER_EQUAL "1900")

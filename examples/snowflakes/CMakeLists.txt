@@ -5,7 +5,7 @@ project (${NAME}test)
 
 include(../../scripts/gempyre.cmake)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
      ../../gempyrelib/include

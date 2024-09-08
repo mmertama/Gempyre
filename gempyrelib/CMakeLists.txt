@@ -210,7 +210,7 @@ else()
     endif()
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_definitions(_GLIBCXX_DEBUG)

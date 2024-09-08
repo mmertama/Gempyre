@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.18)
 set(NAME eval)
 project (${NAME}test)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
      ../../gempyrelib/include
