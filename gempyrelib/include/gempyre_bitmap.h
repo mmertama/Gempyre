@@ -258,7 +258,7 @@ namespace  Gempyre {
         bool set_data(const T& bytes, size_t offset = 0) {
             if(bytes.size() + offset > size())
                 return false;
-            std::memcpy(inner_data() + offset, bytes.data(), sizeof(Color::type) *  bytes.size());
+            std::memcpy(inner_data() + offset * sizeof(Color::type), bytes.data(), sizeof(Color::type) * bytes.size());
             return true;
         }
 
