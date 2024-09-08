@@ -276,10 +276,12 @@ template <typename E> struct Error {
 /// similar as std::optional, but with error info (not 100% same, add delta if needed).
 template <typename R, typename E = std::string>
 struct Result : private std::variant<R, Error<E>> {
+    /// @cond INTERNAL
     using Err = Error<E>;
     using ParentType = std::variant<R, Error<E>>;
     using value_type = R; // std compatibility
     using error_type = E; // std compatibility
+    /// @endcond    
     /// @brief
     constexpr Result(R&& r) : std::variant<R, Err>{r} {}
     /// @brief
@@ -298,7 +300,7 @@ struct Result : private std::variant<R, Error<E>> {
     constexpr Result& operator=(const Err &e) {*this = e; return *this;}
     /// @brief
     constexpr operator bool() const {return std::get_if<R>(this);}
-    /// @brief
+    /// @brief get as optional
     constexpr operator std::optional<R>() const {return has_value() ? std::make_optional<R>(value()) : std::nullopt;}
     /// @brief
     constexpr bool has_value() const {return operator bool();} 
@@ -316,13 +318,19 @@ struct Result : private std::variant<R, Error<E>> {
     constexpr R* operator ->() {return &std::get<R>(*this);}
     /// @brief
     constexpr const R* operator ->() const {return &std::get<R>(*this);}
-    /// @brief
+    /// @brief 
+    /// @param e 
+    /// @return 
     constexpr static auto make_error(const E& e) {return Result<R, E>{Error<E>{e}};}
-    /// @brief
+    /// @brief 
+    /// @param e 
+    /// @return 
     constexpr static auto make_error(E&& e) {return Result<R, E>{Error<E>{e}};}
-    /// @brief
+    /// @brief 
+    /// @return 
     constexpr static auto make_error() {return Result<R, E>{Error<E>{}};}    // valid only if error has a default constructor
-    /// @brief
+    /// @brief 
+    /// @return 
     constexpr static auto ok() {return Result<R, E>{R{}};}                  // valid only if result has a default constructor
 };
 
