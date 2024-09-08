@@ -2,6 +2,7 @@
 
 #include <string>
 #include <algorithm>
+#include <cstring> // memcpy (windows)
 #include <gempyre_types.h>
 
 /**
