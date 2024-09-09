@@ -389,3 +389,4 @@ ln
 STL
 underlaying
 TODO
+memcp

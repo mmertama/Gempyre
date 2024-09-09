@@ -307,7 +307,7 @@ TEST(Unittests, test_parseArgs) {
     const auto& [p20, o20]  = GempyreUtils::parse_args(3, (char**) test20, {{"aaa", 'a', GempyreUtils::ArgType::NO_ARG}});
     EXPECT_FALSE(p20.empty());
     EXPECT_FALSE(o20.empty());
-    EXPECT_EQ(std::get<1>(*o16.find("aaa")), std::string(""));
+    EXPECT_EQ(std::get<1>(*o20.find("aaa")), std::string(""));
     EXPECT_EQ(p20.at(0), std::string("fat"));
 
     const char* test21[] = {"bing", "bang", "--aaa=fat", "bong", 0};
@@ -328,6 +328,21 @@ TEST(Unittests, test_parseArgs) {
     EXPECT_EQ(std::get<1>(*o22.find("aaa")), std::string(R"(fat\bat)"));
     EXPECT_EQ(std::get<1>(*o22.find("bbb")), std::string(R"(dyne\gene)"));
     EXPECT_EQ(std::get<1>(*o22.find("ccc")), std::string(R"(geel/feel)"));
+
+    const char* test23[] = {"bing", "--aaa", "99", 0};
+    const auto& [p23, o23]  = GempyreUtils::parse_args(3, (char**) test23, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_TRUE(p23.empty());
+    EXPECT_FALSE(o23.empty());
+    EXPECT_EQ(std::get<1>(*o23.find("aaa")), std::string("99"));
+    EXPECT_EQ(GempyreUtils::option_or(o23, "aaa", 100), 99);
+
+    const char* test24[] = {"bing", "--aaa", "ccc", 0};
+    const auto& [p24, o24]  = GempyreUtils::parse_args(3, (char**) test24, {{"aaa", 'a', GempyreUtils::ArgType::REQ_ARG}});
+    EXPECT_TRUE(p24.empty());
+    EXPECT_FALSE(o24.empty());
+    EXPECT_EQ(std::get<1>(*o24.find("aaa")), std::string("ccc"));
+    EXPECT_EQ(GempyreUtils::option_or(o24, "aaa", 100), 100);
+
 
 }
 

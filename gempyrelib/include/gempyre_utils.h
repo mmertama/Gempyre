@@ -227,28 +227,6 @@ private:
 };
 /// @endcond
 
-/// @brief Option Argument type for parse_args
-enum class ArgType{
-    NO_ARG, /// Option does not have an argument
-    REQ_ARG,    /// Option has an argument 
-    OPT_ARG /// Option may have an argument
-    };
-
-/// string vector of parameters. Used for parse_params.    
-using ParamList = std::vector<std::string>;
-
-/// string - string value pairs of options. Used for parse_params.
-using Options = std::multimap<std::string, std::string>;
-
-/// a tuple containing ParamList and Options. Used for parse_params.
-using Params = std::tuple<ParamList, Options>;
-
-/// parse arguments
-/// @param argc argc from main
-/// @param argv argv from main
-/// @param args Optional arguments, each tuple of 'long name', 'short name' and type
-/// @return tuple of ParamList and Options, where ParamList is vector of positional parameters and Options is map of options and their possible values.
-UTILS_EX Params parse_args(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
 
 /// @cond INTERNAL
 UTILS_EX void init();
@@ -270,6 +248,7 @@ struct ErrorValue {
 /// @tparam E 
 // internal for Result
 template <typename E> struct Error {
+    /// @brief  std compatibility
     using value_type = E;
     E error;
 };
@@ -278,27 +257,40 @@ template <typename R, typename E = std::string>
 struct Result : private std::variant<R, Error<E>> {
     /// @cond INTERNAL
     using Err = Error<E>;
-    using ParentType = std::variant<R, Error<E>>;
-    using value_type = R; // std compatibility
-    using error_type = E; // std compatibility
-    /// @endcond    
-    /// @brief
+    /// @endcond
+    /// @brief  std compatibility
+    using value_type = R;
+    /// @brief  std compatibility
+    using error_type = E;  
+    /// @brief 
+    /// @param r 
     constexpr Result(R&& r) : std::variant<R, Err>{r} {}
-    /// @brief
+    /// @brief 
+    /// @param e 
     constexpr Result(Err&& e) : std::variant<R, Err>{e} {} // use makeError
-    /// @brief
+    /// @brief 
+    /// @param r 
     constexpr Result(const R& r) : std::variant<R, Err>{r} {}
-    /// @brief
+    /// @brief 
+    /// @param e 
     constexpr Result(const Err& e) : std::variant<R,Err>{e} {}
-    /// @brief
+    /// @brief 
+    /// @param r 
+    /// @return 
     constexpr Result& operator=(R&& r) {*this = std::move(r); return *this;}
-    /// @brief
+    /// @brief 
+    /// @param e 
+    /// @return 
     constexpr Result& operator=(Err&& e) {*this = std::move(e); return *this;}
-    /// @brief
+    /// @brief 
+    /// @param r 
+    /// @return 
     constexpr Result& operator=(const R& r) {*this = r; return *this;}
-    /// @brief
+    /// @brief 
+    /// @param e 
+    /// @return 
     constexpr Result& operator=(const Err &e) {*this = e; return *this;}
-    /// @brief
+    /// @brief 
     constexpr operator bool() const {return std::get_if<R>(this);}
     /// @brief get as optional
     constexpr operator std::optional<R>() const {return has_value() ? std::make_optional<R>(value()) : std::nullopt;}
@@ -728,7 +720,7 @@ UTILS_EX std::string abs_path(std::string_view rpath);
 /// @brief Remove elements from path
 /// @param filename 
 /// @param steps - number of elements removed, default 1
-/// @param path_style - fs hs slash or back slach , default 1
+/// @param path_style - filesystem native, slash or backslash , default native
 /// @return - remaining path
 UTILS_EX std::string path_pop(std::string_view filename, int steps = 1, PathStyle path_style = PathStyle::Native);
 /// Directory entries
@@ -839,6 +831,46 @@ UTILS_EX std::string base64_encode(const unsigned char* bytes, size_t sz);
 UTILS_EX std::string base64_encode(const std::vector<uint8_t> & vec);
 /// Base64 decode.
 UTILS_EX std::vector<uint8_t> base64_decode(const std::string_view& data);
+
+
+/// @brief Option Argument type for parse_args
+enum class ArgType{
+    NO_ARG, /// Option does not have an argument
+    REQ_ARG,    /// Option has an argument 
+    OPT_ARG /// Option may have an argument
+    };
+
+/// string vector of parameters. Used for parse_params.    
+using ParamList = std::vector<std::string>;
+
+/// string - string value pairs of options. Used for parse_params.
+using Options = std::multimap<std::string, std::string>;
+
+/// a tuple containing ParamList and Options. Used for parse_params.
+using Params = std::tuple<ParamList, Options>;
+
+/// @brief parse arguments
+/// @param argc argc from main
+/// @param argv argv from main
+/// @param args Optional arguments, each tuple of 'long name', 'short name' and type
+/// @return tuple of ParamList and Options, where ParamList is vector of positional parameters and Options is map of options and their possible values.
+UTILS_EX Params parse_args(int argc, char* argv[], const std::initializer_list<std::tuple<std::string, char, ArgType>>& args);
+
+/// @brief get option as type
+/// @tparam T 
+/// @param opts 
+/// @param key
+/// @param default_value that is returned if not found or cannot interpreted as a requesed type 
+/// @return 
+template <typename T>
+T option_or(const Options& opts, std::string_view key, const T& default_value) {
+    const auto it = opts.find(std::string{key});
+    if(it == opts.end())
+        return default_value;
+    const auto parsed = parse<T>(it->second);
+    return parsed ? parsed.value() : default_value;    
+}
+
 
 }
 
