@@ -860,7 +860,7 @@ UTILS_EX Params parse_args(int argc, char* argv[], const std::initializer_list<s
 /// @tparam T 
 /// @param opts 
 /// @param key
-/// @param default_value that is returned if not found or cannot interpreted as a requesed type 
+/// @param default_value that is returned if not found or cannot interpreted as a requested type 
 /// @return 
 template <typename T>
 T option_or(const Options& opts, std::string_view key, const T& default_value) {

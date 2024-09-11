@@ -389,4 +389,5 @@ ln
 STL
 underlaying
 TODO
-memcp
+memcpy
+webp
