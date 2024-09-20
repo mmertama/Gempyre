@@ -1670,7 +1670,8 @@ template&lt;typename T &gt; </div>
 <p>Convert any type to json string, if possible. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">any</td><td>- assumed to be a type convertible to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values. </td></tr>
+    <tr><td class="paramname">any</td><td>- assumed to be a type convertible to json: int, string, boolean, null, double, Please note that map type values should be string and value type is container, it must be must be wrapped in std::any - e.g. std::vector&lt;std::any&gt; vector_of_vectors {std::make_any&lt;std::vector&lt;int&gt;&gt;{1, 2, 3}}; <br  />
+ </td></tr>
   </table>
   </dd>
 </dl>
