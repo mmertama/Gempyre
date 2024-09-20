@@ -66,7 +66,7 @@ var NAVTREE =
       [ "Class Index", "classes.html", null ],
       [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
       [ "Class Members", "functions.html", [
-        [ "All", "functions.html", null ],
+        [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", null ],
         [ "Variables", "functions_vars.html", null ],
         [ "Typedefs", "functions_type.html", null ],
@@ -86,7 +86,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "",
-"gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed"
+"gempyre__bitmap_8h.html",
+"structGempyreUtils_1_1Result.html#a1209f5f2e778f70b412de4eb42a43ae6"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

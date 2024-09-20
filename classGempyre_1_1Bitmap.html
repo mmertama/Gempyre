@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">gempyre
-   &#160;<span id="projectnumber">1.4.1</span>
+   &#160;<span id="projectnumber">1.5.1</span>
    </div>
   </td>
  </tr>
@@ -205,6 +205,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Bitmap.html#a9a0e31c450f6a0ba580025fb003594a4">const_data</a> () const</td></tr>
 <tr class="memdesc:a9a0e31c450f6a0ba580025fb003594a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">underlaying data <br /></td></tr>
 <tr class="separator:a9a0e31c450f6a0ba580025fb003594a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a95d1cf994d96e4554da0bdcb65fb84"><td class="memTemplParams" colspan="2">template&lt;class T , std::enable_if_t&lt; std::is_same_v&lt; typename T::value_type, Color::type &gt;, int &gt;  = 0&gt; </td></tr>
+<tr class="memitem:a9a95d1cf994d96e4554da0bdcb65fb84"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classGempyre_1_1Bitmap.html#a9a95d1cf994d96e4554da0bdcb65fb84">set_data</a> (const T &amp;bytes, size_t offset=0)</td></tr>
+<tr class="memdesc:a9a95d1cf994d96e4554da0bdcb65fb84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy pixels into bitmap.  <a href="classGempyre_1_1Bitmap.html#a9a95d1cf994d96e4554da0bdcb65fb84">More...</a><br /></td></tr>
+<tr class="separator:a9a95d1cf994d96e4554da0bdcb65fb84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -469,6 +473,54 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Gempyre::CanvasEleme
 
 <p>Convert a bitmap to PNG. </p>
 <dl class="section return"><dt>Returns</dt><dd>PNG bytes </dd></dl>
+
+</div>
+</div>
+<a id="a9a95d1cf994d96e4554da0bdcb65fb84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a95d1cf994d96e4554da0bdcb65fb84">&#9670;&nbsp;</a></span>set_data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T , std::enable_if_t&lt; std::is_same_v&lt; typename T::value_type, Color::type &gt;, int &gt;  = 0&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Gempyre::Bitmap::set_data </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>bytes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>offset</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy pixels into bitmap. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bytes</td><td>(TODO will change to std::span when moving to C++20) </td></tr>
+    <tr><td class="paramname">offset</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>false on overflow, otherwise true </dd></dl>
 
 </div>
 </div>

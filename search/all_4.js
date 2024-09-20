@@ -9,12 +9,13 @@ var searchData=
   ['entries_60',['entries',['../gempyre__utils_8h.html#ac04a58def7a8b7ec9b56b1a0f5b4b74e',1,'GempyreUtils']]],
   ['erase_61',['erase',['../classGempyre_1_1CanvasElement.html#a85fe46006be02b307ea527984561a275',1,'Gempyre::CanvasElement']]],
   ['error_62',['Error',['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea902b0d55fddef6f8d651fe1035b7d4bd',1,'Error()GempyreUtils'],['../structGempyreUtils_1_1Error.html',1,'GempyreUtils::Error&lt; E &gt;']]],
-  ['errorfunction_63',['ErrorFunction',['../classGempyre_1_1Ui.html#ac659ff4372851402a76fa77db328cd43',1,'Gempyre::Ui']]],
-  ['eval_64',['eval',['../classGempyre_1_1Ui.html#a12df77c4702e09f95a62c144b4516195',1,'Gempyre::Ui']]],
-  ['event_65',['Event',['../structGempyre_1_1Event.html',1,'Gempyre']]],
-  ['eventmap_66',['EventMap',['../classGempyre_1_1EventMap.html',1,'Gempyre']]],
-  ['eventqueue_67',['EventQueue',['../classGempyre_1_1EventQueue.html',1,'Gempyre']]],
-  ['execute_68',['execute',['../gempyre__utils_8h.html#a633fb68dc8744eba1cd2b1e9b19f63a9',1,'GempyreUtils']]],
-  ['exit_69',['exit',['../classGempyre_1_1Ui.html#a004cb40aca777101c6eb2fa710be3ed1',1,'Gempyre::Ui']]],
-  ['exitfunction_70',['ExitFunction',['../classGempyre_1_1Ui.html#af6b50bdd08104311a10f63c8dcfd710c',1,'Gempyre::Ui']]]
+  ['error_5ftype_63',['error_type',['../structGempyreUtils_1_1Result.html#a79bd09039e51da845c3718c9a38253c1',1,'GempyreUtils::Result']]],
+  ['errorfunction_64',['ErrorFunction',['../classGempyre_1_1Ui.html#ac659ff4372851402a76fa77db328cd43',1,'Gempyre::Ui']]],
+  ['eval_65',['eval',['../classGempyre_1_1Ui.html#a12df77c4702e09f95a62c144b4516195',1,'Gempyre::Ui']]],
+  ['event_66',['Event',['../structGempyre_1_1Event.html',1,'Gempyre']]],
+  ['eventmap_67',['EventMap',['../classGempyre_1_1EventMap.html',1,'Gempyre']]],
+  ['eventqueue_68',['EventQueue',['../classGempyre_1_1EventQueue.html',1,'Gempyre']]],
+  ['execute_69',['execute',['../gempyre__utils_8h.html#a633fb68dc8744eba1cd2b1e9b19f63a9',1,'GempyreUtils']]],
+  ['exit_70',['exit',['../classGempyre_1_1Ui.html#a004cb40aca777101c6eb2fa710be3ed1',1,'Gempyre::Ui']]],
+  ['exitfunction_71',['ExitFunction',['../classGempyre_1_1Ui.html#af6b50bdd08104311a10f63c8dcfd710c',1,'Gempyre::Ui']]]
 ];

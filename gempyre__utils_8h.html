@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">gempyre
-   &#160;<span id="projectnumber">1.4.1</span>
+   &#160;<span id="projectnumber">1.5.1</span>
    </div>
   </td>
  </tr>
@@ -162,6 +162,10 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:a2914109681200934a285de5963dd4a0a"><td class="memItemLeft" align="right" valign="top"><a id="a2914109681200934a285de5963dd4a0a"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a2914109681200934a285de5963dd4a0a">GempyreUtils::ResultTrue</a> = Result&lt; std::true_type, std::string &gt;</td></tr>
+<tr class="memdesc:a2914109681200934a285de5963dd4a0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">the most simple <a class="el" href="structGempyreUtils_1_1Result.html" title="similar as std::optional, but with error info (not 100% same, add delta if needed).">Result</a> that return <br /></td></tr>
+<tr class="separator:a2914109681200934a285de5963dd4a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92a73790299ec94d0dfc85c99893b704"><td class="memItemLeft" align="right" valign="top"><a id="a92a73790299ec94d0dfc85c99893b704"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a92a73790299ec94d0dfc85c99893b704">GempyreUtils::ParamList</a> = std::vector&lt; std::string &gt;</td></tr>
 <tr class="memdesc:a92a73790299ec94d0dfc85c99893b704"><td class="mdescLeft">&#160;</td><td class="mdescRight">string vector of parameters. Used for parse_params. <br  />
@@ -175,10 +179,6 @@ using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gem
 using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab">GempyreUtils::Params</a> = std::tuple&lt; ParamList, Options &gt;</td></tr>
 <tr class="memdesc:a01a6ae89e0bf439cc79b21cd6f5338ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">a tuple containing ParamList and Options. Used for parse_params. <br /></td></tr>
 <tr class="separator:a01a6ae89e0bf439cc79b21cd6f5338ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2914109681200934a285de5963dd4a0a"><td class="memItemLeft" align="right" valign="top"><a id="a2914109681200934a285de5963dd4a0a"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a2914109681200934a285de5963dd4a0a">GempyreUtils::ResultTrue</a> = Result&lt; std::true_type, std::string &gt;</td></tr>
-<tr class="memdesc:a2914109681200934a285de5963dd4a0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">the most simple <a class="el" href="structGempyreUtils_1_1Result.html" title="similar as std::optional, but with error info (not 100% same, add delta if needed).">Result</a> that return <br /></td></tr>
-<tr class="separator:a2914109681200934a285de5963dd4a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -195,12 +195,6 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ae5ddd27ed0acb95a8c152e486bea216e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The LogLevel enum.  <a href="gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216e">More...</a><br /></td></tr>
 <tr class="separator:ae5ddd27ed0acb95a8c152e486bea216e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4659309bd1aba5efc36c8098e5af0d7"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7">GempyreUtils::ArgType</a> { <b>NO_ARG</b>
-, <a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7ab1e952de82e89cc94bd74d80baa74f47">REQ_ARG</a>
-, <a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7afdb208c51de4e8bed10bae7077ded6dd">OPT_ARG</a>
- }</td></tr>
-<tr class="memdesc:ab4659309bd1aba5efc36c8098e5af0d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Option Argument type for parse_args.  <a href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7">More...</a><br /></td></tr>
-<tr class="separator:ab4659309bd1aba5efc36c8098e5af0d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad67774a60d07dd3f1766187d008e3e08"><td class="memItemLeft" align="right" valign="top"><a id="ad67774a60d07dd3f1766187d008e3e08"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ad67774a60d07dd3f1766187d008e3e08">GempyreUtils::OS</a> { <br />
 &#160;&#160;<b>OtherOs</b>
 , <b>MacOs</b>
@@ -218,6 +212,17 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a602fcba524815e199da0290ef1b5b31d"><td class="mdescLeft">&#160;</td><td class="mdescRight">address type <br /></td></tr>
 <tr class="separator:a602fcba524815e199da0290ef1b5b31d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32367cbfdfce0b51477476b010dc1183"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a32367cbfdfce0b51477476b010dc1183">GempyreUtils::PathStyle</a> { <b>Native</b>
+, <b>Unix</b>
+, <b>Win</b>
+ }</td></tr>
+<tr class="separator:a32367cbfdfce0b51477476b010dc1183"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4659309bd1aba5efc36c8098e5af0d7"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7">GempyreUtils::ArgType</a> { <b>NO_ARG</b>
+, <a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7ab1e952de82e89cc94bd74d80baa74f47">REQ_ARG</a>
+, <a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7afdb208c51de4e8bed10bae7077ded6dd">OPT_ARG</a>
+ }</td></tr>
+<tr class="memdesc:ab4659309bd1aba5efc36c8098e5af0d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Option Argument type for parse_args.  <a href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7">More...</a><br /></td></tr>
+<tr class="separator:ab4659309bd1aba5efc36c8098e5af0d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -239,9 +244,6 @@ template&lt;typename T , typename ... Args&gt; </td></tr>
 <tr class="memitem:a5ecec5d2d73a0250469060787a9a8059"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a5ecec5d2d73a0250469060787a9a8059">GempyreUtils::log_debug</a> (const T &amp;e, Args... args)</td></tr>
 <tr class="memdesc:a5ecec5d2d73a0250469060787a9a8059"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a debug log. <br /></td></tr>
 <tr class="separator:a5ecec5d2d73a0250469060787a9a8059"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81631063e2bac8c8fc5f67f83dc24b37"><td class="memItemLeft" align="right" valign="top">UTILS_EX Params&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a81631063e2bac8c8fc5f67f83dc24b37">GempyreUtils::parse_args</a> (int argc, char *argv[], const std::initializer_list&lt; std::tuple&lt; std::string, char, ArgType &gt;&gt; &amp;args)</td></tr>
-<tr class="memdesc:a81631063e2bac8c8fc5f67f83dc24b37"><td class="mdescLeft">&#160;</td><td class="mdescRight">parse arguments  <a href="gempyre__utils_8h.html#a81631063e2bac8c8fc5f67f83dc24b37">More...</a><br /></td></tr>
-<tr class="separator:a81631063e2bac8c8fc5f67f83dc24b37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71687161c89f70bb22984dca64d0200e"><td class="memTemplParams" colspan="2"><a id="a71687161c89f70bb22984dca64d0200e"></a>
 template&lt;typename R , typename E &gt; </td></tr>
 <tr class="memitem:a71687161c89f70bb22984dca64d0200e"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a71687161c89f70bb22984dca64d0200e">GempyreUtils::operator==</a> (const Result&lt; R, E &gt; &amp;a, const Result&lt; R, E &gt; &amp;b)</td></tr>
@@ -340,8 +342,9 @@ UTILS_EX OS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <tr class="memitem:ac6f1ea76f3055f5bd943623de116654b"><td class="memItemLeft" align="right" valign="top">UTILS_EX std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ac6f1ea76f3055f5bd943623de116654b">GempyreUtils::ip_addresses</a> (unsigned addressType)</td></tr>
 <tr class="memdesc:ac6f1ea76f3055f5bd943623de116654b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to resolve own ipaddresses.  <a href="gempyre__utils_8h.html#ac6f1ea76f3055f5bd943623de116654b">More...</a><br /></td></tr>
 <tr class="separator:ac6f1ea76f3055f5bd943623de116654b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ee025dbd37472a30ff64f6a6f0550ae"><td class="memItemLeft" align="right" valign="top">UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae">GempyreUtils::get_link</a> (std::string_view fname)</td></tr>
-<tr class="memdesc:a0ee025dbd37472a30ff64f6a6f0550ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get symbolic link source.  <a href="gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae">More...</a><br /></td></tr>
+<tr class="memitem:a0ee025dbd37472a30ff64f6a6f0550ae"><td class="memItemLeft" align="right" valign="top"><a id="a0ee025dbd37472a30ff64f6a6f0550ae"></a>
+UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae">GempyreUtils::get_link</a> (std::string_view fname)</td></tr>
+<tr class="memdesc:a0ee025dbd37472a30ff64f6a6f0550ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get symbolic link source. <br /></td></tr>
 <tr class="separator:a0ee025dbd37472a30ff64f6a6f0550ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a880211fbda749f2f243dc09980dcc77c"><td class="memItemLeft" align="right" valign="top"><a id="a880211fbda749f2f243dc09980dcc77c"></a>
 UTILS_EX bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a880211fbda749f2f243dc09980dcc77c">GempyreUtils::is_dir</a> (std::string_view fname)</td></tr>
@@ -363,9 +366,9 @@ UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class
 UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a6e2faf89b81aec7b103762727db3ee93">GempyreUtils::abs_path</a> (std::string_view rpath)</td></tr>
 <tr class="memdesc:a6e2faf89b81aec7b103762727db3ee93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute path. <br /></td></tr>
 <tr class="separator:a6e2faf89b81aec7b103762727db3ee93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5063b49237be0fc0b798e832a290af1"><td class="memItemLeft" align="right" valign="top">UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#aa5063b49237be0fc0b798e832a290af1">GempyreUtils::path_pop</a> (std::string_view filename, int steps=1)</td></tr>
-<tr class="memdesc:aa5063b49237be0fc0b798e832a290af1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove elements from path.  <a href="gempyre__utils_8h.html#aa5063b49237be0fc0b798e832a290af1">More...</a><br /></td></tr>
-<tr class="separator:aa5063b49237be0fc0b798e832a290af1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d515c8dc55c815b1c4425f0f52dfe6b"><td class="memItemLeft" align="right" valign="top">UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a4d515c8dc55c815b1c4425f0f52dfe6b">GempyreUtils::path_pop</a> (std::string_view filename, int steps=1, PathStyle path_style=PathStyle::Native)</td></tr>
+<tr class="memdesc:a4d515c8dc55c815b1c4425f0f52dfe6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove elements from path.  <a href="gempyre__utils_8h.html#a4d515c8dc55c815b1c4425f0f52dfe6b">More...</a><br /></td></tr>
+<tr class="separator:a4d515c8dc55c815b1c4425f0f52dfe6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac04a58def7a8b7ec9b56b1a0f5b4b74e"><td class="memItemLeft" align="right" valign="top"><a id="ac04a58def7a8b7ec9b56b1a0f5b4b74e"></a>
 UTILS_EX std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ac04a58def7a8b7ec9b56b1a0f5b4b74e">GempyreUtils::entries</a> (std::string_view dirname)</td></tr>
 <tr class="memdesc:ac04a58def7a8b7ec9b56b1a0f5b4b74e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Directory entries. <br /></td></tr>
@@ -373,14 +376,14 @@ UTILS_EX std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" val
 <tr class="memitem:a1c865e966c54977e477d093f3a5d39b1"><td class="memItemLeft" align="right" valign="top">UTILS_EX std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a1c865e966c54977e477d093f3a5d39b1">GempyreUtils::read_process</a> (std::string_view processName, const std::vector&lt; std::string &gt; &amp;params)</td></tr>
 <tr class="memdesc:a1c865e966c54977e477d093f3a5d39b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read stdout from the process - wait process to end.  <a href="gempyre__utils_8h.html#a1c865e966c54977e477d093f3a5d39b1">More...</a><br /></td></tr>
 <tr class="separator:a1c865e966c54977e477d093f3a5d39b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca8628a4f40b056549cc3d8d9f6a16ee"><td class="memItemLeft" align="right" valign="top"><a id="aca8628a4f40b056549cc3d8d9f6a16ee"></a>
-UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#aca8628a4f40b056549cc3d8d9f6a16ee">GempyreUtils::base_name</a> (std::string_view filename)</td></tr>
-<tr class="memdesc:aca8628a4f40b056549cc3d8d9f6a16ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base name. <br /></td></tr>
-<tr class="separator:aca8628a4f40b056549cc3d8d9f6a16ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a404ea01164b45535f635b3c5780ec6b3"><td class="memItemLeft" align="right" valign="top"><a id="a404ea01164b45535f635b3c5780ec6b3"></a>
-UTILS_EX std::tuple&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a404ea01164b45535f635b3c5780ec6b3">GempyreUtils::split_name</a> (std::string_view filename)</td></tr>
-<tr class="memdesc:a404ea01164b45535f635b3c5780ec6b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name and extension. <br /></td></tr>
-<tr class="separator:a404ea01164b45535f635b3c5780ec6b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa912c5da91e46594dae4559e9eb62cba"><td class="memItemLeft" align="right" valign="top"><a id="aa912c5da91e46594dae4559e9eb62cba"></a>
+UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#aa912c5da91e46594dae4559e9eb62cba">GempyreUtils::base_name</a> (std::string_view filename, PathStyle path_style=PathStyle::Native)</td></tr>
+<tr class="memdesc:aa912c5da91e46594dae4559e9eb62cba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base name. <br /></td></tr>
+<tr class="separator:aa912c5da91e46594dae4559e9eb62cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf3385e3755b12750ca1389ce6ef2ca9"><td class="memItemLeft" align="right" valign="top"><a id="adf3385e3755b12750ca1389ce6ef2ca9"></a>
+UTILS_EX std::tuple&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#adf3385e3755b12750ca1389ce6ef2ca9">GempyreUtils::split_name</a> (std::string_view filename, PathStyle path_style=PathStyle::Native)</td></tr>
+<tr class="memdesc:adf3385e3755b12750ca1389ce6ef2ca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name and extension. <br /></td></tr>
+<tr class="separator:adf3385e3755b12750ca1389ce6ef2ca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b50437206b5864bc3e11065a43934b3"><td class="memItemLeft" align="right" valign="top"><a id="a5b50437206b5864bc3e11065a43934b3"></a>
 UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a5b50437206b5864bc3e11065a43934b3">GempyreUtils::temp_name</a> ()</td></tr>
 <tr class="memdesc:a5b50437206b5864bc3e11065a43934b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate unique name (prefer std::filesystem if available) <br /></td></tr>
@@ -464,6 +467,13 @@ UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class
 UTILS_EX std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a32e6e894900899dd93a9bae410747a07">GempyreUtils::base64_decode</a> (const std::string_view &amp;data)</td></tr>
 <tr class="memdesc:a32e6e894900899dd93a9bae410747a07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base64 decode. <br /></td></tr>
 <tr class="separator:a32e6e894900899dd93a9bae410747a07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81631063e2bac8c8fc5f67f83dc24b37"><td class="memItemLeft" align="right" valign="top">UTILS_EX Params&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a81631063e2bac8c8fc5f67f83dc24b37">GempyreUtils::parse_args</a> (int argc, char *argv[], const std::initializer_list&lt; std::tuple&lt; std::string, char, ArgType &gt;&gt; &amp;args)</td></tr>
+<tr class="memdesc:a81631063e2bac8c8fc5f67f83dc24b37"><td class="mdescLeft">&#160;</td><td class="mdescRight">parse arguments  <a href="gempyre__utils_8h.html#a81631063e2bac8c8fc5f67f83dc24b37">More...</a><br /></td></tr>
+<tr class="separator:a81631063e2bac8c8fc5f67f83dc24b37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba296f48c6775693af21c6bcfdadee88"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aba296f48c6775693af21c6bcfdadee88"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#aba296f48c6775693af21c6bcfdadee88">GempyreUtils::option_or</a> (const Options &amp;opts, std::string_view key, const T &amp;default_value)</td></tr>
+<tr class="memdesc:aba296f48c6775693af21c6bcfdadee88"><td class="mdescLeft">&#160;</td><td class="mdescRight">get option as type  <a href="gempyre__utils_8h.html#aba296f48c6775693af21c6bcfdadee88">More...</a><br /></td></tr>
+<tr class="separator:aba296f48c6775693af21c6bcfdadee88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><img src="https://avatars1.githubusercontent.com/u/7837709?s=400&amp;v=4" alt="wqe" class="inline"/></p>
@@ -539,6 +549,30 @@ UTILS_EX std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign=
 
 </div>
 </div>
+<a id="a32367cbfdfce0b51477476b010dc1183"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32367cbfdfce0b51477476b010dc1183">&#9670;&nbsp;</a></span>PathStyle</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="gempyre__utils_8h.html#a32367cbfdfce0b51477476b010dc1183">GempyreUtils::PathStyle</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<h2><a class="anchor" id="autotoc_md28"></a>
+File Utils</h2>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a0733a7d97778cbc5ac9b218ff947bde3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0733a7d97778cbc5ac9b218ff947bde3">&#9670;&nbsp;</a></span>chop() <span class="overload">[1/2]</span></h2>
@@ -602,28 +636,6 @@ UTILS_EX std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign=
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>string </dd></dl>
-
-</div>
-</div>
-<a id="a0ee025dbd37472a30ff64f6a6f0550ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0ee025dbd37472a30ff64f6a6f0550ae">&#9670;&nbsp;</a></span>get_link()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UTILS_EX std::string GempyreUtils::get_link </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view&#160;</td>
-          <td class="paramname"><em>fname</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get symbolic link source. </p>
-<h2><a class="anchor" id="autotoc_md28"></a>
-File Utils</h2>
 
 </div>
 </div>
@@ -1145,6 +1157,60 @@ template&lt;typename T , typename... A&gt; </div>
 
 </div>
 </div>
+<a id="aba296f48c6775693af21c6bcfdadee88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba296f48c6775693af21c6bcfdadee88">&#9670;&nbsp;</a></span>option_or()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">T GempyreUtils::option_or </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="gempyre__utils_8h.html#a6515f85166559ae66d727f4bf6412831">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>opts</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>default_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>get option as type </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">opts</td><td></td></tr>
+    <tr><td class="paramname">key</td><td></td></tr>
+    <tr><td class="paramname">default_value</td><td>that is returned if not found or cannot interpreted as a requested type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><br  />
+ </dd></dl>
+
+</div>
+</div>
 <a id="a1cda60817e171621160a91b610c4bdc3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1cda60817e171621160a91b610c4bdc3">&#9670;&nbsp;</a></span>parse()</h2>
 
@@ -1225,8 +1291,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="aa5063b49237be0fc0b798e832a290af1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5063b49237be0fc0b798e832a290af1">&#9670;&nbsp;</a></span>path_pop()</h2>
+<a id="a4d515c8dc55c815b1c4425f0f52dfe6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d515c8dc55c815b1c4425f0f52dfe6b">&#9670;&nbsp;</a></span>path_pop()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1241,7 +1307,13 @@ template&lt;typename T &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>steps</em> = <code>1</code>&#160;</td>
+          <td class="paramname"><em>steps</em> = <code>1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="gempyre__utils_8h.html#a32367cbfdfce0b51477476b010dc1183">PathStyle</a>&#160;</td>
+          <td class="paramname"><em>path_style</em> = <code>PathStyle::Native</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1256,6 +1328,7 @@ template&lt;typename T &gt; </div>
   <table class="params">
     <tr><td class="paramname">filename</td><td></td></tr>
     <tr><td class="paramname">steps</td><td>- number of elements removed, default 1 </td></tr>
+    <tr><td class="paramname">path_style</td><td>- filesystem native, slash or backslash , default native </td></tr>
   </table>
   </dd>
 </dl>

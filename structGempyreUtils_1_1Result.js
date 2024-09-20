@@ -1,8 +1,6 @@
 var structGempyreUtils_1_1Result =
 [
-    [ "Err", "structGempyreUtils_1_1Result.html#aa7cf1fa3832ecfc30e765d314925febd", null ],
     [ "error_type", "structGempyreUtils_1_1Result.html#a79bd09039e51da845c3718c9a38253c1", null ],
-    [ "ParentType", "structGempyreUtils_1_1Result.html#afaac9799bacf90aee2065704ea578d09", null ],
     [ "value_type", "structGempyreUtils_1_1Result.html#a8b1980303d8adc0ccc5e2c719a9a089e", null ],
     [ "Result", "structGempyreUtils_1_1Result.html#a4ebbd7ed04600307e0d74e472f8e1e43", null ],
     [ "Result", "structGempyreUtils_1_1Result.html#a0a42cf60223924173bfc30a42532a13b", null ],
