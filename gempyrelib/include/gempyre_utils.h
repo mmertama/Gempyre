@@ -16,7 +16,6 @@
 #include <iomanip>
 #include <any>
 #include <string_view>
-#include <iostream>
 
 /**
   * @file
@@ -344,7 +343,7 @@ using ResultTrue = Result<std::true_type, std::string>;
 template<typename T, typename... A>
 Result<T, std::string> make_error(A&&... a) {
     std::stringstream str;
-    (std::cout << ... << a); //str << ... << a;
+    (str << ... << a); //str << ... << a;
     return Result<T, std::string>::make_error(str.str());
 }
 
