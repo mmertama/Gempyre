@@ -813,7 +813,10 @@ std::vector<T> slurp(std::string_view file, const size_t max = std::numeric_limi
 UTILS_EX std::string slurp(std::string_view file, const size_t max = std::numeric_limits<size_t>::max());
 
 /// @brief Convert any type to json string, if possible.
-/// @param any - assumed to be a type convertible to json: int, string, boolean, null, double, or std::vector, std::unordered_map or std::map containing other values.
+/// @param any - assumed to be a type convertible to json: int, string, boolean, null, double,
+//  or container type std::vector, std::unordered_map or std::map containing other values.
+/// Please note that map type values should be string and value type is container, it must be 
+/// must be wrapped in std::any - e.g. std::vector<std::any> vector_of_vectors {std::make_any<std::vector<int>>{1, 2, 3}};  
 /// @return json string.
 UTILS_EX Result<std::string> to_json_string(const std::any& any);
 /// @brief Concert json string to any type
