@@ -165,6 +165,10 @@ Typedefs</h2></td></tr>
 using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a2914109681200934a285de5963dd4a0a">GempyreUtils::ResultTrue</a> = Result&lt; std::true_type, std::string &gt;</td></tr>
 <tr class="memdesc:a2914109681200934a285de5963dd4a0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">the most simple <a class="el" href="structGempyreUtils_1_1Result.html" title="similar as std::optional, but with error info (not 100% same, add delta if needed).">Result</a> that return <br /></td></tr>
 <tr class="separator:a2914109681200934a285de5963dd4a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84a2cc35d37931861fae8bbc3aa652c9"><td class="memItemLeft" align="right" valign="top"><a id="a84a2cc35d37931861fae8bbc3aa652c9"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9">GempyreUtils::JsonType</a> = std::variant&lt; int, double, bool, std::string, nullptr_t, std::vector&lt; std::any &gt;, std::map&lt; std::string, std::any &gt;, std::unordered_map&lt; std::string, std::any &gt; &gt;</td></tr>
+<tr class="memdesc:a84a2cc35d37931861fae8bbc3aa652c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Json Type. <br /></td></tr>
+<tr class="separator:a84a2cc35d37931861fae8bbc3aa652c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92a73790299ec94d0dfc85c99893b704"><td class="memItemLeft" align="right" valign="top"><a id="a92a73790299ec94d0dfc85c99893b704"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a92a73790299ec94d0dfc85c99893b704">GempyreUtils::ParamList</a> = std::vector&lt; std::string &gt;</td></tr>
 <tr class="memdesc:a92a73790299ec94d0dfc85c99893b704"><td class="mdescLeft">&#160;</td><td class="mdescRight">string vector of parameters. Used for parse_params. <br  />
@@ -216,6 +220,11 @@ Enumerations</h2></td></tr>
 , <b>Win</b>
  }</td></tr>
 <tr class="separator:a32367cbfdfce0b51477476b010dc1183"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91634abc292dc0ca0d60cbc7c44dfa0c"><td class="memItemLeft" align="right" valign="top"><a id="a91634abc292dc0ca0d60cbc7c44dfa0c"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0c">GempyreUtils::MapType</a> { <b>Map</b>
+, <b>UnorderedMap</b>
+ }</td></tr>
+<tr class="memdesc:a91634abc292dc0ca0d60cbc7c44dfa0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Json dictionary conversion. <br /></td></tr>
+<tr class="separator:a91634abc292dc0ca0d60cbc7c44dfa0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4659309bd1aba5efc36c8098e5af0d7"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7">GempyreUtils::ArgType</a> { <b>NO_ARG</b>
 , <a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7ab1e952de82e89cc94bd74d80baa74f47">REQ_ARG</a>
 , <a class="el" href="gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7afdb208c51de4e8bed10bae7077ded6dd">OPT_ARG</a>
@@ -447,9 +456,15 @@ UTILS_EX int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a9f32aff22523da9e3504f9644cd58f9a"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a9f32aff22523da9e3504f9644cd58f9a">GempyreUtils::to_json_string</a> (const std::any &amp;any)</td></tr>
 <tr class="memdesc:a9f32aff22523da9e3504f9644cd58f9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert any type to json string, if possible.  <a href="gempyre__utils_8h.html#a9f32aff22523da9e3504f9644cd58f9a">More...</a><br /></td></tr>
 <tr class="separator:a9f32aff22523da9e3504f9644cd58f9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a035c8e81a12bc3dd12686d7df833fc8f"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; std::any &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a035c8e81a12bc3dd12686d7df833fc8f">GempyreUtils::json_to_any</a> (std::string_view str)</td></tr>
-<tr class="memdesc:a035c8e81a12bc3dd12686d7df833fc8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concert json string to any type.  <a href="gempyre__utils_8h.html#a035c8e81a12bc3dd12686d7df833fc8f">More...</a><br /></td></tr>
-<tr class="separator:a035c8e81a12bc3dd12686d7df833fc8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2827477016db50b0628f4916378714b8"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; std::any &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a2827477016db50b0628f4916378714b8">GempyreUtils::json_to_any</a> (std::string_view str, MapType map_type=MapType::UnorderedMap)</td></tr>
+<tr class="memdesc:a2827477016db50b0628f4916378714b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concert json string to any type.  <a href="gempyre__utils_8h.html#a2827477016db50b0628f4916378714b8">More...</a><br /></td></tr>
+<tr class="separator:a2827477016db50b0628f4916378714b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a829452a08fb07c9e9aad705384d91953"><td class="memItemLeft" align="right" valign="top">UTILS_EX ResultTrue&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a829452a08fb07c9e9aad705384d91953">GempyreUtils::set_json_value</a> (std::any &amp;any, std::string_view path, JsonType &amp;&amp;value)</td></tr>
+<tr class="memdesc:a829452a08fb07c9e9aad705384d91953"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies a given data.  <a href="gempyre__utils_8h.html#a829452a08fb07c9e9aad705384d91953">More...</a><br /></td></tr>
+<tr class="separator:a829452a08fb07c9e9aad705384d91953"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; JsonType &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93">GempyreUtils::get_json_value</a> (const std::any &amp;any, std::string_view path)</td></tr>
+<tr class="memdesc:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a value from path.  <a href="gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93">More...</a><br /></td></tr>
+<tr class="separator:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7c7c88b846a214308d63dbf0dc127cc"><td class="memItemLeft" align="right" valign="top"><a id="ad7c7c88b846a214308d63dbf0dc127cc"></a>
 UTILS_EX bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ad7c7c88b846a214308d63dbf0dc127cc">GempyreUtils::is_available</a> (int port)</td></tr>
 <tr class="memdesc:ad7c7c88b846a214308d63dbf0dc127cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if port is free. <br /></td></tr>
@@ -635,6 +650,45 @@ File Utils</h2>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>string </dd></dl>
+
+</div>
+</div>
+<a id="a4d8edde49ec83a6b4c48d8ca4a9e2d93"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d8edde49ec83a6b4c48d8ca4a9e2d93">&#9670;&nbsp;</a></span>get_json_value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UTILS_EX Result&lt;JsonType&gt; GempyreUtils::get_json_value </td>
+          <td>(</td>
+          <td class="paramtype">const std::any &amp;&#160;</td>
+          <td class="paramname"><em>any</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>path</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return a value from path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">any</td><td></td></tr>
+    <tr><td class="paramname">path</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a value, if not found, the error return the closest path <br  />
+ </dd></dl>
 
 </div>
 </div>
@@ -910,8 +964,8 @@ template&lt;class T , typename In  = typename T::value_type, typename Out  = typ
 
 </div>
 </div>
-<a id="a035c8e81a12bc3dd12686d7df833fc8f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a035c8e81a12bc3dd12686d7df833fc8f">&#9670;&nbsp;</a></span>json_to_any()</h2>
+<a id="a2827477016db50b0628f4916378714b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2827477016db50b0628f4916378714b8">&#9670;&nbsp;</a></span>json_to_any()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -920,8 +974,18 @@ template&lt;class T , typename In  = typename T::value_type, typename Out  = typ
           <td class="memname">UTILS_EX Result&lt;std::any&gt; GempyreUtils::json_to_any </td>
           <td>(</td>
           <td class="paramtype">std::string_view&#160;</td>
-          <td class="paramname"><em>str</em></td><td>)</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0c">MapType</a>&#160;</td>
+          <td class="paramname"><em>map_type</em> = <code>MapType::UnorderedMap</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -930,6 +994,7 @@ template&lt;class T , typename In  = typename T::value_type, typename Out  = typ
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">str</td><td></td></tr>
+    <tr><td class="paramname">map_type</td><td>tells if json dict is translated to std::map or std::unordered_map </td></tr>
   </table>
   </dd>
 </dl>
@@ -1455,6 +1520,52 @@ String Utils</h2>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>trimmed string view </dd></dl>
+
+</div>
+</div>
+<a id="a829452a08fb07c9e9aad705384d91953"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a829452a08fb07c9e9aad705384d91953">&#9670;&nbsp;</a></span>set_json_value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UTILS_EX ResultTrue GempyreUtils::set_json_value </td>
+          <td>(</td>
+          <td class="paramtype">std::any &amp;&#160;</td>
+          <td class="paramname"><em>any</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9">JsonType</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Modifies a given data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">any</td><td></td></tr>
+    <tr><td class="paramname">path</td><td></td></tr>
+    <tr><td class="paramname">value</td><td></td></tr>
+    <tr><td class="paramname">map_type</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The modified data or if path is not found, the closest path </dd></dl>
 
 </div>
 </div>

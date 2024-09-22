@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['value_5ftype_517',['value_type',['../structGempyreUtils_1_1Error.html#a768a7ed224f32733ccca9f0eccf0aedb',1,'GempyreUtils::Error::value_type()'],['../structGempyreUtils_1_1Result.html#a8b1980303d8adc0ccc5e2c719a9a089e',1,'GempyreUtils::Result::value_type()']]],
-  ['values_518',['Values',['../classGempyre_1_1Element.html#afb2ecf9f84e40c7fb2df08a789b4e3be',1,'Gempyre::Element']]]
+  ['type_523',['type',['../namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693',1,'Gempyre::Color']]]
 ];

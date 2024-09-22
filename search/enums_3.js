@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['os_523',['OS',['../gempyre__utils_8h.html#ad67774a60d07dd3f1766187d008e3e08',1,'GempyreUtils']]]
+  ['maptype_530',['MapType',['../gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0c',1,'GempyreUtils']]]
 ];

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['paramlist_510',['ParamList',['../gempyre__utils_8h.html#a92a73790299ec94d0dfc85c99893b704',1,'GempyreUtils']]],
-  ['params_511',['Params',['../gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab',1,'GempyreUtils']]]
+  ['openfunction_515',['OpenFunction',['../classGempyre_1_1Ui.html#a369caa0a39fdd6341c7698be39031170',1,'Gempyre::Ui']]],
+  ['options_516',['Options',['../gempyre__utils_8h.html#a6515f85166559ae66d727f4bf6412831',1,'GempyreUtils']]]
 ];

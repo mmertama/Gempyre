@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['type_516',['type',['../namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693',1,'Gempyre::Color']]]
+  ['subscribefunction_522',['SubscribeFunction',['../classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5',1,'Gempyre::Element']]]
 ];

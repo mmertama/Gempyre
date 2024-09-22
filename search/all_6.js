@@ -12,6 +12,7 @@ var searchData=
   ['gempyre_5futils_5fauto_5fclose_96',['gempyre_utils_auto_close',['../gempyre__utils_8h.html#add04373dbc7a54f6e5a92a29564fc552',1,'gempyre_utils.h']]],
   ['gempyre_5futils_5ffatal_97',['gempyre_utils_fatal',['../gempyre__utils_8h.html#ac9d9ad8617c0297afe45775a5e7300b6',1,'gempyre_utils.h']]],
   ['gempyre_5futils_5ffatal_5ff_98',['gempyre_utils_fatal_f',['../gempyre__utils_8h.html#aa1ae09e62c2aa9fbbfbfc1ec451a9de1',1,'gempyre_utils.h']]],
-  ['get_5flink_99',['get_link',['../gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae',1,'GempyreUtils']]],
-  ['get_5fvalue_100',['get_value',['../gempyre__utils_8h.html#a06a24f9f1cc3f90cbe600b9fb4ad1430',1,'GempyreUtils']]]
+  ['get_5fjson_5fvalue_99',['get_json_value',['../gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93',1,'GempyreUtils']]],
+  ['get_5flink_100',['get_link',['../gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae',1,'GempyreUtils']]],
+  ['get_5fvalue_101',['get_value',['../gempyre__utils_8h.html#a06a24f9f1cc3f90cbe600b9fb4ad1430',1,'GempyreUtils']]]
 ];

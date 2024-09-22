@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['bitmap_265',['Bitmap',['../classGempyre_1_1Bitmap.html',1,'Gempyre']]]
+  ['bitmap_269',['Bitmap',['../classGempyre_1_1Bitmap.html',1,'Gempyre']]]
 ];

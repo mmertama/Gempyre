@@ -10,6 +10,7 @@ var gempyre__utils_8h =
     [ "gempyre_utils_auto_close", "gempyre__utils_8h.html#add04373dbc7a54f6e5a92a29564fc552", null ],
     [ "gempyre_utils_fatal", "gempyre__utils_8h.html#ac9d9ad8617c0297afe45775a5e7300b6", null ],
     [ "gempyre_utils_fatal_f", "gempyre__utils_8h.html#aa1ae09e62c2aa9fbbfbfc1ec451a9de1", null ],
+    [ "JsonType", "gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9", null ],
     [ "Options", "gempyre__utils_8h.html#a6515f85166559ae66d727f4bf6412831", null ],
     [ "ParamList", "gempyre__utils_8h.html#a92a73790299ec94d0dfc85c99893b704", null ],
     [ "Params", "gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab", null ],
@@ -31,6 +32,10 @@ var gempyre__utils_8h =
       [ "Info", "gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea4059b0251f66a18cb56f544728796875", null ],
       [ "Debug", "gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216eaa603905470e2a5b8c13e96b579ef0dba", null ],
       [ "Debug_Trace", "gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea49f71c0a6afeb8c33bddbf3fc0b4220c", null ]
+    ] ],
+    [ "MapType", "gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0c", [
+      [ "Map", "gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0ca46f3ea056caa3126b91f3f70beea068c", null ],
+      [ "UnorderedMap", "gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0ca0e3131f6a495fd2f54ef53369955e8a1", null ]
     ] ],
     [ "OS", "gempyre__utils_8h.html#ad67774a60d07dd3f1766187d008e3e08", [
       [ "OtherOs", "gempyre__utils_8h.html#ad67774a60d07dd3f1766187d008e3e08a502d4b2b5b9c455007c8f5eaf2a7ba8f", null ],
@@ -58,6 +63,7 @@ var gempyre__utils_8h =
     [ "execute", "gempyre__utils_8h.html#a633fb68dc8744eba1cd2b1e9b19f63a9", null ],
     [ "file_exists", "gempyre__utils_8h.html#a1db725c0ed7d13e653e9386674557478", null ],
     [ "file_size", "gempyre__utils_8h.html#a027e3d93a4ca6726d30902dd540653d3", null ],
+    [ "get_json_value", "gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93", null ],
     [ "get_link", "gempyre__utils_8h.html#a0ee025dbd37472a30ff64f6a6f0550ae", null ],
     [ "get_value", "gempyre__utils_8h.html#a06a24f9f1cc3f90cbe600b9fb4ad1430", null ],
     [ "hexify", "gempyre__utils_8h.html#ae8941d046b8313a42d9ae3ec24a6e3a9", null ],
@@ -72,7 +78,7 @@ var gempyre__utils_8h =
     [ "join", "gempyre__utils_8h.html#a1dbe2b16470f36aa6a29708a83000201", null ],
     [ "join", "gempyre__utils_8h.html#a75eca7204bf57753fa0986863b0cab9e", null ],
     [ "join", "gempyre__utils_8h.html#a32031980999a39bd52025e586ee2489e", null ],
-    [ "json_to_any", "gempyre__utils_8h.html#a035c8e81a12bc3dd12686d7df833fc8f", null ],
+    [ "json_to_any", "gempyre__utils_8h.html#a2827477016db50b0628f4916378714b8", null ],
     [ "keys", "gempyre__utils_8h.html#ae937f6abdd81a1ec3c14ca1617046a1a", null ],
     [ "levenshtein_distance", "gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4", null ],
     [ "log", "gempyre__utils_8h.html#a7f7c61f34a2da31b6adeaedf935e0b85", null ],
@@ -95,6 +101,7 @@ var gempyre__utils_8h =
     [ "rename", "gempyre__utils_8h.html#a5f84622f3def59df7aeb102dc28beed0", null ],
     [ "root_dir", "gempyre__utils_8h.html#a51e1aac2b9e5c9dd9a19a2ecde999e44", null ],
     [ "rtrim", "gempyre__utils_8h.html#a45ab88f4716fd69f46f8301dd6f42bc7", null ],
+    [ "set_json_value", "gempyre__utils_8h.html#a829452a08fb07c9e9aad705384d91953", null ],
     [ "set_log_level", "gempyre__utils_8h.html#ae2811b613a8d072990986241b3b2d94f", null ],
     [ "slurp", "gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed", null ],
     [ "split", "gempyre__utils_8h.html#ae0e964b3ee16cff0a89e4d436fca8574", null ],

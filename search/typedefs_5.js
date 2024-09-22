@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['openfunction_508',['OpenFunction',['../classGempyre_1_1Ui.html#a369caa0a39fdd6341c7698be39031170',1,'Gempyre::Ui']]],
-  ['options_509',['Options',['../gempyre__utils_8h.html#a6515f85166559ae66d727f4bf6412831',1,'GempyreUtils']]]
+  ['jsontype_514',['JsonType',['../gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9',1,'GempyreUtils']]]
 ];
