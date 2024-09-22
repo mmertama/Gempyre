@@ -819,10 +819,40 @@ UTILS_EX std::string slurp(std::string_view file, const size_t max = std::numeri
 /// must be wrapped in std::any - e.g. std::vector<std::any> vector_of_vectors {std::make_any<std::vector<int>>{1, 2, 3}};  
 /// @return json string.
 UTILS_EX Result<std::string> to_json_string(const std::any& any);
+
+/// @brief Json dictionary conversion
+enum class MapType {Map, UnorderedMap};
 /// @brief Concert json string to any type
-/// @param str 
+/// @param str
+/// @param map_type tells if json dict is translated to std::map or std::unordered_map 
 /// @return 
-UTILS_EX Result<std::any> json_to_any(std::string_view str);
+UTILS_EX Result<std::any> json_to_any(std::string_view str, MapType map_type = MapType::UnorderedMap);
+
+/// @brief Json Type
+using JsonType = std::variant<
+int,
+double,
+bool,
+std::string,
+nullptr_t,
+std::vector<std::any>,
+std::map<std::string, std::any>,
+std::unordered_map<std::string, std::any>
+>;
+/// @brief Modifies a given data
+/// @param any 
+/// @param path
+/// @param value 
+/// @param map_type 
+/// @return The modified data or if path is not found, the closest path
+UTILS_EX ResultTrue set_json_value(std::any& any, std::string_view path, JsonType&& value);
+
+/// @brief Return a value from path
+/// @param any 
+/// @param path 
+/// @return a value, if not found, the error return the closest path 
+UTILS_EX Result<JsonType> get_json_value(const std::any& any, std::string_view path);
+
 
 /// Check if port is free.
 UTILS_EX bool is_available(int port);
