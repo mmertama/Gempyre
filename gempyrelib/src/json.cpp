@@ -208,7 +208,7 @@ bool remove<std::vector<std::any>>(std::any* j, const std::string& key) {
 
 template<typename J, typename I>
 GempyreUtils::Result<J*> iterate_path(J* j, I begin, I end) {
-    ssize_t success_paths = 0;
+    long success_paths = 0;
     for (auto it = begin; it != end; ++it) {
         auto jj = next<J, std::map<std::string, std::any>>(j, *it);
         if (!jj)
@@ -239,10 +239,11 @@ GempyreUtils::ResultTrue GempyreUtils::set_json_value(std::any& any, std::string
     auto j = *r;
 
     std::any any_val = std::visit(overloaded {
+        [](std::any&& v) {return v;},
         [](bool v) {return std::make_any<bool>(v);},
         [](int v) {return std::make_any<int>(v);},
         [](double v) {return std::make_any<double>(v);},
-        [](nullptr_t v) {return std::make_any<nullptr_t>(v);},
+        [](std::nullptr_t v) {return std::make_any<std::nullptr_t>(v);},
         [](std::string&& v) {return std::make_any<std::string>(v);},
         [](std::vector<std::any>&& v) {return std::make_any<std::vector<std::any>>(v);},
         [](std::map<std::string, std::any>&& v) {return std::make_any<std::map<std::string, std::any>>(v);},
@@ -272,7 +273,7 @@ GempyreUtils::Result<GempyreUtils::JsonType> GempyreUtils::get_json_value(const 
 
     auto j = *r;
 
-    if (const auto v = std::any_cast<nullptr_t>(j))
+    if (const auto v = std::any_cast<std::nullptr_t>(j))
         return JsonType{*v};
 
     if (const auto v = std::any_cast<bool>(j))
@@ -324,4 +325,19 @@ GempyreUtils::ResultTrue GempyreUtils::remove_json_value(std::any& any,  std::st
         return ResultTrue::ok();
 
     return ResultTrue::make_error(std::string{path});
+}
+
+GempyreUtils::ResultTrue GempyreUtils::make_json_path(std::any& any, std::string_view path, const std::function<JsonType (std::string_view, std::string_view)>& f) {
+    auto path_items = GempyreUtils::split(path, '/');
+    for ( auto it = path_items.begin(); it != (path_items.end() - 1); ++it) {
+        const auto fp = GempyreUtils::join(path_items.begin(), it + 1, "/");
+        if (!get_json_value(any, fp)) {
+            auto item = f(fp, *(it + 1));
+            const auto r = set_json_value(any, fp, std::move(item));
+            if (!r) {
+                return ResultTrue::make_error("Error at " + r.error());
+            } 
+        }
+    }
+    return ResultTrue::ok();
 }

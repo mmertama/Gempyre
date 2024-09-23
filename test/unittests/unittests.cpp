@@ -470,7 +470,11 @@ TEST(Unittests, json_test_set2) {
     auto nome = GempyreUtils::get_json_value(*j, "nome");
     EXPECT_FALSE(nome);
 
+#ifdef GTEST_OS_WINDOWS
+    auto ok = GempyreUtils::set_json_value(*j, "nome", std::string{"quack"});
+#else
     auto ok = GempyreUtils::set_json_value(*j, "nome", "quack");
+#endif
     EXPECT_TRUE(ok);
 
     nome = GempyreUtils::get_json_value(*j, "nome");
@@ -502,7 +506,11 @@ TEST(Unittests, json_test_set3) {
     ASSERT_TRUE(j);    
     auto a = GempyreUtils::set_json_value(*j, "a", std::map<std::string, std::any>{});
     EXPECT_TRUE(a);
+#ifdef GTEST_OS_WINDOWS
+    const auto b = GempyreUtils::set_json_value(*j, "a/b", std::string{"banana"});
+#else
     const auto b = GempyreUtils::set_json_value(*j, "a/b", "banana");
+#endif
     EXPECT_TRUE(b);
     auto c = GempyreUtils::set_json_value(*j, "c", std::vector<std::any>{});
     EXPECT_TRUE(c);
@@ -531,6 +539,23 @@ TEST(Unittests, json_test_set3) {
     ASSERT_TRUE(js);
     const std::string_view json3 = R"({"c":[]})";
     EXPECT_EQ(json3, *js);
+}
+
+TEST(Unittests, json_test_set4) {
+    auto j = GempyreUtils::json_to_any("{}");
+    ASSERT_TRUE(j);
+    const auto ok = GempyreUtils::make_json_path(*j, "animals/0/cat");
+    ASSERT_TRUE(ok) << ok.error();
+    auto js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Compact);
+    ASSERT_TRUE(js);
+    ASSERT_EQ(*js, R"({"animals":[{}]})");
+    GempyreUtils::set_json_value(*j, "animals/0/cat", std::string{"meow"});
+    GempyreUtils::make_json_path(*j, "animals/1/dog");
+    GempyreUtils::set_json_value(*j, "animals/1/dog", std::string{"bark"});
+    GempyreUtils::set_json_value(*j, "animals/0/food", std::string{"fish"});
+    GempyreUtils::set_json_value(*j, "animals/1/food", std::string{"bone"});
+    js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Compact);
+    ASSERT_EQ(*js, R"({"animals":[{"cat":"meow","food":"fish"},{"dog":"bark","food":"bone"}]})");
 }
 
 int main(int argc, char **argv) {

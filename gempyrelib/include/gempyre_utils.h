@@ -409,8 +409,8 @@ inline std::string convert<std::string>(std::string_view source)
 /// @param source 
 /// @return value
 template <typename T>
-std::optional<T> parse(const std::string& source) {
-    std::istringstream ss(source);
+std::optional<T> parse(std::string_view source) {
+    std::istringstream ss(std::string{source});
     T v;
     static_cast<std::istream&>(ss) >> v;   //MSVC said it would be otherwise ambiguous
     return !ss.fail() ? std::make_optional(v) : std::nullopt;
@@ -836,7 +836,7 @@ int,
 double,
 bool,
 std::string,
-nullptr_t,
+std::nullptr_t,
 std::vector<std::any>,
 std::map<std::string, std::any>,
 std::unordered_map<std::string, std::any>
@@ -862,6 +862,16 @@ UTILS_EX ResultTrue remove_json_value(std::any& any, std::string_view path);
 /// @return a value, if not found, the error return the closest path 
 UTILS_EX Result<JsonType> get_json_value(const std::any& any, std::string_view path);
 
+/// @brief ensure that json path exits
+/// @param any 
+/// @param path 
+/// @param f - default builds empty dictionaries for strings and vectors for numbers
+/// @return 
+UTILS_EX ResultTrue make_json_path(std::any& any, std::string_view path, 
+    const std::function<JsonType (std::string_view, std::string_view)>& f = [](auto, auto name) {
+        return (GempyreUtils::parse<int>(name)) ? 
+        GempyreUtils::JsonType{std::vector<std::any>{}} : 
+        GempyreUtils::JsonType{std::unordered_map<std::string, std::any>{}};});
 
 /// Check if port is free.
 UTILS_EX bool is_available(int port);
