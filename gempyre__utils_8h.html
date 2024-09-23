@@ -285,10 +285,10 @@ template&lt;typename R , typename E &gt; </td></tr>
 <tr class="memitem:a30da248af8faf28d03d4b8011ef191c1"><td class="memItemLeft" align="right" valign="top">UTILS_EX std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a30da248af8faf28d03d4b8011ef191c1">GempyreUtils::remove_spaces</a> (std::string_view str)</td></tr>
 <tr class="memdesc:a30da248af8faf28d03d4b8011ef191c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">remove  <a href="gempyre__utils_8h.html#a30da248af8faf28d03d4b8011ef191c1">More...</a><br /></td></tr>
 <tr class="separator:a30da248af8faf28d03d4b8011ef191c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1cda60817e171621160a91b610c4bdc3"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a1cda60817e171621160a91b610c4bdc3"><td class="memTemplItemLeft" align="right" valign="top">std::optional&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a1cda60817e171621160a91b610c4bdc3">GempyreUtils::parse</a> (const std::string &amp;source)</td></tr>
-<tr class="memdesc:a1cda60817e171621160a91b610c4bdc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">parse string to value  <a href="gempyre__utils_8h.html#a1cda60817e171621160a91b610c4bdc3">More...</a><br /></td></tr>
-<tr class="separator:a1cda60817e171621160a91b610c4bdc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12a608ed56de0cc188bfc94566fd6894"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a12a608ed56de0cc188bfc94566fd6894"><td class="memTemplItemLeft" align="right" valign="top">std::optional&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a12a608ed56de0cc188bfc94566fd6894">GempyreUtils::parse</a> (std::string_view source)</td></tr>
+<tr class="memdesc:a12a608ed56de0cc188bfc94566fd6894"><td class="mdescLeft">&#160;</td><td class="mdescRight">parse string to value  <a href="gempyre__utils_8h.html#a12a608ed56de0cc188bfc94566fd6894">More...</a><br /></td></tr>
+<tr class="separator:a12a608ed56de0cc188bfc94566fd6894"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8603f61a1077403d8fb5a0430113cc66"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
 <tr class="memitem:a8603f61a1077403d8fb5a0430113cc66"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a8603f61a1077403d8fb5a0430113cc66">GempyreUtils::to_low</a> (const T &amp;str)</td></tr>
 <tr class="memdesc:a8603f61a1077403d8fb5a0430113cc66"><td class="mdescLeft">&#160;</td><td class="mdescRight">make lower case string  <a href="gempyre__utils_8h.html#a8603f61a1077403d8fb5a0430113cc66">More...</a><br /></td></tr>
@@ -472,6 +472,9 @@ UTILS_EX int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; JsonType &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93">GempyreUtils::get_json_value</a> (const std::any &amp;any, std::string_view path)</td></tr>
 <tr class="memdesc:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a value from path.  <a href="gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93">More...</a><br /></td></tr>
 <tr class="separator:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add24683edc5c469c79c28b1eb25c70d9"><td class="memItemLeft" align="right" valign="top">UTILS_EX ResultTrue&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#add24683edc5c469c79c28b1eb25c70d9">GempyreUtils::make_json_path</a> (std::any &amp;any, std::string_view path, const std::function&lt; JsonType(std::string_view, std::string_view)&gt; &amp;f=[](auto, auto name) { return(GempyreUtils::parse&lt; int &gt;(name)) ? JsonType{std::vector&lt; std::any &gt;{}} :JsonType{std::unordered_map&lt; std::string, std::any &gt;{}};})</td></tr>
+<tr class="memdesc:add24683edc5c469c79c28b1eb25c70d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">ensure that json path exits  <a href="gempyre__utils_8h.html#add24683edc5c469c79c28b1eb25c70d9">More...</a><br /></td></tr>
+<tr class="separator:add24683edc5c469c79c28b1eb25c70d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7c7c88b846a214308d63dbf0dc127cc"><td class="memItemLeft" align="right" valign="top"><a id="ad7c7c88b846a214308d63dbf0dc127cc"></a>
 UTILS_EX bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ad7c7c88b846a214308d63dbf0dc127cc">GempyreUtils::is_available</a> (int port)</td></tr>
 <tr class="memdesc:ad7c7c88b846a214308d63dbf0dc127cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if port is free. <br /></td></tr>
@@ -1228,6 +1231,52 @@ template&lt;typename T , typename... A&gt; </div>
 
 </div>
 </div>
+<a id="add24683edc5c469c79c28b1eb25c70d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add24683edc5c469c79c28b1eb25c70d9">&#9670;&nbsp;</a></span>make_json_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UTILS_EX ResultTrue GempyreUtils::make_json_path </td>
+          <td>(</td>
+          <td class="paramtype">std::any &amp;&#160;</td>
+          <td class="paramname"><em>any</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::function&lt; <a class="el" href="gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9">JsonType</a>(std::string_view, std::string_view)&gt; &amp;&#160;</td>
+          <td class="paramname"><em>f</em> = <code>[](auto,&#160;auto&#160;name)&#160;{&#160;return(GempyreUtils::parse&lt;&#160;int&#160;&gt;(name))&#160;?&#160;<a class="el" href="gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9">JsonType</a>{std::vector&lt;&#160;std::any&#160;&gt;{}}&#160;:<a class="el" href="gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9">JsonType</a>{std::unordered_map&lt;&#160;std::string,&#160;std::any&#160;&gt;{}};}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>ensure that json path exits </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">any</td><td></td></tr>
+    <tr><td class="paramname">path</td><td></td></tr>
+    <tr><td class="paramname">f</td><td>- default builds empty dictionaries for strings and vectors for numbers </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><br  />
+ </dd></dl>
+
+</div>
+</div>
 <a id="aba296f48c6775693af21c6bcfdadee88"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aba296f48c6775693af21c6bcfdadee88">&#9670;&nbsp;</a></span>option_or()</h2>
 
@@ -1282,8 +1331,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="a1cda60817e171621160a91b610c4bdc3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1cda60817e171621160a91b610c4bdc3">&#9670;&nbsp;</a></span>parse()</h2>
+<a id="a12a608ed56de0cc188bfc94566fd6894"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12a608ed56de0cc188bfc94566fd6894">&#9670;&nbsp;</a></span>parse()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1293,7 +1342,7 @@ template&lt;typename T &gt; </div>
         <tr>
           <td class="memname">std::optional&lt;T&gt; GempyreUtils::parse </td>
           <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramtype">std::string_view&#160;</td>
           <td class="paramname"><em>source</em></td><td>)</td>
           <td></td>
         </tr>
