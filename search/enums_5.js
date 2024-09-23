@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pathstyle_532',['PathStyle',['../gempyre__utils_8h.html#a32367cbfdfce0b51477476b010dc1183',1,'GempyreUtils']]]
+  ['os_535',['OS',['../gempyre__utils_8h.html#ad67774a60d07dd3f1766187d008e3e08',1,'GempyreUtils']]]
 ];

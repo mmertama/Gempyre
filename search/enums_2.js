@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['loglevel_529',['LogLevel',['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216e',1,'GempyreUtils']]]
+  ['jsonmode_532',['JsonMode',['../gempyre__utils_8h.html#ac573f64464dda291072d3e491e727f20',1,'GempyreUtils']]]
 ];

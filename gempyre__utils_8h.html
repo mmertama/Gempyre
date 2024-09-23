@@ -220,6 +220,11 @@ Enumerations</h2></td></tr>
 , <b>Win</b>
  }</td></tr>
 <tr class="separator:a32367cbfdfce0b51477476b010dc1183"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac573f64464dda291072d3e491e727f20"><td class="memItemLeft" align="right" valign="top"><a id="ac573f64464dda291072d3e491e727f20"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#ac573f64464dda291072d3e491e727f20">GempyreUtils::JsonMode</a> { <b>Compact</b>
+, <b>Pretty</b>
+ }</td></tr>
+<tr class="memdesc:ac573f64464dda291072d3e491e727f20"><td class="mdescLeft">&#160;</td><td class="mdescRight">How json represented as a string. <br /></td></tr>
+<tr class="separator:ac573f64464dda291072d3e491e727f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91634abc292dc0ca0d60cbc7c44dfa0c"><td class="memItemLeft" align="right" valign="top"><a id="a91634abc292dc0ca0d60cbc7c44dfa0c"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0c">GempyreUtils::MapType</a> { <b>Map</b>
 , <b>UnorderedMap</b>
  }</td></tr>
@@ -453,15 +458,17 @@ UTILS_EX int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a129607a5168d80f12bdc0ec8535d61ed"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed">GempyreUtils::slurp</a> (std::string_view file, const size_t max=std::numeric_limits&lt; size_t &gt;::max())</td></tr>
 <tr class="memdesc:a129607a5168d80f12bdc0ec8535d61ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a file data in one read.  <a href="gempyre__utils_8h.html#a129607a5168d80f12bdc0ec8535d61ed">More...</a><br /></td></tr>
 <tr class="separator:a129607a5168d80f12bdc0ec8535d61ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f32aff22523da9e3504f9644cd58f9a"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a9f32aff22523da9e3504f9644cd58f9a">GempyreUtils::to_json_string</a> (const std::any &amp;any)</td></tr>
-<tr class="memdesc:a9f32aff22523da9e3504f9644cd58f9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert any type to json string, if possible.  <a href="gempyre__utils_8h.html#a9f32aff22523da9e3504f9644cd58f9a">More...</a><br /></td></tr>
-<tr class="separator:a9f32aff22523da9e3504f9644cd58f9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a001fddf56ef8753d7af5e20e7f50e592"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a001fddf56ef8753d7af5e20e7f50e592">GempyreUtils::to_json_string</a> (const std::any &amp;any, JsonMode mode=JsonMode::Compact)</td></tr>
+<tr class="memdesc:a001fddf56ef8753d7af5e20e7f50e592"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert any type to json string, if possible.  <a href="gempyre__utils_8h.html#a001fddf56ef8753d7af5e20e7f50e592">More...</a><br /></td></tr>
+<tr class="separator:a001fddf56ef8753d7af5e20e7f50e592"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2827477016db50b0628f4916378714b8"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; std::any &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a2827477016db50b0628f4916378714b8">GempyreUtils::json_to_any</a> (std::string_view str, MapType map_type=MapType::UnorderedMap)</td></tr>
 <tr class="memdesc:a2827477016db50b0628f4916378714b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concert json string to any type.  <a href="gempyre__utils_8h.html#a2827477016db50b0628f4916378714b8">More...</a><br /></td></tr>
 <tr class="separator:a2827477016db50b0628f4916378714b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a829452a08fb07c9e9aad705384d91953"><td class="memItemLeft" align="right" valign="top">UTILS_EX ResultTrue&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a829452a08fb07c9e9aad705384d91953">GempyreUtils::set_json_value</a> (std::any &amp;any, std::string_view path, JsonType &amp;&amp;value)</td></tr>
 <tr class="memdesc:a829452a08fb07c9e9aad705384d91953"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies a given data.  <a href="gempyre__utils_8h.html#a829452a08fb07c9e9aad705384d91953">More...</a><br /></td></tr>
 <tr class="separator:a829452a08fb07c9e9aad705384d91953"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a659672f075d238b21fca670ac77a59e0"><td class="memItemLeft" align="right" valign="top">UTILS_EX ResultTrue&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a659672f075d238b21fca670ac77a59e0">GempyreUtils::remove_json_value</a> (std::any &amp;any, std::string_view path)</td></tr>
+<tr class="separator:a659672f075d238b21fca670ac77a59e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="memItemLeft" align="right" valign="top">UTILS_EX Result&lt; JsonType &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93">GempyreUtils::get_json_value</a> (const std::any &amp;any, std::string_view path)</td></tr>
 <tr class="memdesc:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a value from path.  <a href="gempyre__utils_8h.html#a4d8edde49ec83a6b4c48d8ca4a9e2d93">More...</a><br /></td></tr>
 <tr class="separator:a4d8edde49ec83a6b4c48d8ca4a9e2d93"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1461,6 +1468,43 @@ String Utils</h2>
 
 </div>
 </div>
+<a id="a659672f075d238b21fca670ac77a59e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a659672f075d238b21fca670ac77a59e0">&#9670;&nbsp;</a></span>remove_json_value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UTILS_EX ResultTrue GempyreUtils::remove_json_value </td>
+          <td>(</td>
+          <td class="paramtype">std::any &amp;&#160;</td>
+          <td class="paramname"><em>any</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>path</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">any</td><td></td></tr>
+    <tr><td class="paramname">path</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><br  />
+ </dd></dl>
+
+</div>
+</div>
 <a id="a30da248af8faf28d03d4b8011ef191c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a30da248af8faf28d03d4b8011ef191c1">&#9670;&nbsp;</a></span>remove_spaces()</h2>
 
@@ -1559,7 +1603,7 @@ String Utils</h2>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">any</td><td></td></tr>
-    <tr><td class="paramname">path</td><td></td></tr>
+    <tr><td class="paramname">path</td><td>The / separated string. If item is vector, the value shall be index. If index more than vector size, the vector is expanded with invalid values. Note: If there are invalid values, to_json_string will fail. </td></tr>
     <tr><td class="paramname">value</td><td></td></tr>
     <tr><td class="paramname">map_type</td><td></td></tr>
   </table>
@@ -1762,8 +1806,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="a9f32aff22523da9e3504f9644cd58f9a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9f32aff22523da9e3504f9644cd58f9a">&#9670;&nbsp;</a></span>to_json_string()</h2>
+<a id="a001fddf56ef8753d7af5e20e7f50e592"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a001fddf56ef8753d7af5e20e7f50e592">&#9670;&nbsp;</a></span>to_json_string()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1772,8 +1816,18 @@ template&lt;typename T &gt; </div>
           <td class="memname">UTILS_EX Result&lt;std::string&gt; GempyreUtils::to_json_string </td>
           <td>(</td>
           <td class="paramtype">const std::any &amp;&#160;</td>
-          <td class="paramname"><em>any</em></td><td>)</td>
+          <td class="paramname"><em>any</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="gempyre__utils_8h.html#ac573f64464dda291072d3e491e727f20">JsonMode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code>JsonMode::Compact</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">

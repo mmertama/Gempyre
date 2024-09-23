@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['uiflags_533',['UiFlags',['../classGempyre_1_1Ui.html#a2eff03dc285b8e60eb3e31098441094f',1,'Gempyre::Ui']]]
+  ['pathstyle_536',['PathStyle',['../gempyre__utils_8h.html#a32367cbfdfce0b51477476b010dc1183',1,'GempyreUtils']]]
 ];

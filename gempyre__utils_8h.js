@@ -24,6 +24,10 @@ var gempyre__utils_8h =
       [ "REQ_ARG", "gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7ab1e952de82e89cc94bd74d80baa74f47", null ],
       [ "OPT_ARG", "gempyre__utils_8h.html#ab4659309bd1aba5efc36c8098e5af0d7afdb208c51de4e8bed10bae7077ded6dd", null ]
     ] ],
+    [ "JsonMode", "gempyre__utils_8h.html#ac573f64464dda291072d3e491e727f20", [
+      [ "Compact", "gempyre__utils_8h.html#ac573f64464dda291072d3e491e727f20ab1fe2c2a59e883740e7ea87667e44a24", null ],
+      [ "Pretty", "gempyre__utils_8h.html#ac573f64464dda291072d3e491e727f20a46f93f25d0dbb9ada04ac822ba055e8c", null ]
+    ] ],
     [ "LogLevel", "gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216e", [
       [ "None", "gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea6adf97f83acf6453d4a6a4b1070f3754", null ],
       [ "Fatal", "gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea882384ec38ce8d9582b57e70861730e4", null ],
@@ -97,6 +101,7 @@ var gempyre__utils_8h =
     [ "qq", "gempyre__utils_8h.html#a166333d7d4680646cfac74cae6d2771d", null ],
     [ "read_process", "gempyre__utils_8h.html#a1c865e966c54977e477d093f3a5d39b1", null ],
     [ "remove_file", "gempyre__utils_8h.html#a6538e9b71fa5ad262513aff7fb81bf33", null ],
+    [ "remove_json_value", "gempyre__utils_8h.html#a659672f075d238b21fca670ac77a59e0", null ],
     [ "remove_spaces", "gempyre__utils_8h.html#a30da248af8faf28d03d4b8011ef191c1", null ],
     [ "rename", "gempyre__utils_8h.html#a5f84622f3def59df7aeb102dc28beed0", null ],
     [ "root_dir", "gempyre__utils_8h.html#a51e1aac2b9e5c9dd9a19a2ecde999e44", null ],
@@ -110,7 +115,7 @@ var gempyre__utils_8h =
     [ "system_env", "gempyre__utils_8h.html#abe1e2e6a41e72a2f71b99033a00950d9", null ],
     [ "temp_name", "gempyre__utils_8h.html#a5b50437206b5864bc3e11065a43934b3", null ],
     [ "to_hex", "gempyre__utils_8h.html#aae8a57742871462a3bb1ed0dc55368e1", null ],
-    [ "to_json_string", "gempyre__utils_8h.html#a9f32aff22523da9e3504f9644cd58f9a", null ],
+    [ "to_json_string", "gempyre__utils_8h.html#a001fddf56ef8753d7af5e20e7f50e592", null ],
     [ "to_low", "gempyre__utils_8h.html#a8603f61a1077403d8fb5a0430113cc66", null ],
     [ "to_str", "gempyre__utils_8h.html#a1bd92998cc8e3c62ca9abac1af27c90a", null ],
     [ "trim", "gempyre__utils_8h.html#abaf7ec50ed8ee59c4f5b07a40c9060d4", null ],
