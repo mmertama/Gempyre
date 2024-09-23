@@ -1,7 +1,7 @@
 var searchData=
 [
   ['make_5ferror_139',['make_error',['../structGempyreUtils_1_1Result.html#a89cf758253d1335a0c94dc3142a608e1',1,'GempyreUtils::Result::make_error(const E &amp;e)'],['../structGempyreUtils_1_1Result.html#a54e20a349b237998e13bb89dc4ecdee8',1,'GempyreUtils::Result::make_error(E &amp;&amp;e)'],['../structGempyreUtils_1_1Result.html#aaa68855dd92b9cf00dd69b7c58522e7c',1,'GempyreUtils::Result::make_error()'],['../gempyre__utils_8h.html#aac8fffd5f6bef0969fbb3142a0fd9657',1,'GempyreUtils::make_error(A &amp;&amp;... a)']]],
-  ['make_5fjson_5fpath_140',['make_json_path',['../gempyre__utils_8h.html#add24683edc5c469c79c28b1eb25c70d9',1,'GempyreUtils']]],
+  ['make_5fjson_5fpath_140',['make_json_path',['../gempyre__utils_8h.html#a90482c9dbb3ea01cd7935971ec16dc83',1,'GempyreUtils']]],
   ['maptype_141',['MapType',['../gempyre__utils_8h.html#a91634abc292dc0ca0d60cbc7c44dfa0c',1,'GempyreUtils']]],
   ['merge_142',['merge',['../classGempyre_1_1Bitmap.html#a859c78efb853d337f6262cb2b0e0ab86',1,'Gempyre::Bitmap::merge(int x, int y, const Bitmap &amp;other)'],['../classGempyre_1_1Bitmap.html#ae46011028fa6e70b93953b0ff2929ac5',1,'Gempyre::Bitmap::merge(const Bitmap &amp;other)']]],
   ['mouse_5fclick_143',['MOUSE_CLICK',['../structGempyre_1_1Event.html#aa8b27beadf64c4ca95e934e2f72d9bad',1,'Gempyre::Event']]],
