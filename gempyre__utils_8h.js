@@ -10,7 +10,7 @@ var gempyre__utils_8h =
     [ "gempyre_utils_auto_close", "gempyre__utils_8h.html#add04373dbc7a54f6e5a92a29564fc552", null ],
     [ "gempyre_utils_fatal", "gempyre__utils_8h.html#ac9d9ad8617c0297afe45775a5e7300b6", null ],
     [ "gempyre_utils_fatal_f", "gempyre__utils_8h.html#aa1ae09e62c2aa9fbbfbfc1ec451a9de1", null ],
-    [ "JsonType", "gempyre__utils_8h.html#a84a2cc35d37931861fae8bbc3aa652c9", null ],
+    [ "JsonType", "gempyre__utils_8h.html#aeffe568ade9e60cde248cbcec068336c", null ],
     [ "Options", "gempyre__utils_8h.html#a6515f85166559ae66d727f4bf6412831", null ],
     [ "ParamList", "gempyre__utils_8h.html#a92a73790299ec94d0dfc85c99893b704", null ],
     [ "Params", "gempyre__utils_8h.html#a01a6ae89e0bf439cc79b21cd6f5338ab", null ],
