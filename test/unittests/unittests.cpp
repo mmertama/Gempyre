@@ -352,7 +352,7 @@ TEST(Unittests, test_levenshtein) {
     auto pos = list.end();
     auto min = std::numeric_limits<int>::max();
     for(auto it = list.begin(); it != list.end(); ++it) {
-        const auto d = GempyreUtils::levenshtein_distance(*it, "suparation"); // incorrecly spelled separation
+        const auto d = GempyreUtils::levenshtein_distance(*it, "suparation"); // incorrectly spelled separation
         if(d < min) {
             pos = it;
             min = d;
@@ -394,6 +394,143 @@ TEST(Unittests, trim_test) {
     ss <<  GempyreUtils::ltrim(" d  Hello World < ") << "_" << GempyreUtils::rtrim(" q xxx t  \t ") << "_" 
     << GempyreUtils::trim(" a v ") << "_" << GempyreUtils::trim("") << "_" << GempyreUtils::trim("   ") <<"_"<< GempyreUtils::trim("ganesh");
    EXPECT_EQ(ss.str(), std::string("d  Hello World < _ q xxx t_a v___ganesh")); 
+}
+
+
+TEST(Unittests, json_test_compact) {
+    const std::string_view json = R"({"name":1})";
+    const auto j = GempyreUtils::json_to_any(json);
+    ASSERT_TRUE(j) << "Bad Json" << json;
+    const auto js = GempyreUtils::to_json_string(*j);
+    ASSERT_TRUE(js);
+    EXPECT_EQ(json, *js);
+}
+
+TEST(Unittests, json_test_pretty) {
+    const std::string_view json =
+        R"({
+ "name": 1
+})";
+    const auto j = GempyreUtils::json_to_any(json);
+    ASSERT_TRUE(j);
+    const auto js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Pretty);
+    ASSERT_TRUE(js);
+    EXPECT_EQ(json, *js);
+}
+
+TEST(Unittests, json_test_get) {
+    const std::string_view json = R"({"name":1, "sub": {"a": "aaa", "f": [1, 2, 3, 4, 5]}})";
+    const auto j = GempyreUtils::json_to_any(json);
+    ASSERT_TRUE(j);
+    const auto name = GempyreUtils::get_json_value(*j, "name");
+    EXPECT_TRUE(name);
+    EXPECT_TRUE(std::holds_alternative<int>(*name));
+    EXPECT_EQ(std::get<int>(*name), 1);
+    const auto a = GempyreUtils::get_json_value(*j, "sub/a");
+    EXPECT_TRUE(a);
+    EXPECT_EQ(std::get<std::string>(*a), std::string{"aaa"});
+    const auto bad = GempyreUtils::get_json_value(*j, "sup");
+    EXPECT_FALSE(bad);
+    const auto f = GempyreUtils::get_json_value(*j, "sub/f/2");
+    EXPECT_TRUE(f);
+    EXPECT_EQ(std::get<int>(*f), 3);
+}
+
+TEST(Unittests, json_test_set1) {
+    const std::string_view json = R"({"name":false, "sub": {"bb": 83.4, "f": [1, 2, 3, 4, 5]}})";
+    auto j = GempyreUtils::json_to_any(json);
+    ASSERT_TRUE(j);
+    auto ok = GempyreUtils::set_json_value(*j, "name", true);
+    EXPECT_TRUE(ok);
+    
+    const auto name = GempyreUtils::get_json_value(*j, "name");
+    EXPECT_TRUE(name);
+    EXPECT_TRUE(std::holds_alternative<bool>(*name));
+    EXPECT_EQ(std::get<bool>(*name), true);
+
+    ASSERT_TRUE(j);
+    ok = GempyreUtils::set_json_value(*j, "sub/bb", 91.3);
+    EXPECT_TRUE(ok);
+
+    const auto v = GempyreUtils::get_json_value(*j, "sub/bb");
+    EXPECT_TRUE(v);
+    EXPECT_EQ(std::get<double>(*v), 91.3);
+
+    const auto js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Compact);
+    ASSERT_TRUE(js);
+    const std::string_view json1 = R"({"name":true,"sub":{"bb":91.3,"f":[1,2,3,4,5]}})";
+    EXPECT_EQ(json1, *js);
+}
+
+TEST(Unittests, json_test_set2) {
+    const std::string_view json = R"({"name":false, "sub": {"bb": 83.4, "f": [1, 2, 3, 4, 5]}})";
+    auto j = GempyreUtils::json_to_any(json);
+    ASSERT_TRUE(j);
+
+    auto nome = GempyreUtils::get_json_value(*j, "nome");
+    EXPECT_FALSE(nome);
+
+    auto ok = GempyreUtils::set_json_value(*j, "nome", "quack");
+    EXPECT_TRUE(ok);
+
+    nome = GempyreUtils::get_json_value(*j, "nome");
+    EXPECT_TRUE(nome);
+
+    EXPECT_EQ("quack", std::get<std::string>(*nome));
+
+    ok = GempyreUtils::set_json_value(*j, "sub/f/7", 13);
+    EXPECT_TRUE(ok);
+
+    auto v4 = GempyreUtils::get_json_value(*j, "sub/f/4");
+    EXPECT_TRUE(v4);
+    EXPECT_EQ(std::get<int>(*v4), 5);
+
+    auto v5 = GempyreUtils::get_json_value(*j, "sub/f/5");
+    EXPECT_FALSE(v5);
+
+    auto v6 = GempyreUtils::get_json_value(*j, "sub/f/6");
+    EXPECT_FALSE(v6);
+
+    auto v7 = GempyreUtils::get_json_value(*j, "sub/f/7");
+    EXPECT_TRUE(v7);
+    EXPECT_EQ(std::get<int>(*v7), 13);
+}
+
+TEST(Unittests, json_test_set3) {
+    const std::string_view json = R"({})";
+    auto j = GempyreUtils::json_to_any(json);
+    ASSERT_TRUE(j);    
+    auto a = GempyreUtils::set_json_value(*j, "a", std::map<std::string, std::any>{});
+    EXPECT_TRUE(a);
+    const auto b = GempyreUtils::set_json_value(*j, "a/b", "banana");
+    EXPECT_TRUE(b);
+    auto c = GempyreUtils::set_json_value(*j, "c", std::vector<std::any>{});
+    EXPECT_TRUE(c);
+    const auto c0 = GempyreUtils::set_json_value(*j, "c/0", false);
+    EXPECT_TRUE(c0);
+    const auto c1 = GempyreUtils::set_json_value(*j, "c/1", true);
+    EXPECT_TRUE(c1);
+
+    auto js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Compact);
+    ASSERT_TRUE(js) << js.error();
+    const std::string_view json1 = R"({"a":{"b":"banana"},"c":[false,true]})";
+    EXPECT_EQ(json1, *js);
+
+    c = GempyreUtils::set_json_value(*j, "c", std::vector< std::any>{});
+    EXPECT_TRUE(c);
+
+    js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Compact);
+    ASSERT_TRUE(js);
+    const std::string_view json2 = R"({"a":{"b":"banana"},"c":[]})";
+    EXPECT_EQ(json2, *js);
+
+    a = GempyreUtils::remove_json_value(*j, "a");
+    EXPECT_TRUE(a);
+
+    js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Compact);
+    ASSERT_TRUE(js);
+    const std::string_view json3 = R"({"c":[]})";
+    EXPECT_EQ(json3, *js);
 }
 
 int main(int argc, char **argv) {

@@ -812,13 +812,15 @@ std::vector<T> slurp(std::string_view file, const size_t max = std::numeric_limi
 /// @return string containing file
 UTILS_EX std::string slurp(std::string_view file, const size_t max = std::numeric_limits<size_t>::max());
 
+/// @brief How json represented as a string
+enum class JsonMode {Compact, Pretty};
 /// @brief Convert any type to json string, if possible.
 /// @param any - assumed to be a type convertible to json: int, string, boolean, null, double,
 //  or container type std::vector, std::unordered_map or std::map containing other values.
 /// Please note that map type values should be string and value type is container, it must be 
 /// must be wrapped in std::any - e.g. std::vector<std::any> vector_of_vectors {std::make_any<std::vector<int>>{1, 2, 3}};  
 /// @return json string.
-UTILS_EX Result<std::string> to_json_string(const std::any& any);
+UTILS_EX Result<std::string> to_json_string(const std::any& any, JsonMode mode = JsonMode::Compact);
 
 /// @brief Json dictionary conversion
 enum class MapType {Map, UnorderedMap};
@@ -841,11 +843,18 @@ std::unordered_map<std::string, std::any>
 >;
 /// @brief Modifies a given data
 /// @param any 
-/// @param path
+/// @param path The / separated string. If item is vector, the value shall be index. 
+/// If index more than vector size, the vector is expanded with invalid values. Note: If there are invalid values, to_json_string will fail. 
 /// @param value 
 /// @param map_type 
 /// @return The modified data or if path is not found, the closest path
 UTILS_EX ResultTrue set_json_value(std::any& any, std::string_view path, JsonType&& value);
+
+/// @brief 
+/// @param any 
+/// @param path 
+/// @return 
+UTILS_EX ResultTrue remove_json_value(std::any& any, std::string_view path);
 
 /// @brief Return a value from path
 /// @param any 

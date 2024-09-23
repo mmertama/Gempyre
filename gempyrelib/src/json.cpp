@@ -12,7 +12,7 @@ template<class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
 template<class T>
-static GempyreUtils::Result<std::string> containertoString(const std::any& any) {
+static GempyreUtils::Result<std::string> containertoString(const std::any& any, int indent) {
     if(const auto* v = std::any_cast<std::vector<T>>(&any)) {
         auto array = json::array();
         int p = 0;
@@ -24,7 +24,7 @@ static GempyreUtils::Result<std::string> containertoString(const std::any& any) 
             }
             array.push_back(json::parse(o.value()));
         }
-        return array.dump();
+        return array.dump(indent);
     } else if(const auto* h = std::any_cast<std::unordered_map<std::string, T>>(&any)) {
         auto obj = json::object();
         for(const auto& [k, a] : *h) {
@@ -34,7 +34,7 @@ static GempyreUtils::Result<std::string> containertoString(const std::any& any) 
             }
             obj.emplace(k, json::parse(o.value()));
         }
-        return obj.dump();
+        return obj.dump(indent);
     } else if(const auto* h0 = std::any_cast<std::map<std::string, T>>(&any)) {
         auto obj = json::object();
         for(const auto& [k, a] : *h0) {
@@ -44,44 +44,45 @@ static GempyreUtils::Result<std::string> containertoString(const std::any& any) 
             }
             obj.emplace(k, json::parse(o.value()));
         }
-        return obj.dump();
+        return obj.dump(indent);
     }
     return GempyreUtils::make_error<std::string>("Invalid");
 }
 
-GempyreUtils::Result<std::string> GempyreUtils::to_json_string(const std::any& any) {
+GempyreUtils::Result<std::string> GempyreUtils::to_json_string(const std::any& any, JsonMode mode) {
+    const auto indent = mode == JsonMode::Compact ? -1 : 1;
     if(const auto* i = std::any_cast<int>(&any)) {
-        return json(*i).dump();
+        return json(*i).dump(indent);
     } else if(const auto* d = std::any_cast<double>(&any)) {
-        return json(*d).dump();
+        return json(*d).dump(indent);
     } else if(const auto* b = std::any_cast<bool>(&any)) {
-        return json(*b).dump();
+        return json(*b).dump(indent);
     } else if(const auto* s = std::any_cast<std::string>(&any)) {
-        return json(*s).dump();
+        return json(*s).dump(indent);
     } else if(const auto* n = std::any_cast<std::nullptr_t>(&any)) {
-        return json(*n).dump();
+        return json(*n).dump(indent);
     } else if(const auto* c = std::any_cast<const char*>(&any)) {
-        return json(std::string(*c)).dump();
+        return json(std::string(*c)).dump(indent);
     } else {
-        const auto v1 = containertoString<std::any>(any);
+        const auto v1 = containertoString<std::any>(any, indent);
         if(v1.has_value())
             return v1;
-        const auto v3 = containertoString<int>(any);
+        const auto v3 = containertoString<int>(any, indent);
         if(v3.has_value())
             return v3;
-        const auto v4 = containertoString<double>(any);
+        const auto v4 = containertoString<double>(any, indent);
         if(v4.has_value())
             return v4;
-        const auto v5 = containertoString<bool>(any);
+        const auto v5 = containertoString<bool>(any, indent);
         if(v5.has_value())
             return v5;
-        const auto v2 = containertoString<std::string>(any);
+        const auto v2 = containertoString<std::string>(any, indent);
         if(v2.has_value())
             return v2;
-        const auto v6 = containertoString<std::nullptr_t>(any);
+        const auto v6 = containertoString<std::nullptr_t>(any, indent);
         if(v6.has_value())
             return v6;
-        const auto v7 = containertoString<const char*>(any);
+        const auto v7 = containertoString<const char*>(any, indent);
         if(v7.has_value())
             return v7;
         return GempyreUtils::make_error<std::string>("Invalid value:", any.type().name());
@@ -102,8 +103,8 @@ GempyreUtils::Result<std::any> make_map(const json& j) {
 
 GempyreUtils::Result<std::any> GempyreUtils::json_to_any(std::string_view str, MapType map_type) {
     const auto j = json::parse(str);
-    if(j.empty())
-        return GempyreUtils::make_error<std::any>("Empty");
+    //if(j.empty())
+    //    return GempyreUtils::make_error<std::any>("Empty");
     if(j.is_null())
         return std::make_any<std::nullptr_t>(nullptr);
     if(j.is_boolean())
@@ -117,9 +118,9 @@ GempyreUtils::Result<std::any> GempyreUtils::json_to_any(std::string_view str, M
     if(j.is_object()) {
         switch (map_type) {
         case  MapType::UnorderedMap:
-            return make_map<std::unordered_map<std::string, std::any>>(j.object());
+            return make_map<std::unordered_map<std::string, std::any>>(j);
         case MapType::Map:
-            return make_map<std::map<std::string, std::any>>(j.object());
+            return make_map<std::map<std::string, std::any>>(j);
         }
     }  
     if(j.is_array()) {
@@ -181,30 +182,61 @@ bool append<std::vector<std::any>>(std::any* j, const std::string& key, std::any
     return false;
 }
 
-GempyreUtils::ResultTrue GempyreUtils::set_json_value(std::any& any, 
-std::string_view path, JsonType&& value) {
+template<typename M>
+bool remove(std::any* j, const std::string& key) {
+    if (auto jj = std::any_cast<M>(j)) {
+        auto it = jj->find(key);
+        if (it == jj->end())
+            return false;
+        jj->erase(it);    
+        return true;    
+    }
+    return false;
+}
+
+template<>
+bool remove<std::vector<std::any>>(std::any* j, const std::string& key) {
+    if (auto jj = std::any_cast<std::vector<std::any>>(j)) {
+        const auto index = GempyreUtils::parse<unsigned>(key);
+        if (!index || *index >= jj->size())
+            return false;
+        jj->erase(jj->begin() + *index);
+        return true;    
+    }
+    return false;
+}
+
+template<typename J, typename I>
+GempyreUtils::Result<J*> iterate_path(J* j, I begin, I end) {
+    ssize_t success_paths = 0;
+    for (auto it = begin; it != end; ++it) {
+        auto jj = next<J, std::map<std::string, std::any>>(j, *it);
+        if (!jj)
+            jj = next<J, std::unordered_map<std::string, std::any>>(j, *it);
+        if (!jj)
+            jj = next<J, std::vector<std::any>>(j, *it);
+        if (!jj) {
+                return  GempyreUtils::Result<J*>::make_error(GempyreUtils::join(begin, begin + success_paths, "/"));
+            }
+        j = jj;
+        ++success_paths;    
+    }
+    return j;
+}
+
+GempyreUtils::ResultTrue GempyreUtils::set_json_value(std::any& any, std::string_view path, JsonType&& value) {
     auto path_items = GempyreUtils::split(path, '/');
     if (path_items.empty()) {
         return ResultTrue::make_error("");
     }
     const auto value_name = path_items.back();
-    path_items.pop_back();
-    size_t success_paths = 0;
-    std::any* j = &any;
-    for (const auto& p : path_items) {
-        auto jj = next<std::any, std::map<std::string, std::any>>(j, p);
-        if (!jj)
-            jj = next<std::any, std::unordered_map<std::string, std::any>>(j, p);
-        if (!jj) {
-            jj = next<std::any, std::vector<std::any>>(j, p);
-        if (!jj) {
-                path_items.resize(success_paths);
-                return ResultTrue::make_error(GempyreUtils::join(path_items, "/"));
-            }
-        j = jj;
-        ++success_paths;    
-        }
+    
+    auto r = iterate_path(&any, path_items.begin(), path_items.end() - 1);
+    if(!r) {
+        return GempyreUtils::ResultTrue::make_error(r.error());
     }
+
+    auto j = *r;
 
     std::any any_val = std::visit(overloaded {
         [](bool v) {return std::make_any<bool>(v);},
@@ -230,23 +262,15 @@ std::string_view path, JsonType&& value) {
 }
 
 GempyreUtils::Result<GempyreUtils::JsonType> GempyreUtils::get_json_value(const std::any& any, std::string_view path) {
-    const std::any* j = &any;
+
     auto path_items = GempyreUtils::split(path, '/');
-    size_t success_paths = 0;
-    for (const auto& p : path_items) {
-        auto jj = next<const std::any, std::map<std::string, std::any>>(j, p);
-        if (!jj)
-            jj = next<const std::any, std::unordered_map<std::string, std::any>>(j, p);
-        if (!jj) {
-            jj = next<const std::any, std::vector<std::any>>(j, p);
-        if (!jj) {
-                path_items.resize(success_paths);
-                return Result<GempyreUtils::JsonType>::make_error(GempyreUtils::join(path_items, "/"));
-            }
-        j = jj;
-        ++success_paths;    
-        }
+    const auto r = iterate_path(&any, path_items.begin(), path_items.end());
+
+    if (!r) {
+        return GempyreUtils::Result<GempyreUtils::JsonType>::make_error(r.error());
     }
+
+    auto j = *r;
 
     if (const auto v = std::any_cast<nullptr_t>(j))
         return JsonType{*v};
@@ -273,4 +297,31 @@ GempyreUtils::Result<GempyreUtils::JsonType> GempyreUtils::get_json_value(const 
         return JsonType{*v};            
 
     return Result<GempyreUtils::JsonType>::make_error(std::string{path});
+}
+
+GempyreUtils::ResultTrue GempyreUtils::remove_json_value(std::any& any,  std::string_view path) {
+    auto path_items = GempyreUtils::split(path, '/');
+    if (path_items.empty()) {
+        return ResultTrue::make_error("");
+    }
+    const auto value_name = path_items.back();
+
+    auto r = iterate_path(&any, path_items.begin(), path_items.end() - 1);
+
+     if(!r) {
+        return GempyreUtils::ResultTrue::make_error(r.error());
+    }
+
+    auto j = *r;
+
+    if (remove<std::map<std::string, std::any>>(j, value_name))
+        return ResultTrue::ok();
+
+    if (remove<std::unordered_map<std::string, std::any>>(j, value_name))
+        return ResultTrue::ok();
+
+    if (remove<std::vector<std::any>>(j, value_name))
+        return ResultTrue::ok();
+
+    return ResultTrue::make_error(std::string{path});
 }
