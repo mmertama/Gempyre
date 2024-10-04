@@ -42,6 +42,7 @@ dllexport
 doxygen
 endif
 enum
+enums
 env
 eval
 filemap
@@ -290,6 +291,7 @@ textBaseline
 tolower
 txt
 typedef
+typedefs
 Typedef
 Typedefs
 typename
