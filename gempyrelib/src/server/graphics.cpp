@@ -141,7 +141,7 @@ void CanvasElement::paint(const CanvasDataPtr& canvas, int x_pos, int y_pos, boo
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sent canvas data");
 }
 
-std::string CanvasElement::add_image(std::string_view url, const std::function<void (const std::string& id)> &loaded) {
+std::string CanvasElement::add_image(std::string_view url, const std::function<void (std::string_view id)> &loaded) {
     const auto name = generateId("image");
     Gempyre::Element imageElement(*m_ui, name, "IMG", /*m_ui->root()*/*this);
     if(loaded)

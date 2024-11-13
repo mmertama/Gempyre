@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstring> // memcpy (windows)
 #include <gempyre_types.h>
+#include <array>
 
 /**
   * @file
@@ -65,7 +66,7 @@ namespace  Gempyre {
         }
 
         [[nodiscard]] 
-        ///@brief   Get blue compoennt.
+        ///@brief   Get blue component.
         static constexpr inline type b(type pixel) {
             return (pixel & static_cast<type>(0xFF0000)) >> 16;
         }
@@ -113,7 +114,7 @@ namespace  Gempyre {
         }
 
         [[nodiscard]] 
-        ////@brief  Get color as a HYML string 
+        ///@brief  Get color as a HYML string 
         static inline std::string to_string(Gempyre::Color::type color) {
             return Gempyre::Color::to_string(
                 Gempyre::Color::r(color),
