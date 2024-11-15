@@ -1,18 +1,19 @@
+#include "lws_server.h"
 #include "gempyre_utils.h"
-#include "server.h"
+//#include "server.h"
 #include <nlohmann/json.hpp>
 #include <cstring> //memcpy
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#pragma GCC diagnostic ignored "-Wshadow"
-extern "C" {
-     #include "lws_server.h"
-}
-#pragma GCC diagnostic pop
+//#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wuninitialized"
+//#pragma GCC diagnostic ignored "-Wshadow"
+
+//extern "C" {
+//     #include "lws_server.h"
+//}
+//pragma GCC diagnostic pop
 
 using namespace Gempyre;
-using json = nlohmann::json; 
 
 class Gempyre::SendBuffer {
      public:
@@ -35,7 +36,8 @@ class Gempyre::SendBuffer {
                const auto distance_to_end = std::distance(m_pos, m_data.end());
                const auto delta = std::min((end - ptr), distance_to_end);
                auto pos = &(*m_pos);
-               std::memcpy(ptr, pos, delta);
+               assert(delta >= 0);
+               std::memcpy(ptr, pos, static_cast<size_t>(delta));
                m_pos += delta;
                return ptr + delta;
           }
@@ -49,7 +51,7 @@ class Gempyre::SendBuffer {
                return m_mime;
           }
 
-          const auto size() const {
+          auto size() const {
                return m_data.size();
           }
 
@@ -64,10 +66,24 @@ class Gempyre::SendBuffer {
           std::string m_data = {};     
 };
 
+std::optional<std::string_view> LWS_Server::match(const std::string_view prefix, const std::string_view param) const {
+     if(param.empty()) {
+          return std::nullopt;
+     }
+     for (auto i = 0U; i < prefix.size(); ++i) {
+          if (prefix[i] == ':') {
+               return param.substr(i + 1);
+          }
+          if (i >= param.size() || prefix[i] != param[i])
+               return std::nullopt;
+     }
+     return std::nullopt;
+}
+
  std::string LWS_Server::parseQuery(const std::string_view query) const {
      std::string fullPath;
      if(!query.empty()) {
-          const auto queries = GempyreUtils::split<std::vector<std::string>>(std::string(query), '&');
+          const auto queries = GempyreUtils::split<std::vector<std::string>>(query, '&');
           for(const auto& q : queries) {
                const auto query_list = GempyreUtils::split<std::vector<std::string>>(q, '=');
                if(query_list.size() == 2) {
@@ -84,9 +100,22 @@ class Gempyre::SendBuffer {
      return fullPath;
 }
 
-bool LWS_Server::get(const std::string_view get_param) const {
+bool LWS_Server::get_http(const std::string_view get_param) const {
      assert(m_send_buffer->empty());
-     auto serverData = m_onGet(get_param); // is it would be just an url
+#ifdef PULL_MODE       
+     const auto id = match("/data/:id", get_param);
+     if (id) {
+          const auto it = m_pulled.find(*id);
+          if(it == m_pulled.end()) {
+               return false;
+          }
+          const auto mime_type = std::get<DataType>(it->second) == DataType::Json ? "application/json" : "application/octet-stream";
+          m_send_buffer->apply(std::move(it->second), std::string(mime_type));
+          m_pulled.erase(it);
+          return true;
+     }
+#endif
+     auto serverData = m_onGet(get_param); // is it would be just an url     
      if(serverData.has_value()) {
           GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "server get:", serverData->size());
           const auto mime_type = Server::fileToMime(get_param);
@@ -95,54 +124,96 @@ bool LWS_Server::get(const std::string_view get_param) const {
      }
      // this probably could be replaced with lws_serve_http_file, tbd if works ok TODO
      GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "server get does an file query");
-     const auto fullPath = parseQuery(get_param);
-     if(GempyreUtils::file_exists(fullPath)) {
-          auto mime_type = Server::fileToMime(fullPath);
-          auto data = GempyreUtils::slurp(fullPath);
+     auto fullPath = m_onGet(get_param); // is it would be just an url
+     if(fullPath && GempyreUtils::file_exists(*fullPath)) {
+          auto mime_type = Server::fileToMime(*fullPath);
+          auto data = GempyreUtils::slurp(*fullPath);
           if(!data.empty()) {
                m_send_buffer->apply(std::move(data), std::string(mime_type));
                return true;
           } else {
-               GempyreUtils::log(GempyreUtils::LogLevel::Error, "path:", fullPath, "Cannot read"); 
+               GempyreUtils::log(GempyreUtils::LogLevel::Error, "path:", *fullPath, "Cannot read"); 
           }
      } else {
-          GempyreUtils::log(GempyreUtils::LogLevel::Error, "path:", fullPath, "Not found");
+          GempyreUtils::log(GempyreUtils::LogLevel::Error, "path:", fullPath ? *fullPath : "N/A", "Not found");
      }   
         return false;
      }
 
+void LWS_Server::appendSocket(lws* wsi) {
+     auto ws = std::make_unique<LWS_Socket>(wsi);
+     m_broadcaster->append(ws.get());
+     //m_sockets.emplace(ws.get(), std::move(ws));
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_ESTABLISHED");
+}
 
-int LWS_Server::wsCallback(lws *wsi, lws_callback_reasons reason, void *user, void *in, size_t len)
-{
+bool LWS_Server::removeSocket(lws* wsi, unsigned code) {
+     auto it = m_sockets.find(wsi);
+     m_broadcaster->remove(it->second.get());
+     m_sockets.erase(it);
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_CLOSED");
+
+     if(code != 1001 && code != 1006) {  //browser window closed
+          if(code == 1000 || (code != 1005 && code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
+               GempyreUtils::log(GempyreUtils::LogLevel::Error, "WS", "closed on error", code);
+          } else if(code != 0) {
+               GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "Non closing error", code);
+               return true;
+          }
+     }
+
+     m_onClose(CloseStatus::CLOSE, static_cast<int>(code));
+     return false;
+}
+
+
+bool LWS_Server::received(lws* wsi, std::string_view msg) {
+     switch(messageHandler(msg)) {
+          case MessageReply::DoNothing:
+               if(m_do_close) {
+                    return false; // close connection
+               }
+               break;
+          case MessageReply::AddUiSocket:
+               m_uiready = true;
+               m_broadcaster->setType(m_sockets[wsi].get(), Server::TargetSocket::Ui);
+               m_onOpen();
+               break;
+          case MessageReply::AddExtensionSocket:
+               m_broadcaster->setType(m_sockets[wsi].get(), Server::TargetSocket::Extension);
+               break;
+          }
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_RECEIVE", msg);
+     return true;
+}
+
+static inline
+unsigned get_error_code(void* in, size_t len) {
+     auto reason_buffer = reinterpret_cast<unsigned char*>(in);
+     // The close code is a 2-byte value at the start of the reason buffer
+     return len >= 2 ? (
+          static_cast<unsigned>(reason_buffer[0] << 8) |
+          static_cast<unsigned>(reason_buffer[1])) : 1005U;        
+}
+
+
+int LWS_Server::wsCallback(lws* wsi, lws_callback_reasons reason, void* /*user*/, void *in, size_t len) {
      auto self = static_cast<LWS_Server*>(lws_context_user(lws_get_context(wsi)));
      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "wsCallback", reason);
-     switch (reason)
-     {
+     switch (reason) {
+     case LWS_CALLBACK_CLOSED:
+          if(!self->removeSocket(wsi, get_error_code(in, len)))
+               return -1;
+          break;     
      case LWS_CALLBACK_ESTABLISHED:
-          self->m_connected = true;
-          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_ESTABLISHED", reason);
+          self->appendSocket(wsi);
           break;
      case LWS_CALLBACK_SERVER_WRITEABLE:
-     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_SERVER_WRITEABLE", reason);
+          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_SERVER_WRITEABLE", reason);
           break;
-     case LWS_CALLBACK_RECEIVE: {
-          const std::string_view msg(static_cast<char*>(in), len);
-          switch(self->messageHandler(msg)) {
-               case MessageReply::DoNothing:
-                    if(self->m_do_close) {
-                         return -1; // close connection
-                    }
-                    break;
-               case MessageReply::AddUiSocket:
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO AddUiSocket");
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO Ready");
-                    break;
-               case MessageReply::AddExtensionSocket:
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "TODO AddUiSocket");
-                    break;
-               }
-          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_RECEIVE", msg);
-     }
+     case LWS_CALLBACK_RECEIVE: 
+          if (!self->received(wsi, std::string_view{static_cast<char*>(in), len}))
+               return -1; // exit
           break;          
      default:
           break;
@@ -163,7 +234,7 @@ static auto lwsToken(const std::string_view sv) {
 */
 
 
-int LWS_Server::httpCallback(lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len)
+int LWS_Server::httpCallback(lws *wsi, enum lws_callback_reasons reason, void* /*user*/, void* in, size_t /*len*/)
 {
      auto self = static_cast<LWS_Server*>(lws_context_user(lws_get_context(wsi)));
      
@@ -176,7 +247,7 @@ int LWS_Server::httpCallback(lws *wsi, enum lws_callback_reasons reason, void *u
      case LWS_CALLBACK_HTTP: {
           const std::string_view get_params{static_cast<const char*>(in)};
           GempyreUtils::log(GempyreUtils::LogLevel::Debug, "http-get", get_params);
-          if(self->get(get_params)) {
+          if(self->get_http(get_params)) {
                const auto mime_type = self->m_send_buffer->mime();
                const auto size = self->m_send_buffer->size();
                if (lws_add_http_common_headers(wsi, HTTP_STATUS_OK, mime_type.c_str(), size, &ptr, end))
@@ -229,113 +300,124 @@ static lws_retry_bo retry{
 };
 
 LWS_Server::LWS_Server(unsigned int port,
-           const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
-           int queryIdBase) :
-            Server{port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase},
-            m_send_buffer{std::make_unique<SendBuffer>()} {
-               assert(m_send_buffer && m_send_buffer->empty());
+     const std::string& rootFolder,
+     const Server::OpenFunction& onOpen,
+     const Server::MessageFunction& onMessage,
+     const Server::CloseFunction& onClose,
+     const Server::GetFunction& onGet,
+     const Server::ListenFunction& onListen,
+     int queryIdBase,
+     const Server::ResendRequest& resendRequest) :
+Server{port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase},
+m_send_buffer{std::make_unique<SendBuffer>()},
+m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS_Socket::SendStatus) {
+     resendRequest();
+})} {
+     assert(m_send_buffer && m_send_buffer->empty());
 
-               m_loop = std::async(std::launch::async, [this] {
+     m_loop = std::async(std::launch::async, [this] {
 
-                    lws_context_creation_info info{};
+     lws_context_creation_info info{};
 
-                    const lws_protocols gempyre_ws { 
-                         "gempyre",
-                         LWS_Server::wsCallback,
-                         0,
-                         8192,
-                         0,
-                         nullptr,
-                         0
-                    };
+     const lws_protocols gempyre_ws { 
+          "gempyre",
+          LWS_Server::wsCallback,
+          0,
+          8192,
+          0,
+          nullptr,
+          0
+     };
 
-                    const lws_protocols gempyre_http {
-                         "http-only",                  // name
-                         LWS_Server::httpCallback,     // cb
-                         0,                            // per_session_data_size
-                         0,                            // rx_buffer_size
-                         0,                            // id
-                         nullptr,                      // user
-                         0                             // tx_packet_size
-                    };
+     const lws_protocols gempyre_http {
+          "http-only",                  // name
+          LWS_Server::httpCallback,     // cb
+          0,                            // per_session_data_size
+          0,                            // rx_buffer_size
+          0,                            // id
+          nullptr,                      // user
+          0                             // tx_packet_size
+     };
 
-                    const lws_protocols protocols[] = {
-                         gempyre_ws,
-                         gempyre_http,
-                         LWS_PROTOCOL_LIST_TERM
-                    };
+     const lws_protocols protocols[] = {
+          gempyre_ws,
+          gempyre_http,
+          LWS_PROTOCOL_LIST_TERM
+     };
 
-                    const auto cwd = GempyreUtils::working_dir();lws_protocol_init_vhost: 
+     const auto cwd = GempyreUtils::working_dir();
 
-                    const struct lws_http_mount mount = {
-	               /* .mount_next */		     nullptr,		          /* linked-list "next" */
-	               /* .mountpoint */		     "/",		               /* mountpoint URL */
-	               /* .origin */			     cwd.c_str(),             /* serve from dir */
-	               /* .def */			     m_rootFolder.c_str(),	     /* default filename */
-	               /* .protocol */		     "http-only",
-	               /* .cgienv */			     nullptr,
-	               /* .extra_mimetypes */		nullptr,
-	               /* .interpret */		     nullptr,
-	               /* .cgi_timeout */		     0,
-	               /* .cache_max_age */		0,
-	               /* .auth_mask */		     0,
-	               /* .cache_reusable */		0,
-	               /* .cache_revalidate */		0,
-	               /* .cache_intermediaries */	0,
-	               /* .origin_protocol */		LWSMPRO_FILE,	          /* files in a dir */
-	               /* .mountpoint_len */		1,		               /* char count */
-	               /* .basic_auth_login_file */	nullptr,
-                    };
+     const struct lws_http_mount mount = {
+     /* .mount_next */		     nullptr,		          /* linked-list "next" */
+     /* .mountpoint */		     "/",		               /* mountpoint URL */
+     /* .origin */			     cwd.c_str(),             /* serve from dir */
+     /* .def */			     m_rootFolder.c_str(),	     /* default filename */
+     /* .protocol */		     "http-only",
+     /* .cgienv */			     nullptr,
+     /* .extra_mimetypes */		nullptr,
+     /* .interpret */		     nullptr,
+     /* .cgi_timeout */		     0,
+     /* .cache_max_age */		0,
+     /* .auth_mask */		     0,
+     /* .cache_reusable */		0,
+     /* .cache_revalidate */		0,
+     /* .cache_intermediaries */	0,
+     /* .origin_protocol */		LWSMPRO_FILE,	          /* files in a dir */
+     /* .mountpoint_len */		1,		               /* char count */
+     /* .basic_auth_login_file */	nullptr,
+     };
 
 
-                    info.port = m_port;
-                    info.protocols = protocols;
-	               info.mounts = &mount;
-	               info.error_document_404 = "/404.html";
-                    info.user = this;
-	               //info.options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
+     info.port = static_cast<int>(m_port);
+     info.protocols = protocols;
+     info.mounts = &mount;
+     info.error_document_404 = "/404.html";
+     info.user = this;
+     //info.options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
 
-                    set_lws_log_level();
-                    
-                    auto context = lws_create_context(&info);
-                    if(!context) {
-                         GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Init failed");
-                         return;
-                    }
+     set_lws_log_level();
+     
+     auto context = lws_create_context(&info);
+     if(!context) {
+          GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Init failed");
+          return;
+     }
 
-                    
-                    /*auto *vhost = lws_create_vhost(m_context, &info);
-                    if (!vhost) {
-                         GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Generatoring vhost failded");
-                         lws_context_destroy(m_context);
-                         return;
-                    }*/
+     
+     /*auto *vhost = lws_create_vhost(m_context, &info);
+     if (!vhost) {
+          GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Generatoring vhost failded");
+          lws_context_destroy(m_context);
+          return;
+     }*/
 
-                    m_running = true;
-                    if(!m_onListen(m_port)) {
-                          m_running = false;
-                    }
+     m_running = true;
+     if(!m_onListen(m_port)) {
+          m_running = false;
+     }
 
-                    while (m_running && lws_service(context, 0) >= 0) {
-                    }
+     while (m_running && lws_service(context, 0) >= 0) {
+     }
 
-                    m_running = false;
-                    lws_context_destroy(context);
-                });
-           }
+     m_running = false;
+     lws_context_destroy(context);
+     });
+}
 
 
 LWS_Server::~LWS_Server() {
+     close(true);
+     assert(!m_broadcaster ||  m_broadcaster->empty());
 }
 
 bool LWS_Server::isJoinable() const {
      return m_loop.valid();
      }
+
+bool LWS_Server::isUiReady() const {
+    return m_uiready;
+}
+
 bool LWS_Server::isRunning() const {
      assert(isJoinable());
      return m_running;
@@ -343,18 +425,25 @@ bool LWS_Server::isRunning() const {
 
 bool LWS_Server::isConnected() const {
      assert(isRunning());
-     return m_connected;
+     return !m_broadcaster->empty();
      }
      
-bool LWS_Server::retryStart() {std::abort();}
+bool LWS_Server::retryStart() {
+     std::abort();
+     }
 
 void LWS_Server::close(bool wait) {
+     m_broadcaster->close();
      m_do_close = true;
+     if (wait && isJoinable()) {
+          std::this_thread::sleep_for(100ms);
+     }
 }
 
+/*
 bool LWS_Server::send(Server::TargetSocket target, Server::Value&& value) {
-     assert(isConnected());
-     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send!", k, v);
+     assert(isConnected());*/
+     //GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send!", k, v);
      /*
           // https://libwebsockets.org/lws-api-doc-master/html/md_README.coding.html
      Only send data when socket writeable
@@ -372,12 +461,14 @@ bool LWS_Server::send(Server::TargetSocket target, Server::Value&& value) {
 */
 
      // Here we add data to queue and, if it is not a batch, kick writeable request
-     return true;
+/*     return true;
      }
-
-bool LWS_Server::send(const Gempyre::Data& data) {std::abort();}
-bool LWS_Server::beginBatch() {std::abort();}
-bool LWS_Server::endBatch() {std::abort();}
+*/
+/*
+bool LWS_Server::send(const Gempyre::Data& data)
+bool LWS_Server::beginBatch()
+bool LWS_Server::endBatch()
+*/
 
 std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
            const std::string& rootFolder,
@@ -386,7 +477,8 @@ std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
            const Server::CloseFunction& onClose,
            const Server::GetFunction& onGet,
            const Server::ListenFunction& onListen,
-           int querIdBase) {
-                return std::unique_ptr<Server>(new LWS_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, querIdBase));
+           int querIdBase,
+           const Server::ResendRequest& request) {
+                return std::unique_ptr<Server>(new LWS_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, querIdBase, request));
            }
 

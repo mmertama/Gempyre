@@ -9,6 +9,7 @@
 #include <numeric>
 #include <nlohmann/json.hpp>
 
+
 // for convenience
 
 using json = nlohmann::json;
@@ -16,8 +17,9 @@ using namespace std::chrono_literals;
 
 using WSServer = uWS::TemplatedApp<false>;
 using WSBehaviour = WSServer::WebSocketBehavior<Gempyre::ExtraSocketData>;
-using namespace Gempyre;
 
+
+using namespace Gempyre;
 
 constexpr unsigned PAYLOAD_SIZE = 8 * 1024 * 1024;
 constexpr unsigned BACKPRESSURE_SIZE = 8 * 1024 * 1024;
@@ -48,27 +50,6 @@ static std::string toLower(const std::string& str) {
     std::transform(s.begin(), s.end(), s.begin(), [](auto c) {return std::tolower(c);});
     return s;
 }
-
-
-
-class Gempyre::Batch {
-public:
-    Batch() : m_arrays{} {
-    }
-
-    void push_back(Server::TargetSocket target, json&& jobj) {
-        m_arrays[target].push_back(std::forward<json>(jobj));
-    }
-
-    std::string dump(Server::TargetSocket target) {
-        auto data = json::object();
-        data["type"] = "batch";
-        data["batches"] =  std::move(m_arrays[target]);
-        return data.dump();
-    }
-private:
-    std::unordered_map<Server::TargetSocket, json::array_t> m_arrays;
-};
 
 
 class Gempyre::SocketHandler {
@@ -119,9 +100,9 @@ Uws_Server::Uws_Server(
     //mStartFunction([this]()->std::unique_ptr<std::thread> {
 //   return makeServer();
 //}),
-    m_broadcaster(std::make_unique<Broadcaster>([resendRequest](WSSocket*, WSSocket::SendStatus) {
+    m_broadcaster{std::make_unique<Uws_Broadcaster>([resendRequest](WSSocket*, WSSocket::SendStatus) {
         resendRequest();
-    })),
+    })},
     m_serverThread{newThread()} {
 #ifdef RANDOM_PORT
     const auto seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -174,7 +155,7 @@ void Uws_Server::serverThread(unsigned int port) {
                 m_broadcaster->setType(ws, Server::TargetSocket::Ui);
                 return;
              case MessageReply::AddExtensionSocket:
-                 m_broadcaster->setType(ws, Server::TargetSocket::Extension);
+                m_broadcaster->setType(ws, Server::TargetSocket::Extension);
                 return;
             default:
                 assert(false);
@@ -197,6 +178,7 @@ void Uws_Server::serverThread(unsigned int port) {
 
     auto app = WSServer()
     .ws<ExtraSocketData>("/" + toLower(SERVICE_NAME), std::move(behavior))
+#ifdef PULL_MODE      
     .get("/data/:id", [this](auto * res, auto * req) {
         const auto id = std::string(req->getParameter(0)); //till c++20 ?
         const auto it = m_pulled.find(id);
@@ -214,6 +196,7 @@ void Uws_Server::serverThread(unsigned int port) {
             m_pulled.erase(it);
         }
     })
+#endif
     .get("/*", [this](auto * res, auto * req) {
         const auto url = req->getUrl();
         const auto serverData = m_onGet(url);
@@ -308,12 +291,6 @@ Uws_Server::~Uws_Server() {
     assert(!m_broadcaster ||  m_broadcaster->empty());
 }
 
-int Uws_Server::addPulled(DataType type, const std::string_view& data) {
-    ++m_pulledId;
-    m_pulled.emplace(std::to_string(m_pulledId), std::pair<DataType, std::string> {type, std::string(data)});
-    return m_pulledId;
-}
-
 void Uws_Server::closeListenSocket() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server", "closeSocket", static_cast<bool>(m_closeData));
     if(m_closeData) {
@@ -365,38 +342,9 @@ bool Uws_Server::isUiReady() const {
     return m_uiready;
 }
 
-bool Uws_Server::beginBatch() {
-    m_batch = std::make_unique<Batch>();
-    return true;
-}
 
-bool Uws_Server::endBatch() {
-    if(m_batch) {
-        const auto targets = {Server::TargetSocket::Ui, Server::TargetSocket::Extension};
-        for(const auto target : targets) {
-            auto str = m_batch->dump(target);
-#ifdef PULL_MODE        
-        if(str.size() < WS_MAX_LEN) {
-#endif            
-            if(!m_broadcaster->send(Server::TargetSocket::Ui, std::move(str)))
-                return false;
-#ifdef PULL_MODE                
-        } else {
-            const auto pull = addPulled(DataType::Json, str);
-            const json obj = {{"type", "pull_json"}, {"id", pull}};
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add batch pull", str.size(), pull);
-            if(!m_broadcaster->send(target, obj.dump()))
-                return false;
-        }
-#endif      
-        }  
-        m_batch.reset();
-    }
-    return true;
-}
-
-bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value) {
-    if(m_batch) {
+bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value, bool batchable) {
+    if(batchable && m_batch) {
         m_batch->push_back(target, std::move(value));
     } else {
             auto str = value.dump();
@@ -408,7 +356,7 @@ bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value) {
 #ifdef PULL_MODE               
     This is not working - but keep here as a reference if pull mode want to be re-enabled 
         } else {
-            const auto pull = addPulled(DataType::Json, str);
+            const auto pull = ed(DataType::Json, str);
             const json obj = {{"type", "pull_json"}, {"id", pull}};
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add text pull", str.size(), pull);
             if(!m_broadcaster->send(obj.dump(), is_ext))
@@ -445,11 +393,7 @@ void Uws_Server::doClose() {
 
 void Uws_Server::close(bool wait) {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server - going");
-    int attempts = 20;
-    while(!m_broadcaster->empty() && --attempts > 0) {
-        std::this_thread::sleep_for(100ms);
-    }
-    m_broadcaster->forceClose();
+    m_broadcaster->close();
     doClose();
     if(wait && m_serverThread && m_serverThread->joinable()) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Wait server to close", !!m_closeData);
@@ -462,3 +406,27 @@ void Uws_Server::close(bool wait) {
  bool Uws_Server::isJoinable() const {return m_serverThread && m_serverThread->joinable();}
  bool Uws_Server::isRunning() const {return isJoinable() && m_isRunning;}
 
+ bool Uws_Server::has_backpressure(WSSocket* s, size_t len)  {
+    const auto webSocketContextData = static_cast<uWS::WebSocketContextData<false, ExtraSocketData>*>
+    (us_socket_context_ext(false, us_socket_context(false, reinterpret_cast<us_socket_t *> (s))));
+    const auto free_space =  webSocketContextData->maxBackpressure - s->getBufferedAmount(); 
+    if(len > webSocketContextData->maxBackpressure) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Fatal,
+        "Too much data: max:", webSocketContextData->maxBackpressure,
+        "Data size:", len,
+        "Free:", free_space);
+    }
+    if(len > free_space) {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "buf full", free_space, len);
+        return true;
+        }
+    return false;    
+}
+
+WSSocket::SendStatus Uws_Server::send_text(WSSocket* s, std::string_view text) {
+    return s->send(text, uWS::OpCode::TEXT);
+}
+
+WSSocket::SendStatus Uws_Server::send_bin(WSSocket* s, std::string_view bin) {
+     return s->send(bin, uWS::OpCode::BINARY);
+}

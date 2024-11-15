@@ -27,6 +27,12 @@ Gempyre is a library that is linked with the application, except for Android, se
 
 [Gempyre Documentation](https://mmertama.github.io/Gempyre/)
 
+#### Note (11/24)
+
+I have changed default Web socket library and that may arise build issues. If there are issues you may try to set 
+`USE_LIBWEBSOCKETS` to OFF. (e.g. cmake -DUSE_LIBWEBSOCKETS=OFF ...).
+(I will remove this note later)
+
 ### Linux
 
 * Run

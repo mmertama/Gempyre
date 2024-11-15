@@ -2,7 +2,7 @@
 if(BLEEDING_EDGE)
     set(LIB_WS_VER "main")    
 else()
-    set(LIB_WS_VER "v4.3.2")
+    set(LIB_WS_VER "v4.3.3")
 endif()
 
 # this was GIT_REPOSITORY https://libwebsockets.org/repo/libwebsockets
@@ -67,12 +67,19 @@ if(WIN32)
 
   #set(WS_LIBS websockets ${LIBWEBSOCKETS_DEP_LIBS})
 
-  set(USE_LIBWEBSOCKETS TRUE)
+set(USE_LIBWEBSOCKETS TRUE)
 
 macro(socket_dependencies TARGET)
     target_link_directories(${TARGET} PRIVATE ${libwebsockets_BINARY_DIR}/lib)
     target_compile_definitions(${TARGET} PRIVATE USE_LIBWEBSOCKETS)
 endmacro()
+
+
+set_source_files_properties("${libwebsockets_SOURCE_DIR}/lib/plat/unix/unix-misc.c" PROPERTIES 
+  COMPILE_OPTIONS "-Wno-unused-parameter")
+
+set_source_files_properties("${libwebsockets_SOURCE_DIR}/lib/plat/unix/unix-sockets.c" PROPERTIES 
+  COMPILE_OPTIONS "-Wno-unused-parameter")  
 
 string(STRIP "${libwebsockets_BINARY_DIR}/lib" GEMPYRE_WS_LIB_PATH)
 
@@ -81,5 +88,16 @@ set(GEMPYRE_WS_SOURCES
     src/libwebsockets/lws_server.h
     )
 
- set(WEBSOCKET_LIBRARY_NAME "libwebsocket")   
+set(GEMPYRE_WEBSOCKET_LIBRARY_NAME "libwebsocket")   
 
+#if(WIN32)
+#    set(CONNECTION_FIND Finduva.cmake)
+#    set(CONNECTION_LIB_FULL ${UV_LIB_FULL})
+#elseif(RASPBERRY)
+#    set(CONNECTION_FIND Finduva.cmake)
+#    set(CONNECTION_LIB_FULL ${UV_LIB_FULL})
+#elseif(ANDROID)
+#else()
+#    set(CONNECTION_FIND FinduSockets.cmake)
+#    set(CONNECTION_LIB_FULL ${SOCKETS_LIB_FULL})
+#endif()

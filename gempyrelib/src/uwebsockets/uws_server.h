@@ -3,17 +3,25 @@
 
 #include "server.h"
 #include "semaphore.h"
+#include "broadcaster.h"
 
+#ifndef UWS_NO_ZLIB
+    #define UWS_NO_ZLIB
+#endif
+#include <App.h>
 
 struct us_listen_socket_t;
 using ListenSocket = std::atomic<us_listen_socket_t*>;
 
 namespace Gempyre {
 
-class Broadcaster;
-class SocketHandler;  
+class SocketHandler;
 
+using WSSocket = uWS::WebSocket<false, true, ExtraSocketData>;
 
+class Uws_Server;
+
+using Uws_Broadcaster = Broadcaster<WSSocket, uWS::Loop, Uws_Server>;
 
 class Uws_Server : public Server {
 public:
@@ -27,7 +35,12 @@ public:
            int queryIdBase,
            const Server::ResendRequest& request);
      
-     ~Uws_Server();
+    ~Uws_Server();
+
+    static bool has_backpressure(WSSocket* s, size_t len);
+    static WSSocket::SendStatus send_text(WSSocket* s, std::string_view text);
+    static WSSocket::SendStatus send_bin(WSSocket* s, std::string_view bin); 
+
 private: // let's not use Server API
     bool isJoinable() const override;
     bool isRunning() const override;
@@ -37,31 +50,25 @@ private: // let's not use Server API
     bool isUiReady() const override;
     bool retryStart() override;
     void close(bool wait = false) override;
-    bool send(Server::TargetSocket target, Server::Value&& value) override;
+    bool send(Server::TargetSocket target, Server::Value&& value, bool batchable) override;
     bool send(Gempyre::DataPtr&& data, bool droppable) override;
-    bool beginBatch() override;
-    bool endBatch() override;
     void flush() override;
 private:
     std::unique_ptr<std::thread> makeServer(unsigned short port);
     void doClose();
     void closeListenSocket();
-    enum class DataType{Json, Bin};
-    int addPulled(DataType, const std::string_view& data);
+  
     void serverThread(unsigned port);
     bool checkPort();
     std::unique_ptr<std::thread> newThread();
 private:
     
-    std::unique_ptr<Broadcaster> m_broadcaster;
-    std::unique_ptr<Broadcaster> m_extensions{};
+    std::unique_ptr<Uws_Broadcaster> m_broadcaster;
+    std::unique_ptr<Uws_Broadcaster> m_extensions{};
    
     ListenSocket m_closeData = nullptr; //arbitrary
-    std::atomic_bool m_uiready = false;
-
-    std::unique_ptr<Batch> m_batch{};
-    std::unordered_map<std::string, std::pair<DataType, std::string>> m_pulled{};
-    int m_pulledId{0};
+    std::atomic_bool m_uiready{false};
+  
     std::atomic_bool m_doExit{false};
     std::atomic_bool m_isRunning{false};
     Semaphore m_waitStart{}; // must be before thread

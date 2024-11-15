@@ -132,3 +132,41 @@ Server::MessageReply Server::messageHandler(std::string_view message) {
         m_onMessage(std::move(object));
         return MessageReply::DoNothing;
     }
+
+bool Server::beginBatch() {
+    m_batch = std::make_unique<Batch>();
+    return true;
+}
+
+bool Server::endBatch() {
+    if(m_batch) {
+        const auto targets = {Server::TargetSocket::Ui, Server::TargetSocket::Extension};
+        for(const auto target : targets) {
+            auto str = m_batch->dump(target);
+#ifdef PULL_MODE        
+        if(str.size() < WS_MAX_LEN) {
+#endif            
+            if(!send(Server::TargetSocket::Ui, std::move(str), false))
+                return false;
+#ifdef PULL_MODE                
+        } else {
+            const auto pull = addPulled(DataType::Json, str);
+            const json obj = {{"type", "pull_json"}, {"id", pull}};
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add batch pull", str.size(), pull);
+            if(!m_broadcaster->send(target, obj.dump()))
+                return false;
+        }
+#endif      
+        }  
+        m_batch.reset();
+    }
+    return true;
+}
+
+#ifdef PULL_MODE   
+    int Server::addPulled(DataType type, const std::string_view& data) {
+        ++m_pulledId;
+        m_pulled.emplace(std::to_string(m_pulledId), std::pair<DataType, std::string> {type, std::string(data)});
+        return m_pulledId;  
+    }
+#endif

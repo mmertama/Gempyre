@@ -76,6 +76,8 @@ if(EMSCRIPTEN)
     add_compile_definitions(WASM)
     set(USE_DEFAULT_SUBPROJECTS OFF)
     set(USE_DEFAULT_PYTHON OFF)
+else()
+    option(USE_LIBWEBSOCKETS "Use libwebsocket as default" ON) # change default websocket from uwebsocket    
 endif()
 
 option(CI_ACTIONS "Github Actions build" OFF)
@@ -132,8 +134,7 @@ if(SANITIZER_THREAD)
     add_compile_options(${ASAN_FLAGS})
     add_link_options(${ASAN_FLAGS})
 endif()
-
-
+ 
 add_subdirectory(gempyrelib)
 
 option(HAS_AFFILIATES "Affiliates are built" ${USE_DEFAULT_SUBPROJECTS})

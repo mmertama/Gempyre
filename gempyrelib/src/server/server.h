@@ -16,6 +16,7 @@
 
 namespace Gempyre {
 
+
 class Batch;
 class Data;
 using DataPtr = std::shared_ptr<Data>;
@@ -56,7 +57,7 @@ public:
     virtual bool retryStart() = 0;
     virtual void close(bool wait = false) = 0;
 
-    virtual bool send(TargetSocket target, Server::Value&& value) = 0;
+    virtual bool send(TargetSocket target, Server::Value&& value, bool batchable = true) = 0;
     virtual bool send(Gempyre::DataPtr&& data, bool droppable) = 0;
 
     virtual bool isJoinable() const = 0;
@@ -67,13 +68,13 @@ public:
     int queryId() const {return ++m_queryId;}
     unsigned int port() const {return m_port;}
     
-    virtual bool beginBatch() = 0;
-    virtual bool endBatch() = 0;
-
     virtual void flush() = 0;
 
     static unsigned wishAport(unsigned port, unsigned max);
     static unsigned portAttempts();
+
+    bool beginBatch();
+    bool endBatch();
 
     static std::string fileToMime(const std::string_view& filename);
     static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "");
@@ -81,8 +82,12 @@ public:
 protected:
     enum class MessageReply {DoNothing, AddUiSocket, AddExtensionSocket};
     MessageReply messageHandler(std::string_view message);
-protected:
+#ifdef PULL_MODE      
+    enum class DataType{Json, Bin};
+    int addPulled(DataType, const std::string_view& data);
+#endif
 
+protected:
     unsigned int m_port;
     std::string m_rootFolder;
     mutable int m_queryId;
@@ -90,8 +95,33 @@ protected:
     const MessageFunction m_onMessage;
     const CloseFunction m_onClose;
     const GetFunction m_onGet;
-    const ListenFunction m_onListen;    
+    const ListenFunction m_onListen;
+    std::unique_ptr<Batch> m_batch{};
+#ifdef PULL_MODE   
+    int m_pulledId{0};
+    std::unordered_map<std::string, std::pair<DataType, std::string>> m_pulled{};
+#endif    
 };
+
+class Batch {
+public:
+    Batch() : m_arrays{} {
+    }
+
+    void push_back(Server::TargetSocket target, json&& jobj) {
+        m_arrays[target].push_back(std::forward<json>(jobj));
+    }
+
+    std::string dump(Server::TargetSocket target) {
+        auto data = json::object();
+        data["type"] = "batch";
+        data["batches"] =  std::move(m_arrays[target]);
+        return data.dump();
+    }
+private:
+    std::unordered_map<Server::TargetSocket, json::array_t> m_arrays;
+};
+
 
 std::unique_ptr<Server> create_server(unsigned int port,
            const std::string& rootFolder,

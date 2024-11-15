@@ -173,9 +173,22 @@ if(HAS_WEB_SOCKETS)
             )
         ExternalProject_Get_Property(libpfd SOURCE_DIR) 
         set(SYSTEM_INCLUDES ${SYSTEM_INCLUDES} "${SOURCE_DIR}")
-    endif()
+    endif()    
+endif()
 
-endif()    # emscripten
+if(USE_UWEBSOCKETS AND USE_LIBWEBSOCKETS)
+    message(FATAL_ERROR "Confusing web socket configuration")
+endif()
+
+if (NOT HAS_WEB_SOCKETS)
+    message("No web sockets")
+elseif(USE_UWEBSOCKETS)
+    message("Use uwebsocket")
+elseif(USE_LIBWEBSOCKETS)
+    message("Use libwebsockets")
+else()
+    message(FATAL_ERROR "I'm not sure what websocket library shall be used!")            
+endif()
 
 FetchContent_Declare(
     lodepng
@@ -268,6 +281,7 @@ if(NOT EMSCRIPTEN)
         src/server/timequeue.h
         src/server/graphics.cpp
         src/server/element.cpp
+        src/server/broadcaster.h
         ${DIALOG_SRC}
         ${GEMPYRE_WS_SOURCES}
     )

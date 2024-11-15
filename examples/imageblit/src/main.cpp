@@ -8,8 +8,8 @@ using namespace std::chrono_literals;
 #define _STR(s) #s
 #define STR(x) _STR(x)
 
-
-void writeText(Gempyre::CanvasElement& el, const std::string& img, int x, int y, const std::string& text) {
+static
+void writeText(Gempyre::CanvasElement& el, std::string_view img, int x, int y, std::string_view text) {
     el.ui().begin_batch();
     const auto width = 19.5;
     const auto height = 38.;

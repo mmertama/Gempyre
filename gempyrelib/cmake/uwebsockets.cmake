@@ -262,7 +262,6 @@ macro(socket_dependencies TARGET)
 endmacro()
 
 set(GEMPYRE_WS_SOURCES 
-    src/uwebsockets/broadcaster.h
     src/uwebsockets/server.cpp
     src/uwebsockets/uws_server.h
     )

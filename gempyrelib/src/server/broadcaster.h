@@ -5,49 +5,34 @@
 #include "gempyre_utils.h"
 #include "data.h"
 #include "server.h"
-#ifndef UWS_NO_ZLIB
-#define UWS_NO_ZLIB
-#endif
 
-#include <App.h>
+
 
 #include <unordered_map>
 #include <cassert>
 
 using namespace std::chrono_literals;
 
+
 namespace Gempyre {
 
 struct ExtraSocketData {};
-using WSSocket = uWS::WebSocket<false, true, ExtraSocketData>;
 
+template<typename WSSocket, typename Loop, typename WSServer>
 class Broadcaster {
     static constexpr auto DELAY = 100ms;
     static constexpr auto BACKPRESSURE_DELAY = 100ms;
     static constexpr unsigned SEND_SUCCESS = 0xFFFFFFFF;
     enum class SType {Bin, Txt};
 
-    bool has_backpressure(WSSocket* s, size_t len) {
-        const auto webSocketContextData = static_cast<uWS::WebSocketContextData<false, ExtraSocketData>*>
-        (us_socket_context_ext(false, us_socket_context(false, reinterpret_cast<us_socket_t *> (s))));
-        const auto free_space =  webSocketContextData->maxBackpressure - s->getBufferedAmount(); 
-        if(len > webSocketContextData->maxBackpressure) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Fatal,
-            "Too much data: max:", webSocketContextData->maxBackpressure,
-            "Data size:", len,
-            "Free:", free_space);
-        }
-        if(len > free_space) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "buf full", free_space, len);
-            return true;
-            }
-        return false;    
-    }
-    Broadcaster(const Gempyre::Broadcaster&) = delete;
-    Broadcaster& operator=(const Gempyre::Broadcaster&) = delete;
+    /*
+
+    */
+    Broadcaster(const Gempyre::Broadcaster<WSSocket, Loop, WSServer>&) = delete;
+    Broadcaster& operator=(const Gempyre::Broadcaster<WSSocket, Loop, WSServer>&) = delete;
 public:
     
-    Broadcaster(const std::function<void(WSSocket*, WSSocket::SendStatus)>& resendRequest) : m_resendRequest{resendRequest} {}
+    Broadcaster(const std::function<void(WSSocket*, typename WSSocket::SendStatus)>& resendRequest) : m_resendRequest{resendRequest} {}
 
     bool send(Server::TargetSocket send_to, std::string&& text) {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send txt", text.size());
@@ -100,16 +85,12 @@ public:
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "socket erased", m_sockets.size());
     }
 
-    void forceClose() {
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Force Close", m_sockets.size());
-        while(true) {
-            auto it = m_sockets.begin();
-            if(it == m_sockets.end())
-                return;
-            auto ws = it->first;
-            remove(ws);
-            ws->close();
+    void close() {
+        int attempts = 20;
+        while (!empty() && --attempts > 0) {
+            std::this_thread::sleep_for(100ms);
         }
+        forceClose();
     }
 
     bool empty() const {
@@ -132,7 +113,7 @@ public:
         send_all(ws);
     }
 
-    void set_loop( uWS::Loop* loop) {
+    void set_loop(Loop* loop) {
         m_loop = loop;
     }
 
@@ -199,13 +180,13 @@ private:
             auto& [s, txt] = *it;
             if(target_socket && target_socket != s)
                 continue;
-            if(has_backpressure(s, txt.size())) {
+            if(WSServer::has_backpressure(s, txt.size())) {
                 // remove all extra and wait for drain
                 if(!forceReduceData())
                     removeDuplicates_unsafe();
                 return;
             }
-            const WSSocket::SendStatus status = s->send(txt, uWS::OpCode::TEXT);
+            const auto status = WSServer::send_text(s, txt);
             if(status == WSSocket::SendStatus::SUCCESS) {
                 m_textQueue.erase(it);
             } else {
@@ -228,13 +209,13 @@ private:
             if(target_socket && target_socket != s)
                 continue;
             const auto& [data, len] = ptr->payload();
-            if(has_backpressure(s, len)) {
+            if(WSServer::has_backpressure(s, len)) {
                 if(droppable)
                     m_dataQueue.erase(it);
                 return;
             }
 
-            const WSSocket::SendStatus status = s->send(std::string_view(data, len), uWS::OpCode::BINARY);
+            const auto status = WSServer::send_bin(s, std::string_view{data, len});
                     
             if(status == WSSocket::SendStatus::SUCCESS || !droppable) {
                 m_dataQueue.erase(it);
@@ -256,7 +237,7 @@ private:
 
     // uws requires send happen in its thread, therefore we queue them and then send them using m_loop->defer
     void socket_send(WSSocket* ws, size_t sz) {
-         if(ws && sz > 0 && has_backpressure(ws, sz)) {
+         if(ws && sz > 0 && WSServer::has_backpressure(ws, sz)) {
             std::this_thread::sleep_for(BACKPRESSURE_DELAY);
          }
          m_loop->defer([this] () { // this happens in server thread 
@@ -264,15 +245,27 @@ private:
          });
     }
 
+        void forceClose() {
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Force Close", m_sockets.size());
+        while(true) {
+            auto it = m_sockets.begin();
+            if(it == m_sockets.end())
+                return;
+            auto ws = it->first;
+            remove(ws);
+            ws->close();
+        }
+    }
+
 private:
-    std::function<void (WSSocket*, WSSocket::SendStatus)> m_resendRequest;
+    std::function<void (WSSocket*, typename WSSocket::SendStatus)> m_resendRequest;
     std::unordered_map<WSSocket*, Server::TargetSocket> m_sockets{};
     std::mutex m_sendTxtMutex{};
     std::mutex m_sendBinMutex{};
     std::vector<std::tuple<WSSocket*, std::string>> m_textQueue{};
     std::vector<std::tuple<WSSocket*, DataPtr, bool>> m_dataQueue{};
     mutable std::mutex m_socketMutex{};
-    uWS::Loop* m_loop{nullptr};
+    Loop* m_loop{nullptr};
     };
 }
 
