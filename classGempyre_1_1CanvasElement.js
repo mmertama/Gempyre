@@ -13,7 +13,7 @@ var classGempyre_1_1CanvasElement =
     [ "CanvasElement", "classGempyre_1_1CanvasElement.html#a3fb91febd37fed04267999cc90b7fe14", null ],
     [ "CanvasElement", "classGempyre_1_1CanvasElement.html#a027f55002faf547ed236714ff066b95e", null ],
     [ "CanvasElement", "classGempyre_1_1CanvasElement.html#a115bfa4a80e5bd6a3549d2dfe43f8b11", null ],
-    [ "add_image", "classGempyre_1_1CanvasElement.html#a3b4e0c279ad0fec61252012aa82cde18", null ],
+    [ "add_image", "classGempyre_1_1CanvasElement.html#a1ea55ab90d32bd6a5b683580f8907cd0", null ],
     [ "draw", "classGempyre_1_1CanvasElement.html#a7654d18dcede640866a6da9d03d0f9fe", null ],
     [ "draw", "classGempyre_1_1CanvasElement.html#ada518283f82bdf3b2ccc7b4408ec521c", null ],
     [ "draw", "classGempyre_1_1CanvasElement.html#a221449f4d9824fbfe09699cee649e312", null ],
