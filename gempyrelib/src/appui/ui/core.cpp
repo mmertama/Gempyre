@@ -167,7 +167,7 @@ Ui::~Ui() {
 
 void Ui::close() {
     m_ui->add_request([this]() {
-        return m_ui->send_to(Server::TargetSocket::All, {{"type", "close_request"}});
+        return m_ui->send_to(TargetSocket::All, {{"type", "close_request"}});
     });
 }
 
@@ -188,7 +188,7 @@ void Ui::exit() {
         }
         m_ui->add_request([this]() {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "exit - send", m_ui->state_str());
-            if(! m_ui->send_to(Server::TargetSocket::All, {{"type", "exit_request"}})) {
+            if(! m_ui->send_to(TargetSocket::All, {{"type", "exit_request"}})) {
                 //on fail we force
                 GempyreUtils::log(GempyreUtils::LogLevel::Warning, "exit - send force", m_ui->state_str());
                 m_ui->close_server(); //at this point we can close server (it may already be close)
@@ -369,7 +369,7 @@ void Ui::extension_call(std::string_view callId, const std::unordered_map<std::s
     gempyre_utils_assert_x(json.has_value(), "Invalid parameter");
     m_ui->add_request([this, callId, json]() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension:", json.value());
-        return m_ui->send_to(Server::TargetSocket::Extension, {
+        return m_ui->send_to(TargetSocket::Extension, {
                                   {"type", "extension"},
                                   {"extension_call", callId},
                                   {"extension_id", ""},
@@ -396,7 +396,7 @@ std::optional<std::any> Ui::extension_get(std::string_view callId, const std::un
 
     m_ui->add_request([this, queryId, callId, json]() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "extension:", json.value());
-        return m_ui->send_to(Server::TargetSocket::Extension, {
+        return m_ui->send_to(TargetSocket::Extension, {
             {"type", "extension"},
             {"extension_id", queryId},
             {"extension_call", callId},

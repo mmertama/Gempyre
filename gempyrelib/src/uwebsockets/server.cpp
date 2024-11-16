@@ -112,10 +112,6 @@ Uws_Server::Uws_Server(
 #endif
 }
 
- void Uws_Server::flush() {
-    m_broadcaster->flush();
- }
-
 std::unique_ptr<std::thread> Uws_Server::newThread() {
     auto thread = std::make_unique<std::thread>([this]() {
                 serverThread(m_port);
@@ -152,10 +148,10 @@ void Uws_Server::serverThread(unsigned int port) {
                 return;
             case MessageReply::AddUiSocket:
                 m_uiready = true;
-                m_broadcaster->setType(ws, Server::TargetSocket::Ui);
+                m_broadcaster->setType(ws, TargetSocket::Ui);
                 return;
              case MessageReply::AddExtensionSocket:
-                m_broadcaster->setType(ws, Server::TargetSocket::Extension);
+                m_broadcaster->setType(ws, TargetSocket::Extension);
                 return;
             default:
                 assert(false);
@@ -342,49 +338,6 @@ bool Uws_Server::isUiReady() const {
     return m_uiready;
 }
 
-
-bool Uws_Server::send(Server::TargetSocket target, Server::Value&& value, bool batchable) {
-    if(batchable && m_batch) {
-        m_batch->push_back(target, std::move(value));
-    } else {
-            auto str = value.dump();
-#ifdef PULL_MODE        
-        if(str.size() < WS_MAX_LEN) {
-#endif            
-            if(!m_broadcaster->send(target, std::move(str)))
-                return false;
-#ifdef PULL_MODE               
-    This is not working - but keep here as a reference if pull mode want to be re-enabled 
-        } else {
-            const auto pull = ed(DataType::Json, str);
-            const json obj = {{"type", "pull_json"}, {"id", pull}};
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add text pull", str.size(), pull);
-            if(!m_broadcaster->send(obj.dump(), is_ext))
-                   return false;
-        }
-#endif
-    }
-    return true;
-}
-
-bool Uws_Server::send(Gempyre::DataPtr&& ptr, bool droppable) {
-#ifdef PULL_MODE    
-    if(len < WS_MAX_LEN) {
-#endif        
-        if(!m_broadcaster->send(std::move(ptr), droppable))
-            return false;
-#ifdef PULL_MODE            
-    } else {
-        const auto pull = addPulled(DataType::Bin, {data, len});
-        const json obj = {{"type", "pull_binary"}, {"id", pull}};
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add bin pull", len, pull);
-        if(!m_broadcaster->send(obj.dump()))
-            return false;
-    }
-#endif    
-    return true;
-}
-
 void Uws_Server::doClose() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Do Close", static_cast<bool>(m_closeData));
     m_doExit = true;
@@ -429,4 +382,8 @@ WSSocket::SendStatus Uws_Server::send_text(WSSocket* s, std::string_view text) {
 
 WSSocket::SendStatus Uws_Server::send_bin(WSSocket* s, std::string_view bin) {
      return s->send(bin, uWS::OpCode::BINARY);
+}
+
+BroadcasterBase& Uws_Server::broadcaster() {
+    return *m_broadcaster;
 }

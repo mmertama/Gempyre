@@ -154,9 +154,9 @@ if(HAS_WEB_SOCKETS)
     endif()
 
     if(CLIENT_DIALOGS)
-        set(DIALOG_SRC src/ui/ui_client.cpp)
+        set(DIALOG_SRC src/appui/os/ui_client.cpp)
     else()
-        set(DIALOG_SRC src/ui/ui_pfd.cpp)
+        set(DIALOG_SRC src/appui/os/ui_pfd.cpp)
         message("skip libpfd version, use latest")
         externalproject_add(libpfd
             GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs.git
@@ -251,15 +251,20 @@ set(PUBLIC_HEADERS
 )
 
 set(INCLUDE_DIRECTORIES
-    src
+    src/common/core
+    src/common/graphics
+    src/common/utils
     )
  
 if(NOT EMSCRIPTEN)
     
     set(INCLUDE_DIRECTORIES 
         ${INCLUDE_DIRECTORIES} 
-        src/server
-        src/ui)
+        src/appui/server
+        src/appui/core
+        src/appui/ui
+        src/appui/graphics
+        src/appui/os)
 
     set(PUBLIC_HEADERS
         ${PUBLIC_HEADERS}
@@ -268,20 +273,20 @@ if(NOT EMSCRIPTEN)
         include/gempyre_client.h
     )
     set(GEMPYRE_SRC
-        src/server/semaphore.h
-        src/server/gempyre_internal.h
-        src/server/gempyre_internal.cpp
-        src/server/core.h
-        src/server/core.cpp
-        src/server/server.h
-        src/server/timer.h
-        src/server/timer.cpp
-        src/server/eventqueue.h
-        src/server/server.cpp
-        src/server/timequeue.h
-        src/server/graphics.cpp
-        src/server/element.cpp
-        src/server/broadcaster.h
+        src/appui/server/broadcaster.h
+        src/appui/core/semaphore.h
+        src/appui/server/server.h
+        src/appui/server/server.cpp
+        src/appui/ui/gempyre_internal.h
+        src/appui/ui/gempyre_internal.cpp
+        src/appui/ui/core.h
+        src/appui/ui/core.cpp
+        src/appui/core/timer.h
+        src/appui/core/timer.cpp
+        src/appui/ui/eventqueue.h
+        src/appui/core/timequeue.h
+        src/appui/graphics/graphics.cpp
+        src/appui/ui/element.cpp
         ${DIALOG_SRC}
         ${GEMPYRE_WS_SOURCES}
     )
@@ -292,20 +297,19 @@ set(GEMPYRE_SRC
     ${GEMPYRE_SRC}
     include/gempyre_utils.h
     include/gempyre_bitmap.h
-    src/bitmap.cpp
-    src/canvas_data.h
-    src/canvas_data.cpp
-    src/bitmap.cpp
-    src/utils.cpp
-    src/base64.cpp
-    src/base64.h
-    src/idlist.h
-    src/json.cpp
+    src/common/graphics/bitmap.cpp
+    src/common/graphics/canvas_data.h
+    src/common/graphics/canvas_data.cpp
+    src/common/utils/utils.cpp
+    src/common/utils/base64.cpp
+    src/common/utils/base64.h
+    src/common/core/idlist.h
+    src/common/utils/json.cpp
     js/gempyre.js
     py/pyclient.py
-    src/data.h
-    src/data.cpp
-    src/logging.cpp
+    src/common/core/data.h
+    src/common/core/data.cpp
+    src/common/utils/logging.cpp
     ${PNG_SRC}
     )
 

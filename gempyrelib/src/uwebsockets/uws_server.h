@@ -50,9 +50,7 @@ private: // let's not use Server API
     bool isUiReady() const override;
     bool retryStart() override;
     void close(bool wait = false) override;
-    bool send(Server::TargetSocket target, Server::Value&& value, bool batchable) override;
-    bool send(Gempyre::DataPtr&& data, bool droppable) override;
-    void flush() override;
+    BroadcasterBase& broadcaster() override;
 private:
     std::unique_ptr<std::thread> makeServer(unsigned short port);
     void doClose();

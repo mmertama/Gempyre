@@ -13,32 +13,28 @@
 
 using namespace std::chrono_literals;
 
-
 namespace Gempyre {
 
 struct ExtraSocketData {};
 
 template<typename WSSocket, typename Loop, typename WSServer>
-class Broadcaster {
+class Broadcaster : public BroadcasterBase {
     static constexpr auto DELAY = 100ms;
     static constexpr auto BACKPRESSURE_DELAY = 100ms;
     static constexpr unsigned SEND_SUCCESS = 0xFFFFFFFF;
     enum class SType {Bin, Txt};
 
-    /*
-
-    */
     Broadcaster(const Gempyre::Broadcaster<WSSocket, Loop, WSServer>&) = delete;
     Broadcaster& operator=(const Gempyre::Broadcaster<WSSocket, Loop, WSServer>&) = delete;
 public:
     
     Broadcaster(const std::function<void(WSSocket*, typename WSSocket::SendStatus)>& resendRequest) : m_resendRequest{resendRequest} {}
 
-    bool send(Server::TargetSocket send_to, std::string&& text) {
+    bool send_text(TargetSocket send_to, std::string&& text) override {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send txt", text.size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         const auto sz = text.size();
-        if(send_to == Server::TargetSocket::All) {
+        if(send_to == TargetSocket::All) {
             for(auto& [s, type] : m_sockets) {
                 auto copy_of_text = text;
                 add_queue(s, std::move(copy_of_text));
@@ -57,11 +53,11 @@ public:
         return !m_sockets.empty();
     }
 
-    bool send(DataPtr&& ptr, bool droppable) {
+    bool send_bin(DataPtr&& ptr, bool droppable) override {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "send bin", ptr->size());
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         for(auto& [s, type] : m_sockets) {
-            if(type == Server::TargetSocket::Ui) { // extension is not expected to handle binary messages
+            if(type == TargetSocket::Ui) { // extension is not expected to handle binary messages
                 const auto sz = ptr->size();
                 add_queue(s, std::move(ptr), droppable);
                 socket_send(s, sz);
@@ -73,7 +69,7 @@ public:
 
     void append(WSSocket* socket) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        m_sockets.emplace(socket, Server::TargetSocket::Undefined);
+        m_sockets.emplace(socket, TargetSocket::Undefined);
     }
 
     void remove(WSSocket* socket) {
@@ -103,9 +99,9 @@ public:
         return m_sockets.size();
     }
 
-    void setType(WSSocket* ws, Server::TargetSocket type) {
+    void setType(WSSocket* ws, TargetSocket type) {
         const std::lock_guard<std::mutex> lock(m_socketMutex);
-        assert(m_sockets[ws] == Server::TargetSocket::Undefined);
+        assert(m_sockets[ws] == TargetSocket::Undefined);
         m_sockets[ws] = type;
     }
 
@@ -118,7 +114,7 @@ public:
     }
 
 // check if there is data in queues and request their send
-    void flush() {
+    void flush() override {
         bool has_data = false;
         if(!has_data) {
         std::unique_lock<std::mutex> lock(m_sendTxtMutex);
@@ -245,7 +241,7 @@ private:
          });
     }
 
-        void forceClose() {
+    void forceClose() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Force Close", m_sockets.size());
         while(true) {
             auto it = m_sockets.begin();
@@ -259,7 +255,7 @@ private:
 
 private:
     std::function<void (WSSocket*, typename WSSocket::SendStatus)> m_resendRequest;
-    std::unordered_map<WSSocket*, Server::TargetSocket> m_sockets{};
+    std::unordered_map<WSSocket*, TargetSocket> m_sockets{};
     std::mutex m_sendTxtMutex{};
     std::mutex m_sendBinMutex{};
     std::vector<std::tuple<WSSocket*, std::string>> m_textQueue{};

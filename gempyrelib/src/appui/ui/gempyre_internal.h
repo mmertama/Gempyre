@@ -130,7 +130,7 @@ public:
             {"msgid", next_msg_id()}
             };
         add_request([this, params = std::move(params)]() mutable {        
-            return send_to(Server::TargetSocket::Ui, std::move(params));
+            return send_to(TargetSocket::Ui, std::move(params));
         });    
     }
 
@@ -146,7 +146,7 @@ public:
         static_assert((count & 0x1) == 0, "Expect is even");
         emplace_in<count>(std::forward_as_tuple(pairs...), params);
         add_request([this, params = std::move(params)]() mutable {        
-            return send_to(Server::TargetSocket::Ui, std::move(params));
+            return send_to(TargetSocket::Ui, std::move(params));
         });    
     }
 
@@ -158,7 +158,7 @@ public:
             {type, value}
             };
         add_request([this, params = std::move(params)]() mutable {    
-            return send_to(Server::TargetSocket::Ui, std::move(params));
+            return send_to(TargetSocket::Ui, std::move(params));
         });    
     }
 
@@ -174,7 +174,7 @@ public:
         static_assert((count & 0x1) == 0, "Expect is even");
         emplace_in<count>(std::forward_as_tuple(pairs...), params);
         add_request([this, params = std::move(params)]() mutable {        
-            return send_to(Server::TargetSocket::Ui, std::move(params));
+            return send_to(TargetSocket::Ui, std::move(params));
         });        
     }
 
@@ -301,7 +301,7 @@ public:
 
     
     [[nodiscard]]
-    bool send_to(Server::TargetSocket target, Server::Value&& value) {
+    bool send_to(TargetSocket target, Server::Value&& value) {
         return m_server->send(target, std::move(value));
     }
 

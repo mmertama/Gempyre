@@ -140,13 +140,13 @@ bool Server::beginBatch() {
 
 bool Server::endBatch() {
     if(m_batch) {
-        const auto targets = {Server::TargetSocket::Ui, Server::TargetSocket::Extension};
+        const auto targets = {TargetSocket::Ui, TargetSocket::Extension};
         for(const auto target : targets) {
             auto str = m_batch->dump(target);
 #ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
 #endif            
-            if(!send(Server::TargetSocket::Ui, std::move(str), false))
+            if(!send(TargetSocket::Ui, std::move(str), false))
                 return false;
 #ifdef PULL_MODE                
         } else {
@@ -170,3 +170,50 @@ bool Server::endBatch() {
         return m_pulledId;  
     }
 #endif
+
+
+bool Server::send(TargetSocket target, Server::Value&& value, bool batchable) {
+    if(batchable && m_batch) {
+        m_batch->push_back(target, std::move(value));
+    } else {
+            auto str = value.dump();
+#ifdef PULL_MODE        
+        if(str.size() < WS_MAX_LEN) {
+#endif            
+            if (!broadcaster().send_text(target, std::move(str)))
+                return false;
+#ifdef PULL_MODE               
+    This is not working - but keep here as a reference if pull mode want to be re-enabled 
+        } else {
+            const auto pull = ed(DataType::Json, str);
+            const json obj = {{"type", "pull_json"}, {"id", pull}};
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add text pull", str.size(), pull);
+            if(!broadcaster().send(obj.dump(), is_ext))
+                   return false;
+        }
+#endif
+    }
+    return true;
+}
+
+bool Server::send(Gempyre::DataPtr&& ptr, bool droppable) {
+#ifdef PULL_MODE    
+    if(len < WS_MAX_LEN) {
+#endif        
+        if (!broadcaster().send_bin(std::move(ptr), droppable))
+            return false;
+#ifdef PULL_MODE            
+    } else {
+        const auto pull = addPulled(DataType::Bin, {data, len});
+        const json obj = {{"type", "pull_binary"}, {"id", pull}};
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "add bin pull", len, pull);
+        if(!m_broadcaster->send(obj.dump()))
+            return false;
+    }
+#endif    
+    return true;
+}
+
+void Server::flush() {
+    broadcaster().flush();
+}

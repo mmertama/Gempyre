@@ -79,7 +79,7 @@ std::optional<T> GempyreInternal::query(std::string_view elId, std::string_view 
         const auto queryId = query_id();
 
         add_request([this, queryId, elId, queryString, queryParams](){
-            return send_to(Server::TargetSocket::Ui, json{
+            return send_to(TargetSocket::Ui, json{
                     {"type", "query"},
                     {"query_id", queryId},
                     {"element", elId},

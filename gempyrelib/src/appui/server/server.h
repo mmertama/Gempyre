@@ -25,6 +25,16 @@ enum class CloseStatus {EXIT, FAIL, CLOSE};
 
 using json = nlohmann::json;
 
+enum class TargetSocket{Undefined, Ui, Extension, All};
+
+class BroadcasterBase {
+    public:
+    virtual ~BroadcasterBase() = default;
+    virtual bool send_text(TargetSocket send_to, std::string&& text) = 0;
+    virtual bool send_bin(DataPtr&& ptr, bool droppable) = 0;
+    virtual void flush() = 0; 
+};
+
 class Server {
 public:
     static constexpr int PAGEXIT = 1001;
@@ -38,8 +48,6 @@ public:
     using GetFunction =  std::function<std::optional<std::string> (const std::string_view& filename)>;
     using ListenFunction =  std::function<bool (unsigned)>;
     using ResendRequest = std::function<void()>;
-
-    enum class TargetSocket{Undefined, Ui, Extension, All};
 
     Server(unsigned int port,
            const std::string& rootFolder,
@@ -57,9 +65,6 @@ public:
     virtual bool retryStart() = 0;
     virtual void close(bool wait = false) = 0;
 
-    virtual bool send(TargetSocket target, Server::Value&& value, bool batchable = true) = 0;
-    virtual bool send(Gempyre::DataPtr&& data, bool droppable) = 0;
-
     virtual bool isJoinable() const = 0;
     virtual bool isRunning() const = 0;
     virtual bool isConnected() const = 0;
@@ -68,13 +73,17 @@ public:
     int queryId() const {return ++m_queryId;}
     unsigned int port() const {return m_port;}
     
-    virtual void flush() = 0;
+    void flush();
+
+    virtual BroadcasterBase& broadcaster() = 0;
 
     static unsigned wishAport(unsigned port, unsigned max);
     static unsigned portAttempts();
 
     bool beginBatch();
     bool endBatch();
+    bool send(TargetSocket target, Server::Value&& value, bool batchable = true);
+    bool send(Gempyre::DataPtr&& data, bool droppable);
 
     static std::string fileToMime(const std::string_view& filename);
     static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "");
@@ -108,18 +117,18 @@ public:
     Batch() : m_arrays{} {
     }
 
-    void push_back(Server::TargetSocket target, json&& jobj) {
+    void push_back(TargetSocket target, json&& jobj) {
         m_arrays[target].push_back(std::forward<json>(jobj));
     }
 
-    std::string dump(Server::TargetSocket target) {
+    std::string dump(TargetSocket target) {
         auto data = json::object();
         data["type"] = "batch";
         data["batches"] =  std::move(m_arrays[target]);
         return data.dump();
     }
 private:
-    std::unordered_map<Server::TargetSocket, json::array_t> m_arrays;
+    std::unordered_map<TargetSocket, json::array_t> m_arrays;
 };
 
 

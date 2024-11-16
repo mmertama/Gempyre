@@ -6,8 +6,8 @@ project (unittests)
 set(CMAKE_CXX_STANDARD 17)
 include_directories(
      ../../gempyrelib/include
-     ../../gempyrelib/src
-     ../../gempyrelib/src/server
+     ../../gempyrelib/src/appui/core
+     ../../gempyrelib/src/appui/server
     include
     ${TEST_INCLUDE_DIR}
 )
