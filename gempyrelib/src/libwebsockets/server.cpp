@@ -28,53 +28,58 @@ unsigned get_error_code(void* in, size_t len) {
 
 class Gempyre::SendBuffer {
      public:
-          SendBuffer() : m_mime{}, m_data{} {
+          SendBuffer() : m_pos{m_data.end()} {
           }
           SendBuffer(const SendBuffer&) = delete;
           SendBuffer& operator=(const SendBuffer&) = delete;
-          void apply(std::string&& data, std::string&& mime) {
-               assert(empty());
-               m_mime = std::move(mime);
-               m_data = std::move(data);
-               m_pos = m_data.begin(); 
+          void apply(std::string_view data/*, std::string_view mime*/) {
+               //assert(empty());
+               //m_mime = std::move(mime);
+               if (m_data.size() < LWS_PRE + data.size())
+                    m_data.resize(LWS_PRE + data.size());
+               m_pos = m_data.begin() + LWS_PRE;
+               assert(std::distance(m_data.begin(), m_pos) == LWS_PRE);
+               GempyreUtils::log(GempyreUtils::LogLevel::Debug, "SendBuffer", m_data.size(), data.size(), LWS_PRE);
+               assert((m_data.size() - LWS_PRE) >= data.size());     
+               std::copy(data.begin(), data.end(), m_pos); 
           }
 
           bool empty() const {
-               return m_mime.empty() && m_data.empty();
-          }
-
-          uint8_t* copy_to(uint8_t* ptr, uint8_t* end) {
-               const auto distance_to_end = std::distance(m_pos, m_data.end());
-               const auto delta = std::min((end - ptr), distance_to_end);
-               auto pos = &(*m_pos);
-               assert(delta >= 0);
-               std::memcpy(ptr, pos, static_cast<size_t>(delta));
-               m_pos += delta;
-               return ptr + delta;
-          }
-
-          bool end() const {
-               GempyreUtils::log(GempyreUtils::LogLevel::Debug, "to read", (int64_t) (m_data.end() - m_pos));
                return m_pos == m_data.end();
           }
 
-          const std::string& mime() const {
-               return m_mime;
+          uint8_t* data() {
+               auto pos = reinterpret_cast<uint8_t*>(&(*m_pos));
+               return pos;
           }
+
+          bool end() const {
+               return empty();
+          }
+
+          void commit(int size) {
+               assert(size >= 0);
+               m_pos += size;
+          }
+
+          //std::string_view mime() const {
+          //     return m_mime;
+          //}
 
           auto size() const {
                return m_data.size();
           }
 
           void clear() {
-               m_mime.clear();
+               //m_mime.clear();
                m_data.clear();
+               m_pos = m_data.end();
           }
 
      private:
-          std::string::iterator m_pos = {};
-          std::string m_mime  = {};
-          std::string m_data = {};     
+          //std::string m_mime  = {};
+          std::string m_data = {};
+          std::string::iterator m_pos = {};     
 };
 
 std::optional<std::string_view> LWS_Server::match(std::string_view prefix, std::string_view param) const {
@@ -111,8 +116,23 @@ std::optional<std::string_view> LWS_Server::match(std::string_view prefix, std::
      return fullPath;
 }
 
-bool LWS_Server::get_http(std::string_view get_param) const {
-     assert(m_send_buffer->empty());
+bool LWS_Server::write_http_header(lws* wsi, std::string_view mime_type, size_t size) {
+     unsigned char buffer[LWS_PRE + 2048];
+     unsigned char* p = &buffer[LWS_PRE];
+     unsigned char* start = p;
+     unsigned char *end = &buffer[sizeof(buffer)];
+     if (lws_add_http_common_headers(wsi, HTTP_STATUS_OK, mime_type.data(), size, &p, end)) {
+          return false;
+     }
+     if (lws_finalize_write_http_header(wsi, start, &p, end)) {
+          return false;
+     }
+     return true;
+}
+
+bool LWS_Server::get_http(lws* wsi, std::string_view get_param) {
+     assert(m_send_buffers.find(wsi) != m_send_buffers.end());
+    // assert(m_send_buffers.at(wsi)->empty());
 #ifdef PULL_MODE       
      const auto id = match("/data/:id", get_param);
      if (id) {
@@ -130,7 +150,9 @@ bool LWS_Server::get_http(std::string_view get_param) const {
      if(serverData.has_value()) {
           GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "server get:", serverData->size());
           const auto mime_type = Server::fileToMime(get_param);
-          m_send_buffer->apply(std::move(*serverData), std::string(mime_type));
+          if (!write_http_header(wsi, mime_type, serverData->size()))
+               return false;
+          m_send_buffers.at(wsi)->apply(*serverData);
           return true;
      }
      // this probably could be replaced with lws_serve_http_file, tbd if works ok TODO
@@ -140,7 +162,9 @@ bool LWS_Server::get_http(std::string_view get_param) const {
           auto mime_type = Server::fileToMime(*fullPath);
           auto data = GempyreUtils::slurp(*fullPath);
           if(!data.empty()) {
-               m_send_buffer->apply(std::move(data), std::string(mime_type));
+               if (!write_http_header(wsi, mime_type, data.size()))
+                    return false;
+               m_send_buffers.at(wsi)->apply(data);
                return true;
           } else {
                GempyreUtils::log(GempyreUtils::LogLevel::Error, "path:", *fullPath, "Cannot read"); 
@@ -166,8 +190,8 @@ bool LWS_Server::removeSocket(lws* wsi, unsigned code) {
      m_sockets.erase(it);
      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_CLOSED");
 
-     if(code != 1001 && code != 1006) {  //browser window closed
-          if(code == 1000 || (code != 1005 && code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
+     if(code != 1001 && code != 1006 && code != 1005) {  //browser window closed
+          if(code == 1000 || (/*code != 1005 &&*/ code >= 1002 && code <= 1015)  || (code >= 3000 && code <= 3999) || (code >= 4000 && code <= 4999)) {
                GempyreUtils::log(GempyreUtils::LogLevel::Error, "WS", "closed on error", code);
           } else if(code != 0) {
                GempyreUtils::log(GempyreUtils::LogLevel::Debug, "WS", "Non closing error", code);
@@ -258,43 +282,34 @@ static auto lwsToken(std::string_view sv) {
 */
 
 int LWS_Server::on_http(lws *wsi, void* in) {
-     uint8_t buf[LWS_PRE + 2048];
-     auto start = &buf[LWS_PRE];
-     auto ptr = start;
-	auto end = &buf[sizeof(buf) - 1];
 
-     const std::string_view get_params{static_cast<const char*>(in)};
-     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "http-get", get_params);
-     if(get_http(get_params)) {
-          const auto mime_type = m_send_buffer->mime();
-          const auto size = m_send_buffer->size();
-          if (lws_add_http_common_headers(wsi, HTTP_STATUS_OK, mime_type.c_str(), size, &ptr, end))
-		     return 1;
-          if (lws_finalize_write_http_header(wsi, start, &ptr, end))
-                    return 1;
-               lws_callback_on_writable(wsi); 
-          } else {
-               lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, nullptr);
-          }
+     const std::string_view params{static_cast<const char*>(in)};
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "http-get", params);
+     if (m_send_buffers.find(wsi) == m_send_buffers.end()) {
+          m_send_buffers.emplace(wsi, std::make_unique<SendBuffer>());
+     }
+     if(get_http(wsi, params)) {
+          lws_callback_on_writable(wsi); 
+     } else {
+          lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, nullptr);
+     }
      return 0;     
 }
 
 int LWS_Server::on_http_write(lws *wsi) {
-     uint8_t buf[LWS_PRE + 2048];
-     auto start = &buf[LWS_PRE];
-     auto ptr = start;
-	auto end = &buf[sizeof(buf) - 1];
-
-     ptr = m_send_buffer->copy_to(ptr, end);
-     const auto protocol = m_send_buffer->end() ? LWS_WRITE_HTTP_FINAL : LWS_WRITE_HTTP;
-     if (lws_write(wsi, start, lws_ptr_diff_size_t(ptr, start), protocol) != lws_ptr_diff(ptr, start)) {
-          GempyreUtils::log(GempyreUtils::LogLevel::Error, "http-get write failed");
+     auto& buffer = m_send_buffers.at(wsi);
+     auto ptr = buffer->data();
+     const auto protocol = buffer->end() ? LWS_WRITE_HTTP_FINAL : LWS_WRITE_HTTP;
+     const auto written = lws_write(wsi, ptr, buffer->size(), protocol);
+     if (written != static_cast<int>(buffer->size())) {
+          GempyreUtils::log(GempyreUtils::LogLevel::Error, "http-get write failed", written);
           return 1;
      }
+     buffer->commit(written);
      if (protocol == LWS_WRITE_HTTP_FINAL) {
           if (lws_http_transaction_completed(wsi))
                return -1;
-          m_send_buffer->clear();
+          buffer->clear();
      } else {
           lws_callback_on_writable(wsi);
      }
@@ -325,7 +340,7 @@ static void set_lws_log_level() {
 			 * -DCMAKE_BUILD_TYPE=DEBUG instead of =RELEASE */
 			/* | LLL_INFO */ /* | LLL_PARSER */ /* | LLL_HEADER */
 			/* | LLL_EXT */ /* | LLL_CLIENT */ /* | LLL_LATENCY */
-	//		 | LLL_DEBUG ;
+			 | LLL_DEBUG ;
      ;
      lws_set_log_level(logs, [](int level, const char* line) {
           GempyreUtils::LogLevel lvl = GempyreUtils::LogLevel::Debug;
@@ -362,11 +377,9 @@ LWS_Server::LWS_Server(unsigned int port,
      int queryIdBase,
      Server::ResendRequest&& resendRequest) :
 Server{port, rootFolder, std::move(onOpen), std::move(onMessage), std::move(onClose), std::move(onGet), std::move(onListen), queryIdBase},
-m_send_buffer{std::make_unique<SendBuffer>()},
 m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS_Socket::SendStatus) {
      resendRequest();
 })} {
-     assert(m_send_buffer && m_send_buffer->empty());
      m_broadcaster->set_loop(&m_loop);
      std::atomic_bool thread_started = false;
 
@@ -432,8 +445,8 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
 
           set_lws_log_level();
           
-          auto context = lws_create_context(&info);
-          if(!context) {
+          m_context = lws_create_context(&info);
+          if(!m_context) {
                GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Init failed");
                thread_started = true;
                return;
@@ -442,7 +455,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
      
           /*auto *vhost = lws_create_vhost(m_context, &info);
           if (!vhost) {
-               GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Generatoring vhost failded");
+               GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Generating vhost failed");
                lws_context_destroy(m_context);
                return;
           }*/
@@ -454,14 +467,12 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
                m_running = false;
           }
 
-
-
-          while (m_running && lws_service(context, 0) >= 0) {
+          while (m_running && lws_service(m_context, 0) >= 0) {
                m_loop.execute();    
           }
 
           m_running = false;
-          lws_context_destroy(context);
+          lws_context_destroy(m_context);
           });
 
      while (!thread_started) {
@@ -499,7 +510,7 @@ bool LWS_Server::isUiReady() const {
 }
 
 bool LWS_Server::isRunning() const {
-     assert(isJoinable());
+     assert(m_running || !isJoinable());
      return m_running;
      }  
 
@@ -515,8 +526,11 @@ bool LWS_Server::retryStart() {
 void LWS_Server::close(bool wait) {
      m_broadcaster->close();
      m_do_close = true;
-     while (wait && isJoinable()) {
-          std::this_thread::sleep_for(100ms);
+     m_running = false;
+     lws_cancel_service(m_context); 
+     if (wait && isJoinable()) {
+          m_loop.join();
+         // std::this_thread::sleep_for(100ms);
      }
      GempyreUtils::log(GempyreUtils::LogLevel::Debug,
       "closed", m_loop.valid());
@@ -571,6 +585,7 @@ bool LWS_Server::has_backpressure(LWS_Socket* s, size_t /*len*/) {
 }
 
 void LWS_Socket::close() {
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Socket close request");
      lws_set_timeout(m_ws,  PENDING_TIMEOUT_CLOSE_SEND, LWS_TO_KILL_ASYNC);
 }
 

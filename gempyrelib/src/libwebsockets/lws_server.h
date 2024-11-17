@@ -40,8 +40,8 @@ public:
         if (is_full())
             return SendStatus::BACKPRESSURE;
         std::vector<unsigned char> bytes;
-        bytes.reserve(LWS_PRE + data.size());
-        bytes.insert(bytes.begin() + LWS_PRE, data.begin(), data.end());
+        bytes.resize(LWS_PRE + data.size());
+        std::copy(data.begin(), data.end(), bytes.begin() + LWS_PRE);
         m_buffer.emplace_back(std::make_pair(
             type,
             std::move(bytes)
@@ -57,8 +57,10 @@ public:
     }
 
     std::tuple<lws_write_protocol, const unsigned char*, size_t> front() const {
-        const auto front = m_buffer.front();
-        return {front.first, front.second.data(), front.second.size() - LWS_PRE};
+        const auto& front = m_buffer.front();
+        const auto* ptr = front.second.data() + LWS_PRE;
+        const auto sz = front.second.size() - LWS_PRE;
+        return {front.first, ptr, sz};
     }
 
     bool is_full() const {
@@ -85,6 +87,7 @@ class LWS_Loop {
 public:
     void defer(std::function<void ()>&& f);
     bool valid() const {return m_fut.joinable();}
+    void join() {m_fut.join();}
     LWS_Loop& operator=(std::thread&& fut) {
         m_fut = std::move(fut);
         return *this;
@@ -130,21 +133,23 @@ private:
     static int httpCallback(lws* wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
     std::string parseQuery(std::string_view query) const;
     std::optional<std::string_view> match(std::string_view prefix, std::string_view param) const;
-    bool get_http(std::string_view get_param) const;
+    bool get_http(lws* wsi, std::string_view get_param);
     void appendSocket(lws* wsi);
     bool removeSocket(lws* wsi, unsigned error_code);
     bool received(lws* wsi, std::string_view msg);
     size_t on_write(lws* wsi);
     int on_http(lws *wsi, void* in);
     int on_http_write(lws *wsi);
+    bool write_http_header(lws* wsi, std::string_view mime_type, size_t size);
 private:
     std::atomic_bool m_running{false};
     std::atomic_bool m_do_close{false};
     std::atomic_bool m_uiready{false};
+    std::atomic <lws_context*> m_context;
     LWS_Loop m_loop;
-    std::unique_ptr<SendBuffer> m_send_buffer;
     std::unique_ptr<LWS_Broadcaster> m_broadcaster;
     std::unordered_map<SKey, std::unique_ptr<LWS_Socket>> m_sockets;
+    std::unordered_map<SKey, std::unique_ptr<SendBuffer>> m_send_buffers;
 };
 } // ns Gempyre
 #endif // LWS_SERVER_H
