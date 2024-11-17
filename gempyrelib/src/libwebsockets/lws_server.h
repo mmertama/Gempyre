@@ -19,7 +19,7 @@ namespace Gempyre {
 class SendBuffer;
 class LWS_Server;
 
-using SKey = const void*;
+using SKey = const lws*;
 
 class LWS_Socket {
 public:
@@ -47,7 +47,9 @@ public:
             std::move(bytes)
         ));
         m_buffer_size += data.size();
-        return SendStatus::SUCCESS;
+
+        return 0 != lws_callback_on_writable(m_ws) ?
+            SendStatus::SUCCESS : SendStatus::BACKPRESSURE;
     }
 
     bool empty() const {
@@ -100,13 +102,13 @@ class LWS_Server : public Server {
 public:
     LWS_Server(unsigned int port,
            const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
+           Server::OpenFunction&& onOpen,
+           Server::MessageFunction&& onMessage,
+           Server::CloseFunction&& onClose,
+           Server::GetFunction&& onGet,
+           Server::ListenFunction&& onListen,
            int queryIdBase,
-           const Server::ResendRequest& resendRequest);
+           Server::ResendRequest&& resendRequest);
      ~LWS_Server();
 
     bool isJoinable() const override;
@@ -127,7 +129,7 @@ private:
     static int wsCallback(lws* wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
     static int httpCallback(lws* wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
     std::string parseQuery(std::string_view query) const;
-    std::optional<std::string_view> match(const std::string_view prefix, const std::string_view param) const;
+    std::optional<std::string_view> match(std::string_view prefix, std::string_view param) const;
     bool get_http(std::string_view get_param) const;
     void appendSocket(lws* wsi);
     bool removeSocket(lws* wsi, unsigned error_code);

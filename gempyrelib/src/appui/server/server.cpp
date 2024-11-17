@@ -25,23 +25,23 @@ unsigned Server::portAttempts() {
 Server::Server(
     unsigned port,
     const std::string& root,
-    const OpenFunction& onOpen,
-    const MessageFunction& onMessage,
-    const CloseFunction& onClose,
-    const GetFunction& onGet,
-    const ListenFunction& onListen,
+    OpenFunction&& onOpen,
+    MessageFunction&& onMessage,
+    CloseFunction&& onClose,
+    GetFunction&& onGet,
+    ListenFunction&& onListen,
     int queryIdBase) :
-    m_port(port == 0 ? wishAport(DEFAULT_PORT, PORT_ATTEMPTS) : port),
-    m_rootFolder(root),
-     m_queryId{queryIdBase},
-    m_onOpen(onOpen),
-    m_onMessage(onMessage),
-    m_onClose(onClose),
-    m_onGet(onGet),
-    m_onListen(onListen)
+    m_port{port == 0 ? wishAport(DEFAULT_PORT, PORT_ATTEMPTS) : port},
+    m_rootFolder{root},
+    m_queryId{queryIdBase},
+    m_onOpen{onOpen},
+    m_onMessage{onMessage},
+    m_onClose{onClose},
+    m_onGet{onGet},
+    m_onListen{onListen}
     {}
 
-    std::string Server::fileToMime(const std::string_view& filename) {
+    std::string Server::fileToMime(std::string_view filename) {
         const auto index = filename.find_last_of('.');
         if(index == std::string::npos) {
             return "";
@@ -64,7 +64,7 @@ Server::Server(
         return mimeType;
     }
 
-    std::string Server::notFoundPage(const std::string_view& url, const std::string_view& info) {
+    std::string Server::notFoundPage(std::string_view url, std::string_view info) {
         return R"(<html>
            <header>
                <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0 "/>
@@ -164,7 +164,7 @@ bool Server::endBatch() {
 }
 
 #ifdef PULL_MODE   
-    int Server::addPulled(DataType type, const std::string_view& data) {
+    int Server::addPulled(DataType type, std::string_view data) {
         ++m_pulledId;
         m_pulled.emplace(std::to_string(m_pulledId), std::pair<DataType, std::string> {type, std::string(data)});
         return m_pulledId;  

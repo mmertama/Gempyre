@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
 
-set(NAME snowflakes)
-project (${NAME}test)
+project (snowflakes)
 
 include(../../scripts/gempyre.cmake)
 
@@ -21,12 +20,12 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/koch.cpp
     src/koch.h
-    gui/${NAME}.html
+    gui/${PROJECT_NAME}.html
     )
 
 add_dependencies (${PROJECT_NAME} gempyre)
 
-gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${PROJECT_NAME}_resource.h SOURCES gui/${PROJECT_NAME}.html)
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")

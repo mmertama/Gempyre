@@ -943,7 +943,7 @@ std::string GempyreUtils::base64_encode(const std::vector<uint8_t>& bytes) {
     return Base64::encode(bytes.data(), bytes.size());
 }
 
-std::vector<uint8_t> GempyreUtils::base64_decode(const std::string_view& data) {
+std::vector<uint8_t> GempyreUtils::base64_decode(std::string_view data) {
     return Base64::decode(data);
 }
 

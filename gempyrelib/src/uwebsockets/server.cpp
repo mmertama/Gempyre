@@ -31,14 +31,14 @@ constexpr size_t WS_MAX_LEN = 16 * 1024;
 constexpr auto SERVICE_NAME = "Gempyre";
 
 std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
-           const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
+           const std::string&& rootFolder,
+           Server::OpenFunction&& onOpen,
+           Server::MessageFunction&& onMessage,
+           Server::CloseFunction&& onClose,
+           Server::GetFunction&& onGet,
+           Server::ListenFunction&& onListen,
            int queryIdBase,
-           const Server::ResendRequest& request) {
+           Server::ResendRequest&& request) {
                 return std::unique_ptr<Server>(new Uws_Server(
                     port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase, request
                     ));
@@ -90,13 +90,13 @@ class Gempyre::SocketHandler {
 Uws_Server::Uws_Server(
     unsigned port,
     const std::string& root,
-    const Server::OpenFunction& onOpen,
-    const Server::MessageFunction& onMessage,
-    const Server::CloseFunction& onClose,
-    const Server::GetFunction& onGet,
-    const Server::ListenFunction& onListen,
+    Server::OpenFunction&& onOpen,
+    Server::MessageFunction&& onMessage,
+    Server::CloseFunction&& onClose,
+    Server::GetFunction&& onGet,
+    Server::ListenFunction&& onListen,
     int queryIdBase,
-    const Server::ResendRequest& resendRequest) : Server{port, root, onOpen, onMessage, onClose, onGet, onListen, queryIdBase},
+    Server::ResendRequest&& resendRequest) : Server{port, root, std::move(onOpen), std::move(onMessage), std::move(onClose), std::move(onGet), std::move(onListen), queryIdBase},
     //mStartFunction([this]()->std::unique_ptr<std::thread> {
 //   return makeServer();
 //}),
@@ -157,7 +157,7 @@ void Uws_Server::serverThread(unsigned int port) {
                 assert(false);
                 return;        
         }
-    };;
+    };
     behavior.close = [this](auto ws, auto code, auto message) {
         Gempyre::SocketHandler(*this).closeHandler(ws, code, message);
     };
@@ -296,8 +296,6 @@ void Uws_Server::closeListenSocket() {
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Server", "listen socket closed");
     }
 }
-
-
 
 bool Uws_Server::retryStart() {
     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Retry", m_port);

@@ -68,11 +68,13 @@ public:
     }
 
     void append(WSSocket* socket) {
+        assert(socket);
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         m_sockets.emplace(socket, TargetSocket::Undefined);
     }
 
     void remove(WSSocket* socket) {
+        assert(socket);
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         auto it = m_sockets.find(socket);
         if(it != m_sockets.end()) {
@@ -100,6 +102,7 @@ public:
     }
 
     void setType(WSSocket* ws, TargetSocket type) {
+        assert(ws);
         const std::lock_guard<std::mutex> lock(m_socketMutex);
         assert(m_sockets[ws] == TargetSocket::Undefined);
         m_sockets[ws] = type;
@@ -110,6 +113,8 @@ public:
     }
 
     void set_loop(Loop* loop) {
+        assert(loop);
+        assert(!m_loop);
         m_loop = loop;
     }
 
@@ -132,12 +137,14 @@ public:
 private:
     // see socket_send
     void add_queue(WSSocket* s, std::string&& text) {
+        assert(s);
         std::unique_lock<std::mutex> lock(m_sendTxtMutex);
         m_textQueue.push_back(std::make_tuple(s, std::move(text)));
     }
 
     // see socket_send
     void add_queue(WSSocket* s, DataPtr&& ptr, bool droppable) {
+        assert(s);
         std::unique_lock<std::mutex> lock(m_sendBinMutex);
         m_dataQueue.push_back(std::make_tuple(s, std::move(ptr), droppable));
     }
@@ -236,6 +243,7 @@ private:
          if(ws && sz > 0 && WSServer::has_backpressure(ws, sz)) {
             std::this_thread::sleep_for(BACKPRESSURE_DELAY);
          }
+         assert(m_loop);
          m_loop->defer([this] () { // this happens in server thread 
             send_all(nullptr);
          });

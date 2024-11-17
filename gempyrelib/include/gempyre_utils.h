@@ -184,7 +184,7 @@ inline void log_debug(const T& e, Args... args) {
 
 
 /// @cond INTERNAL
-inline bool do_fatal(const std::string_view txt, std::function<void()> f, const char* file, int line) {
+inline bool do_fatal(std::string_view txt, std::function<void()> f, const char* file, int line) {
     if(f) f();
     log(LogLevel::Fatal, txt, "at", file, "line:", line);
     return false;
@@ -881,7 +881,7 @@ UTILS_EX std::string base64_encode(const unsigned char* bytes, size_t sz);
 /// Base64 encode 
 UTILS_EX std::string base64_encode(const std::vector<uint8_t> & vec);
 /// Base64 decode.
-UTILS_EX std::vector<uint8_t> base64_decode(const std::string_view& data);
+UTILS_EX std::vector<uint8_t> base64_decode(std::string_view data);
 
 
 /// @brief Option Argument type for parse_args

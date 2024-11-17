@@ -135,7 +135,7 @@ void TestUi::SetUp() {
             FAIL() << "Chrome not started!" << " ui:" << (m_ui->ui_available() ? "ok" : "nok")  << " t:" << (m_ui->is_timer_on_hold() ? "ok" : "nok");
             std::exit(2);
             });
-        m_ui->on_open([wait_start](){
+        m_ui->on_open([wait_start]() {
             PRINT_D("test ui on");
         });
 #ifdef FAST

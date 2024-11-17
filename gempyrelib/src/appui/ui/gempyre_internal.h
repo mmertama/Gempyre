@@ -511,7 +511,7 @@ public:
     void messageHandler(Server::Object&& msg);
     void openHandler();
     void closeHandler(CloseStatus closeStatus, int code);
-    std::optional<std::string> getHandler(const std::string_view& name);
+    std::optional<std::string> getHandler(std::string_view name);
     void pendingClose();
     bool startListen(const std::string& indexHtml, const std::unordered_map<std::string, std::string>& parameters, int listen_port);
     static std::string to_string(const nlohmann::json& js);

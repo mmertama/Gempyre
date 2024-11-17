@@ -14,11 +14,11 @@ struct GempyreServerConfig : public websocketpp::config::minimal_server {
 
 WSPP_Server::WSPP_Server(unsigned int port,
            const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
+           Server::OpenFunction&& onOpen,
+           Server::MessageFunction&& onMessage,
+           Server::CloseFunction&& onClose,
+           Server::GetFunction&& onGet,
+           Server::ListenFunction&& onListen,
            int queryIdBase) : Server{port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase} {
            }
 
@@ -37,13 +37,13 @@ bool WSPP_Server::beginBatch() {std::abort();}
 bool WSPP_Server::endBatch() {std::abort();}
 
 std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
-           const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
-           int querIdBase) {
+           const std::string&& rootFolder,
+           Server::OpenFunction&& onOpen,
+           Server::MessageFunction&& onMessage,
+           Server::CloseFunction&& onClose,
+           Server::GetFunction&& onGet,
+           Server::ListenFunction&& onListen,
+           int querIdBase) { 
                 return std::unique_ptr<Server>(new WSPP_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, querIdBase));
            }
 

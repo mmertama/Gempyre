@@ -77,7 +77,7 @@ class Gempyre::SendBuffer {
           std::string m_data = {};     
 };
 
-std::optional<std::string_view> LWS_Server::match(const std::string_view prefix, const std::string_view param) const {
+std::optional<std::string_view> LWS_Server::match(std::string_view prefix, std::string_view param) const {
      if(param.empty()) {
           return std::nullopt;
      }
@@ -91,7 +91,7 @@ std::optional<std::string_view> LWS_Server::match(const std::string_view prefix,
      return std::nullopt;
 }
 
- std::string LWS_Server::parseQuery(const std::string_view query) const {
+ std::string LWS_Server::parseQuery(std::string_view query) const {
      std::string fullPath;
      if(!query.empty()) {
           const auto queries = GempyreUtils::split<std::vector<std::string>>(query, '&');
@@ -111,7 +111,7 @@ std::optional<std::string_view> LWS_Server::match(const std::string_view prefix,
      return fullPath;
 }
 
-bool LWS_Server::get_http(const std::string_view get_param) const {
+bool LWS_Server::get_http(std::string_view get_param) const {
      assert(m_send_buffer->empty());
 #ifdef PULL_MODE       
      const auto id = match("/data/:id", get_param);
@@ -153,8 +153,10 @@ bool LWS_Server::get_http(const std::string_view get_param) const {
 
 void LWS_Server::appendSocket(lws* wsi) {
      auto ws = std::make_unique<LWS_Socket>(wsi);
+     assert(wsi);
+     assert(ws);
      m_broadcaster->append(ws.get());
-     m_sockets.emplace(ws.get(), std::move(ws));
+     m_sockets.emplace(wsi, std::move(ws));
      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_ESTABLISHED");
 }
 
@@ -187,10 +189,16 @@ bool LWS_Server::received(lws* wsi, std::string_view msg) {
                break;
           case MessageReply::AddUiSocket:
                m_uiready = true;
+               assert(wsi);
+               assert(m_sockets.find(wsi) != m_sockets.end());
                m_broadcaster->setType(m_sockets[wsi].get(), TargetSocket::Ui);
+               assert(m_onOpen);
                m_onOpen();
+               GempyreUtils::log(GempyreUtils::LogLevel::Debug, "onOpen Called");
                break;
           case MessageReply::AddExtensionSocket:
+               assert(wsi);
+               assert(m_sockets.find(wsi) != m_sockets.end());
                m_broadcaster->setType(m_sockets[wsi].get(), TargetSocket::Extension);
                break;
           }
@@ -225,7 +233,7 @@ int LWS_Server::wsCallback(lws* wsi, lws_callback_reasons reason, void* /*user*/
           self->appendSocket(wsi);
           break;
      case LWS_CALLBACK_SERVER_WRITEABLE:
-          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_SERVER_WRITEABLE", reason);
+          self->on_write(wsi);
           break;
      case LWS_CALLBACK_RECEIVE: 
           if (!self->received(wsi, std::string_view{static_cast<char*>(in), len}))
@@ -244,7 +252,7 @@ static auto lwsToken(const char* c_str) {
 }
 
 // before u ask: constexpr is not reinterpret_cast
-static auto lwsToken(const std::string_view sv) {
+static auto lwsToken(std::string_view sv) {
      return reinterpret_cast<const unsigned char*>(sv.data()); // not \0 terminated
 }
 */
@@ -317,7 +325,8 @@ static void set_lws_log_level() {
 			 * -DCMAKE_BUILD_TYPE=DEBUG instead of =RELEASE */
 			/* | LLL_INFO */ /* | LLL_PARSER */ /* | LLL_HEADER */
 			/* | LLL_EXT */ /* | LLL_CLIENT */ /* | LLL_LATENCY */
-			 | LLL_DEBUG ;
+	//		 | LLL_DEBUG ;
+     ;
      lws_set_log_level(logs, [](int level, const char* line) {
           GempyreUtils::LogLevel lvl = GempyreUtils::LogLevel::Debug;
           switch(level) {
@@ -345,21 +354,23 @@ static lws_retry_bo retry{
 
 LWS_Server::LWS_Server(unsigned int port,
      const std::string& rootFolder,
-     const Server::OpenFunction& onOpen,
-     const Server::MessageFunction& onMessage,
-     const Server::CloseFunction& onClose,
-     const Server::GetFunction& onGet,
-     const Server::ListenFunction& onListen,
+     Server::OpenFunction&& onOpen,
+     Server::MessageFunction&& onMessage,
+     Server::CloseFunction&& onClose,
+     Server::GetFunction&& onGet,
+     Server::ListenFunction&& onListen,
      int queryIdBase,
-     const Server::ResendRequest& resendRequest) :
-Server{port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, queryIdBase},
+     Server::ResendRequest&& resendRequest) :
+Server{port, rootFolder, std::move(onOpen), std::move(onMessage), std::move(onClose), std::move(onGet), std::move(onListen), queryIdBase},
 m_send_buffer{std::make_unique<SendBuffer>()},
 m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS_Socket::SendStatus) {
      resendRequest();
 })} {
      assert(m_send_buffer && m_send_buffer->empty());
+     m_broadcaster->set_loop(&m_loop);
+     std::atomic_bool thread_started = false;
 
-     m_loop = std::thread([this] {
+     m_loop = std::thread([this, &thread_started] {
           
           lws_context_creation_info info{};
 
@@ -424,6 +435,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
           auto context = lws_create_context(&info);
           if(!context) {
                GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Init failed");
+               thread_started = true;
                return;
           }
 
@@ -436,9 +448,13 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
           }*/
 
           m_running = true;
+          thread_started = true;
+
           if(!m_onListen(m_port)) {
                m_running = false;
           }
+
+
 
           while (m_running && lws_service(context, 0) >= 0) {
                m_loop.execute();    
@@ -447,10 +463,14 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
           m_running = false;
           lws_context_destroy(context);
           });
+
+     while (!thread_started) {
+        std::this_thread::yield();  // Yield to avoid hogging the CPU
+    }
 }
 
 void LWS_Loop::defer(std::function<void ()>&& f) {
-     std::lock_guard g{m_mutex};
+     std::lock_guard<std::mutex> guard(m_mutex);
      m_deferred.push_back(std::move(f));
 }
 
@@ -542,7 +562,8 @@ LWS_Socket::SendStatus LWS_Server::send_bin(LWS_Socket* s, std::string_view bin)
 }
 
 LWS_Socket::SendStatus LWS_Server::send_text(LWS_Socket* s, std::string_view text) {
-     return s->append(text, LWS_Socket::TEXT);
+     const auto status = s->append(text, LWS_Socket::TEXT);
+     return status;
 }
 
 bool LWS_Server::has_backpressure(LWS_Socket* s, size_t /*len*/) {
@@ -555,13 +576,13 @@ void LWS_Socket::close() {
 
 std::unique_ptr<Server> Gempyre::create_server(unsigned int port,
            const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
+           Server::OpenFunction&& onOpen,
+           Server::MessageFunction&& onMessage,
+           Server::CloseFunction&& onClose,
+           Server::GetFunction&& onGet,
+           Server::ListenFunction&& onListen,
            int querIdBase,
-           const Server::ResendRequest& request) {
-                return std::unique_ptr<Server>(new LWS_Server(port, rootFolder, onOpen, onMessage, onClose, onGet, onListen, querIdBase, request));
+           Server::ResendRequest&& request) {
+                return std::unique_ptr<Server>(new LWS_Server(port, rootFolder, std::move(onOpen), std::move(onMessage), std::move(onClose), std::move(onGet), std::move(onListen), querIdBase, std::move(request)));
            }
 

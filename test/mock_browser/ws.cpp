@@ -174,9 +174,9 @@ static const struct lws_protocols protocols[] = {
 
 int websocket::start_ws(const std::string& address, int port, const std::string& protocol, websocket::App& ext)
 {
-    int logs =
-            LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE;
-    logs |= LLL_INFO | LLL_DEBUG;
+    /*int logs =
+            LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG;*/
+    int logs = LLL_ERR;        
     lws_set_log_level(logs, websocket::debug_print);
 
     lwsl_user("start_ws");

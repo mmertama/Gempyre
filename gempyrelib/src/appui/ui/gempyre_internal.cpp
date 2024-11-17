@@ -255,7 +255,7 @@ GempyreInternal& Ui::ref() {
                    [this](){openHandler();},
                    [this](Server::Object&& obj){messageHandler(std::move(obj));},
                    [this](CloseStatus status, int code){closeHandler(status, code);},
-                   [this](const std::string_view& name){return getHandler(name);},
+                   [this](std::string_view name){return getHandler(name);},
                    [indexHtml, parameters, this](int listen_port){return startListen(std::string{indexHtml}, parameters, listen_port);},
                    last_query_id + 1, // if m_server is created second time it is good that this is > as 1st as pending queries may cause confusion
                    [this]() {add_request([this](){m_app_ui->after(50ms, [this]() { // this is on send error
@@ -368,7 +368,7 @@ void GempyreInternal::pendingClose() {
         }
 }
 
-std::optional<std::string> GempyreInternal::getHandler(const std::string_view & name) { //get
+std::optional<std::string> GempyreInternal::getHandler(std::string_view name) { //get
     GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "HTTP get", name);
     if(name == "/gempyre.js" || name == "gempyre.js") {
         const auto encoded = Base64::decode(Gempyrejs);

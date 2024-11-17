@@ -27,13 +27,13 @@ class Uws_Server : public Server {
 public:
     Uws_Server(unsigned int port,
            const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
+           Server::OpenFunction&& onOpen,
+           Server::MessageFunction&& onMessage,
+           Server::CloseFunction&& onClose,
+           Server::GetFunction&& onGet,
+           Server::ListenFunction&& onListen,
            int queryIdBase,
-           const Server::ResendRequest& request);
+           Server::ResendRequest&& request);
      
     ~Uws_Server();
 

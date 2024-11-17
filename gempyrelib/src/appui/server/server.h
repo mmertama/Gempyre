@@ -45,17 +45,17 @@ public:
     using MessageFunction = std::function<void (Object&&)>;
     using CloseFunction =  std::function<void (CloseStatus, int)>;
     using OpenFunction =  std::function<void ()>;
-    using GetFunction =  std::function<std::optional<std::string> (const std::string_view& filename)>;
+    using GetFunction =  std::function<std::optional<std::string> (std::string_view filename)>;
     using ListenFunction =  std::function<bool (unsigned)>;
     using ResendRequest = std::function<void()>;
 
     Server(unsigned int port,
            const std::string& rootFolder,
-           const OpenFunction& onOpen,
-           const MessageFunction& onMessage,
-           const CloseFunction& onClose,
-           const GetFunction& onGet,
-           const ListenFunction& onListen,
+           OpenFunction&& onOpen,
+           MessageFunction&& onMessage,
+           CloseFunction&& onClose,
+           GetFunction&& onGet,
+           ListenFunction&& onListen,
            int queryIdBase);
     
     virtual ~Server() = default;       
@@ -85,15 +85,15 @@ public:
     bool send(TargetSocket target, Server::Value&& value, bool batchable = true);
     bool send(Gempyre::DataPtr&& data, bool droppable);
 
-    static std::string fileToMime(const std::string_view& filename);
-    static std::string notFoundPage(const std::string_view& url, const std::string_view& info = "");
+    static std::string fileToMime(std::string_view filename);
+    static std::string notFoundPage(std::string_view url, std::string_view info = "");
 
 protected:
     enum class MessageReply {DoNothing, AddUiSocket, AddExtensionSocket};
     MessageReply messageHandler(std::string_view message);
 #ifdef PULL_MODE      
     enum class DataType{Json, Bin};
-    int addPulled(DataType, const std::string_view& data);
+    int addPulled(DataType, std::string_view data);
 #endif
 
 protected:
@@ -134,13 +134,13 @@ private:
 
 std::unique_ptr<Server> create_server(unsigned int port,
            const std::string& rootFolder,
-           const Server::OpenFunction& onOpen,
-           const Server::MessageFunction& onMessage,
-           const Server::CloseFunction& onClose,
-           const Server::GetFunction& onGet,
-           const Server::ListenFunction& onListen,
+           Server::OpenFunction&& onOpen,
+           Server::MessageFunction&& onMessage,
+           Server::CloseFunction&& onClose,
+           Server::GetFunction&& onGet,
+           Server::ListenFunction&& onListen,
            int queryIdBase,
-           const Server::ResendRequest& resendRequest);
+           Server::ResendRequest&& resendRequest);
 
 }
 
