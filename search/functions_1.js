@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['base64_5fdecode_304',['base64_decode',['../gempyre__utils_8h.html#a32e6e894900899dd93a9bae410747a07',1,'GempyreUtils']]],
+  ['base64_5fdecode_304',['base64_decode',['../gempyre__utils_8h.html#a7dd7645042fcb8c4ecfc2d861c0754c5',1,'GempyreUtils']]],
   ['base64_5fencode_305',['base64_encode',['../gempyre__utils_8h.html#adbdbb8d9fdda122c62e6326a1aee9e13',1,'GempyreUtils::base64_encode(const unsigned char *bytes, size_t sz)'],['../gempyre__utils_8h.html#a37776ea5f3e1dd5da765e3a49a723256',1,'GempyreUtils::base64_encode(const std::vector&lt; uint8_t &gt; &amp;vec)']]],
   ['base_5fname_306',['base_name',['../gempyre__utils_8h.html#aa912c5da91e46594dae4559e9eb62cba',1,'GempyreUtils']]],
   ['begin_5fbatch_307',['begin_batch',['../classGempyre_1_1Ui.html#aa3b350ec16cfcf3becb36077e955a678',1,'Gempyre::Ui']]],
