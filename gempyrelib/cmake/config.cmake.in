@@ -81,15 +81,16 @@ set_target_properties(gempyre::gempyre_lib PROPERTIES
     IMPORTED_LOCATION_MINSIZEREL "${LIB_NAME_DEBUG_MINSIZEREL}"
     )
 
-if(WIN32)
-    add_library(gempyre::gempyre_uv STATIC IMPORTED)
-elseif(RASPBERRY)
-    add_library(gempyre::gempyre_uv STATIC IMPORTED)
-else()
-    add_library(gempyre::gempyre_usock STATIC IMPORTED)
-endif()
-
 if(@USE_UWEBSOCKETS@)
+
+    if(WIN32)
+        add_library(gempyre::gempyre_uv STATIC IMPORTED)
+    elseif(RASPBERRY)
+        add_library(gempyre::gempyre_uv STATIC IMPORTED)
+    else()
+        add_library(gempyre::gempyre_usock STATIC IMPORTED)
+    endif()
+
     include(uwebsockets_config)
 else()
     if(@HAS_WEB_SOCKETS@)
@@ -113,24 +114,36 @@ if(WIN32)
             INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:ws2_32.lib>"
             )
 
-    endif()    
+    endif() 
+
+
+    if (@USE_UWEBSOCKETS@)
+        set(gempyre_libs gempyre::gempyre_uv)
+    endif()
+
+    set(gempyre_libs gempyre::gempyre_lib ${gempyre_libs} )
 
     set_target_properties(gempyre::gempyre PROPERTIES
-        INTERFACE_LINK_LIBRARIES "gempyre::gempyre_lib;gempyre::gempyre_uv"
+        INTERFACE_LINK_LIBRARIES ${gempyre_libs}
         )
+
 elseif(RASPBERRY)
 
-    if(NOT ${gempyre::gempyre_uv} ) 
-        message(FATAL_ERROR "gempyre_uv not found")
+    if (@USE_UWEBSOCKETS@)
+        if(NOT ${gempyre::gempyre_uv} ) 
+            message(FATAL_ERROR "gempyre_uv not found")
+        endif()
+        set(gempyre_libs gempyre::gempyre_uv)
     endif()
+
+     set(gempyre_libs gempyre::gempyre_lib ${gempyre_libs} )
 
     set_target_properties(gempyre::gempyre_lib PROPERTIES
         INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
         )    
 
     set_target_properties(gempyre::gempyre PROPERTIES
-       #INTERFACE_INCLUDE_DIRECTORIES ${gempyre_legacy_INCLUDE_DIR}
-        INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_uv"
+        INTERFACE_LINK_LIBRARIES ${gempyre_libs}
         )           
 else()
 
@@ -140,7 +153,7 @@ else()
             )       
     else()
         set(GEMPYRE_INTERFACE_LINK_LIBRARIES "gempyre::gempyre_lib") 
-        if(USE_UWEBSOCKETS)
+        if(@USE_UWEBSOCKETS@)
             set_target_properties(gempyre::gempyre_usock PROPERTIES
                 IMPORTED_LOCATION "${uSockets_LIBRARY}"
                 IMPORTED_LOCATION_DEBUG "${uSockets_LIBRARY}" 
