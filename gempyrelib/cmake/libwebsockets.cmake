@@ -75,13 +75,19 @@ if (MSVC)
   target_compile_options(websockets PRIVATE /wd5102 /wd4005)
 else()
   target_compile_options(websockets PRIVATE -Wno-unused-parameter)
+  target_compile_options(websockets PRIVATE -Wno-shadow)
+
 endif()
 
 if (MINGW)
-  target_compile_options(websockets PRIVATE -Wno-redundant-decls)
-  target_compile_options(your_target PRIVATE -Wno-builtin-macro-redefined)
-  target_compile_options(your_target PRIVATE -Wno-Error)
+  target_compile_options(websockets PRIVATE
+  -Wno-redundant-decls
+  -Wno-builtin-macro-redefined
+  -Wno-macro-redefined
+  )
+#add_compile_definitions(websockets PRIVATE _WIN32_WINNT=0x0601) # must be for libwebsocket   
 endif()
+
 
 set(USE_LIBWEBSOCKETS TRUE)
 
@@ -111,9 +117,20 @@ set(GEMPYRE_WS_SOURCES
 
 set(GEMPYRE_WEBSOCKET_LIBRARY_NAME "libwebsocket")   
 
+set(UV_LIB_DIR ${BINARY_DIR})
+                                       
+if(NOT IS_RELEASE)
+    set(WS_LIB_NAME_CORE websockets_staticd)
+else()
+    set(WS_LIB_NAME_CORE websockets_static)
+endif()
+
+set(WS_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}${WS_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
+
 if(WIN32)
-    set(GEMPYRE_WS_LIB_NAME "$<TARGET_FILE:websocket>")
-    set(GEMPYRE_WS_LIB_OBJ "$<TARGET_FILE_BASE_NAME:websocket>")
-    set(GEMPYRE_WS_LIB "$<TARGET_FILE_BASE_NAME:websocket>")
-    set(GEMPYRE_WS_LIB_FULL "$<TARGET_FILE:websocket>")
+  set(WS_LIB_FULL "${GEMPYRE_WS_LIB_PATH}/${WS_LIB_NAME}")
+  set(GEMPYRE_WS_LIB_NAME "${WS_LIB_NAME}")
+  set(GEMPYRE_WS_LIB_OBJ  "libwebsocket")
+  set(GEMPYRE_WS_LIB "${WS_LIB_NAME}")
+  set(GEMPYRE_WS_LIB_FULL "${WS_LIB_FULL}")
 endif()

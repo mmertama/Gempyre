@@ -109,7 +109,8 @@ if(WIN32)
     add_compile_options(-D_WIN32)
 
     if(NOT MSVC)
-        add_compile_definitions(_WIN32_WINNT=0x0A00)  #win10, needed for mingw
+        #add_compile_definitions(_WIN32_WINNT=0x0A00) #win10, needed for mingw
+        add_compile_definitions(_WIN32_WINNT=0x0601)  #libwebsockets goes win7, needed for mingw
     else()
         option(CMAKE_USE_WIN32_THREADS_INIT "using WIN32 threads" ON)
     endif()

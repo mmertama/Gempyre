@@ -13,6 +13,10 @@
 //}
 //pragma GCC diagnostic pop
 
+#ifdef WINDOWS_OS
+#pragma comment(lib, "Ws2_32.lib")
+#endif
+
 using namespace Gempyre;
 
 
@@ -33,8 +37,6 @@ class Gempyre::SendBuffer {
           SendBuffer(const SendBuffer&) = delete;
           SendBuffer& operator=(const SendBuffer&) = delete;
           void apply(std::string_view data/*, std::string_view mime*/) {
-               //assert(empty());
-               //m_mime = std::move(mime);
                if (m_data.size() < LWS_PRE + data.size())
                     m_data.resize(LWS_PRE + data.size());
                m_pos = m_data.begin() + LWS_PRE;
@@ -60,24 +62,22 @@ class Gempyre::SendBuffer {
           void commit(int size) {
                assert(size >= 0);
                m_pos += size;
+               if (empty()) {
+                    clear();
+               }
+               assert(m_pos <= m_data.end());
           }
 
-          //std::string_view mime() const {
-          //     return m_mime;
-          //}
-
-          auto size() const {
-               return m_data.size();
+          size_t size() const {
+               return static_cast<size_t>(std::distance(static_cast<std::string::const_iterator>(m_pos), m_data.end()));
           }
 
           void clear() {
-               //m_mime.clear();
                m_data.clear();
                m_pos = m_data.end();
           }
 
      private:
-          //std::string m_mime  = {};
           std::string m_data = {};
           std::string::iterator m_pos = {};     
 };
@@ -303,8 +303,9 @@ int LWS_Server::on_http_write(lws *wsi) {
      const auto protocol = buffer->end() ? LWS_WRITE_HTTP_FINAL : LWS_WRITE_HTTP;
      if (LWS_WRITE_HTTP_FINAL != protocol) {
           auto ptr = buffer->data();
-          const auto written = lws_write(wsi, ptr, buffer->size(), protocol);
-          if (written != static_cast<int>(buffer->size())) {
+          const auto sz = buffer->size();
+          const auto written = lws_write(wsi, ptr, sz, protocol);
+          if (written != static_cast<int>(sz)) {
                GempyreUtils::log(GempyreUtils::LogLevel::Error, "http-get write failed", written);
                return 1;
           }
@@ -313,7 +314,7 @@ int LWS_Server::on_http_write(lws *wsi) {
      } else {
           if (lws_http_transaction_completed(wsi))
                return -1;
-          buffer->clear();     
+          buffer->clear();          
      }
      return 0;
 }
@@ -543,8 +544,7 @@ bool LWS_Server::isRunning() const {
 }  
 
 bool LWS_Server::isConnected() const {
-     assert(isRunning());
-     return !m_broadcaster->empty();
+     return isRunning() && !m_broadcaster->empty();
 }
      
 bool LWS_Server::retryStart() {
