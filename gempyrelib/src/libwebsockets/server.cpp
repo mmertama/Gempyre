@@ -342,7 +342,9 @@ static void set_lws_log_level() {
 			 * -DCMAKE_BUILD_TYPE=DEBUG instead of =RELEASE */
 			/* | LLL_INFO */ /* | LLL_PARSER */ /* | LLL_HEADER */
 			/* | LLL_EXT */ /* | LLL_CLIENT */ /* | LLL_LATENCY */
+#ifdef LWS_DEBUG         
 			 | LLL_DEBUG ;
+#endif
      ;
      lws_set_log_level(logs, [](int level, const char* line) {
           GempyreUtils::LogLevel lvl = GempyreUtils::LogLevel::Debug;
