@@ -61,3 +61,13 @@ function (gempyre_add_resources)
 
     
 endfunction()
+
+function (supress_errors)
+    cmake_parse_arguments( SUPRESS "FILES" "FLAGS" ${ARGN})
+    foreach( U_P ${SUPRESS_FILES})
+        if (NOT EXISTS ${U_P})
+            message("Cannot suppress ${U_P}")
+        endif()
+        set_source_files_properties($U_P PROPERTIES COMPILE_OPTIONS ${FLAGS})
+    endforeach()  
+endfunction()

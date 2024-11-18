@@ -74,12 +74,13 @@ macro(socket_dependencies TARGET)
     target_compile_definitions(${TARGET} PRIVATE USE_LIBWEBSOCKETS)
 endmacro()
 
+set(UNUSED_PARAMETERS
+  "${libwebsockets_SOURCE_DIR}/lib/plat/unix/unix-misc.c"
+  "${libwebsockets_SOURCE_DIR}/lib/plat/unix/unix-sockets.c"
+  "${libwebsockets_SOURCE_DIR}/lib/plat/unix/unix-init.c" 
+)
 
-set_source_files_properties("${libwebsockets_SOURCE_DIR}/lib/plat/unix/unix-misc.c" PROPERTIES 
-  COMPILE_OPTIONS "-Wno-unused-parameter")
-
-set_source_files_properties("${libwebsockets_SOURCE_DIR}/lib/plat/unix/unix-sockets.c" PROPERTIES 
-  COMPILE_OPTIONS "-Wno-unused-parameter")  
+supress_errors(FILES ${UNUSED_PARAMETERS} FLAGS "-Wno-unused-parameter")
 
 string(STRIP "${libwebsockets_BINARY_DIR}/lib" GEMPYRE_WS_LIB_PATH)
 
