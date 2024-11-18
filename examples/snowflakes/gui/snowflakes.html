@@ -25,7 +25,10 @@
   <script src="/gempyre.js"></script>
   <div id="slider">
     <label for="flakes_count" id="flakes_label"></label>
-    <input type="range" id="flakes_count" min="0" max="10" value="5" autofocus>
+    <input type="number" id="flakes_count" required
+          min="0" max="10" size="2", value="4" autofocus>
+    <!--input type="range" id="flakes_count" min="0" max="10" value="5" autofocus-->
+    <h4 id="flakes_info"></h4>
   </div>
   <canvas id="canvas" width=600 height=600>
 </body>

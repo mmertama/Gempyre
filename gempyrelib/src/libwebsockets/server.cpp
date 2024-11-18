@@ -96,7 +96,7 @@ std::optional<std::string_view> LWS_Server::match(std::string_view prefix, std::
      return std::nullopt;
 }
 
- std::string LWS_Server::parseQuery(std::string_view query) const {
+ std::string LWS_Server::parse_query(std::string_view query) const {
      std::string fullPath;
      if(!query.empty()) {
           const auto queries = GempyreUtils::split<std::vector<std::string>>(query, '&');
@@ -175,7 +175,7 @@ bool LWS_Server::get_http(lws* wsi, std::string_view get_param) {
         return false;
      }
 
-void LWS_Server::appendSocket(lws* wsi) {
+void LWS_Server::append_socket(lws* wsi) {
      auto ws = std::make_unique<LWS_Socket>(wsi);
      assert(wsi);
      assert(ws);
@@ -184,7 +184,7 @@ void LWS_Server::appendSocket(lws* wsi) {
      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_ESTABLISHED");
 }
 
-bool LWS_Server::removeSocket(lws* wsi, unsigned code) {
+bool LWS_Server::remove_socket(lws* wsi, unsigned code) {
      auto it = m_sockets.find(wsi);
      m_broadcaster->remove(it->second.get());
      m_sockets.erase(it);
@@ -241,20 +241,22 @@ size_t LWS_Server::on_write(lws* wsi) {
           return 0;
      }
      ws->shift();
+     if (!ws->empty())
+          lws_callback_on_writable(wsi); 
      return sz;
 }
 
 
-int LWS_Server::wsCallback(lws* wsi, lws_callback_reasons reason, void* /*user*/, void *in, size_t len) {
+int LWS_Server::ws_callback(lws* wsi, lws_callback_reasons reason, void* /*user*/, void *in, size_t len) {
      auto self = static_cast<LWS_Server*>(lws_context_user(lws_get_context(wsi)));
      GempyreUtils::log(GempyreUtils::LogLevel::Debug, "wsCallback", reason);
      switch (reason) {
      case LWS_CALLBACK_CLOSED:
-          if(!self->removeSocket(wsi, get_error_code(in, len)))
+          if(!self->remove_socket(wsi, get_error_code(in, len)))
                return -1;
           break;     
      case LWS_CALLBACK_ESTABLISHED:
-          self->appendSocket(wsi);
+          self->append_socket(wsi);
           break;
      case LWS_CALLBACK_SERVER_WRITEABLE:
           self->on_write(wsi);
@@ -317,7 +319,7 @@ int LWS_Server::on_http_write(lws *wsi) {
 }
 
 
-int LWS_Server::httpCallback(lws *wsi, enum lws_callback_reasons reason, void* /*user*/, void* in, size_t /*len*/)
+int LWS_Server::http_callback(lws *wsi, enum lws_callback_reasons reason, void* /*user*/, void* in, size_t /*len*/)
 {
      auto self = static_cast<LWS_Server*>(lws_context_user(lws_get_context(wsi)));
      
@@ -389,7 +391,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
 
           const lws_protocols gempyre_ws { 
                "gempyre",
-               LWS_Server::wsCallback,
+               LWS_Server::ws_callback,
                0,
                8192,
                0,
@@ -399,7 +401,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
 
           const lws_protocols gempyre_http {
                "http-only",                  // name
-               LWS_Server::httpCallback,     // cb
+               LWS_Server::http_callback,     // cb
                0,                            // per_session_data_size
                0,                            // rx_buffer_size
                0,                            // id
@@ -445,12 +447,14 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
 
           set_lws_log_level();
           
-          m_context = lws_create_context(&info);
-          if(!m_context) {
+          auto context = lws_create_context(&info);
+          if(!context) {
                GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "Init failed");
                thread_started = true;
                return;
           }
+
+          m_loop.set_context(context);
 
      
           /*auto *vhost = lws_create_vhost(m_context, &info);
@@ -467,12 +471,12 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
                m_running = false;
           }
 
-          while (m_running && lws_service(m_context, 0) >= 0) {
+          while (m_running && lws_service(context, 0) >= 0) {
                m_loop.execute();    
           }
 
           m_running = false;
-          lws_context_destroy(m_context);
+          lws_context_destroy(context);
           });
 
      while (!thread_started) {
@@ -483,6 +487,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
 void LWS_Loop::defer(std::function<void ()>&& f) {
      std::lock_guard<std::mutex> guard(m_mutex);
      m_deferred.push_back(std::move(f));
+     wakeup();
 }
 
 void LWS_Loop::execute() {
@@ -492,8 +497,30 @@ void LWS_Loop::execute() {
           copy_of_deferred = m_deferred;
           m_deferred.clear();
      } while (false);
-     for (auto&& f : copy_of_deferred)
+     for (auto&& f : copy_of_deferred) {
           f();
+     }
+}
+
+bool LWS_Loop::valid() const {
+     return m_fut.joinable();
+}
+
+void LWS_Loop::join() {
+     m_fut.join();
+}
+
+LWS_Loop& LWS_Loop::operator=(std::thread&& fut) {
+     m_fut = std::move(fut);
+     return *this;
+}
+
+void LWS_Loop::set_context(lws_context* context) {
+     m_context = context;
+}
+
+void LWS_Loop::wakeup() {
+     lws_cancel_service(m_context); 
 }
 
 LWS_Server::~LWS_Server() {
@@ -503,7 +530,7 @@ LWS_Server::~LWS_Server() {
 
 bool LWS_Server::isJoinable() const {
      return m_loop.valid();
-     }
+}
 
 bool LWS_Server::isUiReady() const {
     return m_uiready;
@@ -512,22 +539,23 @@ bool LWS_Server::isUiReady() const {
 bool LWS_Server::isRunning() const {
      assert(m_running || !isJoinable());
      return m_running;
-     }  
+}  
 
 bool LWS_Server::isConnected() const {
      assert(isRunning());
      return !m_broadcaster->empty();
-     }
+}
      
 bool LWS_Server::retryStart() {
      std::abort();
-     }
+}
+
 
 void LWS_Server::close(bool wait) {
      m_broadcaster->close();
      m_do_close = true;
      m_running = false;
-     lws_cancel_service(m_context); 
+     m_loop.wakeup();
      if (wait && isJoinable()) {
           m_loop.join();
          // std::this_thread::sleep_for(100ms);
@@ -572,7 +600,8 @@ BroadcasterBase& LWS_Server::broadcaster() {
 }
 
 LWS_Socket::SendStatus LWS_Server::send_bin(LWS_Socket* s, std::string_view bin) {
-     return s->append(bin, LWS_Socket::BIN);
+     const auto status = s->append(bin, LWS_Socket::BIN);
+     return status;
 }
 
 LWS_Socket::SendStatus LWS_Server::send_text(LWS_Socket* s, std::string_view text) {

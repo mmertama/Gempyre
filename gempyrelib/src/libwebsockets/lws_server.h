@@ -86,17 +86,17 @@ private:
 class LWS_Loop {
 public:
     void defer(std::function<void ()>&& f);
-    bool valid() const {return m_fut.joinable();}
-    void join() {m_fut.join();}
-    LWS_Loop& operator=(std::thread&& fut) {
-        m_fut = std::move(fut);
-        return *this;
-    }
     void execute();
+    bool valid() const;
+    void join();
+    LWS_Loop& operator=(std::thread&& fut);
+    void set_context(lws_context* context);
+    void wakeup();
 private:
     std::thread m_fut;
     std::mutex m_mutex;
-    std::vector<std::function<void()>> m_deferred;   
+    std::vector<std::function<void()>> m_deferred;
+    std::atomic <lws_context*> m_context;   
 };
 
 using LWS_Broadcaster = Broadcaster<LWS_Socket, LWS_Loop, LWS_Server>;
@@ -129,13 +129,13 @@ public:
     static LWS_Socket::SendStatus send_bin(LWS_Socket* s, std::string_view bin); 
 
 private:
-    static int wsCallback(lws* wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
-    static int httpCallback(lws* wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
-    std::string parseQuery(std::string_view query) const;
+    static int ws_callback(lws* wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
+    static int http_callback(lws* wsi, lws_callback_reasons reason, void *user, void *in, size_t len);
+    std::string parse_query(std::string_view query) const;
     std::optional<std::string_view> match(std::string_view prefix, std::string_view param) const;
     bool get_http(lws* wsi, std::string_view get_param);
-    void appendSocket(lws* wsi);
-    bool removeSocket(lws* wsi, unsigned error_code);
+    void append_socket(lws* wsi);
+    bool remove_socket(lws* wsi, unsigned error_code);
     bool received(lws* wsi, std::string_view msg);
     size_t on_write(lws* wsi);
     int on_http(lws *wsi, void* in);
@@ -145,7 +145,6 @@ private:
     std::atomic_bool m_running{false};
     std::atomic_bool m_do_close{false};
     std::atomic_bool m_uiready{false};
-    std::atomic <lws_context*> m_context;
     LWS_Loop m_loop;
     std::unique_ptr<LWS_Broadcaster> m_broadcaster;
     std::unordered_map<SKey, std::unique_ptr<LWS_Socket>> m_sockets;

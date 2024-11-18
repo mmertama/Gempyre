@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
-
-#include <unordered_map>
+#include <array>
+#include <cassert>
 
 #include "gempyre_graphics.h"
 #include "gempyre_utils.h"
@@ -46,44 +46,46 @@ int main(int /*argc*/, char** /*argv*/) {
     Gempyre::Ui ui({{"/snowflakes.html", Snowflakeshtml}}, "snowflakes.html", "Koch flake", 620, 620);
     Gempyre::CanvasElement canvas(ui, "canvas");
     Gempyre::Element flakes_count(ui, "flakes_count");
-    Gempyre::Element flakes_label(ui, "flakes_label");
+    Gempyre::Element flakes_info(ui, "flakes_info");
 
     Gempyre::Element::Rect rect;
-    std::unordered_map<int, std::vector<Koch::point>> m_cache;
+    std::array<std::pair<std::vector<Koch::point>, std::chrono::milliseconds>, 10> m_kochs;
 
 
 
-    const auto draw_a_flake = [&canvas, &rect, &m_cache](int iterations) {
-        if(m_cache.find(iterations) == m_cache.end()) {
-            m_cache.emplace(iterations, Koch::koch_points(Size, iterations));
-            GempyreUtils::log(GempyreUtils::LogLevel::Info,
-                "snow flake with",
-                m_cache[iterations].size(),
-                "vertices on", iterations,
-                "iterations.");
+    const auto draw_a_flake = [&](int iterations) {
+        if(m_kochs[iterations].first.empty()) {
+            flakes_info.set_html("Calculating....");
+            ui.flush(); // since next operation is slow we ensure that this get handled
+            const auto start = std::chrono::steady_clock::now();
+            auto points =  Koch::koch_points(Size, iterations);
+            const auto end = std::chrono::steady_clock::now(); 
+            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            m_kochs[iterations] = {std::move(points), duration};
         }
-        Flake f(m_cache[iterations], Size);
+        const auto start = std::chrono::steady_clock::now();
+        Flake f(m_kochs[iterations].first, Size);
         f.setPos(rect.width / 2, rect.height / 2);
         Gempyre::FrameComposer fc;
         fc.clear_rect(rect);
         f.draw(fc);
         canvas.draw(fc);
+        const auto end = std::chrono::steady_clock::now(); 
+        const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::stringstream info;
+        info << "Iterations: "<< iterations << ", Size: " << (m_kochs[iterations].first.size() - 1) << ", Calc:" << m_kochs[iterations].second.count() << "ms, Draw:" << duration.count() << "ms";
+        flakes_info.set_html(info.str());
     };
 
-    const auto update_a_label = [&flakes_label](int iterations) {
-          flakes_label.set_html("Iterations: " + std::to_string(iterations));
-    };
-
-    flakes_count.subscribe(Gempyre::Event::CHANGE, [&draw_a_flake, &update_a_label](const Gempyre::Event& ev) {
-        const auto v = GempyreUtils::convert<int>(ev.properties.at("value"));
-        update_a_label(v);
+    flakes_count.subscribe(Gempyre::Event::CHANGE, [&draw_a_flake](const Gempyre::Event& ev) {
+        const auto v = GempyreUtils::convert<unsigned>(ev.properties.at("value"));
+        assert(v <= 10);
         draw_a_flake(v);
     }, {"value"});
 
-    ui.on_open([&flakes_count, &draw_a_flake, &update_a_label, &canvas, &rect]() {
+    ui.on_open([&flakes_count, &draw_a_flake, &canvas, &rect]() {
         rect = *canvas.rect();
-        const auto v = GempyreUtils::convert<int>(flakes_count.values()->at("value"));
-        update_a_label(v);
+        const auto v = GempyreUtils::convert<unsigned>(flakes_count.values()->at("value"));
         draw_a_flake(v);
     });
 
