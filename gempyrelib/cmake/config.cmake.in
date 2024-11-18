@@ -103,7 +103,7 @@ if(WIN32)
     
     if(MSVC)
         set_target_properties(gempyre::gempyre_lib PROPERTIES
-            INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:Shlwapi.lib>"
+            INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:Shlwapi.lib>;\$<LINK_ONLY:ws2_32.lib>"
         )
     else()
         set_target_properties(gempyre::gempyre_lib PROPERTIES
@@ -139,17 +139,21 @@ else()
             INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib"
             )       
     else()
-        set_target_properties(gempyre::gempyre_usock PROPERTIES
-            IMPORTED_LOCATION "${uSockets_LIBRARY}"
-            IMPORTED_LOCATION_DEBUG "${uSockets_LIBRARY}" 
-            )
+        set(GEMPYRE_INTERFACE_LINK_LIBRARIES "gempyre::gempyre_lib") 
+        if(USE_UWEBSOCKETS)
+            set_target_properties(gempyre::gempyre_usock PROPERTIES
+                IMPORTED_LOCATION "${uSockets_LIBRARY}"
+                IMPORTED_LOCATION_DEBUG "${uSockets_LIBRARY}" 
+                )
+            set(GEMPYRE_INTERFACE_LINK_LIBRARIES ${GEMPYRE_INTERFACE_LINK_LIBRARIES} gempyre::gempyre_usock)         
+        endif()        
 
         set_target_properties(gempyre::gempyre_lib PROPERTIES
             INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
             )
 
         set_target_properties(gempyre::gempyre PROPERTIES
-            INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib;gempyre::gempyre_usock"
+            INTERFACE_LINK_LIBRARIES  ${GEMPYRE_INTERFACE_LINK_LIBRARIES}
         )        
     endif()                
 

@@ -120,14 +120,6 @@ if (WIN32 OR ANDROID OR RASPBERRY)
 endif()
 # end of general defintions
 
-#if(USE_UWEBSOCKETS)
-#    include(cmake/uwebsockets.cmake)
-#else()
-#   include(cmake/libwebsockets.cmake)
-#    set(USE_LIBWEBSOCKETS TRUE)    
-#endif()
-
-
 set(JSON_BuildTests OFF)
 set(JSON_Install OFF)
 FetchContent_Declare(libjson
@@ -696,8 +688,8 @@ else()
                     ${SOCKET_CMAKE_PROJECT_CONFIG_FILE}
                     DESTINATION ${PROJECT_CMAKE_DIR}
                     )
-            else()
-                message(WARNING "Project config is not installed - as CONNECTION_FIND is not defined!")        
+            elseif(USE_UWEBSOCKETS)
+                message(WARNING "CONNECTION_FIND is not defined!")        
             endif()
         endif()        
 
