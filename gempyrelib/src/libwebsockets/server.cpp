@@ -300,20 +300,20 @@ int LWS_Server::on_http(lws *wsi, void* in) {
 
 int LWS_Server::on_http_write(lws *wsi) {
      auto& buffer = m_send_buffers.at(wsi);
-     auto ptr = buffer->data();
      const auto protocol = buffer->end() ? LWS_WRITE_HTTP_FINAL : LWS_WRITE_HTTP;
-     const auto written = lws_write(wsi, ptr, buffer->size(), protocol);
-     if (written != static_cast<int>(buffer->size())) {
-          GempyreUtils::log(GempyreUtils::LogLevel::Error, "http-get write failed", written);
-          return 1;
-     }
-     buffer->commit(written);
-     if (protocol == LWS_WRITE_HTTP_FINAL) {
+     if (LWS_WRITE_HTTP_FINAL != protocol) {
+          auto ptr = buffer->data();
+          const auto written = lws_write(wsi, ptr, buffer->size(), protocol);
+          if (written != static_cast<int>(buffer->size())) {
+               GempyreUtils::log(GempyreUtils::LogLevel::Error, "http-get write failed", written);
+               return 1;
+          }
+          buffer->commit(written);
+          lws_callback_on_writable(wsi);
+     } else {
           if (lws_http_transaction_completed(wsi))
                return -1;
-          buffer->clear();
-     } else {
-          lws_callback_on_writable(wsi);
+          buffer->clear();     
      }
      return 0;
 }
@@ -535,12 +535,11 @@ bool LWS_Server::isJoinable() const {
 }
 
 bool LWS_Server::isUiReady() const {
-    return m_uiready;
+    return m_uiready && isRunning();
 }
 
 bool LWS_Server::isRunning() const {
-     assert(m_running || !isJoinable());
-     return m_running;
+     return m_running && isJoinable();
 }  
 
 bool LWS_Server::isConnected() const {
