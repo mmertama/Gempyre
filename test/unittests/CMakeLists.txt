@@ -8,8 +8,8 @@ include_directories(
      ../../gempyrelib/include
      ../../gempyrelib/src/appui/core
      ../../gempyrelib/src/appui/server
-    include
     ${TEST_INCLUDE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/res
 )
 
 

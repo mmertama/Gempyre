@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
 
-set(NAME minihello)
-project (${NAME})
+project (minihello)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -14,7 +13,7 @@ link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    gui/${NAME}.html
+    gui/minihello.html
     )
 add_dependencies (${PROJECT_NAME} gempyre)
 

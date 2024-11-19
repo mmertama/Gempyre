@@ -1,12 +1,13 @@
 cmake_minimum_required (VERSION 3.18)
 
-set(NAME fire)
-project (${NAME})
+
+project (fire)
 
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
     ../../gempyrelib/include
+    ${CMAKE_CURRENT_BINARY_DIR}/res
 )
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
@@ -21,7 +22,7 @@ add_executable(${PROJECT_NAME}
 add_dependencies (${PROJECT_NAME} gempyre)
 
 gempyre_add_resources(PROJECT ${PROJECT_NAME}
-    TARGET include/fire_resources.h 
+    TARGET ${CMAKE_CURRENT_BINARY_DIR}/res/fire_resources.h 
     SOURCES gui/fire.html gui/grunge-skull.png)
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre

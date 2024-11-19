@@ -11,7 +11,7 @@ if(gempyre_FOUND)
    set(CMAKE_CXX_STANDARD 17)
    
    include_directories(
-      include
+      ${CMAKE_CURRENT_BINARY_DIR}/res
    )
 
    add_executable(${PROJECT_NAME}
@@ -21,7 +21,7 @@ if(gempyre_FOUND)
       )
 
    gempyre_add_resources(PROJECT ${PROJECT_NAME} 
-   TARGET include/hello.html.h 
+   TARGET ${CMAKE_CURRENT_BINARY_DIR}/res/hello.html.h 
    SOURCES gui/hello.html gui/favicon.ico)
 
    target_link_libraries (${PROJECT_NAME}  gempyre::gempyre)   

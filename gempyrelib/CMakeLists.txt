@@ -169,6 +169,16 @@ if(HAS_WEB_SOCKETS)
     endif()    
 endif()
 
+# for later comparisons
+if (NOT DEFINED USE_UWEBSOCKETS) 
+    set(USE_UWEBSOCKETS FALSE) 
+endif()    
+
+if (NOT DEFINED USE_LIBWEBSOCKETS)
+    set(USE_LIBWEBSOCKETS FALSE)
+endif()    
+
+
 if(USE_UWEBSOCKETS AND USE_LIBWEBSOCKETS)
     message(FATAL_ERROR "Confusing web socket configuration")
 endif()
@@ -622,6 +632,9 @@ else()
     get_target_property(TARGET_LIBRARY_NAME ${PROJECT_NAME} OUTPUT_NAME)
 
     include(CMakePackageConfigHelpers)
+    if (USE_LIBWEBSOCKETS EQUAL USE_UWEBSOCKETS)
+        message(FATAL_ERROR "USE_LIBWEBSOCKETS:${USE_LIBWEBSOCKETS} USE_UWEBSOCKETS:${USE_UWEBSOCKETS}")
+    endif()
     configure_package_config_file(
         ${GEMPYRE_CMAKE_CONFIG_TEMPLATE}
         ${GEMPYRE_CMAKE_PROJECT_CONFIG_FILE}

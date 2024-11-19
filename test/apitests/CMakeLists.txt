@@ -6,8 +6,8 @@ project (apitests)
 set(CMAKE_CXX_STANDARD 17)
 include_directories(
      ../../gempyrelib/include
-    include
     ${TEST_INCLUDE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/res
 )
 
 
@@ -35,7 +35,7 @@ gtest_discover_tests(${PROJECT_NAME})
 
 # add HTML into resources
 gempyre_add_resources(PROJECT ${PROJECT_NAME}
-    TARGET include/${PROJECT_NAME}_resource.h
+    TARGET ${CMAKE_CURRENT_BINARY_DIR}/res/${PROJECT_NAME}_resource.h
     SOURCES gui/${PROJECT_NAME}.html
     gui/spiderman1.png
     gui/spiderman2.jpg)

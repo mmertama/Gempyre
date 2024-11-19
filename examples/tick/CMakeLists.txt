@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
 
-set(NAME tick)
-project (${NAME})
+project (tick)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -17,6 +16,7 @@ endif()
 
 include_directories(
      ../../gempyrelib/include
+     ${CMAKE_CURRENT_BINARY_DIR}/res
      )
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
@@ -24,10 +24,10 @@ link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    gui/${NAME}.html
+    gui/tick.html
     )
 
-gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h SOURCES gui/${NAME}.html)
+gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/tick_resource.h SOURCES gui/tick.html)
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
 target_link_libraries (${PROJECT_NAME}  PRIVATE "$<TARGET_FILE:gempyre>" "$<TARGET_PROPERTY:gempyre,gempyre_libs>")

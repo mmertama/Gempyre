@@ -172,6 +172,15 @@ jobs:
       run: |
         build/test/apitests/apitests --verbose
        
+    - name: Run lib install test
+      shell: bash
+      run: |
+        mkdir -p lib_test_build
+        popd lib_test_build
+        cmake ../test/lib_test
+        cmake --build .
+        ./lib_test    
+
     - name: List this folder
       shell: bash
       run: pwd && ls -R

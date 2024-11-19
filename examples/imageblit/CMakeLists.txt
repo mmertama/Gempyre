@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.18)
 
 set(NAME imageblit)
-project (${NAME}test)
+project (imageblit)
 
 include(../../scripts/gempyre.cmake)
 
@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
      ../../gempyrelib/include
+     ${CMAKE_CURRENT_BINARY_DIR}/res
 )
 
 # This is not a an example! This is just enabler to link without install, internal to Gempyre
@@ -29,14 +30,14 @@ set(RES
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    gui/${NAME}.html
+    gui/imageblit.html
     ${RES}
     ${STUFF}
     )
 add_dependencies (${PROJECT_NAME} gempyre)
 
-gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET include/${NAME}_resource.h
-SOURCES gui/${NAME}.html ${RES} )
+gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET ${CMAKE_CURRENT_BINARY_DIR}/res/imageblit_resource.h
+SOURCES gui/imageblit.html ${RES} )
 
 
 foreach(IMG ${STUFF})
