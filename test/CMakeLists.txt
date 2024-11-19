@@ -42,9 +42,8 @@ endif()
 add_subdirectory(apitests)
 add_subdirectory(unittests)
 
-if(NOT DEFINED ACTIONS)  # on actions EXCLUDE_FROM_ALL is not proof
-  add_subdirectory(install_test EXCLUDE_FROM_ALL)
-  add_subdirectory(lib_test EXCLUDE_FROM_ALL)
+if (INSTALL_TESTS)
+    add_subdirectory(install_test EXCLUDE_FROM_ALL)
+    add_subdirectory(lib_test EXCLUDE_FROM_ALL)
 endif()
-
 

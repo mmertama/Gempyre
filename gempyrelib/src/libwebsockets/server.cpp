@@ -1,20 +1,21 @@
+#ifdef __GNUC__ // cmake suppression not work well with mingw
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
 #include "lws_server.h"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 #include "gempyre_utils.h"
-//#include "server.h"
 #include <nlohmann/json.hpp>
 #include <cstring> //memcpy
 
-//#pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wuninitialized"
-//#pragma GCC diagnostic ignored "-Wshadow"
-
-//extern "C" {
-//     #include "lws_server.h"
-//}
-//pragma GCC diagnostic pop
-
 #ifdef WINDOWS_OS
+#ifndef __GNUC__
 #pragma comment(lib, "Ws2_32.lib")
+#endif
 #endif
 
 using namespace Gempyre;

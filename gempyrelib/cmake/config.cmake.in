@@ -82,7 +82,7 @@ set_target_properties(gempyre::gempyre_lib PROPERTIES
     )
 
 if(@USE_UWEBSOCKETS@)
-
+    message("USE UWEBSOCKETS")
     if(WIN32)
         add_library(gempyre::gempyre_uv STATIC IMPORTED)
     elseif(RASPBERRY)
@@ -93,9 +93,9 @@ if(@USE_UWEBSOCKETS@)
 
     include(uwebsockets_config)
 elif(@USE_LIBWEBSOCKETS@)
-        message(FATAL_ERROR "What WS is in use?")
+    message("USE LIBWEBSOCKETS")
 else()
-    message("No Websockets")          
+    message(WARNING "No Websockets")          
 endif()
 
 if(WIN32)
@@ -116,7 +116,7 @@ if(WIN32)
 
 
     if (@USE_UWEBSOCKETS@)
-        set(gempyre_libs gempyre::gempyre_uv)
+        set(gempyre_libs gempyre::gempyre_uv)    
     endif()
 
     set(gempyre_libs gempyre::gempyre_lib ${gempyre_libs} )

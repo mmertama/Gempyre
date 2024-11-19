@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.18)
+cmake_minimum_required (VERSION 3.20)
 
 project (affiliates_test_rpc LANGUAGES CXX)
 
@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
     ../../gempyrelib/include
-    ../include
     ${CMAKE_CURRENT_BINARY_DIR}/res
 )
 
@@ -14,15 +13,16 @@ include_directories(
 link_directories("$<TARGET_PROPERTY:gempyre,gempyre_libs_path>")
 
 add_executable(${PROJECT_NAME}
-    src/${PROJECT_NAME}.cpp
-    gui/${PROJECT_NAME}.html
+    src/affiliates_test_rpc.cpp
+    gui/affiliates_test_rpc.html
     )
    
 
 add_dependencies(${PROJECT_NAME} gempyre)
 
-gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET 
-${CMAKE_CURRENT_BINARY_DIR}/res/${PROJECT_NAME}_resource.h SOURCES gui/${PROJECT_NAME}.html)
+gempyre_add_resources(PROJECT ${PROJECT_NAME}
+    TARGET "${CMAKE_CURRENT_BINARY_DIR}/res/affiliates_test_rpc_resource.h"
+    SOURCES "gui/affiliates_test_rpc.html")
 
 find_package (Threads REQUIRED)
 

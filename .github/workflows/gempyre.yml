@@ -175,11 +175,18 @@ jobs:
     - name: Run lib install test
       shell: bash
       run: |
+        mkdir -p clean_build
+        pushd clean_build
+        cmake .. -DNO_INSTALL_TEST=1
+        cmake --build .
+        sudo cmake --install .
+        popd
         mkdir -p lib_test_build
-        popd lib_test_build
+        pushd lib_test_build
         cmake ../test/lib_test
         cmake --build .
-        ./lib_test    
+        ./lib_test
+        popd    
 
     - name: List this folder
       shell: bash

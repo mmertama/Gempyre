@@ -38,14 +38,22 @@ function (gempyre_add_resources)
             )
     endif()    
 
-    if (NOT DEFINED ADD_RESOURCE_PATH)
-        set(ADD_RESOURCE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-        set(INCDIR "${ADD_RESOURCE_PATH}/${ADD_RESOURCE_TARGET}")
+    cmake_path(IS_ABSOLUTE ADD_RESOURCE_TARGET IS_ABS)
+
+    if (IS_ABS )
+        set(INCDIR "${ADD_RESOURCE_TARGET}")
         cmake_path(REMOVE_FILENAME INCDIR)
         target_include_directories(${ADD_RESOURCE_PROJECT} PRIVATE ${INCDIR})
-    endif()    
-    
-    set(TARGET_FULL "${ADD_RESOURCE_PATH}/${ADD_RESOURCE_TARGET}")
+        set(TARGET_FULL "${ADD_RESOURCE_TARGET}")    
+    else()
+        if (NOT DEFINED ADD_RESOURCE_PATH)
+            set(ADD_RESOURCE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+            set(INCDIR "${ADD_RESOURCE_PATH}/${ADD_RESOURCE_TARGET}")
+            cmake_path(REMOVE_FILENAME INCDIR)
+            target_include_directories(${ADD_RESOURCE_PROJECT} PRIVATE ${INCDIR})
+        endif()    
+        set(TARGET_FULL "${ADD_RESOURCE_PATH}/${ADD_RESOURCE_TARGET}")      
+    endif()
 
     add_custom_command(
             OUTPUT ${TARGET_FULL}
