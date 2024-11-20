@@ -77,7 +77,7 @@ else
 fi
 
 if [[ -n "$DISPLAY" ]] || [[ "$(uname -s)" == "MINGW"* ]] || [[ "$(uname -s)" == "Darwin"* ]] ; then 
-    $1/test/install_test/Hello
+    $1/test/install_test/hello_gempyre
 else
     echo "WARNING: DISPLAY is not set -> verification is not completed!"    
 fi

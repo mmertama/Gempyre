@@ -597,6 +597,7 @@ elseif(RASPBERRY)
         PRIVATE ${EXT_LIBS}
         )        
 else()
+    assert(VAR SOCKETS_LIB MSG "Not defined ${SOCKETS_LIB}")
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs  "${SOCKETS_LIB};${CMAKE_THREAD_LIBS_INIT}")
     target_link_libraries (${PROJECT_NAME}
         PRIVATE ${CMAKE_THREAD_LIBS_INIT}
@@ -693,6 +694,8 @@ else()
 
         if(USE_UWEBSOCKETS)
             set(SOCKET_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/uwebsockets_config.cmake")
+        elseif(USE_LIBWEBSOCKETS)
+            set(SOCKET_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/libwebsockets_config.cmake")    
         endif()
 
         if(HAS_WEB_SOCKETS)

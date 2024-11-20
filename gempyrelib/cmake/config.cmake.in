@@ -91,8 +91,9 @@ if(@USE_UWEBSOCKETS@)
         add_library(gempyre::gempyre_usock STATIC IMPORTED)
     endif()
     include(uwebsockets_config)
-elif(@USE_LIBWEBSOCKETS@)
+elseif(@USE_LIBWEBSOCKETS@)
     message("USE LIBWEBSOCKETS")
+    include(libwebsockets_config)
 else()
     message(WARNING "No Websockets")          
 endif()
@@ -115,13 +116,16 @@ if(WIN32)
 
 
     if (@USE_UWEBSOCKETS@)
-        set(gempyre_libs gempyre::gempyre_uv)    
+        set(gempyre_libs gempyre::gempyre_uv)
+    elseif(@USE_LIBWEBSOCKETS@)
+        set(gempyre_libs websockets)            
     endif()
 
-    set(gempyre_libs gempyre::gempyre_lib ${gempyre_libs} )
+    set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib" )
 
+    #INTERFACE_LINK_LIBRARIES 
     set_target_properties(gempyre::gempyre PROPERTIES
-        INTERFACE_LINK_LIBRARIES ${gempyre_libs}
+        "${gempyre_libs}"
         )
 
 elseif(RASPBERRY)
@@ -131,41 +135,44 @@ elseif(RASPBERRY)
             message(FATAL_ERROR "gempyre_uv not found")
         endif()
         set(gempyre_libs gempyre::gempyre_uv)
+     elseif(@USE_LIBWEBSOCKETS@)
+        set(gempyre_libs websockets)                
     endif()
 
-     set(gempyre_libs gempyre::gempyre_lib ${gempyre_libs} )
+    
+    #set_target_properties(gempyre::gempyre_lib PROPERTIES
+    #    INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
+    #    )
 
-    set_target_properties(gempyre::gempyre_lib PROPERTIES
-        INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
-        )    
+    set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib" )    
 
     set_target_properties(gempyre::gempyre PROPERTIES
-        INTERFACE_LINK_LIBRARIES ${gempyre_libs}
+        INTERFACE_LINK_LIBRARIES "${gempyre_libs}"
         )           
 else()
 
-    if(EMSCRIPTEN)
-        set_target_properties(gempyre::gempyre PROPERTIES
-            INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib"
-            )       
-    else()
-        set(GEMPYRE_INTERFACE_LINK_LIBRARIES "gempyre::gempyre_lib") 
+    #if(EMSCRIPTEN)
+    #    set_target_properties(gempyre::gempyre PROPERTIES
+    #        INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib"
+    #        )       
+    #else()
+
         if(@USE_UWEBSOCKETS@)
             set_target_properties(gempyre::gempyre_usock PROPERTIES
                 IMPORTED_LOCATION "${uSockets_LIBRARY}"
                 IMPORTED_LOCATION_DEBUG "${uSockets_LIBRARY}" 
                 )
-            set(GEMPYRE_INTERFACE_LINK_LIBRARIES ${GEMPYRE_INTERFACE_LINK_LIBRARIES} gempyre::gempyre_usock)         
-        endif()        
+            set(gempyre_libs gempyre::gempyre_usock)         
+        elseif(@USE_LIBWEBSOCKETS@)
+            set(gempyre_libs websockets)           
+        endif()
 
-        set_target_properties(gempyre::gempyre_lib PROPERTIES
-            INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
-            )
-
+        set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib")
+        
         set_target_properties(gempyre::gempyre PROPERTIES
-            INTERFACE_LINK_LIBRARIES  ${GEMPYRE_INTERFACE_LINK_LIBRARIES}
+            INTERFACE_LINK_LIBRARIES "${gempyre_libs}"
         )        
-    endif()                
+    #endif()                
 
    
 endif()
