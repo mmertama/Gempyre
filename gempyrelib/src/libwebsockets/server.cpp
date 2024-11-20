@@ -171,7 +171,7 @@ bool LWS_Server::get_http(lws* wsi, std::string_view get_param) {
                GempyreUtils::log(GempyreUtils::LogLevel::Error, "path:", *fullPath, "Cannot read"); 
           }
      } else {
-          GempyreUtils::log(GempyreUtils::LogLevel::Error, "path:", fullPath ? *fullPath : "N/A", "Not found");
+          GempyreUtils::log(GempyreUtils::LogLevel::Warning, "path:", fullPath ? *fullPath : ("N/A, param: " + std::string{get_param}), "Not found");
      }   
         return false;
      }

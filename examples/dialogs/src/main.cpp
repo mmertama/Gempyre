@@ -35,7 +35,7 @@ int main(int /*argc*/, char** /*argv*/) {
         const auto out = Gempyre::Dialog::open_file_dialog("Open something", GempyreUtils::home_dir(), {{"Text", {"*.txt"}}});
         if(out && !out->empty()) {
             const auto stuff = GempyreUtils::slurp(*out);
-            content.set_html("<h3>" + *out + "</h3>" + stuff + "</br>" + "size:" + std::to_string(GempyreUtils::file_size(*out)));
+            content.set_html("<h3>" + *out + "</h3>" + stuff + "<br>" + "size:" + std::to_string(GempyreUtils::file_size(*out)));
         }
     });
 
@@ -44,7 +44,7 @@ int main(int /*argc*/, char** /*argv*/) {
         if(out && !out->empty()) {
             std::string line;
             for(const auto& o : *out) {
-                line += "filename:" + o + " size:" + std::to_string(GempyreUtils::file_size(o)) + "</br>";
+                line += "filename:" + o + " size:" + std::to_string(GempyreUtils::file_size(o)) + "<br>";
             }
             content.set_html(line);
         }
@@ -56,7 +56,7 @@ int main(int /*argc*/, char** /*argv*/) {
             const auto dirlist = GempyreUtils::entries(*out);
             std::string line;
             for(const auto& d : dirlist) {
-                line += d +"</br>";
+                line += d +"<br>";
             }
             content.set_html(line);
         }

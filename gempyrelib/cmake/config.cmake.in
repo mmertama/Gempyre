@@ -94,6 +94,13 @@ if(@USE_UWEBSOCKETS@)
 elseif(@USE_LIBWEBSOCKETS@)
     message("USE LIBWEBSOCKETS")
     include(libwebsockets_config)
+    find_library(WS websockets REQUIRED)
+    add_library(gempyre::gempyre_ws STATIC IMPORTED)
+    set_target_properties(gempyre::gempyre_ws PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${WS}"
+            IMPORTED_LOCATION "${WS}"
+            IMPORTED_LOCATION_DEBUG "${WS}" 
+    )
 else()
     message(WARNING "No Websockets")          
 endif()
@@ -118,7 +125,7 @@ if(WIN32)
     if (@USE_UWEBSOCKETS@)
         set(gempyre_libs gempyre::gempyre_uv)
     elseif(@USE_LIBWEBSOCKETS@)
-        set(gempyre_libs websockets)            
+        set(gempyre_libs gempyre::gempyre_ws)            
     endif()
 
     set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib" )
@@ -136,7 +143,7 @@ elseif(RASPBERRY)
         endif()
         set(gempyre_libs gempyre::gempyre_uv)
      elseif(@USE_LIBWEBSOCKETS@)
-        set(gempyre_libs websockets)                
+        set(gempyre_libs gempyre::gempyre_ws)                 
     endif()
 
     
@@ -164,7 +171,7 @@ else()
                 )
             set(gempyre_libs gempyre::gempyre_usock)         
         elseif(@USE_LIBWEBSOCKETS@)
-            set(gempyre_libs websockets)           
+            set(gempyre_libs gempyre::gempyre_ws)          
         endif()
 
         set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib")

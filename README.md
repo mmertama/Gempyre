@@ -86,27 +86,27 @@ I have changed default Web socket library and that may arise build issues. If th
          pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1
    ```     
 ## FAQ
-Q: After installation you get: "WARNING: webview is not installed -> verification is not completed!", what is that?</br>
+Q: After installation you get: "WARNING: webview is not installed -> verification is not completed!", what is that?<br>
 A: Most likely python3 webview is not installed. See installation from [pywebview](https://pywebview.flowrl.com/guide/installation.html). Please also make sure websockets python library is installed. 
 ```bash
 $ pip3 install pywebview && pip3 install websockets
 ```
 The error is not fatal, but as a consequence the default UI is not drawn on its own window and it fallbacks to the default browser.
 
-Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API?</br>
+Q: How to use some HTML/JS/CSS feature for GUI from C++ that does not have a API?<br>
 A: Try `Ui::eval()`, it let you execute javascript in the gui context: e.g. Here I change a checkbox element so it fires a change event.
 
 ```cpp
 ui.eval("document.getElementById(\"" + check_box.id() + "\").click();");
 ```
-Q: Why Canvas drawings seems to happen in random order?</br>
+Q: Why Canvas drawings seems to happen in random order?<br>
 A: Canvas drawing is highly asynchronous operation and subsequent `CanvasElement::draw()` operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use `CanvasElement::draw_completed()` to wait until each draw has happen. `CanvasElement::draw_completed()` should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this [example](https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100)
 
-Q: Why `Gempyre::Bitmap` merge is not working?</br>
+Q: Why `Gempyre::Bitmap` merge is not working?<br>
 A: You are likely merge an uninitialized bitmap. `Gempyre::Bitmap(width, height)` or `Gempyre::Bitmap::create(width, height)` does not initialize bitmap data, therefore it's alpha channel can be zero and bitmap
 is not drawn. To initialize the bitmap, use `Gempyre::Bitmap::Bitmap(0, 0, width, height, Gempyre::Color::White)`, or draw a rectangle to fill the Bitmap, after the construction. 
 
-Q: How to scale `Gempyre::Bitmap`?</br>
+Q: How to scale `Gempyre::Bitmap`?<br>
 A: You can use browser's bitmap scaling by applying the bitmap as image and then using `Gempyre::FrameComposer` for draw. Look the following snippet:
 
 ```cpp
@@ -139,10 +139,10 @@ const auto texture_draw = [&ui, &texture_images, image_key, clip, rect]() {
     }
 ```
 
-Q: How to do multiple `Gempyre::FrameComposer` in a single draw? My second draw is not visible</br>
+Q: How to do multiple `Gempyre::FrameComposer` in a single draw? My second draw is not visible<br>
 A: Do you call erase? See `CanvasElement::draw_completed above. You may also try to call your drawn in a `Ui::after` timer with 0ms delay, that should ensure the correct drawing order.
 
-Q: Why my dynamic HTML `<select>` does not work with numbers?</br>
+Q: Why my dynamic HTML `<select>` does not work with numbers?<br>
 A: The UI select uses strings, and hence the values has to be _quoted_ strings.
 ```html
   <select id="show_tags" disabled></select>  

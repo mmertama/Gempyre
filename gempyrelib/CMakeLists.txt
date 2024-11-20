@@ -582,6 +582,7 @@ if(WIN32)
         PRIVATE ${EXT_LIBS}
         )
 elseif(ANDROID)
+    message(WARNING "TODO GEMPYRE_WS_LIB_NAME may not be defined")
     set_target_properties(${PROJECT_NAME} PROPERTIES gempyre_libs ${GEMPYRE_WS_LIB_NAME})
     target_link_libraries (${PROJECT_NAME}
         PRIVATE -l${GEMPYRE_WS_LIB_NAME_CORE}

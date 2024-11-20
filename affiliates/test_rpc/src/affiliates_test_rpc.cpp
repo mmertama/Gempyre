@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
      "main.html", python3 + " " + rpc, commandLine);
 
     auto nameElement = Gempyre::Element(ui, "host");
-    nameElement.set_html(GempyreUtils::join(localAddr, "</br>"));
+    nameElement.set_html(GempyreUtils::join(localAddr, "<br>"));
     ui.run();
 }
 
