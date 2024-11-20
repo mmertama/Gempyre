@@ -435,7 +435,7 @@ namespace Gempyre {
         /// @param map resource data.
         /// @param filename filename to read.
         /// @return name bound to the file 
-        [[deprecated("Use to_file_map or non static")]] static std::optional<std::string> add_file(FileMap& map, std::string_view filename);
+        static std::optional<std::string> add_file(FileMap& map, std::string_view filename);
         
         /// Starts an UI write batch, no messages are sent to USER until endBatch
         void begin_batch();

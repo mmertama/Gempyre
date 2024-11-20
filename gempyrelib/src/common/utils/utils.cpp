@@ -935,6 +935,10 @@ std::vector<std::string> GempyreUtils::ip_addresses(unsigned addressType) {
 #endif
 }
 
+std::string GempyreUtils::base64_encode(std::string_view str) {
+    return Base64::encode(reinterpret_cast<const unsigned char*>(str.data()), str.size());
+}
+
 std::string GempyreUtils::base64_encode(const unsigned char* bytes, size_t sz) {
     return Base64::encode(bytes, sz);
 }
