@@ -87,8 +87,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
-"gempyre__bitmap_8h.html",
+"annotated.html",
+"gempyre__bitmap_8h.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693",
 "index.html#autotoc_md20"
 ];
 

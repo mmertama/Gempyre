@@ -59,6 +59,7 @@ var gempyre__utils_8h =
     [ "base64_decode", "gempyre__utils_8h.html#a7dd7645042fcb8c4ecfc2d861c0754c5", null ],
     [ "base64_encode", "gempyre__utils_8h.html#a37776ea5f3e1dd5da765e3a49a723256", null ],
     [ "base64_encode", "gempyre__utils_8h.html#adbdbb8d9fdda122c62e6326a1aee9e13", null ],
+    [ "base64_encode", "gempyre__utils_8h.html#a4c67f2f4b8699077c2f085d7d0ced6a8", null ],
     [ "base_name", "gempyre__utils_8h.html#aa912c5da91e46594dae4559e9eb62cba", null ],
     [ "chop", "gempyre__utils_8h.html#a0733a7d97778cbc5ac9b218ff947bde3", null ],
     [ "chop", "gempyre__utils_8h.html#a29e64d542cd8e7ac4b4075f8ca5eae95", null ],
