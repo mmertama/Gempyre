@@ -131,8 +131,7 @@ if(WIN32)
     set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib" )
 
     #INTERFACE_LINK_LIBRARIES 
-    set_target_properties(gempyre::gempyre PROPERTIES
-        "${gempyre_libs}"
+    set_target_properties(gempyre::gempyre PROPERTIES "${gempyre_libs};${CMAKE_THREAD_LIBS_INIT}"
         )
 
 elseif(RASPBERRY)
@@ -151,18 +150,18 @@ elseif(RASPBERRY)
     #    INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
     #    )
 
-    set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib" )    
+    set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib;${CMAKE_THREAD_LIBS_INIT}" )    
 
     set_target_properties(gempyre::gempyre PROPERTIES
         INTERFACE_LINK_LIBRARIES "${gempyre_libs}"
         )           
 else()
 
-    #if(EMSCRIPTEN)
-    #    set_target_properties(gempyre::gempyre PROPERTIES
-    #        INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib"
-    #        )       
-    #else()
+    if(EMSCRIPTEN)
+        set_target_properties(gempyre::gempyre PROPERTIES
+            INTERFACE_LINK_LIBRARIES  "gempyre::gempyre_lib"
+            )       
+    else()
 
         if(@USE_UWEBSOCKETS@)
             set_target_properties(gempyre::gempyre_usock PROPERTIES
@@ -177,9 +176,9 @@ else()
         set(gempyre_libs "${gempyre_libs};gempyre::gempyre_lib")
         
         set_target_properties(gempyre::gempyre PROPERTIES
-            INTERFACE_LINK_LIBRARIES "${gempyre_libs}"
+            INTERFACE_LINK_LIBRARIES "${gempyre_libs};${CMAKE_THREAD_LIBS_INIT}"
         )        
-    #endif()                
+    endif()                
 
    
 endif()
