@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
 
-project(Hello LANGUAGES CXX)
+project(hello_gempyre LANGUAGES CXX)
 
 find_package(gempyre)
 

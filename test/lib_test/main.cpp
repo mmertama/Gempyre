@@ -2,9 +2,22 @@
 #include <map>
 #include <string_view>
 #include <gempyre_utils.h>
+#include <gempyre.h>
 #include "test.h"
 
-
+constexpr auto page = R"(<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta charset="utf-8">
+    <title>libtesttest</title>
+    </head>
+<body>
+    <script src="/gempyre.js"></script>
+</body>
+</html>)";
 
 
 int main(int /*argc*/, char** /*argv*/)  {
@@ -20,5 +33,9 @@ int main(int /*argc*/, char** /*argv*/)  {
   << names.at(GempyreUtils::current_os()) << " " 
   << GempyreUtils::home_dir() << " "
   << GempyreUtils::host_name();
+
+  Gempyre::Ui ui{{{"/index.html", page}}, "index.html"};
+  ui.on_open([&](){ui.exit();});
+  ui.run();
   return 0;
 }

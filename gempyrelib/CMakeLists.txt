@@ -169,7 +169,6 @@ if(HAS_WEB_SOCKETS)
     endif()    
 endif()
 
-# for later comparisons
 if (NOT DEFINED USE_UWEBSOCKETS) 
     set(USE_UWEBSOCKETS FALSE) 
 endif()    
