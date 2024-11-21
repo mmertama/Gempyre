@@ -36,6 +36,7 @@ int main(int /*argc*/, char** /*argv*/)  {
 
   Gempyre::Ui ui{{{"/index.html", GempyreUtils::base64_encode(page)}}, "index.html"};
   ui.on_open([&](){ui.exit();});
+  ui.on_error([&](auto, auto){ui.exit();}); // in unix if DISPLAY is not set
   ui.run();
   return 0;
 }

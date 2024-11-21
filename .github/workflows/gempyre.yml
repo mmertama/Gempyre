@@ -167,46 +167,46 @@ jobs:
         build/test/unittests/unittests
 
     - name: Run API tests
-      if: "! startsWith(matrix.config.os, 'windows')" #"! contains(matrix.config.name, 'MinGw')"
+      if: "! startsWith(matrix.config.os, 'windows')"
       shell: bash
       run: |
         build/test/apitests/apitests --verbose
        
     - name: Run lib install test
-      shell: bash
       if: startsWith(matrix.config.os, 'linux')
+      shell: bash  
       run: |
-        mkdir -p clean_build
-        pushd clean_build
-        cmake .. -DNO_INSTALL_TEST=1
-        cmake --build .
-        sudo cmake --install .
-        popd
-        mkdir -p lib_test_build
-        pushd lib_test_build
-        cmake ../test/lib_test
-        cmake --build .
-        export DISPLAY=:99
-        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & 
-        ./lib_test
-        popd 
-        
+          mkdir -p clean_build
+          pushd clean_build
+          cmake .. -DNO_INSTALL_TEST=1 -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=OFF -DHAS_TEST=OFF -DHAS_EXAMPLES=OFF
+          cmake --build .
+          sudo cmake --install .
+          popd
+          mkdir -p lib_test_build
+          pushd lib_test_build
+          cmake ../test/lib_test
+          cmake --build .
+          export DISPLAY=:99
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & 
+          ./lib_test
+          popd 
+          
     - name: Run lib install test
-      shell: bash
-      if: ! startsWith(matrix.config.os, 'linux')
+      if: "! startsWith(matrix.config.os, 'linux')"
+      shell: bash  
       run: |
-        mkdir -p clean_build
-        pushd clean_build
-        cmake .. -DNO_INSTALL_TEST=1
-        cmake --build .
-        sudo cmake --install .
-        popd
-        mkdir -p lib_test_build
-        pushd lib_test_build
-        cmake ../test/lib_test
-        cmake --build .
-        ./lib_test
-        popd     
+          mkdir -p clean_build
+          pushd clean_build
+          cmake .. -DNO_INSTALL_TEST=1 -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=OFF -DHAS_TEST=OFF -DHAS_EXAMPLES=OFF
+          cmake --build .
+          sudo cmake --install .
+          popd
+          mkdir -p lib_test_build
+          pushd lib_test_build
+          cmake ../test/lib_test
+          cmake --build .
+          ./lib_test
+          popd       
 
     - name: List this folder
       shell: bash
