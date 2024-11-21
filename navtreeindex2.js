@@ -1,7 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"index.html#autotoc_md19":[0,4,1],
-"index.html#autotoc_md2":[0,0,0],
 "index.html#autotoc_md20":[0,4,2],
 "index.html#autotoc_md21":[0,4,3],
 "index.html#autotoc_md22":[0,4,4],
@@ -17,7 +15,6 @@ var NAVTREEINDEX2 =
 "namespaceGempyre_1_1Color.html":[1,0,0,0],
 "namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693":[1,0,0,0,0],
 "namespacemembers.html":[1,1,0],
-"namespacemembers_type.html":[1,1,1],
 "namespaces.html":[1,0],
 "pages.html":[],
 "structGempyreUtils_1_1Error.html":[2,0,1,1],
@@ -33,11 +30,12 @@ var NAVTREEINDEX2 =
 "structGempyreUtils_1_1Result.html#a553b8e01ccceab3cd98215d4ff4d09fb":[2,0,1,2,8],
 "structGempyreUtils_1_1Result.html#a5f209e301d85c45232d8871c4223a45e":[2,0,1,2,7],
 "structGempyreUtils_1_1Result.html#a667a1e178716d0b3d68192a14ba9bc64":[2,0,1,2,13],
-"structGempyreUtils_1_1Result.html#a6fb144980adea48ab03b8917f68767ad":[2,0,1,2,18],
 "structGempyreUtils_1_1Result.html#a79bd09039e51da845c3718c9a38253c1":[2,0,1,2,0],
 "structGempyreUtils_1_1Result.html#a7c762b27e1218e077af43088d394b089":[2,0,1,2,4],
 "structGempyreUtils_1_1Result.html#a8b1980303d8adc0ccc5e2c719a9a089e":[2,0,1,2,1],
 "structGempyreUtils_1_1Result.html#aa785d535c97ba35d3f7a9086ae0db4ae":[2,0,1,2,6],
+"structGempyreUtils_1_1Result.html#a6fb144980adea48ab03b8917f68767ad":[2,0,1,2,18],
+"namespacemembers_type.html":[1,1,1],
 "structGempyreUtils_1_1Result.html#aacca3db562cd29aafcfe66c10bcd9961":[2,0,1,2,12],
 "structGempyreUtils_1_1Result.html#ac1267b1ac4f653e722c2d7f6b3ae24ca":[2,0,1,2,11],
 "structGempyreUtils_1_1Result.html#aca0f740feb9b4c5ea3e307ee3fd8a9f1":[2,0,1,2,16],
@@ -51,5 +49,7 @@ var NAVTREEINDEX2 =
 "structGempyre_1_1Rect.html#a9ba2c474a8ae1c99e09177a021ea1474":[2,0,0,11,1],
 "structGempyre_1_1Rect.html#abf3ca246ca24b0fe62a03b94c91f57b3":[2,0,0,11,2],
 "structGempyre_1_1Rect.html#acb5ddce792fae3419322fe535006989a":[2,0,0,11,3],
-"structGempyre_1_1Rect.html#ae5394ecc6ab9debbc5d77fa8781f39a2":[2,0,0,11,0]
+"structGempyre_1_1Rect.html#ae5394ecc6ab9debbc5d77fa8781f39a2":[2,0,0,11,0],
+"":[1,0,1],
+"":[1,0,0]
 };
