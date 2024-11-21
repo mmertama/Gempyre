@@ -192,7 +192,7 @@ jobs:
           popd 
           
     - name: Run lib install test
-      if: "! startsWith(matrix.config.os, 'linux')"
+      if: startsWith(matrix.config.os, 'macos')
       shell: bash  
       run: |
           mkdir -p clean_build
@@ -206,7 +206,24 @@ jobs:
           cmake ../test/lib_test
           cmake --build .
           ./lib_test
-          popd       
+          popd
+          
+    - name: Run lib install test
+      if: startsWith(matrix.config.os, 'windows')
+      shell: bash  
+      run: |
+          mkdir -p clean_build
+          pushd clean_build
+          cmake .. -DNO_INSTALL_TEST=1 -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=OFF -DHAS_TEST=OFF -DHAS_EXAMPLES=OFF
+          cmake --build .
+          cmake --install .
+          popd
+          mkdir -p lib_test_build
+          pushd lib_test_build
+          cmake ../test/lib_test
+          cmake --build .
+          ./lib_test
+          popd             
 
     - name: List this folder
       shell: bash
