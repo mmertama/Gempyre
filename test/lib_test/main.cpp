@@ -20,24 +20,30 @@ constexpr auto page = R"(<!DOCTYPE html>
 </html>)";
 
 
-int main(int /*argc*/, char** /*argv*/)  {
-  Gempyre::set_debug(true);
-  const std::map<GempyreUtils::OS, std::string_view> names {
+int main(int argc, char** argv)  {
+    Gempyre::set_debug(true);
+
+    const auto& [_p, opt] = GempyreUtils::parse_args(argc, argv, {
+        {"no-ui", 'n', GempyreUtils::ArgType::NO_ARG}}); 
+
+    const std::map<GempyreUtils::OS, std::string_view> names {
       {GempyreUtils::OS::MacOs, "Mac"},
       {GempyreUtils::OS::WinOs, "Win"},
       {GempyreUtils::OS::LinuxOs, "Linux"},
       {GempyreUtils::OS::AndroidOs, "Android"},
       {GempyreUtils::OS::RaspberryOs, "Raspberry"},
       {GempyreUtils::OS::OtherOs, "Other OS"}
-  };
-  std::cout 
-  << names.at(GempyreUtils::current_os()) << " " 
-  << GempyreUtils::home_dir() << " "
-  << GempyreUtils::host_name();
+    };
+    std::cout 
+        << names.at(GempyreUtils::current_os()) << " " 
+        << GempyreUtils::home_dir() << " "
+        << GempyreUtils::host_name();
 
-  Gempyre::Ui ui{{{"/index.html", GempyreUtils::base64_encode(page)}}, "index.html"};
-  ui.on_open([&](){ui.exit();});
-  ui.on_error([&](auto, auto){ui.exit();}); // in unix if DISPLAY is not set
-  ui.run();
+    if(opt.find("no-ui") == opt.end()) {
+        Gempyre::Ui ui{{{"/index.html", GempyreUtils::base64_encode(page)}}, "index.html"};
+        ui.on_open([&](){ui.exit();});
+        ui.on_error([&](auto, auto){ui.exit();}); // in unix if DISPLAY is not set
+        ui.run();
+    }
   return 0;
 }

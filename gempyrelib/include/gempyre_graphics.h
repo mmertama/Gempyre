@@ -153,12 +153,15 @@ public:
     FrameComposer(const FrameComposer& other) = default;
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer stroke_rect(const Gempyre::Element::Rect& r) {return push({"strokeRect", r.x, r.y, r.width, r.height});}
+    /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer stroke_rect(double x, double y, double w, double h) {return push({"strokeRect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer clear_rect(const Gempyre::Element::Rect& r) {return push({"clearRect", r.x, r.y, r.width, r.height});}
+    /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer clear_rect(double x, double y, double w, double h) {return push({"clearRect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer fill_rect(const Gempyre::Element::Rect& r) {return push({"fillRect", r.x, r.y, r.width, r.height});}
+    /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer fill_rect(double x, double y, double w, double h) {return push({"fillRect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer fill_text(std::string_view text, double x, double y) {return push({"fillText", std::string{text}, x, y});}
@@ -189,6 +192,7 @@ public:
         return push({"arcTo", x1, y1, x2, y2, radius});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer rect(const Gempyre::Element::Rect& r) {return push({"rect", r.x, r.y, r.width, r.height});}
+    /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer rect(double x, double y, double w, double h) {return push({"rect", x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer stroke() {return push({"stroke"});}
@@ -218,9 +222,11 @@ public:
     FrameComposer draw_image(std::string_view id, double x, double y)  {return push({"drawImage", std::string{id}, x, y});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer draw_image(std::string_view id, const Gempyre::Element::Rect& rect)  {return push({"drawImageRect", std::string{id}, rect.x, rect.y, rect.width, rect.height});}
+    /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer draw_image(std::string_view id, double x, double y, double w, double h)  {return push({"drawImageRect", std::string{id}, x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer draw_image(std::string_view id, const Gempyre::Element::Rect& clip, const Gempyre::Element::Rect& rect) {return push({"drawImageClip", std::string{id}, clip.x, clip.y, clip.width, clip.height, rect.x, rect.y, rect.width, rect.height});}
+    /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer draw_image(std::string_view id, double cx, double cy, double cw, double ch, double x, double y, double w, double h) {return push({"drawImageClip", std::string{id}, cx, cy, cw, ch, x, y, w, h});}
     /// @brief Visit the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes">Mozialla documentation</a>
     FrameComposer text_baseline(std::string_view textBaseline) {return push({"textBaseline", std::string{textBaseline}});}

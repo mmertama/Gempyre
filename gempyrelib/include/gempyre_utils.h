@@ -247,8 +247,9 @@ struct ErrorValue {
 /// @tparam E 
 // internal for Result
 template <typename E> struct Error {
-    /// @brief  std compatibility
+    /// @brief std compatibility
     using value_type = E;
+    /// @brief error value
     E error;
 };
 /// similar as std::optional, but with error info (not 100% same, add delta if needed).
@@ -289,40 +290,40 @@ struct Result : private std::variant<R, Error<E>> {
     /// @param e 
     /// @return 
     constexpr Result& operator=(const Err &e) {*this = e; return *this;}
-    /// @brief 
+    /// @brief true if has value
     constexpr operator bool() const {return std::get_if<R>(this);}
     /// @brief get as optional
     constexpr operator std::optional<R>() const {return has_value() ? std::make_optional<R>(value()) : std::nullopt;}
-    /// @brief
+    /// @brief true is has value
     constexpr bool has_value() const {return operator bool();} 
-    /// @brief   
+    /// @brief get value if available
     constexpr const R& value() const {return std::get<R>(*this);}
-    /// @brief
+    /// @brief get error if not value
     constexpr const E& error() const {return std::get<Err>(*this).error;}
-    /// @brief
+    /// @brief get value if available
     constexpr R& value() {return std::get<R>(*this);}
-    /// @brief
+    /// @brief get ref to value
     constexpr R& operator *() {return std::get<R>(*this);}
-    /// @brief
+    /// @brief get ref to value
     constexpr const R& operator *() const {return std::get<R>(*this);}
-    /// @brief
+    /// @brief get pointer to value
     constexpr R* operator ->() {return &std::get<R>(*this);}
-    /// @brief
+    /// @brief get pointer to value
     constexpr const R* operator ->() const {return &std::get<R>(*this);}
-    /// @brief 
+    /// @brief helper to make error value
     /// @param e 
     /// @return 
     constexpr static auto make_error(const E& e) {return Result<R, E>{Error<E>{e}};}
-    /// @brief 
+    /// @brief helper to make error value
     /// @param e 
     /// @return 
     constexpr static auto make_error(E&& e) {return Result<R, E>{Error<E>{e}};}
-    /// @brief 
+    /// @brief helper to make error value, valid only if error has a default constructor
     /// @return 
-    constexpr static auto make_error() {return Result<R, E>{Error<E>{}};}    // valid only if error has a default constructor
-    /// @brief 
+    constexpr static auto make_error() {return Result<R, E>{Error<E>{}};}   
+    /// @brief helper to make valid value, valid only if result has a default constructor
     /// @return 
-    constexpr static auto ok() {return Result<R, E>{R{}};}                  // valid only if result has a default constructor
+    constexpr static auto ok() {return Result<R, E>{R{}};}                 
 };
 
 ///@brief defined if underlaying types defines required operators

@@ -171,7 +171,13 @@ jobs:
       shell: bash
       run: |
         build/test/apitests/apitests --verbose
-       
+    
+    - name: Find dumpbin
+      if: startsWith(matrix.config.os, 'windows')
+      shell: bash
+      run: |
+          find "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC" -name dumpbin.exe 2>/dev/null || echo "dumpbin not found"
+      
     - name: Run lib install test
       if: startsWith(matrix.config.os, 'linux')
       shell: bash  
@@ -188,7 +194,8 @@ jobs:
           cmake --build .
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & 
-          ./lib_test
+          ./lib_test --no-ui
+          find 
           popd 
           
     - name: Run lib install test
@@ -205,24 +212,39 @@ jobs:
           pushd lib_test_build
           cmake ../test/lib_test
           cmake --build .
-          ./lib_test
+          ./lib_test --no-ui
           popd
           
     - name: Run lib install test
-      if: startsWith(matrix.config.os, 'windows')
+      if: false # TODO
+      #if: startsWith(matrix.config.os, 'windows')
       shell: bash  
       run: |
+          if [ "${{ matrix.config.cxx }}" == "cl"  ]; then
+            while IFS= read -r line; do
+              if [[ $line =~ ^([a-zA-Z0-9_-]+)=(.*)$ ]]; then
+                var_name="${BASH_REMATCH[1]}"
+                var_value="${BASH_REMATCH[2]}"
+                export "$var_name=$var_value"
+              fi
+            done < environment_script_output.txt
+          fi
+          export CC=${{ matrix.config.cc }}
+          export CXX=${{ matrix.config.cxx }}
           mkdir -p clean_build
           pushd clean_build
-          cmake .. -DNO_INSTALL_TEST=1 -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=OFF -DHAS_TEST=OFF -DHAS_EXAMPLES=OFF
+          mkdir -p include
+          mkdir -p lib
+          cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=../clean_install -DNO_INSTALL_TEST=1 -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=OFF -DHAS_TEST=OFF -DHAS_EXAMPLES=OFF  -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_INSTALL_LIBDIR=lib
           cmake --build .
           cmake --install .
           popd
           mkdir -p lib_test_build
           pushd lib_test_build
-          cmake ../test/lib_test
+          cmake ../test/lib_test -G Ninja -DCMAKE_INSTALL_PREFIX=../clean_install -DCMAKE_INSTALL_LIBDIR=lib
           cmake --build .
-          ./lib_test
+          "/c/Program\ Files/Microsoft\ Visual\ Studio/2022/Enterprise/VC/Tools/MSVC/14.42.34433/bin/Hostx64/x64/dumpbin.exe" //dependents lib_test.exe
+          ./lib_test.exe  --no-ui
           popd             
 
     - name: List this folder

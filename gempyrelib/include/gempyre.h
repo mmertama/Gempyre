@@ -420,7 +420,6 @@ namespace Gempyre {
         bool add_file(std::string_view url, std::string_view file);
 
         /// @brief Add a file data into Gempyre to be accessed via url.
-        /// @param url string bound to data.
         /// @param file filename to read.
         /// @return success.
         std::optional<std::string> add_file(std::string_view file);

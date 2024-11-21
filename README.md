@@ -385,7 +385,7 @@ Late updates
 
 ### 2023 1
 * Lot of fixed
-* API changes and harmonize with GemGui-rs
+* API changes and harmonize with GemGui-rs (the Rust implementation)
 * Testing coverage
 
 ### 2023 2
@@ -397,8 +397,14 @@ Late updates
 * Suppress external library warnings (except MSVC not working, it seems :-/ )
 * Update / improve documentation 
 
-### 2024
+### 2024 1
 * API change const std::string& --> std::string_view where incompatibility allows
+* Some new methods and utilities
+
+### 2024 2
+* More std::string& --> std::string_view changes
+* Finally uwebsockets changed to libwebsockets, speed up build and improves reliability
+* Automated installation tests 
 * Some new methods and utilities
 
 Copyright Markus Mertama 2020, 2021, 2022, 2023, 2024
