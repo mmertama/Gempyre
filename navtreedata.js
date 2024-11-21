@@ -89,7 +89,7 @@ var NAVTREEINDEX =
 [
 "",
 "gempyre__bitmap_8h.html",
-"index.html#autotoc_md19"
+"index.html#autotoc_md17"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

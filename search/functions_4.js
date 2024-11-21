@@ -7,6 +7,6 @@ var searchData=
   ['entries_337',['entries',['../gempyre__utils_8h.html#ac04a58def7a8b7ec9b56b1a0f5b4b74e',1,'GempyreUtils']]],
   ['erase_338',['erase',['../classGempyre_1_1CanvasElement.html#a85fe46006be02b307ea527984561a275',1,'Gempyre::CanvasElement']]],
   ['eval_339',['eval',['../classGempyre_1_1Ui.html#a12df77c4702e09f95a62c144b4516195',1,'Gempyre::Ui']]],
-  ['execute_340',['execute',['../gempyre__utils_8h.html#a633fb68dc8744eba1cd2b1e9b19f63a9',1,'GempyreUtils']]],
+  ['execute_340',['execute',['../gempyre__utils_8h.html#abb9fb849b0021c697c91fb250bbb335a',1,'GempyreUtils::execute(std::string_view prog, const std::vector&lt; std::string_view &gt; &amp;parameters)'],['../gempyre__utils_8h.html#ab002e8b89d31bd16decb01c96e62c1e1',1,'GempyreUtils::execute(std::string_view prog, PARAM...parameters)']]],
   ['exit_341',['exit',['../classGempyre_1_1Ui.html#a004cb40aca777101c6eb2fa710be3ed1',1,'Gempyre::Ui']]]
 ];

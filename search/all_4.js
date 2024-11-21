@@ -15,7 +15,7 @@ var searchData=
   ['event_66',['Event',['../structGempyre_1_1Event.html',1,'Gempyre']]],
   ['eventmap_67',['EventMap',['../classGempyre_1_1EventMap.html',1,'Gempyre']]],
   ['eventqueue_68',['EventQueue',['../classGempyre_1_1EventQueue.html',1,'Gempyre']]],
-  ['execute_69',['execute',['../gempyre__utils_8h.html#a633fb68dc8744eba1cd2b1e9b19f63a9',1,'GempyreUtils']]],
+  ['execute_69',['execute',['../gempyre__utils_8h.html#abb9fb849b0021c697c91fb250bbb335a',1,'GempyreUtils::execute(std::string_view prog, const std::vector&lt; std::string_view &gt; &amp;parameters)'],['../gempyre__utils_8h.html#ab002e8b89d31bd16decb01c96e62c1e1',1,'GempyreUtils::execute(std::string_view prog, PARAM...parameters)']]],
   ['exit_70',['exit',['../classGempyre_1_1Ui.html#a004cb40aca777101c6eb2fa710be3ed1',1,'Gempyre::Ui']]],
   ['exitfunction_71',['ExitFunction',['../classGempyre_1_1Ui.html#af6b50bdd08104311a10f63c8dcfd710c',1,'Gempyre::Ui']]]
 ];
