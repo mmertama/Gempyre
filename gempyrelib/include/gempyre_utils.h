@@ -766,8 +766,18 @@ template<class ...NAME>
 std::string push_path(std::string_view path, std::string_view name, NAME...names) {
     return push_path(push_path(path, name), names...);
 }
+
 /// Execute a program
-UTILS_EX int execute(std::string_view prog, std::string_view parameters);
+UTILS_EX int execute(std::string_view prog, const std::vector<std::string_view>& parameters);
+
+/// Execute a program
+template<class ...PARAM>
+UTILS_EX int execute(std::string_view prog, PARAM...parameters) {
+    std::vector<std::string_view> parameter_list{parameters...};
+    return execute(prog, parameter_list);
+}
+
+
 
 
 /// @brief Write data to temp file

@@ -264,6 +264,13 @@ GempyreInternal& Ui::ref() {
                         return true;
                     });}
                 );
+
+    // if server is not alive in 10s it is dead, right?
+    m_app_ui->after(10s, [this]() {
+        if (m_server->isUiReady())
+            exit(1);
+    });
+
     }} {}
 
     void GempyreInternal::messageHandler(Server::Object&& params) {

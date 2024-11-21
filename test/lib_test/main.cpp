@@ -21,6 +21,7 @@ constexpr auto page = R"(<!DOCTYPE html>
 
 
 int main(int /*argc*/, char** /*argv*/)  {
+  Gempyre::set_debug(true);
   const std::map<GempyreUtils::OS, std::string_view> names {
       {GempyreUtils::OS::MacOs, "Mac"},
       {GempyreUtils::OS::WinOs, "Win"},

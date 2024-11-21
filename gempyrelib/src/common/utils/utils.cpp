@@ -961,12 +961,12 @@ std::string GempyreUtils::push_path(std::string_view pathd, std::string_view nam
 #endif
 }
 
-int GempyreUtils::execute(std::string_view executabled, std::string_view parametersd) {
-    const std::string executable{executabled};
-    const std::string parameters{parametersd}; 
+int GempyreUtils::execute(std::string_view executabled, const std::vector<std::string_view>& parametersd) {
+    const std::string executable{executabled}; 
 #if defined(WINDOWS_OS)
+    const std::string parameters = join(parametersd, " ");
     if(executable.empty())
-        return system(parameters.c_str()); // for compatibility with osbrowser
+        return system(parameters.c_str()); // for compatibility with os browser 
     else {
         /*
         STARTUPINFO si = {};
@@ -992,7 +992,34 @@ int GempyreUtils::execute(std::string_view executabled, std::string_view paramet
     }
 #else
     std::cout << std::endl; // flush
+    const std::string parameters = join(parametersd, " ");
     return std::system((executable + " " + parameters + " &").c_str());
+    //const auto temp = temp_name();
+    //const auto rval = std::system((executable + " " + parameters + " & echo $! > " + temp).c_str());
+    //if (rval != 0)
+    //    return rval;
+    // TODO to     
+    //return 0;    
+    /*if(executable.empty()) {
+        const std::string parameters = join(parametersd, " ");
+        return system(parameters.c_str()); // for compatibility with os browser 
+    }
+    const auto pid = fork();
+    if (pid == 0) { // Child process: Execute the command
+        std::vector<char*> params;
+        std::transform(parametersd.begin(), parametersd.end(), std::back_inserter(params), [](auto str){return const_cast<char*>(str.data());});
+        params.push_back(nullptr);
+        execvp(executable.c_str(), params.data());
+        return 1;
+    } else {
+        std::this_thread::sleep_for(1s);
+        int status = 0;
+        waitpid(pid, &status, WNOHANG); 
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        } 
+        return 0;
+    }*/
 #endif
 }
 
