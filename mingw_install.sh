@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 
-CMD_STR='$ ./mingw_install.sh [-all] [-dir <DIR>] [-debug] [-release]'
+CMD_STR='$ ./mingw_install.sh [-all] [-dir <DIR>] [-debug] [-release] [-ninja]'
 
 export PATH="/mingw64/bin/:$PATH" 
 
@@ -38,6 +38,7 @@ if ! [ -x "$(command -v ninja)" ]; then
 ONOFF="OFF"
 PREFIX=""
 TARGET=""
+BUILD_TOOL="MinGW Makefiles"
 
 while [ -n "$1" ]; do # while loop starts
 
@@ -53,8 +54,12 @@ while [ -n "$1" ]; do # while loop starts
          TARGET="DEBUG"
     fi
 
-     if [ "$1" == '-release' ]; then
+    if [ "$1" == '-release' ]; then
          TARGET="RELEASE"
+    fi
+
+     if [ "$1" == '-ninja' ]; then
+         BUILD_TOOL="Ninja"
     fi
 
 	shift
@@ -85,13 +90,13 @@ BUILD_PATH=$(cygpath -w $PWD)
 
 if [[ ! "$TARGET" == "RELEASE" ]]; then
 
-    cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF $PREFIX
+    cmake .. -G ${BUILD_TOOL} -DCMAKE_BUILD_TYPE=Debug -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF $PREFIX
     cmake --build . --config Debug
 
     popd
 
-    echo Start an elevated prompt for an install.
-    powershell -Command "Start-Process scripts\win_inst.bat -Verb RunAs -ArgumentList ${BUILD_PATH},Debug"
+    echo Start an elevated a prompt for a debug install.
+    powershell -Command "Start-Process scripts\win_inst.bat -Verb RunAs -ArgumentList \"$BUILD_PATH\",Debug"
 
     pushd mingw_build
 
@@ -99,16 +104,15 @@ fi
 
 if [[ ! "$TARGET" == "DEBUG" ]]; then
 
-    cmake ..  -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF $PREFIX
+    cmake ..  -G  ${BUILD_TOOL} -DCMAKE_BUILD_TYPE=Release -DHAS_AFFILIATES=$ONOFF -DHAS_TEST=$ONOFF -DHAS_EXAMPLES=$ONOFF $PREFIX
     cmake --build . --config Release
 
     popd
-    echo Start an elevated prompt for an install.
-    powershell -Command "Start-Process scripts\win_inst.bat -Verb RunAs -ArgumentList ${BUILD_PATH}"
-
+    echo Start an elevated a prompt for a release install.
+    powershell -Command "Start-Process scripts\win_inst.bat -Verb RunAs -ArgumentList \"$BUILD_PATH\",Release"
 fi 
 
 echo "Run install test"
-test/install_test/install_test.sh mingw_build $TARGET
+export EXTRA_FLAGS="-G $BUILD_TOOL";test/install_test/install_test.sh mingw_build $TARGET
 
 echo done

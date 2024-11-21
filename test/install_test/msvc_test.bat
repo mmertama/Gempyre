@@ -32,4 +32,4 @@ exit /b %ERRORLEVEL%
 :installd_ok
 popd
 
-if "!GITLAB_CI!"=="" msvc_build\test\install_test\Release\Hello.Exe 
+msvc_build\test\install_test\Release\hello_gempyre.exe

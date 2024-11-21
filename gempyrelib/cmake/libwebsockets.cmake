@@ -32,10 +32,10 @@ if(WIN32)
   set(LWS_WITH_SYS_SMD OFF)
   set(LWS_EXT_PTHREAD_LIBRARIES "")
   set(LWS_STATIC_PIC  ON)
-  set(LWS_INSTALL_LIB_DIR ${CMAKE_BINARY_DIR}/foo1)
-  set(LWS_INSTALL_CMAKE_DIR ${CMAKE_BINARY_DIR}/foo2)
-  set(LWS_INSTALL_BIN_DIR ${CMAKE_BINARY_DIR}/foo3)
-  set(LWS_INSTALL_EXAMPLES_DIR ${CMAKE_BINARY_DIR}/foo5)
+  #set(LWS_INSTALL_LIB_DIR ${CMAKE_BINARY_DIR}/foo1)
+  #set(LWS_INSTALL_CMAKE_DIR ${CMAKE_BINARY_DIR}/foo2)
+  #set(LWS_INSTALL_BIN_DIR ${CMAKE_BINARY_DIR}/foo3)
+  #set(LWS_INSTALL_EXAMPLES_DIR ${CMAKE_BINARY_DIR}/foo5)
 endif()
 
 cmake_policy(SET CMP0077 NEW)
@@ -109,7 +109,7 @@ endmacro()
 #
 #suppress_errors(FILES ${SUPPRESS_FILES} FLAGS "-Wno-unused-parameter" "-Wno-dev")
 
-string(STRIP "${libwebsockets_BINARY_DIR}/lib" GEMPYRE_WS_LIB_PATH)
+
 
 set(GEMPYRE_WS_SOURCES 
     src/libwebsockets/server.cpp
@@ -119,25 +119,34 @@ set(GEMPYRE_WS_SOURCES
 set(GEMPYRE_WEBSOCKET_LIBRARY_NAME "libwebsocket")   
 
 set(UV_LIB_DIR ${BINARY_DIR})
-                                       
-if(NOT IS_RELEASE)
-    set(WS_LIB_NAME_CORE websockets_staticd)
+
+if (WIN32)
+  set(GEMPYRE_WS_LIB_NAME_CORE_RELEASE websockets_static)
+  if(NOT IS_RELEASE)
+      set(GEMPYRE_WS_LIB_NAME_CORE websockets_staticd)
+  else()
+      set(GEMPYRE_WS_LIB_NAME_CORE websockets_static)
+  endif()
 else()
-    set(WS_LIB_NAME_CORE websockets_static)
+  set(GEMPYRE_WS_LIB_NAME_CORE_RELEASE websockets)
+  if(NOT IS_RELEASE)
+      set(GEMPYRE_WS_LIB_NAME_CORE websocketsd)
+  else()
+      set(GEMPYRE_WS_LIB_NAME_CORE websockets)
+  endif()
 endif()
 
+string(STRIP "${libwebsockets_BINARY_DIR}/lib" GEMPYRE_WS_LIB_PATH)
+set(GEMPYRE_WS_LIB ${CMAKE_STATIC_LIBRARY_PREFIX}${GEMPYRE_WS_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
 if(WIN32)
-  set(GEMPYRE_WS_LIB ${WS_LIB_NAME_CORE}.lib)
   set(GEMPYRE_WS_LIB_FULL "${GEMPYRE_WS_LIB_PATH}/${GEMPYRE_WS_LIB}")
-  set(GEMPYRE_WS_LIB_NAME "${GEMPYRE_WS_LIB}")
+  set(GEMPYRE_WS_LIB_NAME "${GEMPYRE_WS_LIB}") # remove when uwebsockets are not used
   set(GEMPYRE_WS_LIB_OBJ  "libwebsocket")
   message("Using GEMPYRE_WS_LIB_PATH ${GEMPYRE_WS_LIB_PATH}")
-  message("Using GEMPYRE_WS_LIB_NAME ${GEMPYRE_WS_LIB_NAME}")
   message("Using GEMPYRE_WS_LIB_OBJ ${GEMPYRE_WS_LIB_OBJ}")
   message("Using GEMPYRE_WS_LIB ${GEMPYRE_WS_LIB}")
   message("Using GEMPYRE_WS_LIB_FULL ${GEMPYRE_WS_LIB_FULL}")
 else()
-  set(GEMPYRE_WS_LIB ${CMAKE_STATIC_LIBRARY_PREFIX}${WS_LIB_NAME_CORE}${CMAKE_STATIC_LIBRARY_SUFFIX})
   set(GEMPYRE_WS_LIB_FULL "${GEMPYRE_WS_LIB_PATH}/${GEMPYRE_WS_LIB}")
 
 endif()

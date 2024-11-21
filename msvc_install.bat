@@ -40,10 +40,10 @@ cmake --build . --config Release
 set BUILD_PATH=%CD%
 popd
 echo Start an elevated prompt for an install.
-powershell -Command "Start-Process scripts\win_inst.bat -Verb RunAs -ArgumentList %BUILD_PATH%"
+start /wait powershell.exe -Command "Start-Process scripts\win_inst.bat -Verb RunAs -ArgumentList %BUILD_PATH%"
 
 echo "Run install test"
 call test\install_test\msvc_test.bat
-
+if %ERRORLEVEL% NEQ 0 echo "An error (%ERRORLEVEL%) was found for test\install_test\msvc_test.bat" && exit /b %ERRORLEVEL%
 echo done
 :exit

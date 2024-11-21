@@ -40,14 +40,14 @@ endif()
 
 # Since msvc and mingw libraries are located in the same folder we have to be explicit with naming.
 find_library(LIB_NAME_DEBUG NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyred${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH} NO_DEFAULT_PATH)
-if(${LIB_NAME_DEBUG})
+if(LIB_NAME_DEBUG)
     message("Found debug libraries ${gempyre_LIBRARIES}")
 else()
     message("Not found debug info libraries")    
 endif()
 
 find_library(LIB_NAME NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}gempyre${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS "@LIBRARY_FULL_DIR@" ${GEMPYRE_PATH}  NO_DEFAULT_PATH)
-if(${LIB_NAME})
+if(LIB_NAME)
     message("Found release libraries ${gempyre_LIBRARIES}")
 else()
     message("Not found release libraries")    
@@ -73,7 +73,25 @@ set_and_check(gempyre_LIBRARY_DIR "${ABSOLUTE_INSTALL_PREFIX}@LIBRARY_FULL_DIR@"
 set(ENV{gempyre_ROOT} "@PROJECT_CMAKE_DIR@")
 
 add_library(gempyre::gempyre_lib STATIC IMPORTED)
-    
+
+if (NOT LIB_NAME)
+    message(FATAL_ERROR "Cannot find gempyre library")
+endif()
+
+if (NOT LIB_NAME_DEBUG)
+    set(LIB_NAME_DEBUG ${LIB_NAME})
+endif()
+
+if (NOT LIB_NAME_RELWITHDEBINFO)
+    set(LIB_NAME_RELWITHDEBINFO ${LIB_NAME})
+endif()
+
+if (NOT LIB_NAME_DEBUG_MINSIZEREL)
+    set(LIB_NAME_DEBUG_MINSIZEREL ${LIB_NAME})
+endif()
+
+
+
 set_target_properties(gempyre::gempyre_lib PROPERTIES
     IMPORTED_LOCATION_RELEASE "${LIB_NAME}"
     IMPORTED_LOCATION_DEBUG "${LIB_NAME_DEBUG}"
@@ -94,7 +112,16 @@ if(@USE_UWEBSOCKETS@)
 elseif(@USE_LIBWEBSOCKETS@)
     message("USE LIBWEBSOCKETS")
     include(libwebsockets_config)
-    find_library(WS websockets REQUIRED)
+    message("looking @GEMPYRE_WS_LIB_NAME_CORE@ HINTS @GEMPYRE_COMMON_LIBDIR@")
+    find_library(WS NAMES @GEMPYRE_WS_LIB_NAME_CORE@ @GEMPYRE_WS_LIB_NAME_CORE_RELEASE@ PATHS "@GEMPYRE_COMMON_LIBDIR@")
+    if (NOT WS)
+        message("find library failed with websockets, try guesses location: @GEMPYRE_WS_LIB_FULL@")
+        if (NOT EXISTS "@GEMPYRE_WS_LIB_FULL@")
+            message(FATAL_ERROR "websockets not found despite all efforts")
+        endif()
+        set(WS "@GEMPYRE_WS_LIB_FULL@")
+    endif()
+    message("websocket is set to ${WS}")
     add_library(gempyre::gempyre_ws STATIC IMPORTED)
     set_target_properties(gempyre::gempyre_ws PROPERTIES
             INTERFACE_LINK_LIBRARIES "${WS}"
@@ -118,9 +145,11 @@ if(WIN32)
         set_target_properties(gempyre::gempyre_lib PROPERTIES
             INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:ws2_32.lib>;\$<LINK_ONLY:Shlwapi.lib>"
             )
-        set_target_properties(gempyre::gempyre_uv PROPERTIES
-            INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:ws2_32.lib>"
+        if(@USE_UWEBSOCKETS@)
+            set_target_properties(gempyre::gempyre_uv PROPERTIES
+                INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:psapi.lib>;\$<LINK_ONLY:userenv.lib>;\$<LINK_ONLY:iphlpapi.lib>;\$<LINK_ONLY:ws2_32.lib>"
             )
+        endif()
 
     endif() 
 
@@ -171,8 +200,7 @@ else()
         endif()
 
         set_target_properties(gempyre::gempyre PROPERTIES
-            INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT};${gempyre_libs};gempyre::gempyre_lib"
-        )        
+            INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT};${gempyre_libs};gempyre::gempyre_lib")
     endif()                
 
    

@@ -2,9 +2,9 @@
 
 if [[ "$(uname -s)" == "MINGW"* ]] ; then
 
-    IS_MINGW=$(cmake -G InvalidGeneratorName 2>&1 | grep "* Ninja")
+    IS_MINGW=$(cmake -G InvalidGeneratorName 2>&1 | grep ".* Ninja")
     if [[ "$IS_MINGW" == "" ]] ; then
-        echo "WARNING: Cannot verify MinGW Gempyre installation in this build environment."
+        echo "WARNING: Cannot verify MinGW Gempyre installation if Ninja is not used."
         exit 0
     else  
         echo "Verify MinGW Gempyre"
@@ -78,6 +78,11 @@ fi
 
 if [[ -n "$DISPLAY" ]] || [[ "$(uname -s)" == "MINGW"* ]] || [[ "$(uname -s)" == "Darwin"* ]] ; then 
     $1/test/install_test/hello_gempyre
+    retval=$?
+    if [ $retval -ne 0 ]; then
+        echo "Error: $1/test/install_test/hello_gempyre failed"
+        exit 1
+    fi
 else
     echo "WARNING: DISPLAY is not set -> verification is not completed!"    
 fi
