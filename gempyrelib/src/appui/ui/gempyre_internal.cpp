@@ -429,6 +429,7 @@ bool GempyreInternal::startListen(const std::string& indexHtml, const std::unord
 
     if(result != 0) {
         GempyreUtils::log(GempyreUtils::LogLevel::Fatal, "gui cmd Error:", result, GempyreUtils::last_error());
+        return false;
     }
     return true;
 }
