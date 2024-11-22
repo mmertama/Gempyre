@@ -5,7 +5,7 @@ var searchData=
   ['change_27',['CHANGE',['../structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979',1,'Gempyre::Event']]],
   ['children_28',['children',['../classGempyre_1_1Element.html#ae5c33eb4ede348814bb3a5db625caa5a',1,'Gempyre::Element']]],
   ['chop_29',['chop',['../gempyre__utils_8h.html#a29e64d542cd8e7ac4b4075f8ca5eae95',1,'GempyreUtils::chop(std::string_view s, std::string_view chopped)'],['../gempyre__utils_8h.html#a0733a7d97778cbc5ac9b218ff947bde3',1,'GempyreUtils::chop(std::string_view s)']]],
-  ['clear_5frect_30',['clear_rect',['../classGempyre_1_1FrameComposer.html#a10fc76776e56ae19ebfd0f826ab0ea0f',1,'Gempyre::FrameComposer']]],
+  ['clear_5frect_30',['clear_rect',['../classGempyre_1_1FrameComposer.html#a10fc76776e56ae19ebfd0f826ab0ea0f',1,'Gempyre::FrameComposer::clear_rect(const Gempyre::Element::Rect &amp;r)'],['../classGempyre_1_1FrameComposer.html#aa63c09cf33815e703ff1ef7f74b2d095',1,'Gempyre::FrameComposer::clear_rect(double x, double y, double w, double h)']]],
   ['click_31',['CLICK',['../structGempyre_1_1Event.html#a445755ca435a92ab3e42345a0a5d0ef9',1,'Gempyre::Event']]],
   ['clip_32',['clip',['../classGempyre_1_1Bitmap.html#a14f86985b940108428a42af202fe2bfe',1,'Gempyre::Bitmap']]],
   ['clone_33',['clone',['../classGempyre_1_1Bitmap.html#a1491b8d9d3ae761892d175f573267132',1,'Gempyre::Bitmap']]],

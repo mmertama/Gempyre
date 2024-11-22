@@ -200,7 +200,7 @@ FAQ</h2>
 <div class="line">    }</div>
 <div class="ttc" id="aclassGempyre_1_1CanvasElement_html"><div class="ttname"><a href="classGempyre_1_1CanvasElement.html">Gempyre::CanvasElement</a></div><div class="ttdoc">Graphics element.</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:36</div></div>
 <div class="ttc" id="aclassGempyre_1_1FrameComposer_html"><div class="ttname"><a href="classGempyre_1_1FrameComposer.html">Gempyre::FrameComposer</a></div><div class="ttdoc">wrap up Javascript draw commands.</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:144</div></div>
-<div class="ttc" id="aclassGempyre_1_1FrameComposer_html_a943fa908e81a3d55ae4d248d5975bf91"><div class="ttname"><a href="classGempyre_1_1FrameComposer.html#a943fa908e81a3d55ae4d248d5975bf91">Gempyre::FrameComposer::draw_image</a></div><div class="ttdeci">FrameComposer draw_image(std::string_view id, double x, double y)</div><div class="ttdoc">Visit the Mozialla documentation</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:218</div></div>
+<div class="ttc" id="aclassGempyre_1_1FrameComposer_html_a943fa908e81a3d55ae4d248d5975bf91"><div class="ttname"><a href="classGempyre_1_1FrameComposer.html#a943fa908e81a3d55ae4d248d5975bf91">Gempyre::FrameComposer::draw_image</a></div><div class="ttdeci">FrameComposer draw_image(std::string_view id, double x, double y)</div><div class="ttdoc">Visit the Mozialla documentation</div><div class="ttdef"><b>Definition:</b> gempyre_graphics.h:222</div></div>
 </div><!-- fragment --><p>Q: How to do multiple <code><a class="el" href="classGempyre_1_1FrameComposer.html" title="wrap up Javascript draw commands.">Gempyre::FrameComposer</a></code> in a single draw? My second draw is not visible<br  />
  A: Do you call erase? See <code>CanvasElement::draw_completed above. You may also try to call your drawn in a</code>Ui::after` timer with 0ms delay, that should ensure the correct drawing order.</p>
 <p>Q: Why my dynamic HTML <code>&lt;select&gt;</code> does not work with numbers?<br  />
@@ -378,7 +378,7 @@ Late updates</h2>
 2023 1</h3>
 <ul>
 <li>Lot of fixed</li>
-<li>API changes and harmonize with GemGui-rs</li>
+<li>API changes and harmonize with GemGui-rs (the Rust implementation)</li>
 <li>Testing coverage</li>
 </ul>
 <h3><a class="anchor" id="autotoc_md23"></a>
@@ -393,9 +393,17 @@ Late updates</h2>
 <li>Update / improve documentation</li>
 </ul>
 <h3><a class="anchor" id="autotoc_md24"></a>
-2024</h3>
+2024 1</h3>
 <ul>
 <li>API change const std::string&amp; --&gt; std::string_view where incompatibility allows</li>
+<li>Some new methods and utilities</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md25"></a>
+2024 2</h3>
+<ul>
+<li>More std::string&amp; --&gt; std::string_view changes</li>
+<li>Finally uwebsockets changed to libwebsockets, speed up build and improves reliability</li>
+<li>Automated installation tests</li>
 <li>Some new methods and utilities</li>
 </ul>
 <p>Copyright Markus Mertama 2020, 2021, 2022, 2023, 2024 </p>

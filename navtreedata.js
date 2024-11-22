@@ -53,7 +53,8 @@ var NAVTREE =
         [ "2022 2", "index.html#autotoc_md21", null ],
         [ "2023 1", "index.html#autotoc_md22", null ],
         [ "2023 2", "index.html#autotoc_md23", null ],
-        [ "2024", "index.html#autotoc_md24", null ]
+        [ "2024 1", "index.html#autotoc_md24", null ],
+        [ "2024 2", "index.html#autotoc_md25", null ]
       ] ]
     ] ],
     [ "Namespaces", "namespaces.html", [
