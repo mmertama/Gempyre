@@ -1,8 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"index.html#autotoc_md17":[0,4],
-"index.html#autotoc_md18":[0,4,0],
-"index.html#autotoc_md19":[0,4,1],
 "index.html#autotoc_md2":[0,0,0],
 "index.html#autotoc_md20":[0,4,2],
 "index.html#autotoc_md21":[0,4,3],
@@ -20,6 +17,7 @@ var NAVTREEINDEX2 =
 "namespaceGempyre_1_1Color.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693":[1,0,0,0,0],
 "namespacemembers.html":[1,1,0],
 "namespacemembers_type.html":[1,1,1],
+"index.html#autotoc_md10":[0,1],
 "namespaces.html":[1,0],
 "pages.html":[],
 "structGempyreUtils_1_1Error.html":[2,0,1,1],
@@ -53,5 +51,7 @@ var NAVTREEINDEX2 =
 "structGempyre_1_1Rect.html#a9ba2c474a8ae1c99e09177a021ea1474":[2,0,0,11,1],
 "structGempyre_1_1Rect.html#abf3ca246ca24b0fe62a03b94c91f57b3":[2,0,0,11,2],
 "structGempyre_1_1Rect.html#acb5ddce792fae3419322fe535006989a":[2,0,0,11,3],
-"structGempyre_1_1Rect.html#ae5394ecc6ab9debbc5d77fa8781f39a2":[2,0,0,11,0]
+"structGempyre_1_1Rect.html#ae5394ecc6ab9debbc5d77fa8781f39a2":[2,0,0,11,0],
+"":[1,0,1],
+"":[1,0,0]
 };
