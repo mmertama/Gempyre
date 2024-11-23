@@ -267,8 +267,14 @@ GempyreInternal& Ui::ref() {
 
     // if server is not alive in 10s it is dead, right?
     m_app_ui->after(10s, [this]() {
-        if (m_server->isUiReady())
-            exit(1);
+        if (!m_server->isUiReady()) {
+            auto errfunc = m_app_ui->on_error(nullptr);
+            if (errfunc) {
+                errfunc("Error", "ui not ready");
+                m_app_ui->on_error(errfunc);
+            }
+            exit(91);
+        }
     });
 
     }} {}
