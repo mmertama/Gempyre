@@ -144,7 +144,7 @@ jobs:
       uses: browser-actions/setup-chrome@v1  
 
     - name: Setup DISPLAY
-      if: startsWith(matrix.config.os, 'linux')
+      if: startsWith(matrix.config.os, 'ubuntu')
       run: |
         export DISPLAY=:99
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &   
@@ -179,7 +179,7 @@ jobs:
           find "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC" -name dumpbin.exe 2>/dev/null || echo "dumpbin not found"
       
     - name: Run lib install test
-      if: startsWith(matrix.config.os, 'linux')
+      if: startsWith(matrix.config.os, 'ubuntu')
       shell: bash  
       run: |
           mkdir -p clean_build
