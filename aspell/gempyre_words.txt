@@ -217,7 +217,7 @@ lst
 MacOs
 markus
 moveTo
-Mozialla
+Mozilla
 MSC
 MSVC
 multimap

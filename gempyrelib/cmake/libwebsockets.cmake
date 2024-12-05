@@ -33,15 +33,20 @@ if(WIN32)
   set(LWS_WITH_SYS_SMD OFF)
   set(LWS_EXT_PTHREAD_LIBRARIES "")
   set(LWS_STATIC_PIC  ON)
-
+endif()
   # to not pollute build itself
   set(LWS_INSTALL_LIB_DIR ${CMAKE_BINARY_DIR}/foo1)
   set(LWS_INSTALL_CMAKE_DIR ${CMAKE_BINARY_DIR}/foo2)
   set(LWS_INSTALL_BIN_DIR ${CMAKE_BINARY_DIR}/foo3)
   #set(LWS_INSTALL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/foo4)
   set(LWS_INSTALL_EXAMPLES_DIR ${CMAKE_BINARY_DIR}/foo5)
-
-endif()
+#else()
+#  set(LWS_INSTALL_LIB_DIR /dev/null)
+#  set(LWS_INSTALL_CMAKE_DIR /dev/null)
+#  set(LWS_INSTALL_BIN_DIR /dev/null)
+  #set(LWS_INSTALL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/foo4)
+#  set(LWS_INSTALL_EXAMPLES_DIR /dev/null)
+#endif()
 
 cmake_policy(SET CMP0077 NEW)
 

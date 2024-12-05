@@ -338,14 +338,14 @@ int LWS_Server::http_callback(lws *wsi, enum lws_callback_reasons reason, void* 
 
 
 static void set_lws_log_level() {
-     int logs = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE
+     int logs = LLL_USER | LLL_ERR | LLL_NOTICE
 			/* for LLL_ verbosity above NOTICE to be built into lws,
 			 * lws must have been configured and built with
 			 * -DCMAKE_BUILD_TYPE=DEBUG instead of =RELEASE */
 			/* | LLL_INFO */ /* | LLL_PARSER */ /* | LLL_HEADER */
 			/* | LLL_EXT */ /* | LLL_CLIENT */ /* | LLL_LATENCY */
 #ifdef LWS_DEBUG         
-			 | LLL_DEBUG ;
+			 | | LLL_WARN | LLL_DEBUG ;
 #endif
      ;
      lws_set_log_level(logs, [](int level, const char* line) {

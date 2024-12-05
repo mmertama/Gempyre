@@ -6,7 +6,8 @@ using namespace Gempyre;
 constexpr unsigned short DEFAULT_PORT  = 30000;
 constexpr unsigned short PORT_ATTEMPTS = 50;
 
- unsigned Server::wishAport(unsigned port, unsigned max) {
+static
+unsigned wishAport(unsigned port, unsigned max) {
     auto end = port + max;
     while(!GempyreUtils::is_available(static_cast<unsigned short>(port))) {
         ++port;
@@ -16,10 +17,6 @@ constexpr unsigned short PORT_ATTEMPTS = 50;
         }
     }
     return port;
-}
-
-unsigned Server::portAttempts() {
-    return PORT_ATTEMPTS;
 }
 
 Server::Server(
@@ -180,8 +177,8 @@ bool Server::send(TargetSocket target, Server::Value&& value, bool batchable) {
 #ifdef PULL_MODE        
         if(str.size() < WS_MAX_LEN) {
 #endif            
-            if (!broadcaster().send_text(target, std::move(str)))
-                return false;
+    if (!broadcaster().send_text(target, std::move(str)))
+        return false;
 #ifdef PULL_MODE               
     This is not working - but keep here as a reference if pull mode want to be re-enabled 
         } else {

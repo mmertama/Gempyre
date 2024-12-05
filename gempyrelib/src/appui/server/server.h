@@ -77,8 +77,8 @@ public:
 
     virtual BroadcasterBase& broadcaster() = 0;
 
-    static unsigned wishAport(unsigned port, unsigned max);
-    static unsigned portAttempts();
+    //static unsigned wishAport(unsigned port, unsigned max);
+    //static unsigned portAttempts();
 
     bool beginBatch();
     bool endBatch();
