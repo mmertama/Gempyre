@@ -8,6 +8,7 @@ var searchData=
   ['home_5fdir_111',['home_dir',['../gempyre__utils_8h.html#a4e0a73208bffb38de82b331f0e558aab',1,'GempyreUtils']]],
   ['host_5fname_112',['host_name',['../gempyre__utils_8h.html#adacaf430b09392bdc5a3c3cacbf781b4',1,'GempyreUtils']]],
   ['html_113',['html',['../classGempyre_1_1Element.html#a44b65b57f687977f51868c2d7a26c474',1,'Gempyre::Element']]],
-  ['html_5fstream_114',['html_stream',['../classGempyre_1_1Element.html#afb7aee6522189a62a1f93c4f2941bf86',1,'Gempyre::Element']]],
-  ['htmlstream_115',['HtmlStream',['../classGempyre_1_1HtmlStream.html',1,'Gempyre']]]
+  ['html_5fcolors_114',['html_colors',['../gempyre__graphics_8h.html#a14a4a363b41fae721354d66c7b3cabe3',1,'Gempyre']]],
+  ['html_5fstream_115',['html_stream',['../classGempyre_1_1Element.html#afb7aee6522189a62a1f93c4f2941bf86',1,'Gempyre::Element']]],
+  ['htmlstream_116',['HtmlStream',['../classGempyre_1_1HtmlStream.html',1,'Gempyre']]]
 ];

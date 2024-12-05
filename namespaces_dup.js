@@ -19,7 +19,8 @@ var namespaces_dup =
       [ "CanvasDataPtr", "gempyre__graphics_8h.html#a1d98d8025b7348eec55cfa552398e46f", null ],
       [ "set_debug", "gempyre_8h.html#a036459f630f9cc50fc853ae12004e976", null ],
       [ "setJNIENV", "gempyre_8h.html#aa768d1b49b8205feaeda63c3257ffea8", null ],
-      [ "version", "gempyre_8h.html#ad612d63f30c2b0fad47a7841138a6814", null ]
+      [ "version", "gempyre_8h.html#ad612d63f30c2b0fad47a7841138a6814", null ],
+      [ "html_colors", "gempyre__graphics_8h.html#a14a4a363b41fae721354d66c7b3cabe3", null ]
     ] ],
     [ "GempyreUtils", null, [
       [ "LogWriter", "classGempyreUtils_1_1LogWriter.html", "classGempyreUtils_1_1LogWriter" ],
