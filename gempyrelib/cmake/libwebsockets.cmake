@@ -101,6 +101,8 @@ endif()
 
 set(USE_LIBWEBSOCKETS TRUE)
 
+target_compile_definitions(websockets PRIVATE SUPRESS_WS_ERRORS)
+
 macro(socket_dependencies TARGET)
     target_link_directories(${TARGET} PRIVATE ${libwebsockets_BINARY_DIR}/lib)
     target_compile_definitions(${TARGET} PRIVATE USE_LIBWEBSOCKETS)
