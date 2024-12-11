@@ -187,7 +187,7 @@ class DevNull : public LogWriter {
 };
 
 
-FileLogWriter::FileLogWriter(const std::string& path) : m_file(path, std::ios::out | std::ios::app )  {}
+FileLogWriter::FileLogWriter(std::string_view path) : m_file(path, std::ios::out | std::ios::app )  {}
 bool FileLogWriter::do_write(const char* bytes, size_t count) {
         (void) count;
         if(!m_file.is_open())

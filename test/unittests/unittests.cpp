@@ -589,6 +589,40 @@ TEST(Unittests, join5) {
     EXPECT_EQ(joined, "AA_BEE_CEE_DEE");
 }
 
+TEST(Unittests, join6) {
+    const std::array<std::string_view, 4> strs = {"aa", "bee", "cee", "dee"};
+    const auto joined = GempyreUtils::join(strs, "_", [](const auto& s) {return GempyreUtils::to_upper(std::string_view{s});});
+    EXPECT_EQ(joined, "AA_BEE_CEE_DEE");
+}
+
+TEST(Unittests, join7) {
+    const std::array<int, 4> strs = {1, 2, 3, 4};
+    const auto joined = GempyreUtils::join(strs, ",");
+    EXPECT_EQ(joined, "1,2,3,4");
+}
+
+TEST(Unittests, join8) {
+    const std::array<std::pair<int, int>, 4> strs {{{1, 2}, {3,4}, {5,6}, {7,8}}};
+    const auto joined = GempyreUtils::join(strs, ",", [](const auto& a){return a.first + a.second;});
+    EXPECT_EQ(joined, "3,7,11,15");
+}
+
+TEST(Unittests, join9) {
+    const std::array<std::array<int, 2>, 4> strs {{{1, 2}, {3,4}, {5,6}, {7,8}}};
+    const auto joined = GempyreUtils::join(std::begin(strs), std::end(strs), ",", [](const auto& a) {
+        return std::to_string(a[0]) + 'x' + std::to_string(a[1]);});
+    EXPECT_EQ(joined, "1x2,3x4,5x6,7x8");
+}
+
+TEST(Unittests, join10) {
+    const std::array<std::array<int, 2>, 4> strs {{{1, 2}, {3,4}, {5,6}, {7,8}}};
+    const auto joined = GempyreUtils::join(strs, ",", [](const auto& a) {
+        return std::to_string(a[0]) + 'x' + std::to_string(a[1]);});
+    EXPECT_EQ(joined, "1x2,3x4,5x6,7x8");
+}
+
+
+
 int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
    for(int i = 1 ; i < argc; ++i)
