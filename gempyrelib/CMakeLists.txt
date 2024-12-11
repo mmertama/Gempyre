@@ -82,7 +82,7 @@ endif()
 
 if(LINUX AND ${GEMPYRE_IS_MAIN_PROJECT})
     set(DOXYGEN TRUE)
-    set(SPELL TRUE)
+    set(SPELL FALSE)
 endif()    
 
 if(USE_PYTHON_UI)
