@@ -452,6 +452,8 @@ if(DOXYGEN)
             js
             py
             examples
+            test
+            scripts
             cmake-build-debug)
         add_spellcheck(${PROJECT_NAME})    
     endif()    
