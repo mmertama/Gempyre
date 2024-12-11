@@ -1,6 +1,7 @@
 #include <thread>
 #include <sstream>
 #include <gtest/gtest.h>
+#include "gempyre_utils.h"
 #include "gempyre.h"
 #include "gempyre_graphics.h"
 #include "timequeue.h"
@@ -556,6 +557,36 @@ TEST(Unittests, json_test_set4) {
     GempyreUtils::set_json_value(*j, "animals/1/food", std::string{"bone"});
     js = GempyreUtils::to_json_string(*j, GempyreUtils::JsonMode::Compact);
     ASSERT_EQ(*js, R"({"animals":[{"cat":"meow","food":"fish"},{"dog":"bark","food":"bone"}]})");
+}
+
+TEST(Unittests, join1) {
+    const std::vector<int> v{1,2,3,4,5};
+    const auto joined = GempyreUtils::join(v, "-");
+    EXPECT_EQ(joined, "1-2-3-4-5");
+}
+
+TEST(Unittests, join2) {
+    const std::vector<int> v{1,2,3,4,5};
+    const auto joined = GempyreUtils::join(v, "", [](auto p){return std::to_string(p + 1);});
+    EXPECT_EQ(joined, "23456");
+}
+
+TEST(Unittests, join3) {
+    const std::vector<int> v{1,2,3,4,5};
+    const auto joined = GempyreUtils::join(std::next(v.begin()), std::prev(v.end()), " ");
+    EXPECT_EQ(joined, "2 3 4");
+}
+
+TEST(Unittests, join4) {
+    const char* strs[] = {"aa", "bee", "cee", "dee"};
+    const auto joined = GempyreUtils::join(std::begin(strs), std::end(strs), "_");
+    EXPECT_EQ(joined, "aa_bee_cee_dee");
+}
+
+TEST(Unittests, join5) {
+    const char* strs[] = {"aa", "bee", "cee", "dee"};
+    const auto joined = GempyreUtils::join(std::begin(strs), std::end(strs), "_", [](const auto& s) {return GempyreUtils::to_upper(std::string_view{s});});
+    EXPECT_EQ(joined, "AA_BEE_CEE_DEE");
 }
 
 int main(int argc, char **argv) {

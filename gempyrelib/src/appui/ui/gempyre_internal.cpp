@@ -455,7 +455,7 @@ std::string GempyreInternal::to_string(const nlohmann::json& js) {
         for(const auto& [key, value] : js.items()) {
             map.emplace(key, to_string(value));
         }
-        return '{' + GempyreUtils::join<map_t, map_t::value_type, std::string>(map, ",",
+        return '{' + GempyreUtils::join(map, ",",
          [](const auto& kv){return kv.first + ':' + kv.second;}) + '}';
     } else if(js.is_array()) {
         Server::Array array;
@@ -622,7 +622,7 @@ void GempyreInternal::send(const DataPtr& data, bool droppable) {
 
 // timer elapses calls a function
 // that calls a function that adds a another function to a queue
-// that function calls a the actual timer functio when on top
+// that function calls a the actual timer function when on top
 std::function<void(int)> GempyreInternal::makeCaller(const std::function<void (Ui::TimerId id)>& function) {
     const auto caller =  [this, function](int id) {
         auto call = [function, id]() {

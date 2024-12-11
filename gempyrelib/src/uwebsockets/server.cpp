@@ -223,7 +223,7 @@ void Uws_Server::serverThread(unsigned int port) {
                               "Uri:", url,
                               "query:", req->getQuery(),
                               "path:", fullPath,
-                              "header:", GempyreUtils::join<uWS::HttpRequest::HeaderIterator, std::pair<std::string_view, std::string_view>, std::string>(
+                              "header:", GempyreUtils::join(
                                   req->begin(),
                                   req->end(),
                                   ",",

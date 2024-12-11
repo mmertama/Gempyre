@@ -423,8 +423,20 @@ std::optional<T> parse(std::string_view source) {
 template <class T>
 std::string to_low(const T& str) {
     std::string n;
-    std::transform(str.begin(), str.end(), std::back_inserter(n),
+    std::transform(std::begin(str), std::end(str), std::back_inserter(n),
                                     [](auto c){return std::tolower(c);});
+    return n;
+}
+
+
+/// @brief make upper case string
+/// @param str 
+/// @return string
+template <class T>
+std::string to_upper(const T& str) {
+    std::string n;
+    std::transform(std::begin(str), std::end(str), std::back_inserter(n),
+                                    [](auto c){return std::toupper(c);});
     return n;
 }
 
@@ -538,17 +550,16 @@ std::vector<K> keys(const T& map) {
     return ks;
 }
 
-/// @brief Join container values, try 1st if compiler can deduct types
-/// @tparam IT container
-/// @tparam In default container value type
-/// @tparam Out default to container type
-/// @param begin begin iterator
-/// @param end  end iterator
-/// @param joinChar optional glue string
-/// @param f optional transform function
-/// @return string
-template <class IT, typename In=typename IT::value_type, typename Out=typename IT::value_type>
-std::string join(const IT& begin,
+/// @cond INTERNAL
+    template<typename V>
+    struct DefaultJoiner {
+        auto operator()(const V& v) const {return v;}
+    };
+/// @endcond
+
+/// @cond INTERNAL
+template <class IT, typename In, typename Out>
+[[deprecated("See join with Callable")]] std::string join(const IT& begin,
                  const IT& end,
                  std::string_view joinChar = "",
                  const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
@@ -565,37 +576,88 @@ std::string join(const IT& begin,
     return iss.str();
 }
 
-/// @brief Join container values, try 1st if compiler can deduct types
-/// @tparam IT container
-/// @tparam In default container value type
-/// @tparam Out default to container type
-/// @param t container
-/// @param joinChar optional glue string
-/// @param f optional transform function
-/// @return string
-template <class T, typename In=typename T::value_type, typename Out=typename T::value_type>
-std::string join(const T& t,
+template <class T, typename In, typename Out>
+[[deprecated("See join with Callable")]] std::string join(const T& t,
                  std::string_view joinChar = "",
                  const std::function<Out (const In&)>& f = [](const In& v)->Out{return v;}) {
     return join(t.begin(), t.end(), joinChar, f);
 }
 
+template <class IT, typename In, typename Out, typename = std::enable_if_t<std::is_pointer<IT>::value>>
+[[deprecated("See join with Callable")]] std::string join(const IT begin,
+                 const IT end,
+                 const std::string joinChar = "",
+                 const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
+    std::string s;
+    std::ostringstream iss(s);
+    if(begin != end) {
+        for(auto it = begin;;) {
+            iss << f(*it);
+            if(!(++it != end)) break;
+            if(!joinChar.empty())
+                iss << joinChar;
+        }
+    }
+    return iss.str();
+}
+
+/// @endcond
+
 /// @brief Join container values, try 1st if compiler can deduct types
 /// @tparam IT container
-/// @tparam In default container value type
-/// @tparam Out default to container type
+/// @tparam Callable conversion
+/// @param begin begin iterator
+/// @param end  end iterator
+/// @param joinChar optional glue string
+/// @param f optional transform function 
+/// @return string
+template <typename IT, typename Callable = DefaultJoiner<typename IT::value_type>, 
+    typename = std::enable_if_t<!std::is_pointer<IT>::value>>
+std::string join(const IT& begin,
+                 const IT& end,
+                 std::string_view joinChar = "",
+                 const Callable& f = Callable{}) {
+    std::string s;
+    std::ostringstream iss(s);
+    if(begin != end) {
+        for(auto it = begin;;) {
+            iss << f(*it);
+            if(!(++it != end)) break;
+            if(!joinChar.empty())
+                iss << joinChar;
+        }
+    }
+    return iss.str();
+}
+
+/// @brief Join container values, try 1st if compiler can deduct types
+/// @tparam IT container
+/// @tparam Callable conversion
+/// @param t container
+/// @param joinChar optional glue string
+/// @param f optional transform function
+/// @return string
+template <class T, typename Callable = DefaultJoiner<typename T::value_type>>
+std::string join(const T& t,
+                 std::string_view joinChar = "",
+                 const Callable& f = Callable{}) {
+    return join(t.begin(), t.end(), joinChar, f);
+}
+
+/// @brief Join container values, try 1st if compiler can deduct types
+/// @tparam IT container
+/// @tparam Callable conversion
 /// @param begin begin iterator
 /// @param end  end iterator
 /// @param joinChar optional glue string
 /// @param f optional transform function
 /// @return string 
-template <class IT, typename In=typename std::remove_pointer<IT>::type,
-          typename Out=typename std::remove_pointer<IT>::type,
+template <class IT, typename Callable = DefaultJoiner<typename std::remove_pointer<IT>::type>,
           typename = std::enable_if_t<std::is_pointer<IT>::value>>
 std::string join(const IT begin,
                  const IT end,
                  const std::string joinChar = "",
-                 const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
+                 const Callable& f = Callable{}) {
     std::string s;
     std::ostringstream iss(s);
     if(begin != end) {
