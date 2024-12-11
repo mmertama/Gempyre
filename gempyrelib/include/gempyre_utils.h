@@ -106,7 +106,7 @@ private:
 /// @cond INTERNAL
 class UTILS_EX FileLogWriter : public LogWriter {
 public:
-    FileLogWriter(const std::string& path);
+    FileLogWriter(std::string_view path);
 protected:
     bool do_write(const char* buffer, size_t count) override;
 protected:
@@ -586,7 +586,7 @@ template <class T, typename In, typename Out>
 template <class IT, typename In, typename Out, typename = std::enable_if_t<std::is_pointer<IT>::value>>
 [[deprecated("See join with Callable")]] std::string join(const IT begin,
                  const IT end,
-                 const std::string joinChar = "",
+                 std::string_view joinChar = "",
                  const std::function<Out (const In&)>& f = [](const In& k)->Out{return k;}) {
     std::string s;
     std::ostringstream iss(s);
@@ -633,30 +633,16 @@ std::string join(const IT& begin,
 /// @brief Join container values, try 1st if compiler can deduct types
 /// @tparam IT container
 /// @tparam Callable conversion
-/// @param t container
-/// @param joinChar optional glue string
-/// @param f optional transform function
-/// @return string
-template <class T, typename Callable = DefaultJoiner<typename T::value_type>>
-std::string join(const T& t,
-                 std::string_view joinChar = "",
-                 const Callable& f = Callable{}) {
-    return join(t.begin(), t.end(), joinChar, f);
-}
-
-/// @brief Join container values, try 1st if compiler can deduct types
-/// @tparam IT container
-/// @tparam Callable conversion
 /// @param begin begin iterator
 /// @param end  end iterator
 /// @param joinChar optional glue string
 /// @param f optional transform function
 /// @return string 
-template <class IT, typename Callable = DefaultJoiner<typename std::remove_pointer<IT>::type>,
+template <typename IT, typename Callable = DefaultJoiner<typename std::remove_pointer<IT>::type>,
           typename = std::enable_if_t<std::is_pointer<IT>::value>>
 std::string join(const IT begin,
                  const IT end,
-                 const std::string joinChar = "",
+                 std::string_view joinChar = "",
                  const Callable& f = Callable{}) {
     std::string s;
     std::ostringstream iss(s);
@@ -671,8 +657,22 @@ std::string join(const IT begin,
     return iss.str();
 }
 
+/// @brief Join container values, try 1st if compiler can deduct types
+/// @tparam IT container
+/// @tparam Callable conversion
+/// @param t container
+/// @param joinChar optional glue string
+/// @param f optional transform function
+/// @return string
+template <typename T, typename Callable = DefaultJoiner<typename T::value_type>>
+std::string join(const T& t,
+                 std::string_view joinChar = "",
+                 const Callable& f = Callable{}) {
+    return join(std::begin(t), std::end(t), joinChar, f);
+}
+
 /// @cond INTERNAL
-template <class T>
+template <typename T>
 T merge(const T& b1, const T& b2) {
        T bytes(b1.size() + b2.size());
        auto begin = bytes.begin();
@@ -683,7 +683,7 @@ T merge(const T& b1, const T& b2) {
    }
 
 // I just wonder why copy instead of move hence not public
-template <class T, typename ...Arg>
+template <typename T, typename ...Arg>
 T merge(const T& b1, const T& b2, Arg ...args) {
     T bytes(b1.size() + b2.size());
     auto begin = bytes.begin();
