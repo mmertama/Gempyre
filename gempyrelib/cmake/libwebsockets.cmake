@@ -101,7 +101,7 @@ endif()
 
 set(USE_LIBWEBSOCKETS TRUE)
 
-target_compile_definitions(websockets PRIVATE SUPRESS_WS_ERRORS)
+target_compile_definitions(websockets PRIVATE SUPPRESS_WS_ERRORS)
 
 macro(socket_dependencies TARGET)
     target_link_directories(${TARGET} PRIVATE ${libwebsockets_BINARY_DIR}/lib)
@@ -121,7 +121,17 @@ endmacro()
 #
 #suppress_errors(FILES ${SUPPRESS_FILES} FLAGS "-Wno-unused-parameter" "-Wno-dev")
 
-
+if (DEFINED LWS_LOG_MODE)
+  if (${LWS_ERROR_MODE} STREQUAL "DEBUG")
+    target_compile_definitions(websockets PRIVATE LWS_DEBUG=1)
+  elseif(${LWS_ERROR_MODE} STREQUAL "VERBOSE")
+    target_compile_definitions(websockets PRIVATE LWS_VERBOSE=1)   
+  elseif (${LWS_ERROR_MODE} STREQUAL "ERROR")
+    target_compile_definitions(websockets PRIVATE LWS_ERROR=1)
+  else()
+    message("All LWS message are suppressed")  
+  endif()
+endif()
 
 set(GEMPYRE_WS_SOURCES 
     src/libwebsockets/server.cpp

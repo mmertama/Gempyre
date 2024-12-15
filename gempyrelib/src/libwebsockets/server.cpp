@@ -337,27 +337,29 @@ int LWS_Server::http_callback(lws *wsi, enum lws_callback_reasons reason, void* 
 }
 
 
-static void set_lws_log_level() {
-     int logs = LLL_USER | LLL_NOTICE
-			/* for LLL_ verbosity above NOTICE to be built into lws,
-			 * lws must have been configured and built with
-			 * -DCMAKE_BUILD_TYPE=DEBUG instead of =RELEASE */
-			/* | LLL_INFO */ /* | LLL_PARSER */ /* | LLL_HEADER */
-			/* | LLL_EXT */ /* | LLL_CLIENT */ /* | LLL_LATENCY */
-#ifdef LWS_DEBUG         
-			 | LLL_WARN | LLL_DEBUG  
+
+static void set_lws_log_level() {  
+     const int logs = 0
+#if defined (LWS_ERROR) || defined (LWS_DEBUG)  || defined (LWS_VERBOSE)       
+               | LLL_USER | LLL_ERR | LLL_NOTICE
 #endif
-#ifndef SUPRESS_WS_ERRORS
-     | LLL_ERR
+#if defined (LWS_DEBUG)  || defined (LWS_VERBOSE)          
+			| LLL_WARN | LLL_DEBUG 
+#endif
+#ifdef LWS_VERBOSE
+			| LLL_INFO | LLL_PARSER  | LLL_HEADER
+			| LLL_EXT  | LLL_CLIENT  | LLL_LATENCY
 #endif
      ;
      lws_set_log_level(logs, [](int level, const char* line) {
           GempyreUtils::LogLevel lvl = GempyreUtils::LogLevel::Debug;
           switch(level) {
                case LLL_ERR: lvl = GempyreUtils::LogLevel::Error; break;
+#if defined (LWS_ERROR) || defined (LWS_DEBUG)  || defined (LWS_VERBOSE)  
                case LLL_NOTICE:
                case LLL_WARN: lvl = GempyreUtils::LogLevel::Warning; break;
                case LLL_INFO: lvl = GempyreUtils::LogLevel::Info; break;
+#endif
                default:
                     break;
           }
