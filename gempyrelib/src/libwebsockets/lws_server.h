@@ -38,8 +38,10 @@ public:
     LWS_Socket(lws* wsocket) : m_ws{wsocket} {}
 
     LWS_Socket::SendStatus append(std::string_view data, lws_write_protocol type) {
-        if (is_full())
+        if (is_full()) {
+            std::this_thread::yield(); 
             return SendStatus::BACKPRESSURE;
+        }
         std::vector<unsigned char> bytes;
         bytes.resize(LWS_PRE + data.size());
         std::copy(data.begin(), data.end(), bytes.begin() + LWS_PRE);
@@ -48,7 +50,6 @@ public:
             std::move(bytes)
         ));
         m_buffer_size += data.size();
-
         return 0 != lws_callback_on_writable(m_ws) ?
             SendStatus::SUCCESS : SendStatus::BACKPRESSURE;
     }
@@ -87,7 +88,7 @@ private:
 class LWS_Loop {
 public:
     void defer(std::function<void ()>&& f);
-    void execute();
+    void execute(lws_context* context);
     bool valid() const;
     void join();
     LWS_Loop& operator=(std::thread&& fut);

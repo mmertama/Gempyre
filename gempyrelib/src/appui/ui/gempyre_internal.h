@@ -117,7 +117,7 @@ public:
     template<class T>
     std::optional<T> query(std::string_view elId, std::string_view queryString, const std::vector<std::string>& queryParams = {});
 
-    void eventLoop(bool is_main);
+    bool eventLoop(bool is_main, const std::chrono::milliseconds& await = std::chrono::milliseconds::max());
 
     void send(const DataPtr& data, bool droppable);
 
@@ -487,15 +487,15 @@ public:
         m_requestqueue.push_back(std::move(topRequest));
     }
 
-    void wait_events() {
+    bool wait_events(const std::chrono::milliseconds& await) {
         const auto start = std::chrono::steady_clock::now();
-        if(*this == State::CLOSE || *this == State::EXIT || !m_server || !m_server->isRunning())
-            m_sema.wait(300ms);
-        else    
-            m_sema.wait();
+        const auto awaited =  (*this == State::CLOSE || *this == State::EXIT || !m_server || !m_server->isRunning()) ?
+            m_sema.wait(300ms):
+            m_sema.wait(await);
         const auto end = std::chrono::steady_clock::now();
         const auto duration = end - start;
-        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Eventloop is waited", duration.count());
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug_Trace, "Event loop is waited", duration.count());
+        return awaited;
     }
 
     void clear() {
