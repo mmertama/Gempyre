@@ -75,10 +75,18 @@ inline bool is_error(const std::string& s) {return s == "query_error";}
 
 template<class T>
 std::optional<T> GempyreInternal::query(std::string_view elId, std::string_view queryString, const std::vector<std::string>& queryParams)  {
-    if(*this == State::RUNNING) {
-        const auto queryId = query_id();
-
-        add_request([this, queryId, elId, queryString, queryParams](){
+    
+    if(*this != State::RUNNING) {
+        return std::nullopt;
+    }
+    
+    const auto queryId = query_id();
+    int re_tries = 5;
+    for (auto i = 0; i < re_tries && is_running(); ++i) {
+        
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Send query", queryId);
+        
+        add_request([this, queryId, elId, queryString, queryParams]() {
             return send_to(TargetSocket::Ui, json{
                     {"type", "query"},
                     {"query_id", queryId},
@@ -89,12 +97,16 @@ std::optional<T> GempyreInternal::query(std::string_view elId, std::string_view 
         });
 
         while(is_running()) {   //start waiting the response
-            eventLoop(false);
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in eventloop done, back in mainloop", state_str());
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Wait query", queryId);
+            const auto wait_status = eventLoop(false, 10000ms);
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "query - wait in event loop done, back in main loop", state_str(), wait_status);
             if(*this != State::RUNNING) {
                 signal_pending();
-                break;
+                return std::nullopt;
             }
+
+            if (!wait_status)
+                break;
 
             const auto query_response = take_response(queryId);
 
@@ -103,11 +115,12 @@ std::optional<T> GempyreInternal::query(std::string_view elId, std::string_view 
                 auto response = copy_value<T>(item);
                 if(is_error(response)) {
                     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Invalid query:", elId, queryString);
-                    break;
+                    return std::nullopt;
                 }
-              return std::make_optional<T>(std::move(response));
+            return std::make_optional<T>(std::move(response));
             }
         }
+        GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Retry", re_tries,  is_running());
     }
     return std::nullopt;
 }

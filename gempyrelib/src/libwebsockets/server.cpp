@@ -206,6 +206,7 @@ bool LWS_Server::remove_socket(lws* wsi, unsigned code) {
 
 
 bool LWS_Server::received(lws* wsi, std::string_view msg) {
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Received", msg.substr(0, 20), msg.size());
      switch(messageHandler(msg)) {
           case MessageReply::DoNothing:
                if(m_do_close) {
@@ -227,23 +228,29 @@ bool LWS_Server::received(lws* wsi, std::string_view msg) {
                m_broadcaster->setType(m_sockets[wsi].get(), TargetSocket::Extension);
                break;
           }
-     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "LWS_CALLBACK_RECEIVE", msg);
      return true;
 }
 
 size_t LWS_Server::on_write(lws* wsi) {
      auto ws = m_sockets[wsi].get();
-     if(ws->empty())
+     if(ws->empty()) {
+          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "No socket");
           return 0;
+     }
      const auto& [type, ptr, sz] = ws->front();
      const auto m = lws_write(wsi, const_cast<unsigned char*>(ptr), sz, type); //+ 1 is for null
      if (m < static_cast<int>(sz)) {
+          GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Send failed");
           lwsl_err("sending message failed: %d\n", m);
           return 0;
      }
      ws->shift();
-     if (!ws->empty())
-          lws_callback_on_writable(wsi); 
+     if (!ws->empty()) {
+          if (!lws_callback_on_writable(wsi)) {
+                lwsl_err("on writable failed");
+          }
+     }
+     GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Sent:", sz, "pending", !ws->empty());     
      return sz;
 }
 
@@ -480,7 +487,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
           }
 
           while (m_running && lws_service(context, 0) >= 0) {
-               m_loop.execute();    
+               m_loop.execute(context);    
           }
 
           m_running = false;
@@ -498,15 +505,15 @@ void LWS_Loop::defer(std::function<void ()>&& f) {
      wakeup();
 }
 
-void LWS_Loop::execute() {
+void LWS_Loop::execute(lws_context* context) {
      decltype(m_deferred) copy_of_deferred;
-     do {
+     {
           std::lock_guard g{m_mutex};
-          copy_of_deferred = m_deferred;
-          m_deferred.clear();
-     } while (false);
+          std::swap(copy_of_deferred, m_deferred);
+     }
      for (auto&& f : copy_of_deferred) {
           f();
+          lws_service(context, 0);
      }
 }
 

@@ -476,12 +476,11 @@ std::string GempyreInternal::to_string(const nlohmann::json& js) {
 }
 
 
-void GempyreInternal::eventLoop(bool is_main) {
+bool GempyreInternal::eventLoop(bool is_main, const std::chrono::milliseconds& await) {
     GEM_DEBUG("enter", is_main, is_running());
     const GempyreInternal::LoopWatch loop_watch (*this, is_main);
-    while(is_running()) {
-        wait_events();
-
+    while(is_running()) {   
+        const bool wait_event_status = wait_events(await);
         if(*this == State::EXIT) {
             GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Eventloop is exiting");
             break;
@@ -523,7 +522,7 @@ void GempyreInternal::eventLoop(bool is_main) {
         }
 
         if(has_requests() && *this == State::EXIT) {
-            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip timerqueue", state_str());
+            GempyreUtils::log(GempyreUtils::LogLevel::Debug, "skip timer queue", state_str());
         }
 
         /*if(has_open() && *this == State::RUNNING && is_connected()) {
@@ -545,7 +544,6 @@ void GempyreInternal::eventLoop(bool is_main) {
             handle_timer_requests();
         }
         
-
         if(*this == State::PENDING) {
             continue;
         }
@@ -565,7 +563,7 @@ void GempyreInternal::eventLoop(bool is_main) {
         //if there are responses they must be handled
         if(has_responses()) {
             if(!is_main) // this was eventloop(true) in exit, changed to false for logic...still works...
-                return; //handle query elsewhere, hopefully some one is pending
+                return wait_event_status; //handle query elsewhere, hopefully some one is pending
            // TODO: looks pretty busy (see calc) GempyreUtils::log(GempyreUtils::LogLevel::Warning, "There are unhandled responses on main");
         }
 
@@ -584,6 +582,7 @@ void GempyreInternal::eventLoop(bool is_main) {
 
     }
     GEM_DEBUG("Eventloop exit");
+    return true;
 }
 
 void GempyreInternal::shoot_requests() {
@@ -654,7 +653,7 @@ void GempyreInternal::consume_events() {
                 if(h != handlers.end()) {
                     h->second(Event{Element(*m_app_ui, std::move(element->first)), std::move(it.data)});
                 } else {
-                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element", it.element);
+                    GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find a handler", handlerName, "for element:", (it.element.empty() ? "root" : it.element) );
                 }
             } else {
                 GempyreUtils::log(GempyreUtils::LogLevel::Debug, "Cannot find", it.element, "from elements");
