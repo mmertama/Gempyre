@@ -326,6 +326,7 @@ GTest
 hexview
 Hiillos
 JS
+toupper
 libwebsockets
 linux
 mandelbrot
