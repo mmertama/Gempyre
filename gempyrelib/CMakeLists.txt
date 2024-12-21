@@ -425,14 +425,21 @@ if(PEDANTIC_WARNINGS)
 endif()
 
 if(DOXYGEN)
-    FetchContent_Declare(
-        cmakedoc
-        GIT_REPOSITORY https://github.com/mmertama/cmakedoc.git
-        GIT_TAG        main
-        GIT_PROGRESS ${HAS_PROGRESS}
-    )
-    FetchContent_MakeAvailable(cmakedoc)
-    include(${cmakedoc_SOURCE_DIR}/cmakedoc.cmake)
+    cmake_path(ABSOLUTE_PATH CMAKEDOC_DIR NORMALIZE OUTPUT_VARIABLE CD_DIR)
+    if (EXISTS "${CD_DIR}")
+        message("Using local Cmakedoc ${CD_DIR}")
+        include("${CD_DIR}/cmakedoc.cmake")
+    else()
+        message("Retrieve Cmakedoc")
+        FetchContent_Declare(
+            cmakedoc
+            GIT_REPOSITORY https://github.com/mmertama/cmakedoc.git
+            GIT_TAG        main
+            GIT_PROGRESS ${HAS_PROGRESS}
+        )
+        FetchContent_MakeAvailable(cmakedoc)
+        include(${cmakedoc_SOURCE_DIR}/cmakedoc.cmake)
+    endif()
     file(GLOB DOX_HEADERS include/*.h)
     set(CMAKEDOC_DOXYGEN_DOCUMENTS
         ${DOX_HEADERS}
@@ -441,6 +448,7 @@ if(DOXYGEN)
 
 
     if(SPELL)
+        message(WARNING "Current version is using aspell that does not verify HTML (doxygen) correcly, TODO: use hunspell")
     	# CMAKE_SOURCE_DIR referds to wrong directory with CMAKE_SOURCE_DIR on Github actions context!
         set(CMAKEDOC_SPELL_DICTIONARY ${CMAKE_CURRENT_SOURCE_DIR}/../aspell/gempyre_words.txt)
         set(CMAKEDOC_SPELL_EXCLUDE_DIRS
@@ -454,7 +462,10 @@ if(DOXYGEN)
             examples
             test
             scripts
-            cmake-build-debug)
+            cmake-build-debug
+            .idea
+            .vscode
+            _deps)
         add_spellcheck(${PROJECT_NAME})    
     endif()    
 endif()
