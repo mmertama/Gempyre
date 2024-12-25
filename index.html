@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">gempyre
-   &#160;<span id="projectnumber">1.7.0</span>
+   &#160;<span id="projectnumber">1.7.1</span>
    </div>
   </td>
  </tr>
@@ -111,25 +111,30 @@ Gempyre API</h3>
 Note (11/24)</h4>
 <p>I have changed default Web socket library and that may arise build issues. If there are issues you may try to set <code>USE_LIBWEBSOCKETS</code> to OFF. (e.g. cmake -DUSE_LIBWEBSOCKETS=OFF ...). (I will remove this note later)</p>
 <h3><a class="anchor" id="autotoc_md4"></a>
-Linux</h3>
+Install</h3>
+<p>Gempyre uses CMake. Therefore in general installing is just calling </p><div class="fragment"><div class="line">cmake my_cmake_folder -G Ninja</div>
+<div class="line">cmake --build . </div>
+<div class="line">sudo cmake --install .</div>
+</div><!-- fragment --><p>However there are some install scripts to help installing debug and release builds.</p>
+<h4><a class="anchor" id="autotoc_md5"></a>
+Linux</h4>
 <ul>
 <li>Run <div class="fragment"><div class="line">linux_install.sh</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md5"></a>
-Mac OSX</h3>
+<h4><a class="anchor" id="autotoc_md6"></a>
+Mac OSX</h4>
 <ul>
 <li>Run <div class="fragment"><div class="line">osx_install.sh</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md6"></a>
-Windows</h3>
+<h4><a class="anchor" id="autotoc_md7"></a>
+Windows</h4>
 <ul>
 <li>Install git bash from <a href="https://gitforwindows.org/">https://gitforwindows.org/</a></li>
 <li>Run git clone <a href="https://github.com/mmertama/Gempyre.git">https://github.com/mmertama/Gempyre.git</a> on git bash console.</li>
 </ul>
-<h4><a class="anchor" id="autotoc_md7"></a>
-MSVC</h4>
+<p><a class="anchor" id="autotoc_md8"></a> </p><h5>MSVC</h5>
 <ul>
 <li>Install cmake <a href="https://cmake.org/download/">https://cmake.org/download/</a> (let it to be added in path)</li>
 <li>Install Visual Studio <a href="https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019">https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019</a>, and pick Desktop development with C++</li>
@@ -138,8 +143,7 @@ MSVC</h4>
 <li>Run <div class="fragment"><div class="line">msvc_install.bat</div>
 </div><!-- fragment --></li>
 </ul>
-<h4><a class="anchor" id="autotoc_md8"></a>
-MinGW</h4>
+<p><a class="anchor" id="autotoc_md9"></a> </p><h5>MinGW</h5>
 <ul>
 <li>Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))</li>
 <li>See Instructions <a href="https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc">https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc</a></li>
@@ -147,8 +151,8 @@ MinGW</h4>
 <li>Run <div class="fragment"><div class="line">mingw_install.sh</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md9"></a>
-Raspberry OS</h3>
+<h4><a class="anchor" id="autotoc_md10"></a>
+Raspberry OS</h4>
 <ul>
 <li>Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17). Tested Raspberry Pi 3 and Raspberry Pi 4. <br  />
 </li>
@@ -158,7 +162,7 @@ Raspberry OS</h3>
 <li>When building on Raspberry, please pass -DRASPBERRY=1 for your cmake call. E.g. <div class="fragment"><div class="line">pi@raspberrypi:~/Development/Tilze/build $ cmake .. -DRASPBERRY=1</div>
 </div><!-- fragment --> </li>
 </ul>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md11"></a>
 FAQ</h2>
 <p>Q: After installation you get: "WARNING: webview is not installed -&gt; verification is not completed!", what is that?<br  />
  A: Most likely python3 webview is not installed. See installation from <a href="https://pywebview.flowrl.com/guide/installation.html">pywebview</a>. Please also make sure websockets python library is installed. </p><div class="fragment"><div class="line">$ pip3 install pywebview &amp;&amp; pip3 install websockets</div>
@@ -221,9 +225,10 @@ FAQ</h2>
 <p>However I noted that pywebview may not get successfully installed, and hence a link must be called, for example (please verify your python and pywebview versions):</p>
 <p><code>$ ln -s ./venv/lib/python3.12/site-packages/pywebview-5.1.dist-info ./venv/lib/python3.12/site-packages/pywebview</code> <br  />
 </p>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<p>Q: How to handle remove UI elements? A: There is Element::remove() that removes an element from UI and cleans up associated element handlers. However the element can be removed other ways, e.g. removing parent item or parent element calling Element::set_html that effectively wipes all child elements. You can detect that using Element::subscribe(Event::REMOVED). Please note that if element has any subscribed events, and the element is expected to be remove othwerwise than Element::remove(); Event::REMOVED should be subscribed and call Element::remove() to explicit clean up.</p>
+<h2><a class="anchor" id="autotoc_md12"></a>
 Example</h2>
-<h3><a class="anchor" id="autotoc_md12"></a>
+<h3><a class="anchor" id="autotoc_md13"></a>
 Hello world</h3>
 <p>As an example, here is a simple Gempyre application with a single button. The UI is written using HTML; please note the <b> <code> &lt;script type="text/javascript" src="gempyre.js"&gt; &lt;/script&gt; </code> </b> line is required for every Gempyre application. The HTML widgets are accessed by their HTML element ids from the C++.</p>
 <div class="fragment"><div class="line">cmake_minimum_required(VERSION 3.26)</div>
@@ -279,7 +284,7 @@ Hello world</h3>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> <span class="comment">/*argc*/</span>, <span class="keywordtype">char</span>** <span class="comment">/*argv*/</span>)  {</div>
 </div><!-- fragment --><p>In the constructor, you provide a mapping between file names and generated data and the HTML page that will be shown.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Ui.html">Gempyre::Ui</a> ui({ {<span class="stringliteral">&quot;/hello.html&quot;</span>, Hellohtml} }, <span class="stringliteral">&quot;hello.html&quot;</span>);</div>
-<div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:246</div></div>
+<div class="ttc" id="aclassGempyre_1_1Ui_html"><div class="ttname"><a href="classGempyre_1_1Ui.html">Gempyre::Ui</a></div><div class="ttdoc">The application UI.</div><div class="ttdef"><b>Definition:</b> gempyre.h:249</div></div>
 </div><!-- fragment --><p>HTML elements are represented by <code><a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a></code>. The element constructor takes a HTML id to refer to the corresponding element in the UI. Here we refer to the text area and button as defined in the HTML code above. The <code><a class="el" href="classGempyre_1_1Element.html" title="Represents all HTML elements on UI.">Gempyre::Element</a></code> represents any of the HTML elements. It's only inherited class is <code><a class="el" href="classGempyre_1_1CanvasElement.html" title="Graphics element.">Gempyre::CanvasElement</a></code> that implements specific graphics functionalities.</p>
 <div class="fragment"><div class="line"><a class="code" href="classGempyre_1_1Element.html">Gempyre::Element</a> text(ui, <span class="stringliteral">&quot;content&quot;</span>);</div>
 <div class="line"> </div>
@@ -298,7 +303,7 @@ Hello world</h3>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line"> </div>
 <div class="line">}</div>
-</div><!-- fragment --> <h3><a class="anchor" id="autotoc_md13"></a>
+</div><!-- fragment --> <h3><a class="anchor" id="autotoc_md14"></a>
 Selection list</h3>
 <p>Dynamic selection list (or combo box) is as easy as adding an empty <em>select</em> element in the Ui HTML code: </p><div class="fragment"><div class="line">&lt;select name=&quot;levels&quot; id=&quot;level_select&quot;&gt;</div>
 <div class="line">&lt;/select&gt;</div>
@@ -320,10 +325,10 @@ Selection list</h3>
 <div class="fragment"><div class="line">select.set_attribute(<span class="stringliteral">&quot;value&quot;</span>, wp.levels[level_index]); <span class="comment">// set value to some other than 1st</span></div>
 </div><!-- fragment --><p>Please note that as each event has a lot of properties, you have to list what you need. For a selection change (as well as most of the inputs) a <b>value</b> is used. <br  />
 </p>
-<h3><a class="anchor" id="autotoc_md14"></a>
+<h3><a class="anchor" id="autotoc_md15"></a>
 WebP support</h3>
 <p>WebP is a image format that can be used to replace PNG and GIF (animations). There is an external project <a href="https://github.com/mmertama/webp-gempyre">WebP-Gempyre</a> that will help using WebP images with Gempyre.</p>
-<h3><a class="anchor" id="autotoc_md15"></a>
+<h3><a class="anchor" id="autotoc_md16"></a>
 Some example projects using Gempyre</h3>
 <ul>
 <li><a href="https://github.com/mmertama/Gempyre/tree/raspberry/examples">Examples</a></li>
@@ -332,7 +337,7 @@ Some example projects using Gempyre</h3>
 <li><a href="https://github.com/mmertama/hexview-Gempyre">hexview-Gempyre</a></li>
 <li><a href="https://github.com/mmertama/calc-Gempyre">calc-Gempyre</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md16"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 Some future development directions</h2>
 <ul>
 <li>Binary releases (Maybe installer / some packet manager support / pip)</li>
@@ -346,42 +351,42 @@ Some future development directions</h2>
 <li>Using WASM instead of JS</li>
 <li>POC of Gempyre-Android style architecture also in core.git</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Late updates</h2>
-<h3><a class="anchor" id="autotoc_md18"></a>
+<h3><a class="anchor" id="autotoc_md19"></a>
 2021 1</h3>
 <ul>
 <li>Proper build and install with cmake</li>
 <li>Use GTest for API testing</li>
 <li>Rewrote timers + other smaller fixes</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md19"></a>
+<h3><a class="anchor" id="autotoc_md20"></a>
 2021 2</h3>
 <ul>
 <li>Lot of fixes and some new utils</li>
 <li>Native application window for OSX, Linux and Windows are using <a href="https://github.com/mmertama/Hiillos">Hiillos</a> <br  />
 </li>
 </ul>
-<h3><a class="anchor" id="autotoc_md20"></a>
+<h3><a class="anchor" id="autotoc_md21"></a>
 2022 1</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>CI using Github actions</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md21"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 2022 2</h3>
 <ul>
 <li>Lot of fixes</li>
 <li>Raspberry, and improved MinGW support</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md22"></a>
+<h3><a class="anchor" id="autotoc_md23"></a>
 2023 1</h3>
 <ul>
 <li>Lot of fixed</li>
 <li>API changes and harmonize with GemGui-rs (the Rust implementation)</li>
 <li>Testing coverage</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md23"></a>
+<h3><a class="anchor" id="autotoc_md24"></a>
 2023 2</h3>
 <ul>
 <li>Python UI fixes</li>
@@ -392,13 +397,13 @@ Late updates</h2>
 <li>Suppress external library warnings (except MSVC not working, it seems :-/ )</li>
 <li>Update / improve documentation</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md24"></a>
+<h3><a class="anchor" id="autotoc_md25"></a>
 2024 1</h3>
 <ul>
 <li>API change const std::string&amp; --&gt; std::string_view where incompatibility allows</li>
 <li>Some new methods and utilities</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md25"></a>
+<h3><a class="anchor" id="autotoc_md26"></a>
 2024 2</h3>
 <ul>
 <li>More std::string&amp; --&gt; std::string_view changes</li>
