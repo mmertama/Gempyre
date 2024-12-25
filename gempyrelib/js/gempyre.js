@@ -200,6 +200,10 @@ function addEvent(el, source, eventname, properties, throttle) {
             el.onload = on_complete;
             }
     }
+    else if(eventname === 'element_removed') {
+        log("addEventing", el, source, eventname, throttle);
+        observeRemove(el);
+    }
     else {
         log("addEventing", el, source, eventname, throttle);
         el.addEventListener(eventname, usedHandler);
@@ -325,6 +329,35 @@ function serveQuery(element, query_id, query, query_params) {
             errlog(query_id, "Unknown query " + query);
     }
 }
+
+function observeRemove(element) {
+    if (!element.parentNode) {
+        console.error("Cannot observe: element has no parent node", element.id);
+        return;
+    }
+    // Options for the observer (which mutations to observe)
+    const config = {childList: true};
+    const callback = function(mutationsList, observer) {
+        for(let mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                for (let n of mutation.removedNodes) {
+                    if (n === element) {
+                        sendGempyreEvent(id(element), "element_removed", mutation.target);
+                        observer.disconnect();
+                        return;
+                    }
+                }
+            }
+        }
+    };
+
+    // Create an observer instance linked to the callback function
+    const observer = new MutationObserver(callback);
+    // Start observing the target node for configured mutations
+    observer.observe(element.parentNode, config);
+    log("observeRemove", element.id)
+}
+
 
 function sendCollection(name, query_id, query, collectionFunction) {
     const children = [];
@@ -764,7 +797,7 @@ function handleJsonCommand(msg) {
                 break;
             case 'tag_name':
                 sendCollection(msg.element, msg.query_id, msg.query, function(name){return el.getElementsByTagName(name);});
-                return;        
+                break;   
             default:
                 errlog(msg.type, "Unknown type");       
         }

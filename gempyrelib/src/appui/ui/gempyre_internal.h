@@ -224,7 +224,19 @@ public:
             handler(ev);
             };
 
+        // TODO: add always remove handler when there are subscriptions to clean off
+        if (m_elements[id].empty()) {
+
+        }
+
         m_elements[id].emplace(name, std::move(hf));
+    }
+
+    void remove_handlers(const std::string& id) {
+        const auto it = m_elements.find(id);
+        if (it != m_elements.end()) {
+            m_elements.erase(it);
+        }
     }
 
     void clear_handlers() {

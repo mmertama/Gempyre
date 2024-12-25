@@ -33,26 +33,37 @@ I have changed default Web socket library and that may arise build issues. If th
 `USE_LIBWEBSOCKETS` to OFF. (e.g. cmake -DUSE_LIBWEBSOCKETS=OFF ...).
 (I will remove this note later)
 
-### Linux
+### Install
+
+Gempyre uses CMake. Therefore in general installing is just calling
+```bash
+  cmake my_cmake_folder -G Ninja
+  cmake --build . 
+  sudo cmake --install .
+``` 
+
+However there are some install scripts to help installing debug and release builds.
+
+#### Linux
 
 * Run
   ```bash
   linux_install.sh
   ```
   
-### Mac OSX
+#### Mac OSX
 
 * Run
   ```bash
    osx_install.sh
   ```
  
-### Windows
+#### Windows
 
 * Install git bash from https://gitforwindows.org/
 * Run git clone https://github.com/mmertama/Gempyre.git on git bash console.
 
-#### MSVC
+##### MSVC
 
 * Install cmake https://cmake.org/download/ (let it to be added in path)
 * Install Visual Studio https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019, and pick Desktop development with C++
@@ -63,7 +74,7 @@ I have changed default Web socket library and that may arise build issues. If th
     msvc_install.bat
    ```
 
-#### MinGW
+##### MinGW
 
 * Make sure you are using the right MinGW shell (Msys minGW 64-bit - one with blue icon (Not brown or cyan :-))
 * See Instructions https://www.devdungeon.com/content/install-gcc-compiler-windows-msys2-cc
@@ -73,7 +84,7 @@ I have changed default Web socket library and that may arise build issues. If th
   mingw_install.sh
   ```
  
-### Raspberry OS
+#### Raspberry OS
 
  * Requires Rasberry OS Bullseye (older is ok, but you need more recent gcc in order to build C++17). Tested Raspberry Pi 3 and Raspberry Pi 4.  
  * Quite late CMake is required, here are [snap instructions](https://snapcraft.io/install/cmake/raspbian#install).
@@ -170,6 +181,10 @@ A: The latest MacOS wish your run your Python in virtual environment. Look [venv
 However I noted that pywebview may not get successfully installed, and hence a link must be called, for example (please verify your python and pywebview versions): 
 
 `$ ln -s ./venv/lib/python3.12/site-packages/pywebview-5.1.dist-info ./venv/lib/python3.12/site-packages/pywebview`   
+
+Q: How to handle remove UI elements?
+A: There is Element::remove() that removes an element from UI and cleans up associated element handlers. However
+the element can be removed other ways, e.g. removing parent item or parent element calling Element::set_html that effectively wipes all child elements. You can detect that using Element::subscribe(Event::REMOVED). Please note that if element has any subscribed events, and the element is expected to be remove othwerwise than Element::remove(); Event::REMOVED should be subscribed and call Element::remove() to explicit clean up. 
 
 ## Example
 

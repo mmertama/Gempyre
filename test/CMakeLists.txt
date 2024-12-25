@@ -27,7 +27,8 @@ set_tests_properties(${Tests} PROPERTIES TIMEOUT 10)
 set(TEST_INCLUDE_DIR ${googletest_SOURCE_DIR}/googletest/include())
 set(TEST_LIBRARY_DIR ${googletest_BINARY_DIR})
 
-if(LINUX OR (UNIX AND NOT APPLE)) # AND NOT RASPBERRY (not sure), MSVC and MINGW works, most of time ... libwebsockets used for these wont compile with all Apple versions, todo
+if(LINUX OR UNIX) # AND NOT RASPBERRY (not sure), MSVC and MINGW works, most of time ... libwebsockets used for these wont compile with all Apple versions, todo
+#if(LINUX OR (UNIX AND NOT APPLE)) # AND NOT RASPBERRY (not sure), MSVC and MINGW works, most of time ... libwebsockets used for these wont compile with all Apple versions, todo
   set(HAS_MOCK TRUE)
   add_compile_definitions(HAS_MOCK)
   add_subdirectory(mock_browser)

@@ -224,6 +224,23 @@ TEST_F(TestUi, remove) {
     });
 }
 
+
+TEST_F(TestUi, remove_subscribe) {
+    bool is_removed = false;
+    Gempyre::Element el(ui(), "test-2");
+    Gempyre::Element new_el(ui(), "P", el);
+    new_el.subscribe(Gempyre::Event::REMOVED, [new_el, this, &is_removed](const Gempyre::Event& eel) mutable {
+        ASSERT_EQ(eel.element.id(), new_el.id());
+        is_removed = true;
+        new_el.remove(); // remove handler!
+        test_exit();
+    });
+    el.set_html("");
+    test_wait();
+    ASSERT_TRUE(is_removed);
+}
+
+
 TEST_F(TestUi, removeAttribute) {
     test([this]() {
         Gempyre::Element el(ui(), "hidden");

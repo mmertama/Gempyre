@@ -235,6 +235,9 @@ namespace Gempyre {
         static constexpr auto  LOAD = "load";
         /// Resize - use ui.root().subscribe(Event::RESIZE, [... for window resize 
         static constexpr auto  RESIZE = "resize"; 
+        /// Remove - Element is removed. Note that this event may/is not received if
+        /// Element::remove is called directly to that element as that removes the handler
+        static constexpr auto  REMOVED = "element_removed";
        
         /// @brief element that has emitted the event, the same that did subscription.
         Element element;

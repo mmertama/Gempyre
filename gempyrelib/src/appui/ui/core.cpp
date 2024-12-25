@@ -542,7 +542,8 @@ void Ui::flush() {
     m_ui->shoot_requests();
 }
 
- bool Ui::ui_available() const {
+bool Ui::ui_available() const {
     return m_ui->is_ui_available();
- }
+}
+
 

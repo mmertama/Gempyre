@@ -37,6 +37,7 @@ Element::Element(Ui& ui, std::string_view id) : m_ui(&ui), m_id(id) {
 
 Element::Element(Ui& ui, std::string_view id, std::string_view htmlElement, const Element& parent) : Element(ui, id) {
     assert(GempyreUtils::is_valid_utf8(id));
+    assert(!m_id.empty());
     assert(GempyreUtils::is_valid_utf8(htmlElement));
     ref().send(parent, "create",
         "new_id", m_id,
@@ -45,6 +46,8 @@ Element::Element(Ui& ui, std::string_view id, std::string_view htmlElement, cons
 
 Element::Element(Ui& ui, std::string_view htmlElement, const Element& parent) : Element(ui, generateId("__element")) {
     assert(GempyreUtils::is_valid_utf8(htmlElement));
+    assert(!m_id.empty());
+    assert(GempyreUtils::is_valid_utf8(m_id));
     ref().send(parent, "create",
         "new_id", m_id,
         "html_element", htmlElement);
@@ -182,8 +185,8 @@ std::optional<Element::Elements> Element::children() const {
 
 void Element::remove() {
     ref().send(*this, "remove", m_id);
+    ref().remove_handlers(m_id); // clean handler 
 }
-
 
 std::optional<Element> Element::parent() const {
     if(m_id == m_ui->root().m_id) {
