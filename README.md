@@ -184,7 +184,13 @@ However I noted that pywebview may not get successfully installed, and hence a l
 
 Q: How to handle remove UI elements?
 A: There is Element::remove() that removes an element from UI and cleans up associated element handlers. However
-the element can be removed other ways, e.g. removing parent item or parent element calling Element::set_html that effectively wipes all child elements. You can detect that using Element::subscribe(Event::REMOVED). Please note that if element has any subscribed events, and the element is expected to be remove othwerwise than Element::remove(); Event::REMOVED should be subscribed and call Element::remove() to explicit clean up. 
+the element can be removed other ways, e.g. removing parent item or parent element calling Element::set_html that effectively wipes all child elements. You can detect that using Element::subscribe(Event::REMOVED). Please note that **if** element has any subscribed events, and **if** the element is expected to be remove othwerwise than Element::remove(); Event::REMOVED should be subscribed and call Element::remove() to explicit clean up. 
+
+```cpp
+  Gempyre::Element(ui, my_id).subscribe(Gempyre::Event::REMOVED, [](const Gempyre::Event& event) {
+    Gempyre::Element{event.element}.remove(); // event.element is const, therefore copy (Element copy is lightweight)
+});
+```
 
 ## Example
 
