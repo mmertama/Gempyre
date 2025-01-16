@@ -6,6 +6,35 @@
 #include "gempyre_graphics.h"
 #include "timequeue.h"
 
+TEST(Unittests, parse) {
+    EXPECT_EQ(GempyreUtils::parse<int>("1"), 1);
+    EXPECT_EQ(GempyreUtils::parse<int>("0x1"), 1);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("1"), 1);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("0x1"), 1);
+
+    EXPECT_EQ(GempyreUtils::parse<int>("1234567"), 1234567);
+    EXPECT_EQ(GempyreUtils::parse<int>("0x1234567"), 0x1234567);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("1234567"), 1234567);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("0x1234567"), 0x1234567);
+     EXPECT_EQ(GempyreUtils::parse<unsigned>("01234567"), 01234567);
+
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("Munkki"), std::nullopt);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12F"), std::nullopt);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12.1"), std::nullopt);
+    EXPECT_EQ(GempyreUtils::parse<double>("12.1"), 12.1);
+    EXPECT_EQ(GempyreUtils::parse<double>("012.1"), 12.1);
+
+    
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12F", 16), 0x12F);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12.1", 10), std::nullopt);
+    EXPECT_EQ(GempyreUtils::parse<double>("12.1", 10), 12.1);
+    EXPECT_EQ(GempyreUtils::parse<double>("012.1", 8), 12.1);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("012", 8), 012);
+    EXPECT_EQ(GempyreUtils::parse<double>("012", 8), 12);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("Munkki", 10), std::nullopt);
+}
+
+
 TEST(Unittests, Test_rgb) {
     auto col1 = Gempyre::Color::rgba(0x33, 0x44, 0x55);
     EXPECT_EQ(Gempyre::Color::rgb(col1), "#334455");
@@ -28,6 +57,37 @@ TEST(Unittests, Test_rgb) {
     EXPECT_EQ(Gempyre::Color::rgba(col5), "#112233CC");
 }
 
+TEST(Unittests, Test_colors) {
+    EXPECT_EQ(*Gempyre::Color::get_color("Magenta"), Gempyre::Color::Magenta);
+    EXPECT_EQ(Gempyre::Color::get_color("Pagenta"), std::nullopt);
+    EXPECT_EQ(Gempyre::Color::to_string(Gempyre::Color::Magenta), std::string("#FF00FF"));
+    EXPECT_EQ(*Gempyre::Color::get_color(Gempyre::Color::to_string(Gempyre::Color::Magenta)), Gempyre::Color::Magenta);
+    const std::vector<std::string_view> cyans {
+        "0x00FFFF",
+        "0x00FFFFFF",
+        "0x00ffff",
+        "0x00ffffff", 
+        "0x00ffff00",
+        "0x00FFFF00",
+        "#00FFFF",
+        "#00FFFFFF",
+        "#00ffff",
+        "#00ffffff",
+        "#00ffff00",
+        "#00FFFF00"};
+
+    for (const auto& cy : cyans) {
+        EXPECT_TRUE(Gempyre::Color::is_equal(*Gempyre::Color::get_color(cy), Gempyre::Color::Cyan)) << "cy:" << cy;
+    }   
+    
+    constexpr auto c1 = "#112233";
+    EXPECT_EQ(Gempyre::Color::get_color(c1), Gempyre::Color::rgba(0x11, 0x22, 0x33, 0xFF));
+    constexpr auto c2 = "0x112233";
+    EXPECT_EQ(Gempyre::Color::get_color(c2), Gempyre::Color::rgba(0x11, 0x22, 0x33, 0xFF));
+
+    constexpr auto c3 = "0x11XX33";
+    EXPECT_EQ(Gempyre::Color::get_color(c3), std::nullopt);
+}
 
 TEST(Unittests, test_timequeue) {
     Gempyre::TimeQueue tq;

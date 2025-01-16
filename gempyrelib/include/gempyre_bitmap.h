@@ -129,6 +129,19 @@ namespace  Gempyre {
             return Gempyre::Color::rgba(Gempyre::Color::r(col), Gempyre::Color::g(col), Gempyre::Color::b(col), alpha_val);
         }
 
+        
+        [[nodiscard]]
+        ///@brief Apply given alpha to a color
+        static inline auto rgb_value(uint32_t col) {
+            return Gempyre::Color::rgba(0xFF & (col >> 16), 0xFF & (col >> 8), 0xFF & col, 0xFF);
+        }
+
+        [[nodiscard]]
+        ///@brief Apply given alpha to a color
+        static inline auto rgba_value(uint32_t col) {
+            return Gempyre::Color::rgba(0xFF & (col >> 24), 0xFF & (col >> 16),  0xFF & (col >> 8),  0xFF & col);
+        }
+
 
         /// @brief Black
         static constexpr Color::type Black      = Color::rgba(0, 0, 0, 0xFF);
@@ -154,10 +167,9 @@ namespace  Gempyre {
         static constexpr Color::type Lime       = Green;
         /// @brief Transparent
         static constexpr Color::type Transparent = Color::rgba(0, 0, 0, 0);
-    }
 
     /// @brief HTML colors
-    constexpr std::array<std::pair<std::string_view, Color::type>, 147> html_colors = {{
+    constexpr std::array<std::pair<std::string_view, type>, 147> html_colors = {{
     {"AliceBlue", 0xF0F8FF}, {"AntiqueWhite", 0xFAEBD7}, {"Aqua", 0x00FFFF},
     {"Aquamarine", 0x7FFFD4}, {"Azure", 0xF0FFFF}, {"Beige", 0xF5F5DC},
     {"Bisque", 0xFFE4C4}, {"Black", 0x000000}, {"BlanchedAlmond", 0xFFEBCD},
@@ -207,12 +219,18 @@ namespace  Gempyre {
     {"WhiteSmoke", 0xF5F5F5}, {"Yellow", 0xFFFF00}, {"YellowGreen", 0x9ACD32}
     }};
 
+    [[nodiscard]] inline bool is_equal(type a, type b) {
+        return (a & 0xFFFFFF) == (b & 0xFFFFFF);  
+    }
 
     [[nodiscard]]
     ///@brief find a HTML color as Color::type
-    inline constexpr std::optional<Color::type> from_html_name(std::string_view name) {
-        const auto it = std::find_if(std::begin(html_colors), std::end(html_colors), [&](const auto& p) {return p.first == name;});
-        return it != std::end(html_colors) ? std::make_optional(it->second) : std::nullopt;
+    constexpr std::optional<type> from_html_name(std::string_view name);
+
+    [[nodiscard]]
+    ///@brief get color from string, where string is a HTML color name, #RRGGBB, #RRGGBBAA, 0xRRGGBB or 0xRRGGBBAA
+    std::optional<type> get_color(std::string_view color);
+
     }
 
     /// @brief Bitmap for Gempyre Graphics

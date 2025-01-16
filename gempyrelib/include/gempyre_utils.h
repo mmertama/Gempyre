@@ -407,14 +407,31 @@ inline std::string convert<std::string>(std::string_view source)
 
 /// @brief parse string to value
 /// @tparam T 
-/// @param source 
+/// @param source
+/// @param (optional) base 
 /// @return value
 template <typename T>
-std::optional<T> parse(std::string_view source) {
-    std::istringstream ss(std::string{source});
+std::optional<T> parse(std::string_view source, const std::optional<int>& forced_base = std::nullopt) {
+    if (source.empty())
+        return std::nullopt;    
+    std::stringstream ss;
+    if (forced_base) {
+        ss << std::setbase(*forced_base) << source;
+    } else {
+        auto base = std::dec;
+        if (source.size() > 1 && source[0] == '0') {
+            if (source.size() > 2 && (source[1] == 'x' || source[1] == 'X')) {
+                base = std::hex;
+            } else {
+                base = std::oct;
+            }
+        }
+        ss << base << source;
+    }
     T v;
-    static_cast<std::istream&>(ss) >> v;   //MSVC said it would be otherwise ambiguous
-    return !ss.fail() ? std::make_optional(v) : std::nullopt;
+    /*static_cast<std::istream&>(ss)*/ 
+    ss >> v;   //MSVC said it would be otherwise ambiguous
+    return !ss.fail() && ss.eof() ? std::make_optional(v) : std::nullopt;
 }
 
 /// @brief make lower case string

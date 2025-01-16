@@ -10,6 +10,46 @@
 
 using namespace Gempyre;
 
+constexpr std::optional<Color::type> Color::from_html_name(std::string_view name) {
+        const auto it = std::find_if(std::begin(html_colors), std::end(html_colors), [&](const auto& p) {return p.first == name;});
+        return it != std::end(html_colors) ? std::make_optional(rgba(
+            (it->second >> 16) & 0xFF,
+            (it->second >> 8) & 0xFF,
+            (it->second) & 0xFF, 
+            0xFF
+        )) : std::nullopt;
+    }
+
+ std::optional<Color::type> Color::get_color(std::string_view color) {
+        if (color.empty())
+            return std::nullopt;    
+        if (color[0] == '#') {
+            if (color.length() == 7) {// #RRGGBB
+                const auto v = GempyreUtils::parse<uint32_t>(color.substr(1), 16);
+                return v ? std::make_optional(rgb_value(*v)) : std::nullopt;
+            }    
+            if (color.length() == 9) {// #RRGGBBAA
+                const auto v = GempyreUtils::parse<uint32_t>(color.substr(1), 16);
+                return v ? std::make_optional(rgba_value(*v)) : std::nullopt;
+            }    
+        }
+        if (color[0] == '0') {
+             if (color.length() == 8) {// 0xRRGGBB
+                const auto v = GempyreUtils::parse<uint32_t>(color);
+                return v ? std::make_optional(rgb_value(*v)) : std::nullopt;
+            }    
+            if (color.length() == 10) {// 0xRRGGBBAA
+                const auto v = GempyreUtils::parse<uint32_t>(color);
+                return v ? std::make_optional(rgba_value(*v)) : std::nullopt;
+            }    
+        } else {   
+            const auto named = from_html_name(color);
+            if (named)
+                return named;
+        }
+        return std::nullopt;
+    }
+
 Bitmap::Bitmap(int width, int height)  {
     if(width > 0 && height > 0)
         create(width, height);
