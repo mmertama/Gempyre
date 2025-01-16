@@ -12,15 +12,22 @@ TEST(Unittests, parse) {
     EXPECT_EQ(GempyreUtils::parse<unsigned>("1"), 1);
     EXPECT_EQ(GempyreUtils::parse<unsigned>("0x1"), 1);
 
+    EXPECT_EQ(GempyreUtils::parse<int>("12.242"), 12);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12.242"), 12);
+
+    EXPECT_EQ(GempyreUtils::parse<int>("-12.242"), -12);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12.242"), 12);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("-12.242"), static_cast<unsigned>(-12));
+
     EXPECT_EQ(GempyreUtils::parse<int>("1234567"), 1234567);
     EXPECT_EQ(GempyreUtils::parse<int>("0x1234567"), 0x1234567);
     EXPECT_EQ(GempyreUtils::parse<unsigned>("1234567"), 1234567);
     EXPECT_EQ(GempyreUtils::parse<unsigned>("0x1234567"), 0x1234567);
-     EXPECT_EQ(GempyreUtils::parse<unsigned>("01234567"), 01234567);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("01234567"), 01234567);
 
     EXPECT_EQ(GempyreUtils::parse<unsigned>("Munkki"), std::nullopt);
-    EXPECT_EQ(GempyreUtils::parse<unsigned>("12F"), std::nullopt);
-    EXPECT_EQ(GempyreUtils::parse<unsigned>("12.1"), std::nullopt);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12F"), 12);
+    EXPECT_EQ(GempyreUtils::parse<unsigned>("12.1"), 12);
     EXPECT_EQ(GempyreUtils::parse<double>("12.1"), 12.1);
     EXPECT_EQ(GempyreUtils::parse<double>("012.1"), 12.1);
 

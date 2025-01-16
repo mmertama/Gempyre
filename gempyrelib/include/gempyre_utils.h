@@ -408,7 +408,7 @@ inline std::string convert<std::string>(std::string_view source)
 /// @brief parse string to value
 /// @tparam T 
 /// @param source
-/// @param (optional) base 
+/// @param (optional) base - it also enforce the whole string to be given type
 /// @return value
 template <typename T>
 std::optional<T> parse(std::string_view source, const std::optional<int>& forced_base = std::nullopt) {
@@ -431,7 +431,7 @@ std::optional<T> parse(std::string_view source, const std::optional<int>& forced
     T v;
     /*static_cast<std::istream&>(ss)*/ 
     ss >> v;   //MSVC said it would be otherwise ambiguous
-    return !ss.fail() && ss.eof() ? std::make_optional(v) : std::nullopt;
+    return !ss.fail() && (!forced_base || ss.eof()) ? std::make_optional(v) : std::nullopt;
 }
 
 /// @brief make lower case string

@@ -35,11 +35,11 @@ constexpr std::optional<Color::type> Color::from_html_name(std::string_view name
         }
         if (color[0] == '0') {
              if (color.length() == 8) {// 0xRRGGBB
-                const auto v = GempyreUtils::parse<uint32_t>(color);
+                const auto v = GempyreUtils::parse<uint32_t>(color.substr(2), 16);
                 return v ? std::make_optional(rgb_value(*v)) : std::nullopt;
             }    
             if (color.length() == 10) {// 0xRRGGBBAA
-                const auto v = GempyreUtils::parse<uint32_t>(color);
+                const auto v = GempyreUtils::parse<uint32_t>(color.substr(2), 16);
                 return v ? std::make_optional(rgba_value(*v)) : std::nullopt;
             }    
         } else {   
