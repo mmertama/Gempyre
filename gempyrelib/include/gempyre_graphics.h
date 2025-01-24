@@ -5,7 +5,9 @@
 #include <variant>
 #include <array>
 #include <string_view>
-		
+#include <functional>
+#include <vector>
+
 #include <gempyre.h>
 #include <gempyre_bitmap.h> // for compatibility, not really needed, fwd declaration is sufficient
 
