@@ -197,7 +197,11 @@ A: Subscribe client and scroll positions. For mouse move events, consider using 
 
 ```cpp
     Gempyre::CanvasElement{ui, Graphics::CANVAS}.subscribe(Gempyre::Event::MOUSE_CLICK, [&](const auto& event) {
-        handle_mouse_event(ui, event);
+      const auto canvas_x = *GempyreUtils::parse<double>(event.properties.at("clientX"));
+      const auto canvas_y = *GempyreUtils::parse<double>(event.properties.at("clientY"));
+      const auto scroll_x = *GempyreUtils::parse<double>(event.properties.at("scrollX"));
+      const auto scroll_y = *GempyreUtils::parse<double>(event.properties.at("scrollY"));
+      handle_mouse_event(canvas_x, canvas_y, scroll_x, scroll_y);
     }, {"clientX", "clientY", "scrollX", "scrollY"});
 
 ```
