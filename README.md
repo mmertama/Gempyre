@@ -192,6 +192,16 @@ the element can be removed other ways, e.g. removing parent item or parent eleme
 });
 ```
 
+Q: How to get mouse position
+A: Subscribe client and scroll positions. For mouse move events, consider using throttle value to limit events.    
+
+```cpp
+    Gempyre::CanvasElement{ui, Graphics::CANVAS}.subscribe(Gempyre::Event::MOUSE_CLICK, [&](const auto& event) {
+        handle_mouse_event(ui, event);
+    }, {"clientX", "clientY", "scrollX", "scrollY"});
+
+```
+
 ## Example
 
 ### Hello world
