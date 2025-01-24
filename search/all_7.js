@@ -16,6 +16,6 @@ var searchData=
   ['font_13',['font',['../classGempyre_1_1FrameComposer.html#a4d24ec8362433272b65119fcedd7f613',1,'Gempyre::FrameComposer']]],
   ['framecomposer_14',['framecomposer',['../classGempyre_1_1FrameComposer.html',1,'Gempyre::FrameComposer'],['../classGempyre_1_1FrameComposer.html#a8cf4bd7f12126b5e349b76f66772a1ea',1,'Gempyre::FrameComposer::FrameComposer(const FrameComposer &amp;other)=default'],['../classGempyre_1_1FrameComposer.html#afb0d49ec830ee8ea13b1cdf0debedb7e',1,'Gempyre::FrameComposer::FrameComposer(FrameComposer &amp;&amp;other)=default'],['../classGempyre_1_1FrameComposer.html#adf4c9f884ccec38ab9feb3141c419285',1,'Gempyre::FrameComposer::FrameComposer(Gempyre::CanvasElement::CommandList &amp;lst)'],['../classGempyre_1_1FrameComposer.html#ae9be303ef0994f028707e4b00576d59d',1,'Gempyre::FrameComposer::FrameComposer()']]],
   ['framework_15',['framework',['../gempyre_8h.html#autotoc_md28',1,'Gempyre GUI Framework'],['../index.html#autotoc_md1',1,'UI Framework']]],
-  ['from_5fhtml_5fname_16',['from_html_name',['../namespaceGempyre_1_1Color.html#a766d8162edbf9bb928b25cf67fdcc039',1,'Gempyre::Color']]],
+  ['from_5fhtml_5fname_16',['from_html_name',['../namespaceGempyre_1_1Color.html#aecbca9e616ac91dcbd37320cbf94606f',1,'Gempyre::Color']]],
   ['future_20development_20directions_17',['Some future development directions',['../index.html#autotoc_md17',1,'']]]
 ];
