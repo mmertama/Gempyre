@@ -9,7 +9,8 @@
 
 using namespace Gempyre;
 
-constexpr std::optional<Color::type> Color::from_html_name(std::string_view name) {
+// may need C++20 to be constexpr (TODO)
+std::optional<Color::type> Color::from_html_name(std::string_view name) {
         const auto it = std::find_if(std::begin(html_colors), std::end(html_colors), [&](const auto& p) {return p.first == name;});
         return it != std::end(html_colors) ? std::make_optional(rgba(
             (it->second >> 16) & 0xFF,

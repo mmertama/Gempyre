@@ -229,7 +229,7 @@ namespace  Gempyre {
     }
 
     [[nodiscard]]
-    ///@brief find a HTML color as Color::type
+    ///@brief find a HTML color as Color::type 
     constexpr std::optional<type> from_html_name(std::string_view name);
 
     [[nodiscard]]
