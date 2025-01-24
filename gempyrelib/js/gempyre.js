@@ -163,6 +163,9 @@ function addEvent(el, source, eventname, properties, throttle) {
             else if(event.target && key in event.target) {
                 values[key] = event.target[key];
             }
+            else if(key in window) {
+                values[key] = window[key];
+            }
         }
 
         log("do event", el, source, eventname, values, event);
