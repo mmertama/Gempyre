@@ -1,11 +1,10 @@
-#include <string>
-#include <lodepng.h>
-#include <cassert>
 #include "gempyre_bitmap.h"
 #include "gempyre_utils.h"
 #include "data.h"
 #include "canvas_data.h"
-
+#include <string>
+#include <lodepng.h>
+#include <cassert>
 
 
 using namespace Gempyre;

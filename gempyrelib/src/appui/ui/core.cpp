@@ -1,9 +1,4 @@
-#include <iostream>
-#include <condition_variable>
-#include <thread>
-#include <sstream>
-#include <future>
-#include <cassert>
+
 
 #include "semaphore.h"
 
@@ -21,6 +16,13 @@
 #include "core.h"
 
 #include "gempyre_internal.h"
+
+#include <iostream>
+#include <condition_variable>
+#include <thread>
+#include <sstream>
+#include <future>
+#include <cassert>
 
 using namespace std::chrono_literals;
 using namespace Gempyre;

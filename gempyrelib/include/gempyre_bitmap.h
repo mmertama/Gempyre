@@ -5,6 +5,8 @@
 #include <cstring> // memcpy (windows)
 #include <gempyre_types.h>
 #include <array>
+#include <optional>
+#include <string_view>
 
 /**
   * @file
