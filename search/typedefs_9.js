@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['subscribefunction_546',['SubscribeFunction',['../classGempyre_1_1Element.html#a0871ed2126a4911a895080d967df32a5',1,'Gempyre::Element']]]
+  ['values_0',['Values',['../classGempyre_1_1Element.html#afb2ecf9f84e40c7fb2df08a789b4e3be',1,'Gempyre::Element']]]
 ];

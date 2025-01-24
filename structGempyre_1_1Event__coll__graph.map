@@ -1,7 +1,11 @@
 <map id="Gempyre::Event" name="Gempyre::Event">
-<area shape="rect" id="node1" title="Event received." alt="" coords="79,319,206,345"/>
-<area shape="rect" id="node2" href="$classGempyre_1_1Element.html" title="Represents all HTML elements on UI." alt="" coords="5,215,149,241"/>
-<area shape="rect" id="node3" title=" " alt="" coords="173,200,325,256"/>
-<area shape="rect" id="node4" title=" " alt="" coords="206,96,293,123"/>
-<area shape="rect" id="node5" title=" " alt="" coords="180,5,319,47"/>
+<area shape="rect" id="Node000001" title="Event received." alt="" coords="79,315,206,340"/>
+<area shape="rect" id="Node000002" href="$classGempyre_1_1Element.html" title="Represents all HTML elements on UI." alt="" coords="5,212,149,237"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,247,137,313,133,316,90,250"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="173,197,325,252"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,264,157,316,153,312,210,260"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="206,95,293,120"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="252,134,252,197,247,197,247,134"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="180,5,319,45"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="252,59,252,94,247,94,247,59"/>
 </map>

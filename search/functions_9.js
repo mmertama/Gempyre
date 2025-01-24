@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['join_382',['join',['../gempyre__utils_8h.html#ac0b6be5b0ff39f55904faf86c9cd547e',1,'GempyreUtils::join(const IT &amp;begin, const IT &amp;end, std::string_view joinChar=&quot;&quot;, const Callable &amp;f=Callable{})'],['../gempyre__utils_8h.html#a06f23dc41db827b36c90d3d59d1f97fa',1,'GempyreUtils::join(const IT begin, const IT end, std::string_view joinChar=&quot;&quot;, const Callable &amp;f=Callable{})'],['../gempyre__utils_8h.html#a2485a82c9c8a3e6e7022be1ad8d15e07',1,'GempyreUtils::join(const T &amp;t, std::string_view joinChar=&quot;&quot;, const Callable &amp;f=Callable{})']]],
-  ['json_5fto_5fany_383',['json_to_any',['../gempyre__utils_8h.html#a2827477016db50b0628f4916378714b8',1,'GempyreUtils']]]
+  ['line_5fto_0',['line_to',['../classGempyre_1_1FrameComposer.html#a472957fca036369200ee427a2c6320d3',1,'Gempyre::FrameComposer']]],
+  ['line_5fwidth_1',['line_width',['../classGempyre_1_1FrameComposer.html#a849b1d65d500ea6659d8cafbb8d85e4f',1,'Gempyre::FrameComposer']]],
+  ['log_2',['log',['../gempyre__utils_8h.html#a7f7c61f34a2da31b6adeaedf935e0b85',1,'GempyreUtils']]],
+  ['log_5fdebug_3',['log_debug',['../gempyre__utils_8h.html#a5ecec5d2d73a0250469060787a9a8059',1,'GempyreUtils']]],
+  ['log_5flevel_4',['log_level',['../gempyre__utils_8h.html#a4ec5eb75db7f0c5ac408e2c9f9fc4cea',1,'GempyreUtils']]],
+  ['logwriter_5',['LogWriter',['../classGempyreUtils_1_1LogWriter.html#ae5fa19f198a8a101207b6e28fd39bc5a',1,'GempyreUtils::LogWriter']]]
 ];

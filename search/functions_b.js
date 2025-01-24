@@ -1,11 +1,12 @@
 var searchData=
 [
-  ['levenshtein_5fdistance_385',['levenshtein_distance',['../gempyre__utils_8h.html#a141e6dbc59809b28d23356425b2531b4',1,'GempyreUtils']]],
-  ['line_5fto_386',['line_to',['../classGempyre_1_1FrameComposer.html#a472957fca036369200ee427a2c6320d3',1,'Gempyre::FrameComposer']]],
-  ['line_5fwidth_387',['line_width',['../classGempyre_1_1FrameComposer.html#a849b1d65d500ea6659d8cafbb8d85e4f',1,'Gempyre::FrameComposer']]],
-  ['log_388',['log',['../gempyre__utils_8h.html#a7f7c61f34a2da31b6adeaedf935e0b85',1,'GempyreUtils']]],
-  ['log_5fdebug_389',['log_debug',['../gempyre__utils_8h.html#a5ecec5d2d73a0250469060787a9a8059',1,'GempyreUtils']]],
-  ['log_5flevel_390',['log_level',['../gempyre__utils_8h.html#a4ec5eb75db7f0c5ac408e2c9f9fc4cea',1,'GempyreUtils']]],
-  ['logwriter_391',['LogWriter',['../classGempyreUtils_1_1LogWriter.html#ae5fa19f198a8a101207b6e28fd39bc5a',1,'GempyreUtils::LogWriter']]],
-  ['ltrim_392',['ltrim',['../gempyre__utils_8h.html#acf23c14ae3a6445c6981ec1383be6665',1,'GempyreUtils']]]
+  ['on_5ferror_0',['on_error',['../classGempyre_1_1Ui.html#ac786901194137db73b7c984b241e9632',1,'Gempyre::Ui']]],
+  ['on_5fexit_1',['on_exit',['../classGempyre_1_1Ui.html#a705567e1b4774e195f39c6260d19e6ee',1,'Gempyre::Ui']]],
+  ['on_5fopen_2',['on_open',['../classGempyre_1_1Ui.html#a955db6f324ef87814588e2b9d1d4ea71',1,'Gempyre::Ui']]],
+  ['on_5freload_3',['on_reload',['../classGempyre_1_1Ui.html#afa33cc4c4458c318fb37cd9f6286fde1',1,'Gempyre::Ui']]],
+  ['open_4',['open',['../classGempyre_1_1Ui.html#a46f521d21ef482c6bf1523cc18bffce3',1,'Gempyre::Ui']]],
+  ['open_5fdir_5fdialog_5',['open_dir_dialog',['../classGempyre_1_1Dialog.html#a6a25237dfff554923eb39d032fa028b0',1,'Gempyre::Dialog']]],
+  ['open_5ffile_5fdialog_6',['open_file_dialog',['../classGempyre_1_1Dialog.html#ad24665745df7e0227c48704294d296fd',1,'Gempyre::Dialog']]],
+  ['open_5ffiles_5fdialog_7',['open_files_dialog',['../classGempyre_1_1Dialog.html#ae42e65664e7a7b6f712975dc573e8596',1,'Gempyre::Dialog']]],
+  ['operator_3d_8',['operator=',['../classGempyre_1_1Element.html#a58e85bbb3fb9656ce7e5f229d0ff0177',1,'Gempyre::Element::operator=(const Element &amp;other)'],['../classGempyre_1_1Element.html#a1ff824f8598c05fdcc49809de84253bf',1,'Gempyre::Element::operator=(Element &amp;&amp;other)'],['../classGempyre_1_1Bitmap.html#a96b185d2c0aefec099156aa0fb5c16bf',1,'Gempyre::Bitmap::operator=(const Bitmap &amp;other)=default'],['../classGempyre_1_1Bitmap.html#a5bdbc2a4ad65d40982accafdf95a99c5',1,'Gempyre::Bitmap::operator=(Bitmap &amp;&amp;other)=default'],['../classGempyre_1_1CanvasElement.html#a8018fefea3a7f4f3a91dd15a1026b655',1,'Gempyre::CanvasElement::operator=(const CanvasElement &amp;other)'],['../classGempyre_1_1CanvasElement.html#ad7fe4bcb9750becfa1c7ded900e4fd16',1,'Gempyre::CanvasElement::operator=(CanvasElement &amp;&amp;other)']]]
 ];

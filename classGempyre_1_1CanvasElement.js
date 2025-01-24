@@ -20,9 +20,8 @@ var classGempyre_1_1CanvasElement =
     [ "draw", "classGempyre_1_1CanvasElement.html#a11073ad1fbaae4cbd8c4605f16522343", null ],
     [ "draw_completed", "classGempyre_1_1CanvasElement.html#a8bea0e74b4d19c3ea849543975028fbe", null ],
     [ "erase", "classGempyre_1_1CanvasElement.html#a85fe46006be02b307ea527984561a275", null ],
-    [ "operator=", "classGempyre_1_1CanvasElement.html#a0f4eb36fc63bd0cbd32045f32017da7a", null ],
-    [ "operator=", "classGempyre_1_1CanvasElement.html#a2081f910f52a887e0f1b7539355f91fc", null ],
+    [ "operator=", "classGempyre_1_1CanvasElement.html#ad7fe4bcb9750becfa1c7ded900e4fd16", null ],
+    [ "operator=", "classGempyre_1_1CanvasElement.html#a8018fefea3a7f4f3a91dd15a1026b655", null ],
     [ "paint_image", "classGempyre_1_1CanvasElement.html#ad9cc701ce16bd13df4b011f09492ed6c", null ],
-    [ "paint_image", "classGempyre_1_1CanvasElement.html#a510f35983b55d7a5d5f139e273e56c1d", null ],
-    [ "Bitmap", "classGempyre_1_1CanvasElement.html#a08f4603d248cce6ab74c80f858f877b0", null ]
+    [ "paint_image", "classGempyre_1_1CanvasElement.html#a510f35983b55d7a5d5f139e273e56c1d", null ]
 ];

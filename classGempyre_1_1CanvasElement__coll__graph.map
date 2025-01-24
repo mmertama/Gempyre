@@ -1,4 +1,5 @@
 <map id="Gempyre::CanvasElement" name="Gempyre::CanvasElement">
-<area shape="rect" id="node1" title="Graphics element." alt="" coords="5,80,197,107"/>
-<area shape="rect" id="node2" href="$classGempyre_1_1Element.html" title="Represents all HTML elements on UI." alt="" coords="29,5,173,32"/>
+<area shape="rect" id="Node000001" title="Graphics element." alt="" coords="5,79,197,104"/>
+<area shape="rect" id="Node000002" href="$classGempyre_1_1Element.html" title="Represents all HTML elements on UI." alt="" coords="29,5,173,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,44,104,79,99,79,99,44"/>
 </map>

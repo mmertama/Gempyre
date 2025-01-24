@@ -57,9 +57,11 @@ var NAVTREE =
       ] ]
     ] ],
     [ "Namespaces", "namespaces.html", [
-      [ "Namespace List", "namespaces.html", "namespaces_dup" ],
+      [ "Namespace List", "namespaces.html", null ],
       [ "Namespace Members", "namespacemembers.html", [
         [ "All", "namespacemembers.html", null ],
+        [ "Functions", "namespacemembers_func.html", null ],
+        [ "Variables", "namespacemembers_vars.html", null ],
         [ "Typedefs", "namespacemembers_type.html", null ]
       ] ]
     ] ],
@@ -88,8 +90,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"gempyre__bitmap_8h.html#aa8a9e69b9ae1cb78e2a3bc6a27f94693",
-"index.html#autotoc_md15"
+"gempyre__utils_8h.html#a7f7c61f34a2da31b6adeaedf935e0b85"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

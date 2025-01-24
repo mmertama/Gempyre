@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['make_5ferror_393',['make_error',['../structGempyreUtils_1_1Result.html#a89cf758253d1335a0c94dc3142a608e1',1,'GempyreUtils::Result::make_error(const E &amp;e)'],['../structGempyreUtils_1_1Result.html#a54e20a349b237998e13bb89dc4ecdee8',1,'GempyreUtils::Result::make_error(E &amp;&amp;e)'],['../structGempyreUtils_1_1Result.html#aaa68855dd92b9cf00dd69b7c58522e7c',1,'GempyreUtils::Result::make_error()'],['../gempyre__utils_8h.html#aac8fffd5f6bef0969fbb3142a0fd9657',1,'GempyreUtils::make_error(A &amp;&amp;... a)']]],
-  ['make_5fjson_5fpath_394',['make_json_path',['../gempyre__utils_8h.html#a90482c9dbb3ea01cd7935971ec16dc83',1,'GempyreUtils']]],
-  ['merge_395',['merge',['../classGempyre_1_1Bitmap.html#a859c78efb853d337f6262cb2b0e0ab86',1,'Gempyre::Bitmap::merge(int x, int y, const Bitmap &amp;other)'],['../classGempyre_1_1Bitmap.html#ae46011028fa6e70b93953b0ff2929ac5',1,'Gempyre::Bitmap::merge(const Bitmap &amp;other)']]],
-  ['move_5fto_396',['move_to',['../classGempyre_1_1FrameComposer.html#aad6ebd0f0b3ba0ee7aa1a3ae949c0beb',1,'Gempyre::FrameComposer']]]
+  ['paint_5fimage_0',['paint_image',['../classGempyre_1_1CanvasElement.html#a510f35983b55d7a5d5f139e273e56c1d',1,'Gempyre::CanvasElement::paint_image(std::string_view imageId, int x, int y, const Element::Rect &amp;clippingRect={0, 0, 0, 0}) const'],['../classGempyre_1_1CanvasElement.html#ad9cc701ce16bd13df4b011f09492ed6c',1,'Gempyre::CanvasElement::paint_image(std::string_view imageId, const Element::Rect &amp;targetRect, const Element::Rect &amp;clippingRect={0, 0, 0, 0}) const']]],
+  ['parent_1',['parent',['../classGempyre_1_1Element.html#aaf4445d58b0fab37074919a5f0b53d15',1,'Gempyre::Element']]],
+  ['ping_2',['ping',['../classGempyre_1_1Ui.html#a423f65bf0072280712db0bb8ccd305ec',1,'Gempyre::Ui']]],
+  ['pix_3',['pix',['../classGempyre_1_1Bitmap.html#ac998424c7ab48e2f4a0e6899a4535f7a',1,'Gempyre::Bitmap']]],
+  ['pixel_4',['pixel',['../classGempyre_1_1Bitmap.html#a405be1aa874559566c8f25269bb5e09e',1,'Gempyre::Bitmap']]],
+  ['png_5fimage_5',['png_image',['../classGempyre_1_1Bitmap.html#a2739b078300b9a79cf70cc86acef8b9e',1,'Gempyre::Bitmap']]]
 ];

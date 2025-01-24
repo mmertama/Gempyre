@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['drawnotify_552',['DrawNotify',['../classGempyre_1_1CanvasElement.html#a9552abd530a66e85c8a3f75c2b080996',1,'Gempyre::CanvasElement']]]
+  ['loglevel_0',['LogLevel',['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216e',1,'GempyreUtils']]]
 ];

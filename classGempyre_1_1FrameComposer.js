@@ -11,7 +11,7 @@ var classGempyre_1_1FrameComposer =
     [ "clear_rect", "classGempyre_1_1FrameComposer.html#a10fc76776e56ae19ebfd0f826ab0ea0f", null ],
     [ "clear_rect", "classGempyre_1_1FrameComposer.html#aa63c09cf33815e703ff1ef7f74b2d095", null ],
     [ "close_path", "classGempyre_1_1FrameComposer.html#abad485b0c56a0930b376a8594cdb7970", null ],
-    [ "composed", "classGempyre_1_1FrameComposer.html#ac7f2e372fdc06854a1cbd7cbaef1d908", null ],
+    [ "composed", "classGempyre_1_1FrameComposer.html#ad461a97af7dad9ef56c03a65738bc9ea", null ],
     [ "draw_image", "classGempyre_1_1FrameComposer.html#acf6635ac808d9a4441a2588d1328c100", null ],
     [ "draw_image", "classGempyre_1_1FrameComposer.html#aee07ca947fb88c26c5a279a3154efdbe", null ],
     [ "draw_image", "classGempyre_1_1FrameComposer.html#aa7fa09b7eae059573f523db346b86e49", null ],

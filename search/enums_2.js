@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['jsonmode_553',['JsonMode',['../gempyre__utils_8h.html#ac573f64464dda291072d3e491e727f20',1,'GempyreUtils']]]
+  ['uiflags_0',['UiFlags',['../classGempyre_1_1Ui.html#a2eff03dc285b8e60eb3e31098441094f',1,'Gempyre::Ui']]]
 ];

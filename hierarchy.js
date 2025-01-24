@@ -5,7 +5,6 @@ var hierarchy =
     [ "Gempyre::Element", "classGempyre_1_1Element.html", [
       [ "Gempyre::CanvasElement", "classGempyre_1_1CanvasElement.html", null ]
     ] ],
-    [ "GempyreUtils::Error< E >", "structGempyreUtils_1_1Error.html", null ],
     [ "Gempyre::Event", "structGempyre_1_1Event.html", null ],
     [ "Gempyre::EventMap< K, T >", "classGempyre_1_1EventMap.html", null ],
     [ "Gempyre::EventQueue< T >", "classGempyre_1_1EventQueue.html", null ],
@@ -24,8 +23,5 @@ var hierarchy =
     ] ],
     [ "GempyreUtils::LogWriter", "classGempyreUtils_1_1LogWriter.html", null ],
     [ "Gempyre::Rect", "structGempyre_1_1Rect.html", null ],
-    [ "Gempyre::Ui", "classGempyre_1_1Ui.html", null ],
-    [ "std::variant", null, [
-      [ "GempyreUtils::Result< R, E >", "structGempyreUtils_1_1Result.html", null ]
-    ] ]
+    [ "Gempyre::Ui", "classGempyre_1_1Ui.html", null ]
 ];

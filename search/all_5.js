@@ -1,18 +1,16 @@
 var searchData=
 [
-  ['fatal_75',['Fatal',['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea882384ec38ce8d9582b57e70861730e4',1,'GempyreUtils']]],
-  ['file_5fexists_76',['file_exists',['../gempyre__utils_8h.html#a1db725c0ed7d13e653e9386674557478',1,'GempyreUtils']]],
-  ['file_5fsize_77',['file_size',['../gempyre__utils_8h.html#a027e3d93a4ca6726d30902dd540653d3',1,'GempyreUtils']]],
-  ['filemap_78',['FileMap',['../classGempyre_1_1Ui.html#a025809608397ef780eac20e85456e939',1,'Gempyre::Ui']]],
-  ['fill_79',['fill',['../classGempyre_1_1FrameComposer.html#a9988878f24f7c3e908e584810ffd41a6',1,'Gempyre::FrameComposer']]],
-  ['fill_5frect_80',['fill_rect',['../classGempyre_1_1FrameComposer.html#a06e9d94a4b4500b981aad3ed7e7bb2bb',1,'Gempyre::FrameComposer::fill_rect(double x, double y, double w, double h)'],['../classGempyre_1_1FrameComposer.html#a31bbc56b72a6d32000aab621d42a1311',1,'Gempyre::FrameComposer::fill_rect(const Gempyre::Element::Rect &amp;r)']]],
-  ['fill_5fstyle_81',['fill_style',['../classGempyre_1_1FrameComposer.html#a3a1e4120901eed6eac5c54742555c63e',1,'Gempyre::FrameComposer']]],
-  ['fill_5ftext_82',['fill_text',['../classGempyre_1_1FrameComposer.html#a9b89f7bdb57c44135addedd88c632e91',1,'Gempyre::FrameComposer']]],
-  ['filter_83',['Filter',['../classGempyre_1_1Dialog.html#a8c2e56ec2fe48097035884d95e0b9bdf',1,'Gempyre::Dialog']]],
-  ['flush_84',['flush',['../classGempyre_1_1Ui.html#a0301b6e4019fa78fbe76b6f0c476e37b',1,'Gempyre::Ui']]],
-  ['focus_85',['FOCUS',['../structGempyre_1_1Event.html#aa6c5411acb85017de87fb3033aaf14a1',1,'Gempyre::Event']]],
-  ['focus_5fin_86',['FOCUS_IN',['../structGempyre_1_1Event.html#ae53fdeedc678986b48abc7e9d5a1bcdf',1,'Gempyre::Event']]],
-  ['focus_5fout_87',['FOCUS_OUT',['../structGempyre_1_1Event.html#a98b304a806a5cba32a8c316542f13dbf',1,'Gempyre::Event']]],
-  ['font_88',['font',['../classGempyre_1_1FrameComposer.html#a4d24ec8362433272b65119fcedd7f613',1,'Gempyre::FrameComposer']]],
-  ['framecomposer_89',['FrameComposer',['../classGempyre_1_1FrameComposer.html#ae9be303ef0994f028707e4b00576d59d',1,'Gempyre::FrameComposer::FrameComposer()'],['../classGempyre_1_1FrameComposer.html#adf4c9f884ccec38ab9feb3141c419285',1,'Gempyre::FrameComposer::FrameComposer(Gempyre::CanvasElement::CommandList &amp;lst)'],['../classGempyre_1_1FrameComposer.html#afb0d49ec830ee8ea13b1cdf0debedb7e',1,'Gempyre::FrameComposer::FrameComposer(FrameComposer &amp;&amp;other)=default'],['../classGempyre_1_1FrameComposer.html#a8cf4bd7f12126b5e349b76f66772a1ea',1,'Gempyre::FrameComposer::FrameComposer(const FrameComposer &amp;other)=default'],['../classGempyre_1_1FrameComposer.html',1,'Gempyre::FrameComposer']]]
+  ['debug_0',['debug',['../classGempyre_1_1Ui.html#a07769f7cb85a05845b55d2b698b41b3e',1,'Gempyre::Ui::debug()'],['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216eaa603905470e2a5b8c13e96b579ef0dba',1,'DebugGempyreUtils']]],
+  ['debug_5ftrace_1',['Debug_Trace',['../gempyre__utils_8h.html#ae5ddd27ed0acb95a8c152e486bea216ea49f71c0a6afeb8c33bddbf3fc0b4220c',1,'GempyreUtils']]],
+  ['development_20directions_2',['Some future development directions',['../index.html#autotoc_md17',1,'']]],
+  ['device_5fpixel_5fratio_3',['device_pixel_ratio',['../classGempyre_1_1Ui.html#ab06cca042d10e51fa7b58153a84bf45a',1,'Gempyre::Ui']]],
+  ['dialog_4',['Dialog',['../classGempyre_1_1Dialog.html',1,'Gempyre']]],
+  ['directions_5',['Some future development directions',['../index.html#autotoc_md17',1,'']]],
+  ['do_5fwrite_6',['do_write',['../classGempyreUtils_1_1LogWriter.html#a4357259663b8ea37847ebe0603edbca9',1,'GempyreUtils::LogWriter']]],
+  ['draw_7',['draw',['../classGempyre_1_1CanvasElement.html#a11073ad1fbaae4cbd8c4605f16522343',1,'Gempyre::CanvasElement::draw(int x, int y, const Bitmap &amp;bmp)'],['../classGempyre_1_1CanvasElement.html#a7654d18dcede640866a6da9d03d0f9fe',1,'Gempyre::CanvasElement::draw(const Bitmap &amp;bmp)'],['../classGempyre_1_1CanvasElement.html#a221449f4d9824fbfe09699cee649e312',1,'Gempyre::CanvasElement::draw(const FrameComposer &amp;frameComposer)'],['../classGempyre_1_1CanvasElement.html#ada518283f82bdf3b2ccc7b4408ec521c',1,'Gempyre::CanvasElement::draw(const CommandList &amp;canvasCommands)']]],
+  ['draw_5fcompleted_8',['draw_completed',['../classGempyre_1_1CanvasElement.html#a8bea0e74b4d19c3ea849543975028fbe',1,'Gempyre::CanvasElement']]],
+  ['draw_5fimage_9',['draw_image',['../classGempyre_1_1FrameComposer.html#a943fa908e81a3d55ae4d248d5975bf91',1,'Gempyre::FrameComposer::draw_image(std::string_view id, double x, double y)'],['../classGempyre_1_1FrameComposer.html#aee07ca947fb88c26c5a279a3154efdbe',1,'Gempyre::FrameComposer::draw_image(std::string_view id, const Gempyre::Element::Rect &amp;rect)'],['../classGempyre_1_1FrameComposer.html#a43d6c07240b570315e27ba64db996c99',1,'Gempyre::FrameComposer::draw_image(std::string_view id, double x, double y, double w, double h)'],['../classGempyre_1_1FrameComposer.html#acf6635ac808d9a4441a2588d1328c100',1,'Gempyre::FrameComposer::draw_image(std::string_view id, const Gempyre::Element::Rect &amp;clip, const Gempyre::Element::Rect &amp;rect)'],['../classGempyre_1_1FrameComposer.html#aa7fa09b7eae059573f523db346b86e49',1,'Gempyre::FrameComposer::draw_image(std::string_view id, double cx, double cy, double cw, double ch, double x, double y, double w, double h)']]],
+  ['draw_5frect_10',['draw_rect',['../classGempyre_1_1Bitmap.html#a858a01d42dbb1ba4a634f788fb3ddb44',1,'Gempyre::Bitmap']]],
+  ['drawcallback_11',['DrawCallback',['../classGempyre_1_1CanvasElement.html#a768b4b8a96412e99db411b8fd110d37f',1,'Gempyre::CanvasElement']]],
+  ['drawnotify_12',['DrawNotify',['../classGempyre_1_1CanvasElement.html#a9552abd530a66e85c8a3f75c2b080996',1,'Gempyre::CanvasElement']]]
 ];
