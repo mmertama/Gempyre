@@ -110,6 +110,13 @@ A: Try `Ui::eval()`, it let you execute javascript in the gui context: e.g. Here
 ```cpp
 ui.eval("document.getElementById(\"" + check_box.id() + "\").click();");
 ```
+To be clear, the checkbox change works:
+
+```cpp
+Gempyre::Element(ui, "check_box_id").subscribe(Gempyre::Event::CHANGE, [&](const auto& e) {
+    is_on = Gempyre::Event::has_true(e.properties, "checked");
+```    
+
 Q: Why Canvas drawings seems to happen in random order?<br>
 A: Canvas drawing is highly asynchronous operation and subsequent `CanvasElement::draw()` operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use `CanvasElement::draw_completed()` to wait until each draw has happen. `CanvasElement::draw_completed()` should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this [example](https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100)
 

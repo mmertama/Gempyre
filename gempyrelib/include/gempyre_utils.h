@@ -512,6 +512,17 @@ UTILS_EX int levenshtein_distance(std::string_view s1, std::string_view s2);
 /// @return validity
 UTILS_EX bool is_valid_utf8(std::string_view str); 
 
+/// @brief Case insensitive string comparison
+/// @param a 
+/// @param b 
+/// @return 
+inline bool iequals(std::string_view a, std::string_view b) {
+    return 
+        std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), [](auto a, auto b) {
+        return std::tolower(a) == std::tolower(b);
+    });
+}
+
 /**
  * ## Container Utils
  */

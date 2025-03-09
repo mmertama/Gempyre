@@ -6,6 +6,29 @@
 #include "gempyre_graphics.h"
 #include "timequeue.h"
 
+TEST(Unittests, has_true) {
+    std::unordered_map<std::string, std::string> v1 {{"foo", "true"}};
+    EXPECT_TRUE(Gempyre::Event::has_true(v1, "foo"));
+    EXPECT_FALSE(Gempyre::Event::has_true(v1, "bar"));
+    EXPECT_FALSE(Gempyre::Event::has_true(std::nullopt, "bar"));
+    EXPECT_TRUE(Gempyre::Event::has_true(std::make_optional(v1), "foo"));
+}
+
+TEST(Unittests, iequals) {
+    EXPECT_TRUE(GempyreUtils::iequals("cat", "cat"));
+    EXPECT_TRUE(GempyreUtils::iequals("Cat", "cat"));
+    EXPECT_TRUE(GempyreUtils::iequals("cAt", "cat"));
+    EXPECT_TRUE(GempyreUtils::iequals("caT", "cat"));
+    EXPECT_TRUE(GempyreUtils::iequals("CAT and Dog", "cat and dog"));
+
+    EXPECT_FALSE(GempyreUtils::iequals("cat", "cat "));
+    EXPECT_FALSE(GempyreUtils::iequals("Cat", " cat"));
+    EXPECT_FALSE(GempyreUtils::iequals("caAt", "cat"));
+    EXPECT_FALSE(GempyreUtils::iequals("caT", "_cat"));
+    EXPECT_FALSE(GempyreUtils::iequals("CAT and  Dog", "cat and dog"));
+}
+
+
 TEST(Unittests, parse) {
     EXPECT_EQ(GempyreUtils::parse<int>("1"), 1);
     EXPECT_EQ(GempyreUtils::parse<int>("0x1"), 1);
@@ -94,6 +117,9 @@ TEST(Unittests, Test_colors) {
 
     constexpr auto c3 = "0x11XX33";
     EXPECT_EQ(Gempyre::Color::get_color(c3), std::nullopt);
+
+    EXPECT_EQ(Gempyre::Color::get_color("yellow").value(), Gempyre::Color::Yellow);
+    EXPECT_EQ(Gempyre::Color::get_color("Red").value(), Gempyre::Color::Red);
 }
 
 TEST(Unittests, test_timequeue) {
@@ -687,7 +713,6 @@ TEST(Unittests, join10) {
         return std::to_string(a[0]) + 'x' + std::to_string(a[1]);});
     EXPECT_EQ(joined, "1x2,3x4,5x6,7x8");
 }
-
 
 
 int main(int argc, char **argv) {

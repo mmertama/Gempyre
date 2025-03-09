@@ -549,3 +549,13 @@ bool Ui::ui_available() const {
 }
 
 
+bool Event::has_true(const std::unordered_map<std::string, std::string>& map, std::string_view key) {
+    const auto it = map.find(std::string{key});
+    return it != map.end() && it->second == "true";
+}
+
+
+bool Event::has_true(const std::optional<std::unordered_map<std::string, std::string>>& map, std::string_view key) {
+    return map && has_true(map.value(), key);
+}
+
