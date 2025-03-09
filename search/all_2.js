@@ -9,6 +9,6 @@ var searchData=
   ['api_6',['Gempyre API',['../index.html#autotoc_md2',1,'']]],
   ['arc_7',['arc',['../classGempyre_1_1FrameComposer.html#a5c402655072cc0dc4f7f7365214dea76',1,'Gempyre::FrameComposer']]],
   ['arc_5fto_8',['arc_to',['../classGempyre_1_1FrameComposer.html#a313c9951b684e246fb0bc902668ac0d9',1,'Gempyre::FrameComposer']]],
-  ['attributes_9',['attributes',['../classGempyre_1_1Element.html#a6cba0dd8641e32d05eb66c2af21a44a0',1,'Gempyre::Element::attributes() const'],['../classGempyre_1_1Element.html#a37b71d8798552e875ee55384433f5847',1,'Gempyre::Element::Attributes']]],
+  ['attributes_9',['attributes',['../classGempyre_1_1Element.html#a37b71d8798552e875ee55384433f5847',1,'Gempyre::Element::Attributes'],['../classGempyre_1_1Element.html#a6cba0dd8641e32d05eb66c2af21a44a0',1,'Gempyre::Element::attributes() const']]],
   ['available_10',['available',['../classGempyre_1_1Ui.html#a708bef8f4d3416058a0a4316c369942d',1,'Gempyre::Ui']]]
 ];

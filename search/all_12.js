@@ -6,7 +6,7 @@ var searchData=
   ['remove_3',['remove',['../classGempyre_1_1Element.html#ab4f466f41d769a6a645ecf8ed12fb07a',1,'Gempyre::Element']]],
   ['remove_5fattribute_4',['remove_attribute',['../classGempyre_1_1Element.html#af10761561994a2eabff3b7074ac4bd74',1,'Gempyre::Element']]],
   ['removed_5',['REMOVED',['../structGempyre_1_1Event.html#a2fb7726e1455f26990ed04cab1a0b714',1,'Gempyre::Event']]],
-  ['resize_6',['resize',['../structGempyre_1_1Event.html#a857be75f650b18ce11149d8ba79ff248',1,'Gempyre::Event::RESIZE'],['../classGempyre_1_1Ui.html#a3001b664722f19fa975e79cc7664420b',1,'Gempyre::Ui::resize(int width, int height)']]],
+  ['resize_6',['resize',['../classGempyre_1_1Ui.html#a3001b664722f19fa975e79cc7664420b',1,'Gempyre::Ui::resize()'],['../structGempyre_1_1Event.html#a857be75f650b18ce11149d8ba79ff248',1,'Gempyre::Event::RESIZE']]],
   ['resource_7',['resource',['../classGempyre_1_1Ui.html#ad13ab2a257e5c69796b2a0d2e8586930',1,'Gempyre::Ui']]],
   ['restore_8',['restore',['../classGempyre_1_1FrameComposer.html#a057e71fe4e46d69a71a0313c54a800d9',1,'Gempyre::FrameComposer']]],
   ['root_9',['root',['../classGempyre_1_1Ui.html#aada4cb3de6951419ed383a87068fb714',1,'Gempyre::Ui']]],

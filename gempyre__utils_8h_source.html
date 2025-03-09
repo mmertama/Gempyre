@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">gempyre<span id="projectnumber">&#160;1.8.0</span>
+   <div id="projectname">gempyre<span id="projectnumber">&#160;1.8.1</span>
    </div>
   </td>
  </tr>
@@ -435,346 +435,353 @@ $(document).ready(function(){initNavTree('gempyre__utils_8h_source.html',''); in
 <div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span> </div>
 <div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>UTILS_EX <span class="keywordtype">bool</span> is_valid_utf8(std::string_view str); </div>
 <div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span> </div>
-<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> C, <span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>std::optional&lt;T&gt; at(<span class="keyword">const</span> C&amp; container, std::string_view s, <span class="keywordtype">unsigned</span> index = 0) {</div>
-<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>    <span class="keyword">const</span> <span class="keyword">auto</span> range = container.equal_range(s);</div>
-<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>    <span class="keyword">const</span> <span class="keyword">auto</span> it = std::next(range.first, index);</div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>    <span class="keywordflow">return</span> (std::distance(range.first, it) &lt; std::distance(range.first, range.second)) ?</div>
-<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>                std::make_optional(it-&gt;second) : std::nullopt;</div>
-<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>}</div>
-<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span> </div>
-<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> C, <span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>T at_or(<span class="keyword">const</span> C&amp; container, std::string_view s, <span class="keyword">const</span> T&amp; defaultValue, <span class="keywordtype">unsigned</span> index = 0) {</div>
-<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>    <span class="keyword">const</span> <span class="keyword">auto</span> v = at&lt;C, T&gt;(container, s, index);</div>
-<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>    <span class="keywordflow">return</span> v.has_value() ? *v : defaultValue;</div>
-<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>}</div>
-<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span> </div>
-<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> Container = std::vector&lt;std::<span class="keywordtype">string</span>&gt;&gt;</div>
-<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>Container split(std::string_view str, <span class="keyword">const</span> <span class="keywordtype">char</span> splitChar = <span class="charliteral">&#39; &#39;</span>) {</div>
-<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>    Container con;</div>
-<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>    std::istringstream iss(std::string{str});</div>
-<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>    <span class="keywordflow">for</span>(std::string token; iss.good() &amp;&amp; std::getline(iss, token, splitChar);) {</div>
-<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>        con.insert(con.end(), convert&lt;typename Container::value_type&gt;(token));</div>
-<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span>    }</div>
-<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>    <span class="keywordflow">return</span> con;</div>
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>}</div>
-<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span> </div>
-<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IT&gt;</div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> std::string_view make_string_view(IT begin, IT end)</div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>{</div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>    <span class="keywordflow">return</span>   (begin == end) ? std::string_view{<span class="keyword">nullptr</span>} : std::string_view{&amp;*begin, std::distance(begin, end)};</div>
-<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>}</div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span> </div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T, <span class="keyword">typename</span> K = <span class="keyword">typename</span> T::key_type&gt;</div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>std::vector&lt;K&gt; keys(<span class="keyword">const</span> T&amp; map) {</div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>    std::vector&lt;K&gt; ks; ks.resize(map.size());</div>
-<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>    std::transform(map.begin(), map.end(), ks.begin(), [](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; p) {return p.first;});</div>
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>    <span class="keywordflow">return</span> ks;</div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>}</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span> </div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> V&gt;</div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>    <span class="keyword">struct </span>DefaultJoiner {</div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>        <span class="keyword">auto</span> operator()(<span class="keyword">const</span> V&amp; v)<span class="keyword"> const </span>{<span class="keywordflow">return</span> v;}</div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>    };</div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span> </div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> IT, <span class="keyword">typename</span> In, <span class="keyword">typename</span> Out&gt;</div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>[[deprecated(<span class="stringliteral">&quot;See join with Callable&quot;</span>)]] std::string join(<span class="keyword">const</span> IT&amp; begin,</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>                 <span class="keyword">const</span> IT&amp; end,</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>                 <span class="keyword">const</span> std::function&lt;Out (<span class="keyword">const</span> In&amp;)&gt;&amp; f = [](<span class="keyword">const</span> In&amp; k)-&gt;Out{<span class="keywordflow">return</span> k;}) {</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    std::string s;</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>    std::ostringstream iss(s);</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    <span class="keywordflow">if</span>(begin != end) {</div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>            iss &lt;&lt; f(*it);</div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>                iss &lt;&lt; joinChar;</div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>        }</div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>    }</div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>    <span class="keywordflow">return</span> iss.str();</div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>}</div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span> </div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T, <span class="keyword">typename</span> In, <span class="keyword">typename</span> Out&gt;</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>[[deprecated(<span class="stringliteral">&quot;See join with Callable&quot;</span>)]] std::string join(<span class="keyword">const</span> T&amp; t,</div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>                 <span class="keyword">const</span> std::function&lt;Out (<span class="keyword">const</span> In&amp;)&gt;&amp; f = [](<span class="keyword">const</span> In&amp; v)-&gt;Out{<span class="keywordflow">return</span> v;}) {</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    <span class="keywordflow">return</span> join(t.begin(), t.end(), joinChar, f);</div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>}</div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span> </div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>template &lt;class IT, typename In, typename Out, typename = std::enable_if_t&lt;std::is_pointer&lt;IT&gt;::value&gt;&gt;</div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>[[deprecated(<span class="stringliteral">&quot;See join with Callable&quot;</span>)]] std::string join(<span class="keyword">const</span> IT begin,</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>                 <span class="keyword">const</span> IT end,</div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>                 <span class="keyword">const</span> std::function&lt;Out (<span class="keyword">const</span> In&amp;)&gt;&amp; f = [](<span class="keyword">const</span> In&amp; k)-&gt;Out{<span class="keywordflow">return</span> k;}) {</div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>    std::string s;</div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>    std::ostringstream iss(s);</div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>    <span class="keywordflow">if</span>(begin != end) {</div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>            iss &lt;&lt; f(*it);</div>
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>                iss &lt;&lt; joinChar;</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>        }</div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>    }</div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>    <span class="keywordflow">return</span> iss.str();</div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>}</div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span> </div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span> </div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IT, <span class="keyword">typename</span> Callable = DefaultJoiner&lt;<span class="keyword">typename</span> IT::value_type&gt;, </div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>    <span class="keyword">typename</span> = std::enable_if_t&lt;!std::is_po<span class="keywordtype">int</span>er&lt;IT&gt;::value&gt;&gt;</div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>std::string join(<span class="keyword">const</span> IT&amp; begin,</div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>                 <span class="keyword">const</span> IT&amp; end,</div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>                 <span class="keyword">const</span> Callable&amp; f = Callable{}) {</div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>    std::string s;</div>
-<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>    std::ostringstream iss(s);</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>    <span class="keywordflow">if</span>(begin != end) {</div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>            iss &lt;&lt; f(*it);</div>
-<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
-<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>                iss &lt;&lt; joinChar;</div>
-<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>        }</div>
-<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>    }</div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>    <span class="keywordflow">return</span> iss.str();</div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>}</div>
-<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span> </div>
-<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>template &lt;typename IT, typename Callable = DefaultJoiner&lt;typename std::remove_pointer&lt;IT&gt;::type&gt;,</div>
-<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>          <span class="keyword">typename</span> = std::enable_if_t&lt;std::is_pointer&lt;IT&gt;::value&gt;&gt;</div>
-<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>std::string join(<span class="keyword">const</span> IT begin,</div>
-<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>                 <span class="keyword">const</span> IT end,</div>
-<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
-<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>                 <span class="keyword">const</span> Callable&amp; f = Callable{}) {</div>
-<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span>    std::string s;</div>
-<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>    std::ostringstream iss(s);</div>
-<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>    <span class="keywordflow">if</span>(begin != end) {</div>
-<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
-<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span>            iss &lt;&lt; f(*it);</div>
-<div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
-<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>                iss &lt;&lt; joinChar;</div>
-<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>        }</div>
-<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>    }</div>
-<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>    <span class="keywordflow">return</span> iss.str();</div>
-<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>}</div>
-<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span> </div>
-<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Callable = DefaultJoiner&lt;<span class="keyword">typename</span> T::value_type&gt;&gt;</div>
-<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>std::string join(<span class="keyword">const</span> T&amp; t,</div>
-<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
-<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>                 <span class="keyword">const</span> Callable&amp; f = Callable{}) {</div>
-<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>    <span class="keywordflow">return</span> join(std::begin(t), std::end(t), joinChar, f);</div>
-<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>}</div>
-<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span> </div>
-<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>T merge(<span class="keyword">const</span> T&amp; b1, <span class="keyword">const</span> T&amp; b2) {</div>
-<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>       T bytes(b1.size() + b2.size());</div>
-<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>       <span class="keyword">auto</span> begin = bytes.begin();</div>
-<div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span>       std::copy(b1.begin(), b1.end(), begin);</div>
-<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>       std::advance(begin, std::distance(b1.begin(), b1.end()));</div>
-<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>       std::copy(b2.begin(), b2.end(), begin);</div>
-<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span>       <span class="keywordflow">return</span> bytes;</div>
-<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>   }</div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span><span class="keyword">inline</span> <span class="keywordtype">bool</span> iequals(std::string_view a, std::string_view b) {</div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>    <span class="keywordflow">return</span> </div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>        std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), [](<span class="keyword">auto</span> a, <span class="keyword">auto</span> b) {</div>
+<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>        <span class="keywordflow">return</span> std::tolower(a) == std::tolower(b);</div>
+<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>    });</div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>}</div>
+<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span> </div>
+<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> C, <span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>std::optional&lt;T&gt; at(<span class="keyword">const</span> C&amp; container, std::string_view s, <span class="keywordtype">unsigned</span> index = 0) {</div>
+<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>    <span class="keyword">const</span> <span class="keyword">auto</span> range = container.equal_range(s);</div>
+<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>    <span class="keyword">const</span> <span class="keyword">auto</span> it = std::next(range.first, index);</div>
+<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>    <span class="keywordflow">return</span> (std::distance(range.first, it) &lt; std::distance(range.first, range.second)) ?</div>
+<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>                std::make_optional(it-&gt;second) : std::nullopt;</div>
+<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>}</div>
+<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span> </div>
+<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> C, <span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>T at_or(<span class="keyword">const</span> C&amp; container, std::string_view s, <span class="keyword">const</span> T&amp; defaultValue, <span class="keywordtype">unsigned</span> index = 0) {</div>
+<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>    <span class="keyword">const</span> <span class="keyword">auto</span> v = at&lt;C, T&gt;(container, s, index);</div>
+<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>    <span class="keywordflow">return</span> v.has_value() ? *v : defaultValue;</div>
+<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>}</div>
+<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span> </div>
+<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> Container = std::vector&lt;std::<span class="keywordtype">string</span>&gt;&gt;</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>Container split(std::string_view str, <span class="keyword">const</span> <span class="keywordtype">char</span> splitChar = <span class="charliteral">&#39; &#39;</span>) {</div>
+<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>    Container con;</div>
+<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>    std::istringstream iss(std::string{str});</div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>    <span class="keywordflow">for</span>(std::string token; iss.good() &amp;&amp; std::getline(iss, token, splitChar);) {</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>        con.insert(con.end(), convert&lt;typename Container::value_type&gt;(token));</div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>    }</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>    <span class="keywordflow">return</span> con;</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>}</div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span> </div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IT&gt;</div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> std::string_view make_string_view(IT begin, IT end)</div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>{</div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>    <span class="keywordflow">return</span>   (begin == end) ? std::string_view{<span class="keyword">nullptr</span>} : std::string_view{&amp;*begin, std::distance(begin, end)};</div>
+<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>}</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span> </div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T, <span class="keyword">typename</span> K = <span class="keyword">typename</span> T::key_type&gt;</div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>std::vector&lt;K&gt; keys(<span class="keyword">const</span> T&amp; map) {</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>    std::vector&lt;K&gt; ks; ks.resize(map.size());</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>    std::transform(map.begin(), map.end(), ks.begin(), [](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; p) {return p.first;});</div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keywordflow">return</span> ks;</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>}</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span> </div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> V&gt;</div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    <span class="keyword">struct </span>DefaultJoiner {</div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>        <span class="keyword">auto</span> operator()(<span class="keyword">const</span> V&amp; v)<span class="keyword"> const </span>{<span class="keywordflow">return</span> v;}</div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    };</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span> </div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> IT, <span class="keyword">typename</span> In, <span class="keyword">typename</span> Out&gt;</div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>[[deprecated(<span class="stringliteral">&quot;See join with Callable&quot;</span>)]] std::string join(<span class="keyword">const</span> IT&amp; begin,</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>                 <span class="keyword">const</span> IT&amp; end,</div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>                 <span class="keyword">const</span> std::function&lt;Out (<span class="keyword">const</span> In&amp;)&gt;&amp; f = [](<span class="keyword">const</span> In&amp; k)-&gt;Out{<span class="keywordflow">return</span> k;}) {</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>    std::string s;</div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>    std::ostringstream iss(s);</div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>    <span class="keywordflow">if</span>(begin != end) {</div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>            iss &lt;&lt; f(*it);</div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>                iss &lt;&lt; joinChar;</div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>        }</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    }</div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>    <span class="keywordflow">return</span> iss.str();</div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>}</div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span> </div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T, <span class="keyword">typename</span> In, <span class="keyword">typename</span> Out&gt;</div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>[[deprecated(<span class="stringliteral">&quot;See join with Callable&quot;</span>)]] std::string join(<span class="keyword">const</span> T&amp; t,</div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>                 <span class="keyword">const</span> std::function&lt;Out (<span class="keyword">const</span> In&amp;)&gt;&amp; f = [](<span class="keyword">const</span> In&amp; v)-&gt;Out{<span class="keywordflow">return</span> v;}) {</div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>    <span class="keywordflow">return</span> join(t.begin(), t.end(), joinChar, f);</div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>}</div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span> </div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>template &lt;class IT, typename In, typename Out, typename = std::enable_if_t&lt;std::is_pointer&lt;IT&gt;::value&gt;&gt;</div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>[[deprecated(<span class="stringliteral">&quot;See join with Callable&quot;</span>)]] std::string join(<span class="keyword">const</span> IT begin,</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>                 <span class="keyword">const</span> IT end,</div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>                 <span class="keyword">const</span> std::function&lt;Out (<span class="keyword">const</span> In&amp;)&gt;&amp; f = [](<span class="keyword">const</span> In&amp; k)-&gt;Out{<span class="keywordflow">return</span> k;}) {</div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>    std::string s;</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>    std::ostringstream iss(s);</div>
+<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>    <span class="keywordflow">if</span>(begin != end) {</div>
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>            iss &lt;&lt; f(*it);</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>                iss &lt;&lt; joinChar;</div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>        }</div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>    }</div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>    <span class="keywordflow">return</span> iss.str();</div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>}</div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span> </div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span> </div>
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IT, <span class="keyword">typename</span> Callable = DefaultJoiner&lt;<span class="keyword">typename</span> IT::value_type&gt;, </div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    <span class="keyword">typename</span> = std::enable_if_t&lt;!std::is_po<span class="keywordtype">int</span>er&lt;IT&gt;::value&gt;&gt;</div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>std::string join(<span class="keyword">const</span> IT&amp; begin,</div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>                 <span class="keyword">const</span> IT&amp; end,</div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>                 <span class="keyword">const</span> Callable&amp; f = Callable{}) {</div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>    std::string s;</div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>    std::ostringstream iss(s);</div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>    <span class="keywordflow">if</span>(begin != end) {</div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
+<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>            iss &lt;&lt; f(*it);</div>
+<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>                iss &lt;&lt; joinChar;</div>
+<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>        }</div>
+<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>    }</div>
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>    <span class="keywordflow">return</span> iss.str();</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>}</div>
+<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span> </div>
+<div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>template &lt;typename IT, typename Callable = DefaultJoiner&lt;typename std::remove_pointer&lt;IT&gt;::type&gt;,</div>
+<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>          <span class="keyword">typename</span> = std::enable_if_t&lt;std::is_pointer&lt;IT&gt;::value&gt;&gt;</div>
+<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>std::string join(<span class="keyword">const</span> IT begin,</div>
+<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>                 <span class="keyword">const</span> IT end,</div>
+<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
+<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>                 <span class="keyword">const</span> Callable&amp; f = Callable{}) {</div>
+<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>    std::string s;</div>
+<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>    std::ostringstream iss(s);</div>
+<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>    <span class="keywordflow">if</span>(begin != end) {</div>
+<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>        <span class="keywordflow">for</span>(<span class="keyword">auto</span> it = begin;;) {</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>            iss &lt;&lt; f(*it);</div>
+<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>            <span class="keywordflow">if</span>(!(++it != end)) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>            <span class="keywordflow">if</span>(!joinChar.empty())</div>
+<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>                iss &lt;&lt; joinChar;</div>
+<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>        }</div>
+<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>    }</div>
+<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>    <span class="keywordflow">return</span> iss.str();</div>
+<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>}</div>
+<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span> </div>
+<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Callable = DefaultJoiner&lt;<span class="keyword">typename</span> T::value_type&gt;&gt;</div>
+<div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span>std::string join(<span class="keyword">const</span> T&amp; t,</div>
+<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>                 std::string_view joinChar = <span class="stringliteral">&quot;&quot;</span>,</div>
+<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>                 <span class="keyword">const</span> Callable&amp; f = Callable{}) {</div>
+<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span>    <span class="keywordflow">return</span> join(std::begin(t), std::end(t), joinChar, f);</div>
+<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>}</div>
 <div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span> </div>
-<div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span><span class="comment">// I just wonder why copy instead of move hence not public</span></div>
-<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> ...Arg&gt;</div>
-<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>T merge(<span class="keyword">const</span> T&amp; b1, <span class="keyword">const</span> T&amp; b2, Arg ...args) {</div>
-<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>    T bytes(b1.size() + b2.size());</div>
-<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>    <span class="keyword">auto</span> begin = bytes.begin();</div>
-<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span>    std::copy(b1.begin(), b1.end(), begin);</div>
-<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>    std::advance(begin, std::distance(b1.begin(), b1.end()));</div>
-<div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>    std::copy(b2.begin(), b2.end(), begin);</div>
-<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>    <span class="keywordflow">return</span> merge(bytes, args...);</div>
-<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>}</div>
-<div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span> </div>
-<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IT&gt; IT advanced(IT it, <span class="keywordtype">int</span> distance) {</div>
-<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>    std::advance(it, distance);</div>
-<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>    <span class="keywordflow">return</span> it;</div>
-<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>}</div>
-<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span> </div>
-<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> K, <span class="keyword">typename</span> V &gt;</div>
-<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>std::optional&lt;V&gt; get_value(<span class="keyword">const</span> std::multimap&lt;K, V&gt;&amp; map, <span class="keyword">const</span> K&amp; key, <span class="keywordtype">int</span> index = 0)</div>
-<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span>{</div>
-<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>     <span class="keyword">const</span> <span class="keyword">auto</span> range = map.equal_range(key);</div>
-<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>     <span class="keywordflow">return</span> std::distance(range.first, range.second) &gt; index ?</div>
-<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>                 std::make_optional((advanced(range.first, index))-&gt;second) : std::nullopt;</div>
-<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>}</div>
-<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span> </div>
-<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span> </div>
-<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span> <span class="comment">/*</span></div>
-<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span><span class="comment"> *  Misc Utils</span></div>
-<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span> </div>
-<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span> </div>
-<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span><span class="keyword">class </span>expiror;</div>
-<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>[[nodiscard]]</div>
-<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>UTILS_EX std::shared_ptr&lt;expiror&gt; wait_expire(std::chrono::seconds s, <span class="keyword">const</span> std::function&lt;<span class="keywordtype">void</span> ()&gt;&amp; onExpire);</div>
-<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span><span class="keyword">class </span>expiror {</div>
-<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>    ~expiror() {m_f.wait();}</div>
-<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>    expiror() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span>    expiror(std::future&lt;void&gt;&amp;&amp; f) : m_f(std::move(f)) {}</div>
-<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>    std::future&lt;void&gt; m_f{};</div>
-<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span>    <span class="keyword">friend</span> std::shared_ptr&lt;GempyreUtils::expiror&gt; GempyreUtils::wait_expire(std::chrono::seconds s, <span class="keyword">const</span> std::function&lt;<span class="keywordtype">void</span> ()&gt;&amp; onExpire);</div>
-<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>};</div>
-<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span> </div>
-<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span> </div>
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>UTILS_EX  std::string hexify(std::string_view src, std::string_view pat);</div>
-<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span> </div>
-<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>UTILS_EX  std::string unhexify(std::string_view src);</div>
+<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>T merge(<span class="keyword">const</span> T&amp; b1, <span class="keyword">const</span> T&amp; b2) {</div>
+<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>       T bytes(b1.size() + b2.size());</div>
+<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>       <span class="keyword">auto</span> begin = bytes.begin();</div>
+<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span>       std::copy(b1.begin(), b1.end(), begin);</div>
+<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>       std::advance(begin, std::distance(b1.begin(), b1.end()));</div>
+<div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>       std::copy(b2.begin(), b2.end(), begin);</div>
+<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>       <span class="keywordflow">return</span> bytes;</div>
+<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>   }</div>
+<div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span> </div>
+<div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span><span class="comment">// I just wonder why copy instead of move hence not public</span></div>
+<div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> ...Arg&gt;</div>
+<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>T merge(<span class="keyword">const</span> T&amp; b1, <span class="keyword">const</span> T&amp; b2, Arg ...args) {</div>
+<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>    T bytes(b1.size() + b2.size());</div>
+<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>    <span class="keyword">auto</span> begin = bytes.begin();</div>
+<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>    std::copy(b1.begin(), b1.end(), begin);</div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>    std::advance(begin, std::distance(b1.begin(), b1.end()));</div>
+<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>    std::copy(b2.begin(), b2.end(), begin);</div>
+<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>    <span class="keywordflow">return</span> merge(bytes, args...);</div>
+<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>}</div>
+<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span> </div>
+<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IT&gt; IT advanced(IT it, <span class="keywordtype">int</span> distance) {</div>
+<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>    std::advance(it, distance);</div>
+<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span>    <span class="keywordflow">return</span> it;</div>
+<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>}</div>
+<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span> </div>
+<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> K, <span class="keyword">typename</span> V &gt;</div>
+<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>std::optional&lt;V&gt; get_value(<span class="keyword">const</span> std::multimap&lt;K, V&gt;&amp; map, <span class="keyword">const</span> K&amp; key, <span class="keywordtype">int</span> index = 0)</div>
+<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>{</div>
+<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>     <span class="keyword">const</span> <span class="keyword">auto</span> range = map.equal_range(key);</div>
+<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>     <span class="keywordflow">return</span> std::distance(range.first, range.second) &gt; index ?</div>
+<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>                 std::make_optional((advanced(range.first, index))-&gt;second) : std::nullopt;</div>
+<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>}</div>
+<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span> </div>
+<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span> </div>
+<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span> <span class="comment">/*</span></div>
+<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span><span class="comment"> *  Misc Utils</span></div>
+<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span> </div>
+<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span> </div>
+<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span><span class="keyword">class </span>expiror;</div>
+<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>[[nodiscard]]</div>
+<div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>UTILS_EX std::shared_ptr&lt;expiror&gt; wait_expire(std::chrono::seconds s, <span class="keyword">const</span> std::function&lt;<span class="keywordtype">void</span> ()&gt;&amp; onExpire);</div>
+<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span><span class="keyword">class </span>expiror {</div>
+<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>    ~expiror() {m_f.wait();}</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>    expiror() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>    expiror(std::future&lt;void&gt;&amp;&amp; f) : m_f(std::move(f)) {}</div>
+<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>    std::future&lt;void&gt; m_f{};</div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>    <span class="keyword">friend</span> std::shared_ptr&lt;GempyreUtils::expiror&gt; GempyreUtils::wait_expire(std::chrono::seconds s, <span class="keyword">const</span> std::function&lt;<span class="keywordtype">void</span> ()&gt;&amp; onExpire);</div>
+<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>};</div>
+<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span> </div>
 <div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span> </div>
-<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span><span class="keyword">enum class</span> OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};</div>
-<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span> </div>
-<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>UTILS_EX OS current_os();</div>
+<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>UTILS_EX  std::string hexify(std::string_view src, std::string_view pat);</div>
 <div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span> </div>
-<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span>UTILS_EX std::string html_file_launch_cmd();</div>
-<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span> </div>
+<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>UTILS_EX  std::string unhexify(std::string_view src);</div>
 <div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span> </div>
-<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span><span class="keyword">enum</span>  AddressType : <span class="keywordtype">unsigned</span> {Ipv4 = 0x1, Ipv6 = 0x2};</div>
-<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span>UTILS_EX std::vector&lt;std::string&gt; ip_addresses(<span class="keywordtype">unsigned</span> addressType);</div>
-<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span> </div>
-<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span> </div>
-<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span><span class="keyword">enum class</span> PathStyle {Native, Unix, Win};</div>
-<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span> </div>
-<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span>UTILS_EX std::string get_link(std::string_view fname);</div>
-<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>UTILS_EX <span class="keywordtype">bool</span> is_dir(std::string_view fname);</div>
-<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span>UTILS_EX std::string working_dir();</div>
-<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>UTILS_EX std::string home_dir();</div>
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>UTILS_EX std::string root_dir();</div>
-<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>UTILS_EX std::string abs_path(std::string_view rpath);</div>
-<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>UTILS_EX std::string path_pop(std::string_view filename, <span class="keywordtype">int</span> steps = 1, PathStyle path_style = PathStyle::Native);</div>
-<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>UTILS_EX std::vector&lt;std::string&gt; entries(std::string_view dirname);</div>
-<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span> </div>
-<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>[[deprecated(<span class="stringliteral">&quot;use entries&quot;</span>)]]</div>
-<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span><span class="keyword">inline</span> std::vector&lt;std::string&gt; directory(std::string_view dirname) {<span class="keywordflow">return</span> entries(dirname);}</div>
-<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span> </div>
-<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>UTILS_EX std::optional&lt;std::string&gt; read_process(std::string_view processName, <span class="keyword">const</span> std::vector&lt;std::string&gt;&amp; params);</div>
-<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>UTILS_EX std::string base_name(std::string_view filename, PathStyle path_style = PathStyle::Native); </div>
-<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>UTILS_EX std::tuple&lt;std::string, std::string&gt; split_name(std::string_view filename, PathStyle path_style = PathStyle::Native);</div>
-<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>UTILS_EX std::string temp_name();</div>
-<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>UTILS_EX std::string host_name();</div>
-<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>UTILS_EX std::optional&lt;std::string&gt; system_env(std::string_view env);</div>
-<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>UTILS_EX <span class="keywordtype">bool</span> is_hidden_entry(std::string_view filename);</div>
-<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span>UTILS_EX <span class="keywordtype">bool</span> is_executable(std::string_view filename);</div>
-<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>UTILS_EX SSIZE_T file_size(std::string_view filename);</div>
-<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span>UTILS_EX <span class="keywordtype">bool</span> rename(std::string_view of, std::string_view nf);</div>
-<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>UTILS_EX <span class="keywordtype">void</span> remove_file(std::string_view filename);</div>
-<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>UTILS_EX <span class="keywordtype">bool</span> file_exists(std::string_view filename);</div>
-<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span>UTILS_EX std::optional&lt;std::string&gt; which(std::string_view filename);</div>
-<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span>UTILS_EX std::string push_path(std::string_view path, std::string_view name);</div>
-<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span><span class="keyword">template</span>&lt;<span class="keyword">class </span>...NAME&gt;</div>
-<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span>std::string push_path(std::string_view path, std::string_view name, NAME...names) {</div>
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>    <span class="keywordflow">return</span> push_path(push_path(path, name), names...);</div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span>}</div>
-<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span> </div>
-<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>UTILS_EX <span class="keywordtype">int</span> execute(std::string_view prog, <span class="keyword">const</span> std::vector&lt;std::string_view&gt;&amp; parameters);</div>
-<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span> </div>
-<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span><span class="keyword">template</span>&lt;<span class="keyword">class </span>...PARAM&gt;</div>
-<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>UTILS_EX <span class="keywordtype">int</span> execute(std::string_view prog, PARAM...parameters) {</div>
-<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span>    std::vector&lt;std::string_view&gt; parameter_list{parameters...};</div>
-<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>    <span class="keywordflow">return</span> execute(prog, parameter_list);</div>
-<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>}</div>
-<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span> </div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span><span class="keyword">enum class</span> OS {OtherOs, MacOs, WinOs, LinuxOs, AndroidOs, RaspberryOs};</div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span> </div>
+<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>UTILS_EX OS current_os();</div>
+<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span> </div>
+<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span>UTILS_EX std::string html_file_launch_cmd();</div>
+<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span> </div>
+<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span> </div>
+<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span><span class="keyword">enum</span>  AddressType : <span class="keywordtype">unsigned</span> {Ipv4 = 0x1, Ipv6 = 0x2};</div>
+<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>UTILS_EX std::vector&lt;std::string&gt; ip_addresses(<span class="keywordtype">unsigned</span> addressType);</div>
+<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span> </div>
+<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span> </div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span><span class="keyword">enum class</span> PathStyle {Native, Unix, Win};</div>
+<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span> </div>
+<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>UTILS_EX std::string get_link(std::string_view fname);</div>
+<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span>UTILS_EX <span class="keywordtype">bool</span> is_dir(std::string_view fname);</div>
+<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span>UTILS_EX std::string working_dir();</div>
+<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>UTILS_EX std::string home_dir();</div>
+<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>UTILS_EX std::string root_dir();</div>
+<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>UTILS_EX std::string abs_path(std::string_view rpath);</div>
+<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span>UTILS_EX std::string path_pop(std::string_view filename, <span class="keywordtype">int</span> steps = 1, PathStyle path_style = PathStyle::Native);</div>
+<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>UTILS_EX std::vector&lt;std::string&gt; entries(std::string_view dirname);</div>
+<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span> </div>
+<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>[[deprecated(<span class="stringliteral">&quot;use entries&quot;</span>)]]</div>
+<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span><span class="keyword">inline</span> std::vector&lt;std::string&gt; directory(std::string_view dirname) {<span class="keywordflow">return</span> entries(dirname);}</div>
+<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span> </div>
+<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>UTILS_EX std::optional&lt;std::string&gt; read_process(std::string_view processName, <span class="keyword">const</span> std::vector&lt;std::string&gt;&amp; params);</div>
+<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>UTILS_EX std::string base_name(std::string_view filename, PathStyle path_style = PathStyle::Native); </div>
+<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>UTILS_EX std::tuple&lt;std::string, std::string&gt; split_name(std::string_view filename, PathStyle path_style = PathStyle::Native);</div>
+<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>UTILS_EX std::string temp_name();</div>
+<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span>UTILS_EX std::string host_name();</div>
+<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span>UTILS_EX std::optional&lt;std::string&gt; system_env(std::string_view env);</div>
+<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>UTILS_EX <span class="keywordtype">bool</span> is_hidden_entry(std::string_view filename);</div>
+<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span>UTILS_EX <span class="keywordtype">bool</span> is_executable(std::string_view filename);</div>
+<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span>UTILS_EX SSIZE_T file_size(std::string_view filename);</div>
+<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span>UTILS_EX <span class="keywordtype">bool</span> rename(std::string_view of, std::string_view nf);</div>
+<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span>UTILS_EX <span class="keywordtype">void</span> remove_file(std::string_view filename);</div>
+<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>UTILS_EX <span class="keywordtype">bool</span> file_exists(std::string_view filename);</div>
+<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>UTILS_EX std::optional&lt;std::string&gt; which(std::string_view filename);</div>
+<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>UTILS_EX std::string push_path(std::string_view path, std::string_view name);</div>
+<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span><span class="keyword">template</span>&lt;<span class="keyword">class </span>...NAME&gt;</div>
+<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>std::string push_path(std::string_view path, std::string_view name, NAME...names) {</div>
+<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>    <span class="keywordflow">return</span> push_path(push_path(path, name), names...);</div>
+<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>}</div>
 <div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span> </div>
-<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span> </div>
-<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span> </div>
-<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>std::string write_to_temp(<span class="keyword">const</span> T&amp; data) {</div>
-<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>    <span class="keyword">const</span> <span class="keyword">auto</span> name = GempyreUtils::temp_name();</div>
-<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>    std::ofstream out(name, std::ios::out | std::ios::binary);</div>
-<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>    std::ostreambuf_iterator&lt;typename T::value_type&gt; iter(out);</div>
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>    std::copy(data.begin(), data.end(), iter);</div>
-<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span>    <span class="keywordflow">return</span> name;</div>
-<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>}</div>
-<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span> </div>
-<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>std::vector&lt;T&gt; slurp(std::string_view file, <span class="keyword">const</span> <span class="keywordtype">size_t</span> max = std::numeric_limits&lt;size_t&gt;::max()) {</div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>   std::vector&lt;T&gt; vec;</div>
-<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>   std::ifstream stream(std::string{file}, std::ios::in | std::ios::binary | std::ios::ate);</div>
-<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>   <span class="keywordflow">if</span>(!stream.is_open()) {</div>
-<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>       <a class="code hl_function" href="gempyre__utils_8h.html#a7f7c61f34a2da31b6adeaedf935e0b85">log</a>(LogLevel::Error, <span class="stringliteral">&quot;Cannot open file&quot;</span>, qq(file));</div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>       <span class="keywordflow">return</span> vec;</div>
-<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>   }</div>
-<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>   <span class="keyword">const</span> <span class="keyword">auto</span> size = std::min(max, <span class="keyword">static_cast&lt;</span><span class="keywordtype">size_t</span><span class="keyword">&gt;</span>(stream.tellg()));</div>
-<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>   <span class="keywordflow">if</span>(size &lt;= 0) {</div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>       <span class="keywordflow">return</span> vec;</div>
-<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>   }</div>
-<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>   vec.resize(size / <span class="keyword">sizeof</span> (T), 0);</div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>   stream.seekg(std::ios_base::beg);</div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>   <span class="keyword">auto</span> ptr = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(vec.data());</div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>   stream.read(ptr, <span class="keyword">static_cast&lt;</span>std::streamsize<span class="keyword">&gt;</span>(size));</div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>   <span class="keywordflow">return</span> vec;</div>
-<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span> }</div>
-<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span> </div>
-<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>UTILS_EX std::string slurp(std::string_view file, <span class="keyword">const</span> <span class="keywordtype">size_t</span> max = std::numeric_limits&lt;size_t&gt;::max());</div>
-<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span> </div>
-<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span><span class="keyword">enum class</span> JsonMode {Compact, Pretty};</div>
-<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span><span class="comment">//  or container type std::vector, std::unordered_map or std::map containing other values.</span></div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>UTILS_EX Result&lt;std::string&gt; to_json_string(<span class="keyword">const</span> std::any&amp; any, JsonMode mode = JsonMode::Compact);</div>
-<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span> </div>
-<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span><span class="keyword">enum class</span> MapType {Map, UnorderedMap};</div>
-<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>UTILS_EX Result&lt;std::any&gt; json_to_any(std::string_view str, MapType map_type = MapType::UnorderedMap);</div>
-<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span> </div>
-<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span><span class="keyword">using </span>JsonType = std::variant&lt;</div>
-<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>int,</div>
-<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>double,</div>
-<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>bool,</div>
-<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span>std::string,</div>
-<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span>std::nullptr_t,</div>
-<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>std::vector&lt;std::any&gt;,</div>
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>std::map&lt;std::string, std::any&gt;,</div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>std::unordered_map&lt;std::string, std::any&gt;</div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>&gt;;</div>
-<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>UTILS_EX ResultTrue set_json_value(std::any&amp; any, std::string_view path, JsonType&amp;&amp; value);</div>
-<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span> </div>
-<div class="line"><a id="l00947" name="l00947"></a><span class="lineno">  947</span>UTILS_EX ResultTrue remove_json_value(std::any&amp; any, std::string_view path);</div>
-<div class="line"><a id="l00948" name="l00948"></a><span class="lineno">  948</span> </div>
-<div class="line"><a id="l00953" name="l00953"></a><span class="lineno">  953</span>UTILS_EX Result&lt;JsonType&gt; get_json_value(<span class="keyword">const</span> std::any&amp; any, std::string_view path);</div>
-<div class="line"><a id="l00954" name="l00954"></a><span class="lineno">  954</span> </div>
-<div class="line"><a id="l00960" name="l00960"></a><span class="lineno">  960</span>UTILS_EX ResultTrue make_json_path(std::any&amp; any, std::string_view path, </div>
-<div class="line"><a id="l00961" name="l00961"></a><span class="lineno">  961</span>    <span class="keyword">const</span> std::function&lt;JsonType (std::string_view, std::string_view)&gt;&amp; f = [](<span class="keyword">auto</span>, <span class="keyword">auto</span> name) {</div>
-<div class="line"><a id="l00962" name="l00962"></a><span class="lineno">  962</span>        <span class="keywordflow">return</span> (GempyreUtils::parse&lt;int&gt;(name)) ? </div>
-<div class="line"><a id="l00963" name="l00963"></a><span class="lineno">  963</span>        GempyreUtils::JsonType{std::vector&lt;std::any&gt;{}} : </div>
-<div class="line"><a id="l00964" name="l00964"></a><span class="lineno">  964</span>        GempyreUtils::JsonType{std::unordered_map&lt;std::string, std::any&gt;{}};});</div>
+<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>UTILS_EX <span class="keywordtype">int</span> execute(std::string_view prog, <span class="keyword">const</span> std::vector&lt;std::string_view&gt;&amp; parameters);</div>
+<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span> </div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span><span class="keyword">template</span>&lt;<span class="keyword">class </span>...PARAM&gt;</div>
+<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>UTILS_EX <span class="keywordtype">int</span> execute(std::string_view prog, PARAM...parameters) {</div>
+<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>    std::vector&lt;std::string_view&gt; parameter_list{parameters...};</div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>    <span class="keywordflow">return</span> execute(prog, parameter_list);</div>
+<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>}</div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span> </div>
+<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span> </div>
+<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span> </div>
+<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span> </div>
+<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>std::string write_to_temp(<span class="keyword">const</span> T&amp; data) {</div>
+<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>    <span class="keyword">const</span> <span class="keyword">auto</span> name = GempyreUtils::temp_name();</div>
+<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>    std::ofstream out(name, std::ios::out | std::ios::binary);</div>
+<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>    std::ostreambuf_iterator&lt;typename T::value_type&gt; iter(out);</div>
+<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>    std::copy(data.begin(), data.end(), iter);</div>
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>    <span class="keywordflow">return</span> name;</div>
+<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>}</div>
+<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span> </div>
+<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>std::vector&lt;T&gt; slurp(std::string_view file, <span class="keyword">const</span> <span class="keywordtype">size_t</span> max = std::numeric_limits&lt;size_t&gt;::max()) {</div>
+<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>   std::vector&lt;T&gt; vec;</div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>   std::ifstream stream(std::string{file}, std::ios::in | std::ios::binary | std::ios::ate);</div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>   <span class="keywordflow">if</span>(!stream.is_open()) {</div>
+<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>       <a class="code hl_function" href="gempyre__utils_8h.html#a7f7c61f34a2da31b6adeaedf935e0b85">log</a>(LogLevel::Error, <span class="stringliteral">&quot;Cannot open file&quot;</span>, qq(file));</div>
+<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>       <span class="keywordflow">return</span> vec;</div>
+<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>   }</div>
+<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>   <span class="keyword">const</span> <span class="keyword">auto</span> size = std::min(max, <span class="keyword">static_cast&lt;</span><span class="keywordtype">size_t</span><span class="keyword">&gt;</span>(stream.tellg()));</div>
+<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>   <span class="keywordflow">if</span>(size &lt;= 0) {</div>
+<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>       <span class="keywordflow">return</span> vec;</div>
+<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>   }</div>
+<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>   vec.resize(size / <span class="keyword">sizeof</span> (T), 0);</div>
+<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span>   stream.seekg(std::ios_base::beg);</div>
+<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span>   <span class="keyword">auto</span> ptr = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(vec.data());</div>
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>   stream.read(ptr, <span class="keyword">static_cast&lt;</span>std::streamsize<span class="keyword">&gt;</span>(size));</div>
+<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>   <span class="keywordflow">return</span> vec;</div>
+<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span> }</div>
+<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span> </div>
+<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>UTILS_EX std::string slurp(std::string_view file, <span class="keyword">const</span> <span class="keywordtype">size_t</span> max = std::numeric_limits&lt;size_t&gt;::max());</div>
+<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span> </div>
+<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span><span class="keyword">enum class</span> JsonMode {Compact, Pretty};</div>
+<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span><span class="comment">//  or container type std::vector, std::unordered_map or std::map containing other values.</span></div>
+<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span>UTILS_EX Result&lt;std::string&gt; to_json_string(<span class="keyword">const</span> std::any&amp; any, JsonMode mode = JsonMode::Compact);</div>
+<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span> </div>
+<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span><span class="keyword">enum class</span> MapType {Map, UnorderedMap};</div>
+<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>UTILS_EX Result&lt;std::any&gt; json_to_any(std::string_view str, MapType map_type = MapType::UnorderedMap);</div>
+<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span> </div>
+<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span><span class="keyword">using </span>JsonType = std::variant&lt;</div>
+<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>int,</div>
+<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span>double,</div>
+<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span>bool,</div>
+<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span>std::string,</div>
+<div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span>std::nullptr_t,</div>
+<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>std::vector&lt;std::any&gt;,</div>
+<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span>std::map&lt;std::string, std::any&gt;,</div>
+<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>std::unordered_map&lt;std::string, std::any&gt;</div>
+<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span>&gt;;</div>
+<div class="line"><a id="l00952" name="l00952"></a><span class="lineno">  952</span>UTILS_EX ResultTrue set_json_value(std::any&amp; any, std::string_view path, JsonType&amp;&amp; value);</div>
+<div class="line"><a id="l00953" name="l00953"></a><span class="lineno">  953</span> </div>
+<div class="line"><a id="l00958" name="l00958"></a><span class="lineno">  958</span>UTILS_EX ResultTrue remove_json_value(std::any&amp; any, std::string_view path);</div>
+<div class="line"><a id="l00959" name="l00959"></a><span class="lineno">  959</span> </div>
+<div class="line"><a id="l00964" name="l00964"></a><span class="lineno">  964</span>UTILS_EX Result&lt;JsonType&gt; get_json_value(<span class="keyword">const</span> std::any&amp; any, std::string_view path);</div>
 <div class="line"><a id="l00965" name="l00965"></a><span class="lineno">  965</span> </div>
-<div class="line"><a id="l00967" name="l00967"></a><span class="lineno">  967</span>UTILS_EX <span class="keywordtype">bool</span> is_available(<span class="keywordtype">int</span> port);</div>
-<div class="line"><a id="l00968" name="l00968"></a><span class="lineno">  968</span> </div>
-<div class="line"><a id="l00970" name="l00970"></a><span class="lineno">  970</span>UTILS_EX std::string base64_encode(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>* bytes, <span class="keywordtype">size_t</span> sz);</div>
-<div class="line"><a id="l00972" name="l00972"></a><span class="lineno">  972</span>UTILS_EX std::string base64_encode(<span class="keyword">const</span> std::vector&lt;uint8_t&gt; &amp; vec);</div>
-<div class="line"><a id="l00974" name="l00974"></a><span class="lineno">  974</span>UTILS_EX std::string base64_encode(std::string_view str);</div>
-<div class="line"><a id="l00976" name="l00976"></a><span class="lineno">  976</span>UTILS_EX std::vector&lt;uint8_t&gt; base64_decode(std::string_view data);</div>
-<div class="line"><a id="l00977" name="l00977"></a><span class="lineno">  977</span> </div>
-<div class="line"><a id="l00978" name="l00978"></a><span class="lineno">  978</span> </div>
-<div class="line"><a id="l00980" name="l00980"></a><span class="lineno">  980</span><span class="keyword">enum class</span> ArgType{</div>
-<div class="line"><a id="l00981" name="l00981"></a><span class="lineno">  981</span>    NO_ARG, </div>
-<div class="line"><a id="l00982" name="l00982"></a><span class="lineno">  982</span>    REQ_ARG,    </div>
-<div class="line"><a id="l00983" name="l00983"></a><span class="lineno">  983</span>    OPT_ARG </div>
-<div class="line"><a id="l00984" name="l00984"></a><span class="lineno">  984</span>    };</div>
-<div class="line"><a id="l00985" name="l00985"></a><span class="lineno">  985</span> </div>
-<div class="line"><a id="l00987" name="l00987"></a><span class="lineno">  987</span><span class="keyword">using </span>ParamList = std::vector&lt;std::string&gt;;</div>
+<div class="line"><a id="l00971" name="l00971"></a><span class="lineno">  971</span>UTILS_EX ResultTrue make_json_path(std::any&amp; any, std::string_view path, </div>
+<div class="line"><a id="l00972" name="l00972"></a><span class="lineno">  972</span>    <span class="keyword">const</span> std::function&lt;JsonType (std::string_view, std::string_view)&gt;&amp; f = [](<span class="keyword">auto</span>, <span class="keyword">auto</span> name) {</div>
+<div class="line"><a id="l00973" name="l00973"></a><span class="lineno">  973</span>        <span class="keywordflow">return</span> (GempyreUtils::parse&lt;int&gt;(name)) ? </div>
+<div class="line"><a id="l00974" name="l00974"></a><span class="lineno">  974</span>        GempyreUtils::JsonType{std::vector&lt;std::any&gt;{}} : </div>
+<div class="line"><a id="l00975" name="l00975"></a><span class="lineno">  975</span>        GempyreUtils::JsonType{std::unordered_map&lt;std::string, std::any&gt;{}};});</div>
+<div class="line"><a id="l00976" name="l00976"></a><span class="lineno">  976</span> </div>
+<div class="line"><a id="l00978" name="l00978"></a><span class="lineno">  978</span>UTILS_EX <span class="keywordtype">bool</span> is_available(<span class="keywordtype">int</span> port);</div>
+<div class="line"><a id="l00979" name="l00979"></a><span class="lineno">  979</span> </div>
+<div class="line"><a id="l00981" name="l00981"></a><span class="lineno">  981</span>UTILS_EX std::string base64_encode(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>* bytes, <span class="keywordtype">size_t</span> sz);</div>
+<div class="line"><a id="l00983" name="l00983"></a><span class="lineno">  983</span>UTILS_EX std::string base64_encode(<span class="keyword">const</span> std::vector&lt;uint8_t&gt; &amp; vec);</div>
+<div class="line"><a id="l00985" name="l00985"></a><span class="lineno">  985</span>UTILS_EX std::string base64_encode(std::string_view str);</div>
+<div class="line"><a id="l00987" name="l00987"></a><span class="lineno">  987</span>UTILS_EX std::vector&lt;uint8_t&gt; base64_decode(std::string_view data);</div>
 <div class="line"><a id="l00988" name="l00988"></a><span class="lineno">  988</span> </div>
-<div class="line"><a id="l00990" name="l00990"></a><span class="lineno">  990</span><span class="keyword">using </span>Options = std::multimap&lt;std::string, std::string&gt;;</div>
-<div class="line"><a id="l00991" name="l00991"></a><span class="lineno">  991</span> </div>
-<div class="line"><a id="l00993" name="l00993"></a><span class="lineno">  993</span><span class="keyword">using </span>Params = std::tuple&lt;ParamList, Options&gt;;</div>
-<div class="line"><a id="l00994" name="l00994"></a><span class="lineno">  994</span> </div>
-<div class="line"><a id="l01000" name="l01000"></a><span class="lineno"> 1000</span>UTILS_EX Params parse_args(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>* argv[], <span class="keyword">const</span> std::initializer_list&lt;std::tuple&lt;std::string, char, ArgType&gt;&gt;&amp; args);</div>
-<div class="line"><a id="l01001" name="l01001"></a><span class="lineno"> 1001</span> </div>
-<div class="line"><a id="l01008" name="l01008"></a><span class="lineno"> 1008</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l01009" name="l01009"></a><span class="lineno"> 1009</span>T option_or(<span class="keyword">const</span> Options&amp; opts, std::string_view key, <span class="keyword">const</span> T&amp; default_value) {</div>
-<div class="line"><a id="l01010" name="l01010"></a><span class="lineno"> 1010</span>    <span class="keyword">const</span> <span class="keyword">auto</span> it = opts.find(std::string{key});</div>
-<div class="line"><a id="l01011" name="l01011"></a><span class="lineno"> 1011</span>    <span class="keywordflow">if</span>(it == opts.end())</div>
-<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>        <span class="keywordflow">return</span> default_value;</div>
-<div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>    <span class="keyword">const</span> <span class="keyword">auto</span> parsed = parse&lt;T&gt;(it-&gt;second);</div>
-<div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span>    <span class="keywordflow">return</span> parsed ? parsed.value() : default_value;    </div>
-<div class="line"><a id="l01015" name="l01015"></a><span class="lineno"> 1015</span>}</div>
-<div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span> </div>
-<div class="line"><a id="l01017" name="l01017"></a><span class="lineno"> 1017</span> </div>
-<div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>}</div>
-<div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span> </div>
-<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span> </div>
-<div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span> </div>
-<div class="line"><a id="l01022" name="l01022"></a><span class="lineno"> 1022</span><span class="preprocessor">#endif </span><span class="comment">// UTILS_H</span></div>
+<div class="line"><a id="l00989" name="l00989"></a><span class="lineno">  989</span> </div>
+<div class="line"><a id="l00991" name="l00991"></a><span class="lineno">  991</span><span class="keyword">enum class</span> ArgType{</div>
+<div class="line"><a id="l00992" name="l00992"></a><span class="lineno">  992</span>    NO_ARG, </div>
+<div class="line"><a id="l00993" name="l00993"></a><span class="lineno">  993</span>    REQ_ARG,    </div>
+<div class="line"><a id="l00994" name="l00994"></a><span class="lineno">  994</span>    OPT_ARG </div>
+<div class="line"><a id="l00995" name="l00995"></a><span class="lineno">  995</span>    };</div>
+<div class="line"><a id="l00996" name="l00996"></a><span class="lineno">  996</span> </div>
+<div class="line"><a id="l00998" name="l00998"></a><span class="lineno">  998</span><span class="keyword">using </span>ParamList = std::vector&lt;std::string&gt;;</div>
+<div class="line"><a id="l00999" name="l00999"></a><span class="lineno">  999</span> </div>
+<div class="line"><a id="l01001" name="l01001"></a><span class="lineno"> 1001</span><span class="keyword">using </span>Options = std::multimap&lt;std::string, std::string&gt;;</div>
+<div class="line"><a id="l01002" name="l01002"></a><span class="lineno"> 1002</span> </div>
+<div class="line"><a id="l01004" name="l01004"></a><span class="lineno"> 1004</span><span class="keyword">using </span>Params = std::tuple&lt;ParamList, Options&gt;;</div>
+<div class="line"><a id="l01005" name="l01005"></a><span class="lineno"> 1005</span> </div>
+<div class="line"><a id="l01011" name="l01011"></a><span class="lineno"> 1011</span>UTILS_EX Params parse_args(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>* argv[], <span class="keyword">const</span> std::initializer_list&lt;std::tuple&lt;std::string, char, ArgType&gt;&gt;&amp; args);</div>
+<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span> </div>
+<div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>T option_or(<span class="keyword">const</span> Options&amp; opts, std::string_view key, <span class="keyword">const</span> T&amp; default_value) {</div>
+<div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span>    <span class="keyword">const</span> <span class="keyword">auto</span> it = opts.find(std::string{key});</div>
+<div class="line"><a id="l01022" name="l01022"></a><span class="lineno"> 1022</span>    <span class="keywordflow">if</span>(it == opts.end())</div>
+<div class="line"><a id="l01023" name="l01023"></a><span class="lineno"> 1023</span>        <span class="keywordflow">return</span> default_value;</div>
+<div class="line"><a id="l01024" name="l01024"></a><span class="lineno"> 1024</span>    <span class="keyword">const</span> <span class="keyword">auto</span> parsed = parse&lt;T&gt;(it-&gt;second);</div>
+<div class="line"><a id="l01025" name="l01025"></a><span class="lineno"> 1025</span>    <span class="keywordflow">return</span> parsed ? parsed.value() : default_value;    </div>
+<div class="line"><a id="l01026" name="l01026"></a><span class="lineno"> 1026</span>}</div>
+<div class="line"><a id="l01027" name="l01027"></a><span class="lineno"> 1027</span> </div>
+<div class="line"><a id="l01028" name="l01028"></a><span class="lineno"> 1028</span> </div>
+<div class="line"><a id="l01029" name="l01029"></a><span class="lineno"> 1029</span>}</div>
+<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"> 1030</span> </div>
+<div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span> </div>
+<div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span> </div>
+<div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span><span class="preprocessor">#endif </span><span class="comment">// UTILS_H</span></div>
 <div class="ttc" id="aclassGempyreUtils_1_1LogWriter_html"><div class="ttname"><a href="classGempyreUtils_1_1LogWriter.html">GempyreUtils::LogWriter</a></div><div class="ttdoc">Parent class for LogWriters.</div><div class="ttdef"><b>Definition</b> gempyre_utils.h:82</div></div>
 <div class="ttc" id="aclassGempyreUtils_1_1LogWriter_html_a4357259663b8ea37847ebe0603edbca9"><div class="ttname"><a href="classGempyreUtils_1_1LogWriter.html#a4357259663b8ea37847ebe0603edbca9">GempyreUtils::LogWriter::do_write</a></div><div class="ttdeci">virtual bool do_write(const char *buffer, size_t count)=0</div><div class="ttdoc">Implement write to the medium.</div></div>
 <div class="ttc" id="aclassGempyreUtils_1_1LogWriter_html_a9a18a07d7c444eae8ef6e416ebae5aa7"><div class="ttname"><a href="classGempyreUtils_1_1LogWriter.html#a9a18a07d7c444eae8ef6e416ebae5aa7">GempyreUtils::LogWriter::header</a></div><div class="ttdeci">virtual std::string header(LogLevel logLevel)</div><div class="ttdoc">header of class, called before every line, default just returns a timestamp and loglevel string.</div></div>
