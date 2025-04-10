@@ -16,6 +16,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/warmcat/libwebsockets.git
   GIT_TAG ${LIB_WS_VER}
   GIT_PROGRESS ${HAS_PROGRESS}
+  CMAKE_ARGS -DCMAKE_POLICY_VERSION_MINIMUM=3.5 
 )
 
 set(LWS_WITH_SERVER ON)
