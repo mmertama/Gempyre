@@ -11,12 +11,12 @@ set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE INTERNAL "Suppress developer warni
 # but the respository seems not be that responding and hence changed
 # to github
 
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 FetchContent_Declare(
   libwebsockets
   GIT_REPOSITORY https://github.com/warmcat/libwebsockets.git
   GIT_TAG ${LIB_WS_VER}
   GIT_PROGRESS ${HAS_PROGRESS}
-  CMAKE_ARGS -DCMAKE_POLICY_VERSION_MINIMUM=3.5 
 )
 
 set(LWS_WITH_SERVER ON)
