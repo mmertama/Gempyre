@@ -236,6 +236,41 @@ namespace  Gempyre {
     ///@brief get color from string, where string is a HTML color name, #RRGGBB, #RRGGBBAA, 0xRRGGBB or 0xRRGGBBAA
     std::optional<type> get_color(std::string_view color);
 
+    /// @brief HSL to HSV conversin, assumes all parameters [0,1]
+    [[nodiscard]]
+    Gempyre::Color::type hsl_to_rgb(double h, double s, double l, double alpha = 1.0);
+
+    /// @brief HSL to HSV conversin, assumes all parameters [0,1]
+     [[nodiscard]]
+     Gempyre::Color::type hsv_to_rgb(double h, double s, double l, double alpha = 1.0);
+
+    /// @brief get evenly generated color [pos, count], optional HSV parameters 
+    Gempyre::Color::type get_distinct_color_hsv(unsigned pos, unsigned count, double alpha = 1.0, double saturation = 1.0, double value = 0.6);
+
+    /// @brief return r, g, b, a 
+    inline
+    auto components(Gempyre::Color::type c) {
+        return std::array<Gempyre::Color::type, 4> {Gempyre::Color::r(c), Gempyre::Color::g(c), Gempyre::Color::b(c), Gempyre::Color::alpha(c)};
+    };
+    
+    /// @brief from double components [0, 1] 
+    inline
+    Gempyre::Color::type to_color(double r, double g, double b, double a = 1.0) {
+        return Gempyre::Color::rgba_clamped(
+            static_cast<unsigned>(255. * r), static_cast<unsigned>(255. * g), static_cast<unsigned>(255. * b), static_cast<unsigned>(255. * a));
+    }
+    
+    /// @brief Compare colors and accept some error
+    inline
+    bool is_look_same(Gempyre::Color::type a, Gempyre::Color::type b, double err = 0.01) {
+        const auto aa = components(a);
+        const auto bb = components(b);
+        const double sa = aa[0] * aa[0] + aa[1] * aa[1] + aa[2] * aa[2] + aa[3] * aa[3];
+        const double sb = bb[0] * bb[0] + bb[1] * bb[1] + bb[2] * bb[2] + bb[3] * bb[3];
+        const auto d = std::abs(sa - sb) / std::max(sa, sb);
+        return d <= err;
+    }
+
     }
 
     /// @brief Bitmap for Gempyre Graphics

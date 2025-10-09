@@ -13,6 +13,7 @@
 
 using Time = decltype(std::chrono::steady_clock::now());
 
+// todo add function to gempyre (needs testing, this is fishy)
 static
 Gempyre::Color::type hsl_to_rgb(float h, float s, float l)  {
   s /= 100.;

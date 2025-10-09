@@ -398,6 +398,16 @@ std::string_view right(std::string_view str, size_t p) {
     return str.substr(str.length() - p);
 }
 
+/// @brief  get p left p chars removed
+/// @param str 
+/// @param p 
+/// @return 
+inline
+std::string_view chomp(std::string_view str, size_t p) {
+    return str.substr(0, str.length() - p);
+}
+
+
 template <>
 inline std::string convert<std::string>(std::string_view source)
 {
@@ -432,6 +442,18 @@ std::optional<T> parse(std::string_view source, const std::optional<int>& forced
     /*static_cast<std::istream&>(ss)*/ 
     ss >> v;   //MSVC said it would be otherwise ambiguous
     return !ss.fail() && (!forced_base || ss.eof()) ? std::make_optional(v) : std::nullopt;
+}
+
+/// @brief parse with default value
+/// @tparam T 
+/// @param source 
+/// @param default_value 
+/// @param forced_base 
+/// @return 
+template <typename T>
+T parse_or(std::string_view source, const T& default_value, const std::optional<int>& forced_base = std::nullopt) {
+    const auto value = parse<T>(source, forced_base);
+    return value ? value.value() : default_value;
 }
 
 /// @brief make lower case string

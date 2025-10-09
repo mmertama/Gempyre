@@ -52,6 +52,39 @@ std::optional<Color::type> Color::from_html_name(std::string_view name) {
         return std::nullopt;
     }
 
+
+Gempyre::Color::type Gempyre::Color::hsl_to_rgb(double h, double s, double l, double alpha) {
+  assert(h >= 0 && h <= 1.);
+  assert(s >= 0 && s <= 1.);
+  assert(l >= 0 && l <= 1.);
+  assert(alpha >= 0 && alpha <= 1.);
+    h *= 360.;
+    const auto k = [&](auto n) {return std::fmod((n + h / 30.), 12.);};
+    const auto a = s * std::min(l, 1 - l);
+    const auto f = [&](auto n) {
+      return static_cast<Gempyre::Color::type> (255. * (l - a * std::max(-1., std::min(k(n) - 3., std::min(9. - k(n), 1.)))));
+    };
+    return Gempyre::Color::rgba_clamped(f(0), f(8), f(4), static_cast<Gempyre::Color::type>(255 * alpha));
+}
+
+Gempyre::Color::type Gempyre::Color::hsv_to_rgb(double h, double s, double v, double a)  {
+    assert(h >= 0 && h <= 1.);
+    assert(s >= 0 && s <= 1.);
+    assert(v >= 0 && v <= 1.);
+    assert(a >= 0 && a <= 1.);
+    const auto l = v * (1. - (s / 2.));
+    const auto sv = (l == 0 || l == 1.) ? 0. : (v - l) / std::min(l, 1. - l);
+    return hsl_to_rgb(h, sv, l, a);   
+}
+
+Gempyre::Color::type Gempyre::Color::get_distinct_color_hsv(unsigned pos, unsigned count, double alpha , double saturation, double value) {
+    const auto GOLDEN_RATIO_CONJUGATE = 0.61803398875;
+    const auto hue = std::fmod((static_cast<double>(pos) * GOLDEN_RATIO_CONJUGATE) / static_cast<double>(count), 1.);
+    const auto color =  hsv_to_rgb(hue, saturation, value, alpha);
+    return color;
+}
+
+
 Bitmap::Bitmap(int width, int height)  {
     if(width > 0 && height > 0)
         create(width, height);
