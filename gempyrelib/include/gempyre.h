@@ -244,12 +244,12 @@ namespace Gempyre {
         /// @brief List of requested properties. @see Element::subscribe()
         std::unordered_map<std::string, std::string> properties;
 
-        /// @brief Utility to find if subsctibed event is true
+        /// @brief Utility to find if subscribed event is true
         /// @param map 
         /// @param key 
         /// @return 
         static bool has_true(const std::optional<std::unordered_map<std::string, std::string>>& map, std::string_view key);
-        /// @brief Utility to find if subsctibed event is true
+        /// @brief Utility to find if subscribed event is true
         /// @param map 
         /// @param key 
         /// @return 

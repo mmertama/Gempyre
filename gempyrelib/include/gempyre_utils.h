@@ -584,7 +584,7 @@ Container split(std::string_view str, const char splitChar = ' ') {
 template <typename IT>
 inline constexpr std::string_view make_string_view(IT begin, IT end)
 {
-    return   (begin == end) ? std::string_view{nullptr} : std::string_view{&*begin, std::distance(begin, end)};
+    return   (begin == end) ? std::string_view{} : std::string_view{&*begin, std::distance(begin, end)};
 }
 /// @endcond
 
