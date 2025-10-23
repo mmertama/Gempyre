@@ -540,8 +540,8 @@ UTILS_EX bool is_valid_utf8(std::string_view str);
 /// @return 
 inline bool iequals(std::string_view a, std::string_view b) {
     return 
-        std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), [](auto a, auto b) {
-        return std::tolower(a) == std::tolower(b);
+        std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), [](auto aa, auto bb) {
+        return std::tolower(aa) == std::tolower(bb);
     });
 }
 

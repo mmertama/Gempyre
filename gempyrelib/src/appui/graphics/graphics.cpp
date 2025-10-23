@@ -6,6 +6,7 @@
 #include "gempyre_bitmap.h"
 #include <any>
 #include <cassert>
+#include <cmath>
 
 
 using namespace Gempyre;
