@@ -5,6 +5,7 @@
 #include <string>
 #include <lodepng.h>
 #include <cassert>
+#include <cmath>
 
 
 using namespace Gempyre;

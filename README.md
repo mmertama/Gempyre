@@ -18,7 +18,9 @@ Gempyre itself does not contain an application window. The UI is drawn using ext
 Gempyre is a library that is linked with the application, except for Android, see [Gempyre-Android](https://github.com/mmertama/Gempyre-Android). For Python, install [Gempyre-Python](https://github.com/mmertama/Gempyre-Python) on top of Gempyre library.
 
 
-### Gempyre API 
+### Gempyre API
+
+Gempyre is minimum C++ level is C++17, but works with C++20 and C++23 as well.
 
 * gempyre.h, core classes for the application development.
 * gempyre_utils.h, miscellaneous collection of helper functions. These are not available for Python as there are plenty of analogous functionality.  
