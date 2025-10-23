@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">gempyre<span id="projectnumber">&#160;1.8.1</span>
+   <div id="projectname">gempyre<span id="projectnumber">&#160;1.8.4</span>
    </div>
   </td>
  </tr>
@@ -105,6 +105,7 @@ UI Framework</h2>
 <p>Gempyre is a library that is linked with the application, except for Android, see <a href="https://github.com/mmertama/Gempyre-Android">Gempyre-Android</a>. For Python, install <a href="https://github.com/mmertama/Gempyre-Python">Gempyre-Python</a> on top of Gempyre library.</p>
 <h3><a class="anchor" id="autotoc_md2"></a>
 Gempyre API</h3>
+<p>Gempyre is minimum C++ level is C++17, but works with C++20 and C++23 as well.</p>
 <ul>
 <li><a class="el" href="gempyre_8h.html">gempyre.h</a>, core classes for the application development.</li>
 <li><a class="el" href="gempyre__utils_8h.html">gempyre_utils.h</a>, miscellaneous collection of helper functions. These are not available for Python as there are plenty of analogous functionality. <br  />
@@ -181,7 +182,7 @@ FAQ</h2>
 <div class="line">    is_on = <a class="code hl_function" href="structGempyre_1_1Event.html#a5125e7e61e6b23c403a2f9879f15ebc3">Gempyre::Event::has_true</a>(e.properties, <span class="stringliteral">&quot;checked&quot;</span>);</div>
 <div class="ttc" id="aclassGempyre_1_1Element_html"><div class="ttname"><a href="classGempyre_1_1Element.html">Gempyre::Element</a></div><div class="ttdoc">Represents all HTML elements on UI.</div><div class="ttdef"><b>Definition</b> gempyre.h:84</div></div>
 <div class="ttc" id="aclassGempyre_1_1Element_html_a4eaf4d7a3825867fe765826fbfda93c0"><div class="ttname"><a href="classGempyre_1_1Element.html#a4eaf4d7a3825867fe765826fbfda93c0">Gempyre::Element::subscribe</a></div><div class="ttdeci">Element &amp; subscribe(std::string_view name, const SubscribeFunction &amp;handler, const std::vector&lt; std::string &gt; &amp;properties={}, const std::chrono::milliseconds &amp;throttle=0ms)</div><div class="ttdoc">Subscribe UI event.</div></div>
-<div class="ttc" id="astructGempyre_1_1Event_html_a5125e7e61e6b23c403a2f9879f15ebc3"><div class="ttname"><a href="structGempyre_1_1Event.html#a5125e7e61e6b23c403a2f9879f15ebc3">Gempyre::Event::has_true</a></div><div class="ttdeci">static bool has_true(const std::optional&lt; std::unordered_map&lt; std::string, std::string &gt; &gt; &amp;map, std::string_view key)</div><div class="ttdoc">Utility to find if subsctibed event is true.</div></div>
+<div class="ttc" id="astructGempyre_1_1Event_html_a5125e7e61e6b23c403a2f9879f15ebc3"><div class="ttname"><a href="structGempyre_1_1Event.html#a5125e7e61e6b23c403a2f9879f15ebc3">Gempyre::Event::has_true</a></div><div class="ttdeci">static bool has_true(const std::optional&lt; std::unordered_map&lt; std::string, std::string &gt; &gt; &amp;map, std::string_view key)</div><div class="ttdoc">Utility to find if subscribed event is true.</div></div>
 <div class="ttc" id="astructGempyre_1_1Event_html_aa0080263ed91146b54f0f5c37404d979"><div class="ttname"><a href="structGempyre_1_1Event.html#aa0080263ed91146b54f0f5c37404d979">Gempyre::Event::CHANGE</a></div><div class="ttdeci">static constexpr auto CHANGE</div><div class="ttdoc">Generic change.</div><div class="ttdef"><b>Definition</b> gempyre.h:223</div></div>
 </div><!-- fragment --><p>Q: Why Canvas drawings seems to happen in random order?<br  />
  A: Canvas drawing is highly asynchronous operation and subsequent <code>CanvasElement::draw()</code> operations may not get updated in the order you have called them. The solution is either make a single draw call where all items are updated once, or use <code>CanvasElement::draw_completed()</code> to wait until each draw has happen. <code>CanvasElement::draw_completed()</code> should be used for animations (or game like frequent updates) instead of timers for updating the graphics. Like this <a href="https://github.com/mmertama/Gempyre/blob/6ef49c831c39f8dd67a0cd656f26dae4a2ff46e0/examples/fire/src/main.cpp#L100">example</a></p>

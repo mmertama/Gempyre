@@ -90,7 +90,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"gempyre__utils_8h.html#a7f7c61f34a2da31b6adeaedf935e0b85"
+"gempyre__types_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

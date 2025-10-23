@@ -12,8 +12,9 @@ var searchData=
   ['close_5fpath_9',['close_path',['../classGempyre_1_1FrameComposer.html#abad485b0c56a0930b376a8594cdb7970',1,'Gempyre::FrameComposer']]],
   ['command_10',['Command',['../classGempyre_1_1CanvasElement.html#a0cab1f0fda652ed3c4d0cfefe1f10edd',1,'Gempyre::CanvasElement']]],
   ['commandlist_11',['CommandList',['../classGempyre_1_1CanvasElement.html#aee91c32d55b38b716ea13caf6cf4edd0',1,'Gempyre::CanvasElement']]],
-  ['composed_12',['composed',['../classGempyre_1_1FrameComposer.html#ad461a97af7dad9ef56c03a65738bc9ea',1,'Gempyre::FrameComposer']]],
-  ['const_5fdata_13',['const_data',['../classGempyre_1_1Bitmap.html#a3e200cf08220e062bbe7c5ead3c1313f',1,'Gempyre::Bitmap']]],
-  ['container_20utils_14',['Container Utils',['../gempyre__utils_8h.html#autotoc_md30',1,'']]],
-  ['create_15',['create',['../classGempyre_1_1Bitmap.html#a0bd41db0d02ed28264699b0ebdf19913',1,'Gempyre::Bitmap']]]
+  ['components_12',['components',['../namespaceGempyre_1_1Color.html#aebef55f0a66c51e24007ef3f8afc2af6',1,'Gempyre::Color']]],
+  ['composed_13',['composed',['../classGempyre_1_1FrameComposer.html#ad461a97af7dad9ef56c03a65738bc9ea',1,'Gempyre::FrameComposer']]],
+  ['const_5fdata_14',['const_data',['../classGempyre_1_1Bitmap.html#a3e200cf08220e062bbe7c5ead3c1313f',1,'Gempyre::Bitmap']]],
+  ['container_20utils_15',['Container Utils',['../gempyre__utils_8h.html#autotoc_md30',1,'']]],
+  ['create_16',['create',['../classGempyre_1_1Bitmap.html#a0bd41db0d02ed28264699b0ebdf19913',1,'Gempyre::Bitmap']]]
 ];

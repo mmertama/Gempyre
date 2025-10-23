@@ -17,5 +17,6 @@ var searchData=
   ['gempyre_5futils_5ffatal_14',['gempyre_utils_fatal',['../gempyre__utils_8h.html#ac9d9ad8617c0297afe45775a5e7300b6',1,'gempyre_utils.h']]],
   ['gempyre_5futils_5ffatal_5ff_15',['gempyre_utils_fatal_f',['../gempyre__utils_8h.html#aa1ae09e62c2aa9fbbfbfc1ec451a9de1',1,'gempyre_utils.h']]],
   ['get_5fcolor_16',['get_color',['../namespaceGempyre_1_1Color.html#a2a289f104e1b1e6778a9f4335a8fcef5',1,'Gempyre::Color']]],
-  ['gui_20framework_17',['Gempyre GUI Framework',['../gempyre_8h.html#autotoc_md28',1,'']]]
+  ['get_5fdistinct_5fcolor_5fhsv_17',['get_distinct_color_hsv',['../namespaceGempyre_1_1Color.html#a4cac8b3e02c938251d7ba93127b1afaf',1,'Gempyre::Color']]],
+  ['gui_20framework_18',['Gempyre GUI Framework',['../gempyre_8h.html#autotoc_md28',1,'']]]
 ];
