@@ -59,6 +59,8 @@ GempyreUtils::Result<std::string> GempyreUtils::to_json_string(const std::any& a
         return json(*b).dump(indent);
     } else if(const auto* s = std::any_cast<std::string>(&any)) {
         return json(*s).dump(indent);
+    } else if(const auto* sv = std::any_cast<std::string_view>(&any)) {
+        return json(*sv).dump(indent);    
     } else if(const auto* n = std::any_cast<std::nullptr_t>(&any)) {
         return json(*n).dump(indent);
     } else if(const auto* c = std::any_cast<const char*>(&any)) {
