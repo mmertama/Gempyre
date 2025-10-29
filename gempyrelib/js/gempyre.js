@@ -662,11 +662,11 @@ function setAttribute(el, attribute, value) {
         else if(existing_type =='number' && new_type == 'boolean')
             val = val ? 1 : 0;
         else if(existing_type =='number' && new_type == 'string')
-            val = Number(new_type)
+            val = Number(val)
         else if(existing_type =='string' && new_type == 'boolean')
             val = val ? "true" : "false";
         else if(existing_type =='string' && new_type == 'number')
-            val = String(new_type)            
+            val = String(val)            
         }
     el.setAttribute(attribute,  val); //This works in some cases
     el[attribute] = val;              //...and this in some :-D
