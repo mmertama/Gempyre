@@ -778,9 +778,10 @@ TEST(Unittests, get_distinct_color_hsv) {
 
 int main(int argc, char **argv) {
    ::testing::InitGoogleTest(&argc, argv);
-   for(int i = 1 ; i < argc; ++i)
+   for(int i = 1 ; i < argc; ++i) {
        if(argv[i] == std::string_view("--verbose"))
             Gempyre::set_debug();
+   }
   return RUN_ALL_TESTS();
 }
 

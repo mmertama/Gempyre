@@ -112,7 +112,6 @@ void TestUi::TearDownTestSuite() {
 }
 
 void TestUi::SetUp() {
-    Gempyre::set_debug();
     if(!m_ui) {
         const auto chrome = systemChrome();
         if(!chrome) {
@@ -242,12 +241,13 @@ std::string_view TestUi::current_test() const {
 
 
 int main(int argc, char **argv) {
-   ::testing::InitGoogleTest(&argc, argv);
-   for(int i = 1 ; i < argc; ++i)
+    ::testing::InitGoogleTest(&argc, argv);
+    for(int i = 1 ; i < argc; ++i) {
        if(argv[i] == std::string_view("--verbose"))
-            Gempyre::set_debug();       
-  killHeadless(); // there may be unwanted processes
-  const auto exit_code =  RUN_ALL_TESTS();
-  killHeadless();
-  return exit_code;
+            Gempyre::set_debug();
+    }   
+    killHeadless(); // there may be unwanted processes
+    const auto exit_code =  RUN_ALL_TESTS();
+    killHeadless();
+    return exit_code;
 }

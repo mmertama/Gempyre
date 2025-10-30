@@ -186,7 +186,7 @@ TEST_F(TestUi, TestUi_htmlStream_f_Test) {
 }
 
 
-TEST_F(TestUi, setAttribute) {
+TEST_F(TestUi, setTextAttribute) {
     Gempyre::Element el(ui(), "test-1");
     el.set_attribute("value", "Test-attr-dyn");
     test([el]() {
@@ -205,6 +205,29 @@ TEST_F(TestUi, setBoolAttribute) {
         ASSERT_TRUE(attrs.has_value());
         ASSERT_NE(attrs->find("value"), attrs->end());
         ASSERT_EQ(attrs.value().find("value")->second, "true");
+    });
+}
+
+TEST_F(TestUi, setIntAttribute) {
+    Gempyre::Element el(ui(), "test-1");
+    el.set_attribute("value", "251");
+    test([el]() {
+        const auto attrs = el.attributes();
+        ASSERT_TRUE(attrs.has_value());
+        ASSERT_NE(attrs->find("value"), attrs->end());
+        ASSERT_EQ(attrs.value().find("value")->second, "251");
+    });
+}
+
+
+TEST_F(TestUi, setFloatAttribute) {
+    Gempyre::Element el(ui(), "test-1");
+    el.set_attribute("value", "0.43");
+    test([el]() {
+        const auto attrs = el.attributes();
+        ASSERT_TRUE(attrs.has_value());
+        ASSERT_NE(attrs->find("value"), attrs->end());
+        ASSERT_EQ(attrs.value().find("value")->second, "0.43");
     });
 }
 

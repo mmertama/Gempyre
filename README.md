@@ -176,7 +176,7 @@ A: The UI select uses strings, and hence the values has to be _quoted_ strings.
    for(const int value : tag_keys) {
         Gempyre::Element opt{ui, "option", show_tags};
         const auto value = std::to_string(value);   // number as a string
-        opt.set_attribute("value", GempyreUtils::qq(value)); // The numerical values must be quoted, otherwise JS interpret them as numbers!
+        opt.set_attribute("value", value); // In pre 1.8.6: GempyreUtils::qq(value), the numerical values had to be quoted, otherwise JS interpreted them as numbers!
         opt.set_attribute("name", "tag_option");
         opt.set_html(value);
     }

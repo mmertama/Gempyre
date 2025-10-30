@@ -21,7 +21,10 @@ constexpr auto page = R"(<!DOCTYPE html>
 
 
 int main(int argc, char** argv)  {
-    Gempyre::set_debug(true);
+    for(int i = 1 ; i < argc; ++i) {
+       if(argv[i] == std::string_view("--verbose"))
+            Gempyre::set_debug();
+    }
 
     const auto& [_p, opt] = GempyreUtils::parse_args(argc, argv, {
         {"no-ui", 'n', GempyreUtils::ArgType::NO_ARG}}); 
