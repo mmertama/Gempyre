@@ -229,7 +229,7 @@ FAQ</h2>
 <div class="line"><span class="keywordflow">for</span>(<span class="keyword">const</span> <span class="keywordtype">int</span> value : tag_keys) {</div>
 <div class="line">     <a class="code hl_class" href="classGempyre_1_1Element.html">Gempyre::Element</a> opt{ui, <span class="stringliteral">&quot;option&quot;</span>, show_tags};</div>
 <div class="line">     <span class="keyword">const</span> <span class="keyword">auto</span> value = std::to_string(value);   <span class="comment">// number as a string</span></div>
-<div class="line">     opt.set_attribute(<span class="stringliteral">&quot;value&quot;</span>, GempyreUtils::qq(value)); <span class="comment">// The numerical values must be quoted, otherwise JS interpret them as numbers!</span></div>
+<div class="line">     opt.set_attribute(<span class="stringliteral">&quot;value&quot;</span>, value); <span class="comment">// In pre 1.8.6: GempyreUtils::qq(value), the numerical values had to be quoted, otherwise JS interpreted them as numbers!</span></div>
 <div class="line">     opt.set_attribute(<span class="stringliteral">&quot;name&quot;</span>, <span class="stringliteral">&quot;tag_option&quot;</span>);</div>
 <div class="line">     opt.set_html(value);</div>
 <div class="line"> }</div>
