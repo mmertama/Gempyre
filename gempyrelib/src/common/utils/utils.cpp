@@ -308,6 +308,15 @@ std::string GempyreUtils::path_pop(std::string_view filename, int steps, PathSty
     }
 }
 
+static
+void clean_close(FILE* f) {
+#ifndef WINDOWS_OS
+    ::pclose(f); // suppress GCC warning
+#else
+   ::_pclose(f);
+#endif
+}
+
 std::optional<std::string> GempyreUtils::read_process(std::string_view processName, const std::vector<std::string>& params) {
     const auto param_line = join(params, " ");
     auto fd =
@@ -320,11 +329,9 @@ std::optional<std::string> GempyreUtils::read_process(std::string_view processNa
 
     if(!fd)
         return std::nullopt;
-#ifndef WINDOWS_OS
-    gempyre_utils_auto_close(fd,::pclose);
-#else
-   gempyre_utils_auto_close(fd,::_pclose);
-#endif
+    
+    gempyre_utils_auto_close(fd, clean_close); // suppress GCC warning
+
     std::string out;
     char buffer[256];
     while (fgets(buffer, sizeof(buffer), fd) != nullptr) {

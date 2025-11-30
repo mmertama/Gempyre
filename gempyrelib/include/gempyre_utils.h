@@ -44,7 +44,7 @@
 #define gempyre_utils_fatal_f(x, f) GempyreUtils::do_fatal(x, f, __FILE__, __LINE__)
 /// RAII helper for pointer
 #define gempyre_utils_auto_clean(p, f) std::unique_ptr<std::remove_pointer<decltype(p)>::type, decltype(&f)> _ ## p (p, &f)
-/// RAII helper for non-pointer
+/// RAII helper for non-pointerssss
 #define gempyre_utils_auto_close(p, f) GempyreUtils::_Close<std::decay_t<decltype(p)>, decltype(&f)> _ ## p (p, &f)
 
 /// @cond INTERNAL

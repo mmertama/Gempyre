@@ -22,6 +22,15 @@ add_executable(${PROJECT_NAME}
     gui/drawcanvas.html
     )
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" )
+# GCC has aannoying false positive with Gempyre::CanvasElement::CommandList
+    set_source_files_properties(
+        src/main.cpp
+        PROPERTIES
+        COMPILE_FLAGS "-Wno-maybe-uninitialized"
+    )
+endif()
+
 add_dependencies (${PROJECT_NAME} gempyre)
 gempyre_add_resources(PROJECT ${PROJECT_NAME} TARGET ${CMAKE_CURRENT_BINARY_DIR}/res/drawcanvas_resource.h SOURCES gui/drawcanvas.html)
 

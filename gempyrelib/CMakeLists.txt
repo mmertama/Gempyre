@@ -80,7 +80,7 @@ else()
     set(LIB_PNG_VER master) # no version
 endif()
 
-if(LINUX AND ${GEMPYRE_IS_MAIN_PROJECT})
+if(LINUX AND ${GEMPYRE_IS_MAIN_PROJECT} AND NOT NODOC)
     set(DOXYGEN TRUE)
     set(SPELL FALSE)
 endif()    

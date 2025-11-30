@@ -82,7 +82,7 @@ int main(int /*argc*/, char** /*argv*/) {
         commands.push_back(y + ::cos(i) * 150.);
         commands.push_back(x + ::sin(i - pof) * 100.);
         commands.push_back(y + ::cos(i - pof) * 100.);
-        commands.push_back(pof * 100);
+        commands.push_back(pof * 100.);
         commands.push_back("closePath");
         commands.push_back("stroke");
         commands.push_back("fill");
