@@ -138,7 +138,7 @@ namespace Gempyre {
         /// @details Listen element events. The callback properties is populated only with values listed in properties parameter.
         /// Some events (like mouse move) can emit so often that it would impact to performance, that can be eased
         /// with a suitable throttle value. If two (or more) messages are received in shorted period than throttle value, only the
-        /// last is received.
+        /// last is received. Note that a element is expected to have only one subsciption per event. 
         Element& subscribe(std::string_view name, const SubscribeFunction& handler, const std::vector<std::string>& properties = {}, const std::chrono::milliseconds& throttle = 0ms);
         /// @brief Set HTML text value of the element
         /// @param htmlText - HTML encoded string

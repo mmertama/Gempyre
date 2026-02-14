@@ -621,7 +621,10 @@ function httpGetJson(msg) {
 
 function handleJson(msg) {
 
-    if('msgid' in msg) {
+    console.assert(typeof msg === 'object', typeof msg)
+    const msgid_msg = typeof msg === 'object' && 'msgid' in msg
+
+    if(msgid_msg) {
         msgid = parseInt(msg.msgid);
         if(msgid <= last_msg_id)
             return;
@@ -633,11 +636,11 @@ function handleJson(msg) {
     if(event_notifiers.has(msg.type)) {
         socket.send(JSON.stringify({
                                        'type': 'event',
-                                       'element': msg.element.length ? msg.element : "",
+                                       'element': msgid_msg && msg.element !== undefined && msg.element.length ? msg.element : "",
                                        'event': 'event_notify',
                                        'properties':{
-                                           'name': msg.type,
-                                           'msgid': 'msgid' in msg ? msg.msgid : 0
+                                           'name': msgid_msg ? msg.type : '',
+                                           'msgid': msgid_msg ? msg.msgid : 0
                                        }}));
     }
 }
@@ -761,7 +764,8 @@ function handleJsonCommand(msg) {
             return;
         }
     
-        const el = msg.element.length > 0 ?  document.getElementById(msg.element) : document.body;
+        console.assert(msg.element !== undefined)
+        const el =  msg.element.length > 0 ?  document.getElementById(msg.element) : document.body;
         if(!el) {
             errlog(msg.element, 'element not found:"' + msg.element + '"');
             return;
