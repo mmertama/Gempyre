@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">gempyre<span id="projectnumber">&#160;1.8.7</span>
+   <div id="projectname">gempyre<span id="projectnumber">&#160;1.8.8</span>
    </div>
   </td>
  </tr>
@@ -659,7 +659,8 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>GempyreInternal</b><
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>this element</dd></dl>
-<p>Listen element events. The callback properties is populated only with values listed in properties parameter. Some events (like mouse move) can emit so often that it would impact to performance, that can be eased with a suitable throttle value. If two (or more) messages are received in shorted period than throttle value, only the last is received. </p>
+<p>Listen element events. The callback properties is populated only with values listed in properties parameter. Some events (like mouse move) can emit so often that it would impact to performance, that can be eased with a suitable throttle value. If two (or more) messages are received in shorted period than throttle value, only the last is received. Note that a element is expected to have only one subsciption per event. <br  />
+ </p>
 
 </div>
 </div>
