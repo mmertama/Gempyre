@@ -251,7 +251,7 @@ namespace  Gempyre {
     inline
     auto components(Gempyre::Color::type c) {
         return std::array<Gempyre::Color::type, 4> {Gempyre::Color::r(c), Gempyre::Color::g(c), Gempyre::Color::b(c), Gempyre::Color::alpha(c)};
-    };
+    }
     
     /// @brief from double components [0, 1] 
     inline

@@ -597,7 +597,126 @@ function canvasDraw(element, commands) {
             break;
         case 'reset':
             ctx.reset();
-            break;        
+            break;
+        /*TODO
+        
+1. Path / drawing operations missing
+clip
+roundRect
+
+2. Path hit testing
+isPointInPath
+isPointInStroke
+
+
+These are usually unnecessary for a render pipeline.
+
+3. Transform matrix API
+
+You only support basic transforms.
+
+Missing:
+
+transform
+setTransform
+resetTransform
+getTransform
+
+4. Line styling
+
+You only implemented lineWidth.
+
+Missing:
+
+lineCap
+lineJoin
+miterLimit
+setLineDash
+getLineDash
+lineDashOffset
+
+5. Global drawing state
+globalAlpha
+globalCompositeOperation
+
+6. Shadows
+shadowColor
+shadowBlur
+shadowOffsetX
+shadowOffsetY
+
+7. Text measurement
+measureText
+
+
+Useful for layout engines.
+
+8. Text properties missing
+
+You have font, textAlign, textBaseline.
+
+Missing:
+
+direction
+letterSpacing
+fontKerning
+fontStretch
+fontVariantCaps
+textRendering
+wordSpacing
+
+
+(Some are newer and optional.)
+
+9. Image / pixel manipulation
+getImageData
+putImageData
+createImageData
+
+10. Gradients
+createLinearGradient
+createRadialGradient
+createConicGradient
+
+
+Gradient object then requires:
+
+addColorStop
+
+11. Patterns
+createPattern
+
+12. Image smoothing
+imageSmoothingEnabled
+imageSmoothingQuality
+
+13. Filters
+filter
+
+
+Example:
+
+ctx.filter = "blur(5px)"
+
+14. Canvas reset / state
+reset
+
+
+(rarely used but exists in modern spec)
+
+15. Path objects (modern API)
+Path2D
+stroke(path)
+fill(path)
+clip(path)
+
+16. Misc canvas info
+
+Usually not needed in command pipelines but exist:
+
+canvas
+getContextAttributes
+        */        
         default:
             errlog(cmd, "is not supported command:" + cmdpos + ", in commands:" + commands);
             return;
