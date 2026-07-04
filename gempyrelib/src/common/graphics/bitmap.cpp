@@ -170,12 +170,12 @@ void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap, int rx_pos, int ry
     if(empty() || bitmap.empty())
         return;    
 
+    rx_pos = std::max(0, rx_pos);
+    ry_pos = std::max(0, ry_pos);
+
     auto width = std::min(r_width, bitmap.width()) - rx_pos;
     auto height = std::min(r_height, bitmap.height()) - ry_pos;
 
-    rx_pos = std::max(0, rx_pos);
-    ry_pos = std::max(0, ry_pos);
-        
     if (width <= 0 || x_pos >= this->width() || x_pos + width < 0)
         return;
 
@@ -184,10 +184,10 @@ void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap, int rx_pos, int ry
         
     int x, y, b_x, b_y;
 
-    if (x_pos < 0) {              // if -10 and width 100
-        x = 0;                  // set 0  
-        b_x = -x_pos + rx_pos;// (-10) => 10
-        width -= b_x;           // 100 + (-10) => 90 
+    if (x_pos < 0) {                // if -10 and width 100
+        x = 0;                      // set 0  
+        b_x = -x_pos + rx_pos;      // (-10) => 10
+        width += x_pos;               // 100 + (-10) => 90 
     } else {
         x = x_pos;
         b_x = rx_pos;
@@ -196,7 +196,7 @@ void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap, int rx_pos, int ry
     if (y_pos < 0) {
         y = 0;
         b_y = -y_pos + ry_pos;
-        height -= b_y;
+        height += y_pos;
     } else {
         y = y_pos;
         b_y = ry_pos;
