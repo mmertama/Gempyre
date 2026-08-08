@@ -151,6 +151,7 @@ private:
     std::unique_ptr<LWS_Broadcaster> m_broadcaster;
     std::unordered_map<SKey, std::unique_ptr<LWS_Socket>> m_sockets;
     std::unordered_map<SKey, std::unique_ptr<SendBuffer>> m_send_buffers;
+    std::vector<char> m_recv_buffer;
 };
 } // ns Gempyre
 #endif // LWS_SERVER_H

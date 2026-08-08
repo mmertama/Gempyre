@@ -79,7 +79,14 @@ Server::Server(
 }
 
 Server::MessageReply Server::messageHandler(std::string_view message) {
-        auto object = json::parse(message);
+        json object;
+        try {
+            object = json::parse(message);
+        } catch(const json::parse_error& e) {
+            GempyreUtils::log( GempyreUtils::LogLevel::Fatal, "Gempyre bug: json parse error ", e.what(), "for", message );
+            std::abort();
+
+        }
         const auto f = object.find("type");
         GempyreUtils::log(GempyreUtils::LogLevel::Debug, "ServerMsg", f != object.end() ? *f : "N/A");
         if(f != object.end()) {

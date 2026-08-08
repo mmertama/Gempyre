@@ -20,6 +20,7 @@
 
 using namespace Gempyre;
 
+const auto RX_BUFFER_SZ = 64 * 1024;
 
 static inline
 unsigned get_error_code(void* in, size_t len) {
@@ -269,9 +270,25 @@ int LWS_Server::ws_callback(lws* wsi, lws_callback_reasons reason, void* /*user*
      case LWS_CALLBACK_SERVER_WRITEABLE:
           self->on_write(wsi);
           break;
-     case LWS_CALLBACK_RECEIVE: 
-          if (!self->received(wsi, std::string_view{static_cast<char*>(in), len}))
-               return -1; // exit
+     case LWS_CALLBACK_RECEIVE: {
+          const auto data = static_cast<char*>(in);
+          const auto is_final = lws_is_final_fragment(wsi);
+          if (is_final) {
+                bool ok = false;
+                if ( self->m_recv_buffer.empty() ) {
+                    ok = self->received(wsi, std::string_view{data, len});
+                } else {
+                    self->m_recv_buffer.insert( std::end( self->m_recv_buffer ), data, data + len );
+                    ok = self->received(wsi,
+                         std::string_view{ self->m_recv_buffer.data(), self->m_recv_buffer.size()});
+                    self->m_recv_buffer.clear();
+               }
+               if (!ok) 
+                    return -1;
+          } else {
+               self->m_recv_buffer.insert( std::end( self->m_recv_buffer ), data, data + len );
+          }      
+     }    
           break;          
      default:
           break;
@@ -409,7 +426,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
                "gempyre",
                LWS_Server::ws_callback,
                0,
-               8192,
+               RX_BUFFER_SZ,
                0,
                nullptr,
                0
@@ -426,7 +443,7 @@ m_broadcaster{std::make_unique<LWS_Broadcaster>([resendRequest](LWS_Socket*, LWS
           };
 
           const lws_protocols protocols[] = {
-               gempyre_ws,
+               gempyre_ws, // must be this order
                gempyre_http,
                LWS_PROTOCOL_LIST_TERM
           };
