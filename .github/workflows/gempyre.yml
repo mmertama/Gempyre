@@ -16,7 +16,7 @@ jobs:
             build_type: "Release",
             cc: "cl",
             cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2026/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            environment_script: "C:/Program Files/Microsoft Visual Studio/18/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             generators: "Visual Studio 18 2026"
           }
         - {
@@ -81,7 +81,13 @@ jobs:
           execute_process(
             COMMAND "${{ matrix.config.environment_script }}" && set
             OUTPUT_FILE environment_script_output.txt
+            RESULT_VARIABLE execute_result
           )
+
+          if (NOT execute_result EQUAL 0)
+            message(FATAL_ERROR "Failed to run ${{ matrix.config.environment_script }} due ${execute_result}")
+          endif()
+
           file(STRINGS environment_script_output.txt output_lines)
           foreach(line IN LISTS output_lines)
             if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
