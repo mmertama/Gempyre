@@ -173,8 +173,8 @@ void Bitmap::tile(int x_pos, int y_pos, const Bitmap& bitmap, int rx_pos, int ry
     rx_pos = std::max(0, rx_pos);
     ry_pos = std::max(0, ry_pos);
 
-    auto width = std::min(r_width, bitmap.width()) - rx_pos;
-    auto height = std::min(r_height, bitmap.height()) - ry_pos;
+    auto width = std::min(r_width, bitmap.width() - rx_pos);
+    auto height = std::min(r_height, bitmap.height() - ry_pos);
 
     if (width <= 0 || x_pos >= this->width() || x_pos + width < 0)
         return;
