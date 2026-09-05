@@ -342,6 +342,24 @@ The `Gempyre::Ui::run()` starts an event loop. In this example, the system defau
 }
 
 ```
+If the compiler supports `#embed` directive you can omit the `gempyre_add_resources` from CMakeLists.txt and import html as:
+
+```cpp
+#include <gempyre.h>
+#include <gempyre_utils.h>
+
+static constexpr char ui_data[] = {
+#embed "hello.html"
+};
+
+int main(int, const char**) {
+    Gempyre::Ui ui({ {"/hello.html", GempyreUtils::base64_encode( ui_data )} }, "hello.html");
+    ui.run();
+    return 0;
+}
+
+```
+
 ### Selection list
 Dynamic selection list (or combo box) is as easy as adding an empty <i>select</i> element in the Ui HTML code:
 ```html
