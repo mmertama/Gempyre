@@ -333,7 +333,22 @@ Hello world</h3>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line"> </div>
 <div class="line">}</div>
-</div><!-- fragment --> <h3><a class="anchor" id="autotoc_md14"></a>
+</div><!-- fragment --><p> If the compiler supports <code>#embed</code> directive you can omit the <code>gempyre_add_resources</code> from CMakeLists.txt and import html as:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="gempyre_8h.html">gempyre.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="gempyre__utils_8h.html">gempyre_utils.h</a>&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">char</span> ui_data[] = {</div>
+<div class="line"><span class="preprocessor">#embed &quot;hello.html&quot;</span></div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span>, <span class="keyword">const</span> <span class="keywordtype">char</span>**) {</div>
+<div class="line">    <a class="code hl_class" href="classGempyre_1_1Ui.html">Gempyre::Ui</a> ui({ {<span class="stringliteral">&quot;/hello.html&quot;</span>, GempyreUtils::base64_encode( ui_data )} }, <span class="stringliteral">&quot;hello.html&quot;</span>);</div>
+<div class="line">    ui.<a class="code hl_function" href="classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d">run</a>();</div>
+<div class="line">    <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+<div class="ttc" id="aclassGempyre_1_1Ui_html_a27e103d78134a29947142f878cdb258d"><div class="ttname"><a href="classGempyre_1_1Ui.html#a27e103d78134a29947142f878cdb258d">Gempyre::Ui::run</a></div><div class="ttdeci">void run()</div><div class="ttdoc">Starts the event loop.</div></div>
+<div class="ttc" id="agempyre__utils_8h_html"><div class="ttname"><a href="gempyre__utils_8h.html">gempyre_utils.h</a></div></div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md14"></a>
 Selection list</h3>
 <p>Dynamic selection list (or combo box) is as easy as adding an empty <em>select</em> element in the Ui HTML code: </p><div class="fragment"><div class="line">&lt;select name=&quot;levels&quot; id=&quot;level_select&quot;&gt;</div>
 <div class="line">&lt;/select&gt;</div>
