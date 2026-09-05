@@ -342,7 +342,7 @@ The `Gempyre::Ui::run()` starts an event loop. In this example, the system defau
 }
 
 ```
-If the compiler supports `#embed` directive you can omit the `gempyre_add_resources` from CMakeLists.txt and import html as:
+If the compiler supports the `#embed` directive you can omit the `gempyre_add_resources` from a CMakeLists.txt and import html as:
 
 ```cpp
 #include <gempyre.h>
