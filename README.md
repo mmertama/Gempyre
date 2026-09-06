@@ -9,7 +9,9 @@ Gempyre is a UI multiplatform framework. Supporting Windows, Mac OSX, Linux, Ras
  
 For the application, Gempyre let engine to be implemented using C++ (or Python), the UI can be constructed using CSS and HTML like any front end. All common tools from the web technologies are be available. Gempyre library provides a simple and easy C++ API for a  application development and the whole API is only a few dozen calls.
 
-Gempyre is intended for applications that has a solid C++ core (or C), and allows rapid UI development without extra hassle with platform specific UI development. 
+Gempyre is intended for applications that has a solid C++ core (or C), and allows rapid UI development without extra hassle with platform specific UI development.
+
+Since Gempyre naturally divided application to visual (HTML, CSS, Javascript) and functionality (C++) using Generative AI to make beautiful GUIs is safe and easy: Its very fast to draft an HTML UI, list components and give them ids (how referred in C++) and then just ask AI to make all pretty. 
 
 Gempyre is multiplatform, its core is built using C++20  (tested on OSX (CLang), Ubuntu (gcc), Raspberry OS (gcc) and Windows 10 (MSVC and MinGW) ). The Gempyre framework can be downloaded at Github under MIT license.
 
