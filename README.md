@@ -22,7 +22,7 @@ Gempyre is a library that is linked with the application, except for Android, se
 
 ### Gempyre API
 
-Gempyre is minimum C++ level is C++17, but works with C++20 and C++23 as well.
+Gempyre is minimum C++ level is C++17, tested with C++20 and C++23.
 
 * gempyre.h, core classes for the application development.
 * gempyre_utils.h, miscellaneous collection of helper functions. These are not available for Python as there are plenty of analogous functionality.  
@@ -352,6 +352,7 @@ If the compiler supports the `#embed` directive you can omit the `gempyre_add_re
 
 static constexpr char ui_data[] = {
 #embed "hello.html"
+,0
 };
 
 int main(int, const char**) {
