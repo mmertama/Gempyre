@@ -106,7 +106,7 @@ UI Framework</h2>
 <p>Gempyre is a library that is linked with the application, except for Android, see <a href="https://github.com/mmertama/Gempyre-Android">Gempyre-Android</a>. For Python, install <a href="https://github.com/mmertama/Gempyre-Python">Gempyre-Python</a> on top of Gempyre library.</p>
 <h3><a class="anchor" id="autotoc_md2"></a>
 Gempyre API</h3>
-<p>Gempyre is minimum C++ level is C++17, but works with C++20 and C++23 as well.</p>
+<p>Gempyre is minimum C++ level is C++17, tested with C++20 and C++23.</p>
 <ul>
 <li><a class="el" href="gempyre_8h.html">gempyre.h</a>, core classes for the application development.</li>
 <li><a class="el" href="gempyre__utils_8h.html">gempyre_utils.h</a>, miscellaneous collection of helper functions. These are not available for Python as there are plenty of analogous functionality. <br  />
@@ -340,6 +340,7 @@ Hello world</h3>
 <div class="line"> </div>
 <div class="line"><span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">char</span> ui_data[] = {</div>
 <div class="line"><span class="preprocessor">#embed &quot;hello.html&quot;</span></div>
+<div class="line">,0</div>
 <div class="line">};</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span>, <span class="keyword">const</span> <span class="keywordtype">char</span>**) {</div>
