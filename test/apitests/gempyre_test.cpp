@@ -3,6 +3,14 @@
 
 #include "apitests_resource.h"
 
+#include <cstdlib>
+#ifndef WINDOWS_OS
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
 using namespace GempyreTest;
 
 #define FAST
@@ -40,19 +48,42 @@ const std::vector<std::string_view> common_params  = {
 };
 
 static
-std::string headlessParams(bool log = false) {
-#ifdef HAS_FS
-    const auto temp = std::filesystem::temp_directory_path().string();
-#else
-    const auto temp = GempyreUtils::path_pop(GempyreUtils::temp_name());
+std::string headlessParams() {
+    const auto debug_port = []() {
+#ifndef WINDOWS_OS
+        const auto socket = ::socket(AF_INET, SOCK_STREAM, 0);
+        if (socket >= 0) {
+            sockaddr_in address{};
+            address.sin_family = AF_INET;
+            address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+            address.sin_port = 0;
+            if (::bind(socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0) {
+                socklen_t length = sizeof(address);
+                if (::getsockname(socket, reinterpret_cast<sockaddr*>(&address), &length) == 0) {
+                    const auto port = std::to_string(ntohs(address.sin_port));
+                    ::close(socket);
+                    return port;
+                }
+            }
+            ::close(socket);
+        }
 #endif
-    return GempyreUtils::join(common_params, " ")  + " " + GempyreUtils::join(speed_params, " ") +  R"( --headless --remote-debugging-port=9222 --user-data-dir=)" +
+        if (const auto value = std::getenv("GEMPYRE_CHROME_DEBUG_PORT"); value && *value)
+            return std::string(value);
+        return std::string("9222");
+    }();
+    const auto profile = []() {
+        const auto path = GempyreUtils::temp_name();
+        GempyreUtils::remove_file(path);
+        return path;
+    }();
+    return GempyreUtils::join(common_params, " ")  + " " + GempyreUtils::join(speed_params, " ") + " --headless --remote-debugging-port=" + debug_port + " --user-data-dir=" +
 #ifdef WINDOWS_OS
-            GempyreUtils::substitute(temp, "/", "\\") + " --no-sandbox --disable-gpu "
+            GempyreUtils::substitute(profile, "/", "\\") + " --no-sandbox --disable-gpu "
 #else
-            temp
+            profile
 #endif
-            + (log ? R"( --enable-logging --v=0 )" :  R"( --disable-logging --log-level=3 --log-path=/dev/null )");
+            + R"( --enable-logging=stderr --v=1)";
 
 }
 
@@ -67,10 +98,11 @@ std::optional<std::string> systemChrome() {
     }
     case GempyreUtils::OS::RaspberryOs: [[fallthrough]];
     case GempyreUtils::OS::LinuxOs: {
-        auto browser = GempyreUtils::which(R"(chromium-browser)");
-        if(browser)
-            return *browser;
-        return GempyreUtils::which(R"(google-chrome)");
+        for (const auto browser_name : {"google-chrome", "chrome", "chromium", "chromium-browser"}) {
+            if (const auto browser = GempyreUtils::which(browser_name))
+                return *browser;
+        }
+        return std::nullopt;
         //xdg-open
     }
     default: return std::nullopt;
@@ -119,6 +151,7 @@ void TestUi::SetUp() {
             FAIL() <<"Chrome not found!";
             std::exit(1);
         }
+        GempyreUtils::log(GempyreUtils::LogLevel::Info, "Chrome executable", *chrome);
         m_ui = std::make_unique<Gempyre::Ui>(
                     Apitests_resourceh,
                     "apitests.html",

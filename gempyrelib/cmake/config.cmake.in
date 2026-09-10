@@ -125,7 +125,6 @@ elseif(@USE_LIBWEBSOCKETS@)
     add_library(gempyre::gempyre_ws STATIC IMPORTED)
     set_target_properties(gempyre::gempyre_ws PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES ""
-            INTERFACE_LINK_LIBRARIES "${WS}"
             IMPORTED_LOCATION "${WS}"
             IMPORTED_LOCATION_DEBUG "${WS}" 
     )

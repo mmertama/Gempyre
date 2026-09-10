@@ -57,6 +57,7 @@ jobs:
         sudo apt-get install graphviz
         sudo apt-get install ninja-build cmake
         sudo apt-get install aspell
+        sudo apt-get install xvfb x11-utils
         ninja --version
         cmake --version
         gcc --version
@@ -152,8 +153,31 @@ jobs:
     - name: Setup DISPLAY
       if: startsWith(matrix.config.os, 'ubuntu')
       run: |
-        export DISPLAY=:99
-        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &   
+        echo "DISPLAY=:99" >> "$GITHUB_ENV"
+        echo "GEMPYRE_CHROME_DEBUG_PORT=$(python3 -c 'import socket; s=socket.socket(); s.bind((\"127.0.0.1\", 0)); print(s.getsockname()[1]); s.close()')" >> "$GITHUB_ENV"
+        sudo Xvfb :99 -ac -screen 0 1280x1024x24 > "$RUNNER_TEMP/xvfb.log" 2>&1 &
+        for attempt in {1..30}; do
+          if xdpyinfo -display :99 >/dev/null 2>&1; then
+            exit 0
+          fi
+          sleep 1
+        done
+        cat "$RUNNER_TEMP/xvfb.log"
+        exit 1
+
+    - name: Diagnose Chrome
+      if: startsWith(matrix.config.os, 'ubuntu')
+      run: |
+        echo "PATH=$PATH"
+        echo "DISPLAY=$DISPLAY"
+        echo "GEMPYRE_CHROME_DEBUG_PORT=$GEMPYRE_CHROME_DEBUG_PORT"
+        command -v google-chrome || true
+        command -v chrome || true
+        command -v chromium || true
+        command -v chromium-browser || true
+        google-chrome --version || true
+        chrome --version || true
+        chromium --version || true
     
     #- name: Run tests
     #  shell: cmake -P {0}
@@ -198,8 +222,6 @@ jobs:
           pushd lib_test_build
           cmake ../test/lib_test
           cmake --build .
-          export DISPLAY=:99
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & 
           ./lib_test --no-ui
           find 
           popd 
